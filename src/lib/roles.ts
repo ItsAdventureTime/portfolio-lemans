@@ -32,6 +32,7 @@ export const PERMISSIONS: Record<string, readonly ProjectRole[]> = {
   invoiceCreate: ['ROLE_SALES', 'ROLE_ADMIN'],
   invoiceRecordPayment: ['ROLE_SALES', 'ROLE_DCS', 'ROLE_ADMIN'],
   viewAccounting: ['ROLE_ADMIN'],
+  viewJobCosting: ['ROLE_GM', 'ROLE_ADMIN'],
 };
 
 export function hasPermission(

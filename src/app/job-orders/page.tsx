@@ -12,11 +12,11 @@ export default async function JobOrdersListPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
         <div>
-          <h2 className="text-xl font-bold text-slate-900 flex items-center space-x-2">
+          <h2 className="text-2xl font-bold text-slate-900 flex items-center space-x-2">
             <Wrench className="h-5 w-5 text-slate-700" />
             <span>Active Job Orders</span>
           </h2>
-          <p className="text-xs text-slate-500 mt-1">Single Source of Truth Operational Registry</p>
+          <p className="text-sm text-slate-500 mt-1">Single Source of Truth Operational Registry</p>
         </div>
       </div>
 
@@ -33,11 +33,11 @@ export default async function JobOrdersListPage() {
                   {jo.status}
                 </span>
                 {jo.cubeTopperNo && (
-                  <span className="text-xs text-slate-400">Cube Topper #{jo.cubeTopperNo}</span>
+                  <span className="text-sm text-slate-400">Cube Topper #{jo.cubeTopperNo}</span>
                 )}
               </div>
-              <p className="text-xs font-semibold text-slate-800">Customer: {jo.customer.name}</p>
-              <div className="flex items-center space-x-4 text-xs text-slate-500">
+              <p className="text-base font-semibold text-slate-800">Customer: {jo.customer.name}</p>
+              <div className="flex items-center space-x-4 text-sm text-slate-500">
                 <span className="flex items-center space-x-1">
                   <Car className="h-3.5 w-3.5 text-slate-400" />
                   <span>
@@ -52,15 +52,15 @@ export default async function JobOrdersListPage() {
             </div>
 
             <div className="flex flex-col md:items-end space-y-2">
-              <span className="text-sm font-bold font-mono text-slate-900">
+              <span className="text-base font-bold font-mono text-slate-900">
                 ₱{jo.billedAmount.toFixed(2)}
               </span>
               <Link
                 href={`/job-orders/${jo.joNo}`}
-                className="px-3.5 py-1.5 bg-slate-900 text-white rounded-xl text-xs font-semibold hover:bg-slate-800 transition-colors flex items-center space-x-1"
+                className="whitespace-nowrap inline-flex items-center justify-center h-9 px-4 bg-[#d32f2f] text-white rounded-xl text-sm font-semibold hover:bg-[#b71c1c] transition-colors shadow-sm"
               >
                 <span>View JO</span>
-                <ArrowRight className="h-3.5 w-3.5" />
+                <ArrowRight className="h-4 w-4 ml-1.5" />
               </Link>
             </div>
           </div>

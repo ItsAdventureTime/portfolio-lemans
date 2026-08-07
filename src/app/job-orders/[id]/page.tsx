@@ -91,16 +91,16 @@ export default async function JobOrderDetailPage({ params }: { params: { id: str
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <div className="flex items-center space-x-3">
-              <h2 className="text-xl font-bold text-slate-900">{jo.joNo}</h2>
+              <h2 className="text-2xl font-bold text-slate-900">{jo.joNo}</h2>
               <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
                 {jo.status}
               </span>
             </div>
-            <p className="text-xs text-slate-500">
+            <p className="text-sm text-slate-500">
               {jo.customer.name} • {jo.vehicle.makeModel} ({jo.vehicle.plateNo})
             </p>
           </div>
-          <div className="text-sm font-bold font-mono text-slate-900">
+          <div className="text-base font-bold font-mono text-slate-900">
             ₱{jo.billedAmount.toFixed(2)}
           </div>
         </div>
@@ -109,17 +109,17 @@ export default async function JobOrderDetailPage({ params }: { params: { id: str
           <div className="border-t border-slate-200 pt-4 space-y-4">
             <form action={assignFormAction} className="flex items-end gap-2">
               <div className="flex-1">
-                <label className="text-xs font-semibold text-slate-700">Technician</label>
+                <label className="text-sm font-semibold text-slate-700">Technician</label>
                 <input
                   name="technician"
                   defaultValue={jo.technician ?? ''}
                   placeholder="Assign technician"
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-base"
                 />
               </div>
               <button
                 type="submit"
-                className="px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-semibold"
+                className="px-4 py-2 bg-slate-900 text-white rounded-xl text-sm font-semibold whitespace-nowrap h-9"
               >
                 Assign
               </button>
@@ -127,11 +127,11 @@ export default async function JobOrderDetailPage({ params }: { params: { id: str
 
             <form action={statusFormAction} className="flex items-end gap-2">
               <div className="flex-1">
-                <label className="text-xs font-semibold text-slate-700">Status</label>
+                <label className="text-sm font-semibold text-slate-700">Status</label>
                 <select
                   name="nextStatus"
                   defaultValue={jo.status}
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm"
+                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-base"
                 >
                   {STATUS_OPTIONS.map((s) => (
                     <option key={s} value={s}>
@@ -142,7 +142,7 @@ export default async function JobOrderDetailPage({ params }: { params: { id: str
               </div>
               <button
                 type="submit"
-                className="px-4 py-2 bg-brand-primary text-white rounded-xl text-xs font-semibold"
+                className="px-4 py-2 bg-[#d32f2f] text-white rounded-xl text-sm font-semibold hover:bg-[#b71c1c] whitespace-nowrap h-9"
               >
                 Update
               </button>
@@ -153,7 +153,7 @@ export default async function JobOrderDetailPage({ params }: { params: { id: str
 
       {canUpload && (
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-          <h3 className="text-sm font-bold text-slate-900 mb-4 flex items-center space-x-2">
+          <h3 className="text-base font-bold text-slate-900 mb-4 flex items-center space-x-2">
             <Camera className="h-4 w-4" />
             <span>Attach Inspection Photo</span>
           </h3>
@@ -162,37 +162,37 @@ export default async function JobOrderDetailPage({ params }: { params: { id: str
               name="fileName"
               placeholder="File name"
               required
-              className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+              className="px-3 py-2 rounded-xl border border-slate-300 text-base"
             />
             <input
               name="storageKey"
               placeholder="B2 storage key"
               required
-              className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+              className="px-3 py-2 rounded-xl border border-slate-300 text-base"
             />
             <input
               name="contentType"
               placeholder="image/jpeg"
               defaultValue="image/jpeg"
               required
-              className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+              className="px-3 py-2 rounded-xl border border-slate-300 text-base"
             />
             <input
               name="size"
               type="number"
               placeholder="Size bytes"
               required
-              className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+              className="px-3 py-2 rounded-xl border border-slate-300 text-base"
             />
             <button
               type="submit"
-              className="sm:col-span-4 px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-semibold flex items-center justify-center space-x-1"
+              className="sm:col-span-4 px-4 py-2 bg-slate-900 text-white rounded-xl text-sm font-semibold hover:bg-slate-800 flex items-center justify-center space-x-1 whitespace-nowrap h-9"
             >
               <Plus className="h-4 w-4" />
               <span>Record Attachment</span>
             </button>
           </form>
-          <p className="text-[11px] text-slate-400 mt-2">
+          <p className="text-xs text-slate-400 mt-2">
             Actual B2 upload uses a client-side presigned URL. This form records the attachment
             metadata after upload.
           </p>
@@ -201,16 +201,16 @@ export default async function JobOrderDetailPage({ params }: { params: { id: str
 
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-          <h3 className="text-sm font-bold text-slate-900">Event Timeline</h3>
+          <h3 className="text-base font-bold text-slate-900">Event Timeline</h3>
         </div>
         <div className="p-5 space-y-3">
           {jo.events.map((event) => (
             <div key={event.id} className="flex items-start space-x-3">
-              <div className="w-2 h-2 mt-1.5 rounded-full bg-brand-primary" />
+              <div className="w-2 h-2 mt-1.5 rounded-full bg-[#d32f2f]" />
               <div>
-                <p className="text-xs font-semibold text-slate-800">{event.eventType}</p>
-                <p className="text-xs text-slate-500">{event.description}</p>
-                <p className="text-[11px] text-slate-400">
+                <p className="text-sm font-semibold text-slate-800">{event.eventType}</p>
+                <p className="text-sm text-slate-500">{event.description}</p>
+                <p className="text-xs text-slate-400">
                   {new Date(event.createdAt).toLocaleString()}
                 </p>
               </div>
@@ -221,7 +221,7 @@ export default async function JobOrderDetailPage({ params }: { params: { id: str
 
       {canManage && (
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-          <h3 className="text-sm font-bold text-slate-900 mb-4 flex items-center space-x-2">
+          <h3 className="text-base font-bold text-slate-900 mb-4 flex items-center space-x-2">
             <CalendarDays className="h-4 w-4" />
             <span>Log Event</span>
           </h3>
@@ -230,17 +230,17 @@ export default async function JobOrderDetailPage({ params }: { params: { id: str
               name="eventType"
               placeholder="Event type (e.g. INSPECTION)"
               required
-              className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+              className="px-3 py-2 rounded-xl border border-slate-300 text-base"
             />
             <input
               name="description"
               placeholder="Description"
               required
-              className="sm:col-span-2 px-3 py-2 rounded-xl border border-slate-300 text-sm"
+              className="sm:col-span-2 px-3 py-2 rounded-xl border border-slate-300 text-base"
             />
             <button
               type="submit"
-              className="px-4 py-2 bg-brand-primary text-white rounded-xl text-xs font-semibold hover:bg-brand-hover"
+              className="px-4 py-2 bg-[#d32f2f] text-white rounded-xl text-sm font-semibold hover:bg-[#b71c1c] whitespace-nowrap h-9"
             >
               Add Event
             </button>

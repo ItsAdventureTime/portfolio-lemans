@@ -18,6 +18,6 @@ Module._load = function (request: string, parent: unknown, isMain: boolean) {
 if (os.platform() === 'linux') {
   process.env.PRISMA_QUERY_ENGINE_LIBRARY = path.join(
     process.cwd(),
-    'node_modules/.prisma/client/libquery_engine-linux-arm64-openssl-3.0.x.so.node'
+    'node_modules/.prisma/client/libquery_engine-linux-musl-arm64-openssl-3.0.x.so.node'
   );
 }

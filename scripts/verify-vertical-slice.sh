@@ -30,13 +30,25 @@ podman run --rm \
 
 # 2. Tests inside a single disposable container
 echo "[2/4] Running unit/integration tests inside disposable container..."
+NETWORK_NAME="lemans-demo-net"
+DB_NAME="lemans-demo-db"
+DB_URL="postgresql://postgres:postgres_demo_pass@${DB_NAME}:5432/lemans_demo_db?schema=public"
+
+# Ensure demo network exists for tests
+if ! podman network exists "$NETWORK_NAME"; then
+  podman network create "$NETWORK_NAME"
+fi
+
 podman run --rm \
   -v "${PROJECT_ROOT}:/app:rw" \
   -w /app \
+  --network "$NETWORK_NAME" \
   --env-file "${PROJECT_ROOT}/.env.demo" \
   -e NODE_ENV=test \
+  -e DATABASE_URL="$DB_URL" \
   node:20-alpine3.20 sh -c "
-    apk add --no-cache openssl curl bash
+    apk add --no-cache openssl curl bash gcompat
+    npx prisma generate
     npm test
   "
 

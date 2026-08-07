@@ -29,12 +29,12 @@ export default async function JobCostingPage({ params }: { params: { id: string 
       <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h2 className="text-xl font-bold text-slate-900">Job Cost Sheet: {jo.joNo}</h2>
-            <p className="text-xs text-slate-500">
+            <h2 className="text-2xl font-bold text-slate-900">Job Cost Sheet: {jo.joNo}</h2>
+            <p className="text-sm text-slate-500">
               {jo.customer.name} • {jo.vehicle.makeModel} ({jo.vehicle.plateNo})
             </p>
           </div>
-          <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+          <span className="px-2.5 py-0.5 rounded-full text-sm font-semibold bg-blue-50 text-blue-700 border border-blue-200">
             {jo.status}
           </span>
         </div>
@@ -42,8 +42,8 @@ export default async function JobCostingPage({ params }: { params: { id: string 
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-1">
-          <span className="text-xs font-semibold text-slate-500">Billed Amount</span>
-          <div className="text-2xl font-bold text-slate-900">
+          <span className="text-sm font-bold text-slate-600">Billed Amount</span>
+          <div className="text-3xl lg:text-4xl font-extrabold text-slate-900">
             ₱
             {costing.netProfit > 0
               ? jo.billedAmount.toFixed(2)
@@ -51,14 +51,14 @@ export default async function JobCostingPage({ params }: { params: { id: string 
           </div>
         </div>
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-1">
-          <span className="text-xs font-semibold text-slate-500">Total Actual Cost</span>
-          <div className="text-2xl font-bold text-slate-900">
+          <span className="text-sm font-bold text-slate-600">Total Actual Cost</span>
+          <div className="text-3xl lg:text-4xl font-extrabold text-slate-900">
             ₱{costing.totalActualCost.toFixed(2)}
           </div>
         </div>
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-1">
-          <span className="text-xs font-semibold text-slate-500">Net Profit / Margin</span>
-          <div className="text-2xl font-bold text-emerald-600">
+          <span className="text-sm font-bold text-slate-600">Net Profit / Margin</span>
+          <div className="text-3xl lg:text-4xl font-extrabold text-emerald-600">
             ₱{costing.netProfit.toFixed(2)} ({costing.profitMarginPercent.toFixed(1)}%)
           </div>
         </div>
@@ -66,15 +66,15 @@ export default async function JobCostingPage({ params }: { params: { id: string 
 
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
-          <h3 className="text-sm font-bold text-slate-900">Cost Allocations</h3>
+          <h3 className="text-base font-bold text-slate-900">Cost Allocations</h3>
         </div>
         <div className="p-5">
           {jo.invoiceAllocations.length === 0 ? (
-            <p className="text-xs text-slate-500">No supplier invoice allocations yet.</p>
+            <p className="text-base text-slate-500">No supplier invoice allocations yet.</p>
           ) : (
             <ul className="space-y-2">
               {jo.invoiceAllocations.map((alloc) => (
-                <li key={alloc.id} className="flex justify-between text-xs">
+                <li key={alloc.id} className="flex justify-between text-base">
                   <span className="text-slate-700">
                     {alloc.description || 'Supplier invoice allocation'}
                   </span>

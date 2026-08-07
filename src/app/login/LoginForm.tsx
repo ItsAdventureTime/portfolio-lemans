@@ -33,12 +33,12 @@ export default function LoginForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       {error && (
-        <div className="bg-rose-50 border border-rose-200 text-rose-700 text-xs p-3 rounded-xl">
+        <div className="bg-rose-50 border border-rose-200 text-rose-700 text-sm p-3 rounded-xl">
           {error}
         </div>
       )}
       <div className="space-y-1">
-        <label htmlFor="email" className="text-xs font-semibold text-slate-700">
+        <label htmlFor="email" className="text-sm font-semibold text-slate-700">
           Email
         </label>
         <input
@@ -47,12 +47,12 @@ export default function LoginForm() {
           required
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary"
+          className="w-full px-3 py-2 rounded-xl border border-slate-300 text-base focus:outline-none focus:ring-2 focus:ring-[#d32f2f]/20 focus:border-[#d32f2f]"
           placeholder="you@lemans.ph"
         />
       </div>
       <div className="space-y-1">
-        <label htmlFor="password" className="text-xs font-semibold text-slate-700">
+        <label htmlFor="password" className="text-sm font-semibold text-slate-700">
           Password
         </label>
         <input
@@ -61,14 +61,14 @@ export default function LoginForm() {
           required
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary"
+          className="w-full px-3 py-2 rounded-xl border border-slate-300 text-base focus:outline-none focus:ring-2 focus:ring-[#d32f2f]/20 focus:border-[#d32f2f]"
           placeholder="••••••••"
         />
       </div>
       <button
         type="submit"
         disabled={loading}
-        className="w-full px-4 py-2.5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-hover disabled:opacity-50 transition-colors"
+        className="w-full px-4 py-2.5 rounded-xl bg-[#d32f2f] text-white text-base font-semibold hover:bg-[#b71c1c] disabled:opacity-50 transition-colors h-11"
       >
         {loading ? 'Signing in…' : 'Sign In'}
       </button>

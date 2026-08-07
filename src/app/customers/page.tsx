@@ -36,53 +36,53 @@ export default async function CustomersPage() {
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
         <div>
-          <h2 className="text-xl font-bold text-slate-900 flex items-center space-x-2">
+          <h2 className="text-2xl font-bold text-slate-900 flex items-center space-x-2">
             <Users className="h-5 w-5 text-slate-700" />
             <span>Customer & Vehicle Directory</span>
           </h2>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-sm text-slate-500 mt-1">
             Maintain customer records and linked vehicle service profiles.
           </p>
         </div>
       </div>
 
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-        <h3 className="text-sm font-bold text-slate-900 mb-4">Register Customer & Vehicle</h3>
+        <h3 className="text-base font-bold text-slate-900 mb-4">Register Customer & Vehicle</h3>
         <form action={createFormAction} className="space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <input
               name="customerNo"
               placeholder="Customer No"
               required
-              className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+              className="px-3 py-2 rounded-xl border border-slate-300 text-base"
             />
             <input
               name="name"
               placeholder="Customer / Company Name"
               required
-              className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+              className="px-3 py-2 rounded-xl border border-slate-300 text-base"
             />
             <input
               name="tin"
               placeholder="TIN"
-              className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+              className="px-3 py-2 rounded-xl border border-slate-300 text-base"
             />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <input
               name="address"
               placeholder="Address"
-              className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+              className="px-3 py-2 rounded-xl border border-slate-300 text-base"
             />
             <input
               name="phone"
               placeholder="Phone"
-              className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+              className="px-3 py-2 rounded-xl border border-slate-300 text-base"
             />
             <input
               name="email"
               placeholder="Email"
-              className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+              className="px-3 py-2 rounded-xl border border-slate-300 text-base"
             />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
@@ -90,46 +90,46 @@ export default async function CustomersPage() {
               name="plateNo"
               placeholder="Plate No"
               required
-              className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+              className="px-3 py-2 rounded-xl border border-slate-300 text-base"
             />
             <input
               name="makeModel"
               placeholder="Year / Make / Model"
               required
-              className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+              className="px-3 py-2 rounded-xl border border-slate-300 text-base"
             />
             <input
               name="vinChassis"
               placeholder="VIN / Chassis"
-              className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+              className="px-3 py-2 rounded-xl border border-slate-300 text-base"
             />
             <input
               name="engineNo"
               placeholder="Engine No"
-              className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+              className="px-3 py-2 rounded-xl border border-slate-300 text-base"
             />
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <input
               name="year"
               placeholder="Year"
-              className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+              className="px-3 py-2 rounded-xl border border-slate-300 text-base"
             />
             <input
               name="color"
               placeholder="Color"
-              className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+              className="px-3 py-2 rounded-xl border border-slate-300 text-base"
             />
             <input
               name="odometer"
               type="number"
               placeholder="Odometer"
-              className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+              className="px-3 py-2 rounded-xl border border-slate-300 text-base"
             />
           </div>
           <button
             type="submit"
-            className="px-4 py-2 bg-brand-primary text-white rounded-xl text-xs font-semibold hover:bg-brand-hover flex items-center space-x-1"
+            className="px-4 py-2 bg-[#d32f2f] text-white rounded-xl text-sm font-semibold hover:bg-[#b71c1c] flex items-center space-x-1 whitespace-nowrap h-9"
           >
             <Plus className="h-4 w-4" />
             <span>Register Customer</span>
@@ -151,7 +151,7 @@ export default async function CustomersPage() {
               <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-200 pb-4 gap-4">
                 <div>
                   <div className="flex items-center space-x-2">
-                    <span className="px-2.5 py-0.5 rounded-md text-[10px] font-bold bg-slate-900 text-white">
+                    <span className="px-2.5 py-0.5 rounded-md text-xs font-bold bg-slate-900 text-white">
                       #{customer.customerNo}
                     </span>
                     <h3 className="text-lg font-bold text-slate-900">{customer.name}</h3>
@@ -161,7 +161,7 @@ export default async function CustomersPage() {
               </div>
 
               <div>
-                <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider mb-3">
+                <h4 className="text-sm font-bold text-slate-700 uppercase tracking-wider mb-3">
                   Registered Vehicles ({customer.vehicles.length})
                 </h4>
                 {customer.vehicles.map((vehicle) => (
@@ -175,14 +175,14 @@ export default async function CustomersPage() {
                       </div>
                       <div>
                         <div className="flex items-center space-x-2">
-                          <span className="text-sm font-bold text-slate-900">
+                          <span className="text-base font-bold text-slate-900">
                             {vehicle.makeModel}
                           </span>
-                          <span className="px-2 py-0.5 text-[10px] font-bold bg-slate-900 text-white rounded">
+                          <span className="px-2 py-0.5 text-xs font-bold bg-slate-900 text-white rounded">
                             {vehicle.plateNo}
                           </span>
                         </div>
-                        <p className="text-xs text-slate-500 mt-0.5">
+                        <p className="text-sm text-slate-500 mt-0.5">
                           VIN: {vehicle.vinChassis} • Engine: {vehicle.engineNo}
                         </p>
                       </div>

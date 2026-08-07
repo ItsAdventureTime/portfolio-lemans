@@ -10,9 +10,9 @@ export default async function Header() {
 
   return (
     <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div className="w-full max-w-[1920px] mx-auto px-6 lg:px-8 h-16 flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <div className="bg-brand-primary text-white p-2 rounded-xl flex items-center justify-center font-bold text-xs tracking-wider shadow-sm">
+          <div className="bg-[#d32f2f] text-white p-2 rounded-xl flex items-center justify-center font-bold text-xs tracking-wider shadow-sm">
             LSP
           </div>
           <div>
