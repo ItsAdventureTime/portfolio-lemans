@@ -1,5 +1,7 @@
 import { db } from '@/lib/db';
-import { ShoppingCart, CheckCircle, Plus, FilePlus } from 'lucide-react';
+import { headers } from 'next/headers';
+import { auth } from '@/lib/auth';
+import { ShoppingCart, CheckCircle, Plus, FilePlus, ArrowRight } from 'lucide-react';
 import {
   approvePurchaseRequest,
   createPurchaseRequest,
@@ -7,42 +9,50 @@ import {
   allocateSupplierInvoice,
   approveSupplierInvoice,
 } from '@/lib/actions/purchasing';
+import { hasPermission } from '@/lib/roles';
+import MultiJoAllocationModal from '@/components/multi-jo-allocation-modal';
+import SalesQuoteBuilder from '@/components/sales-quote-builder';
 
 export default async function PurchasingPage() {
-  const purchaseRequests = await db.purchaseRequest.findMany({
-    include: { items: true, jo: true },
-    orderBy: { requestedAt: 'desc' },
-  });
+  const session = await auth.api.getSession({ headers: headers() });
+  const canApprove = hasPermission(session?.user.role, 'supplierInvoiceApprove');
+  const canAllocate = hasPermission(session?.user.role, 'supplierInvoiceAllocate');
 
-  const supplierInvoices = await db.supplierInvoice.findMany({
-    include: { allocations: { include: { jo: true } }, po: true },
-    orderBy: { invoiceDate: 'desc' },
-  });
-
-  const jobOrders = await db.jobOrder.findMany({
-    where: { status: { not: 'CLOSED' } },
-    select: { id: true, joNo: true },
-    orderBy: { createdAt: 'desc' },
-  });
+  const [purchaseRequests, supplierInvoices, jobOrders] = await Promise.all([
+    db.purchaseRequest.findMany({
+      include: { items: true, jo: true },
+      orderBy: { requestedAt: 'desc' },
+    }),
+    db.supplierInvoice.findMany({
+      include: { allocations: { include: { jo: true } }, po: true },
+      orderBy: { invoiceDate: 'desc' },
+    }),
+    db.jobOrder.findMany({
+      where: { status: { not: 'CLOSED' } },
+      include: { customer: true, vehicle: true },
+      orderBy: { createdAt: 'desc' },
+    }),
+  ]);
 
   async function createPrFormAction(formData: FormData) {
     'use server';
-    const lines = String(formData.get('items') || '')
-      .split('\n')
-      .map((line) => {
-        const [description, qty, cost] = line.split('|').map((s) => s.trim());
-        return {
-          description,
-          quantity: Number(qty) || 1,
-          unitCost: Number(cost) || 0,
-        };
-      })
-      .filter((i) => i.description);
+    const rawItems = String(formData.get('items') || '');
+    const items = rawItems
+      ? (JSON.parse(rawItems) as Array<{
+          description: string;
+          quantity: number;
+          unitPrice: number;
+        }>)
+      : [];
 
     await createPurchaseRequest({
       supplier: String(formData.get('supplier')),
       notes: String(formData.get('notes') || ''),
-      items: lines,
+      items: items.map((i) => ({
+        description: i.description,
+        quantity: i.quantity,
+        unitCost: i.unitPrice,
+      })),
     });
   }
 
@@ -71,7 +81,7 @@ export default async function PurchasingPage() {
 
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
         <h3 className="text-base font-bold text-slate-900 mb-4">New Purchase Request</h3>
-        <form action={createPrFormAction} className="space-y-3">
+        <form action={createPrFormAction} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <input
               name="supplier"
@@ -85,12 +95,18 @@ export default async function PurchasingPage() {
               className="px-3 py-2 rounded-xl border border-slate-300 text-base"
             />
           </div>
-          <textarea
+          <SalesQuoteBuilder
             name="items"
-            placeholder={`Line format: description | qty | unitCost\nExample: Brake pads set | 1 | 2500`}
-            required
-            rows={3}
-            className="w-full px-3 py-2 rounded-xl border border-slate-300 text-base"
+            initialItems={[
+              {
+                id: 'pr-1',
+                itemType: 'PARTS',
+                description: '',
+                quantity: 1,
+                unitPrice: 0,
+                discount: 0,
+              },
+            ]}
           />
           <button
             type="submit"
@@ -139,7 +155,7 @@ export default async function PurchasingPage() {
           <h3 className="text-base font-bold text-slate-900">Purchase Requests</h3>
         </div>
         <div className="p-5 space-y-4">
-          {purchaseRequests.map((pr) => {
+          {purchaseRequests.map((pr: (typeof purchaseRequests)[number]) => {
             async function approveFormAction() {
               'use server';
               await approvePurchaseRequest(pr.id);
@@ -180,29 +196,16 @@ export default async function PurchasingPage() {
           <h3 className="text-base font-bold text-slate-900">Supplier Invoices</h3>
         </div>
         <div className="p-5 space-y-4">
-          {supplierInvoices.map((si) => {
-            async function allocateFormAction(formData: FormData) {
-              'use server';
-              const allocationIds = formData.getAll('allocationJoId') as string[];
-              const allocationAmounts = formData.getAll('allocationAmount') as string[];
-              const allocationDescs = formData.getAll('allocationDescription') as string[];
-              const allocations = allocationIds
-                .map((joId, idx) => ({
-                  joId,
-                  amount: Number(allocationAmounts[idx]) || 0,
-                  description: allocationDescs[idx] || '',
-                }))
-                .filter((a) => a.joId && a.amount > 0);
-
-              await allocateSupplierInvoice(si.id, allocations);
-            }
-
+          {supplierInvoices.map((si: (typeof supplierInvoices)[number]) => {
             async function approveSiFormAction() {
               'use server';
               await approveSupplierInvoice(si.id);
             }
 
-            const allocatedTotal = si.allocations.reduce((sum, a) => sum + a.amount, 0);
+            const allocatedTotal = si.allocations.reduce(
+              (sum: number, a: (typeof si.allocations)[number]) => sum + a.amount,
+              0
+            );
             const remaining = si.totalAmount - allocatedTotal;
 
             return (
@@ -224,7 +227,7 @@ export default async function PurchasingPage() {
 
                 {si.allocations.length > 0 && (
                   <div className="bg-slate-50 rounded-lg p-3 space-y-1">
-                    {si.allocations.map((a) => (
+                    {si.allocations.map((a: (typeof si.allocations)[number]) => (
                       <div key={a.id} className="flex justify-between text-base">
                         <span className="text-slate-700">
                           {a.jo.joNo} {a.description && `• ${a.description}`}
@@ -239,44 +242,33 @@ export default async function PurchasingPage() {
                   </div>
                 )}
 
-                {si.status !== 'PAID' && si.status !== 'CANCELLED' && remaining > 0.01 && (
-                  <form action={allocateFormAction} className="space-y-3">
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <select
-                        name="allocationJoId"
-                        required
-                        className="px-3 py-2 rounded-xl border border-slate-300 text-base"
-                      >
-                        <option value="">Select Job Order</option>
-                        {jobOrders.map((jo) => (
-                          <option key={jo.id} value={jo.id}>
-                            {jo.joNo}
-                          </option>
-                        ))}
-                      </select>
-                      <input
-                        name="allocationAmount"
-                        type="number"
-                        step="0.01"
-                        max={remaining}
-                        placeholder={`Amount (max ₱${remaining.toFixed(2)})`}
-                        required
-                        className="px-3 py-2 rounded-xl border border-slate-300 text-base"
-                      />
-                      <input
-                        name="allocationDescription"
-                        placeholder="Description"
-                        className="px-3 py-2 rounded-xl border border-slate-300 text-base"
-                      />
-                    </div>
-                    <button
-                      type="submit"
-                      className="whitespace-nowrap inline-flex items-center justify-center h-9 px-4 bg-[#d32f2f] text-white rounded-xl text-sm font-semibold hover:bg-[#b71c1c]"
-                    >
-                      Allocate to JO
-                    </button>
-                  </form>
-                )}
+                {canAllocate &&
+                  si.status !== 'PAID' &&
+                  si.status !== 'CANCELLED' &&
+                  remaining > 0.01 && (
+                    <MultiJoAllocationModal
+                      open={true}
+                      onClose={() => {}}
+                      invoiceAmount={si.totalAmount}
+                      jobOrders={jobOrders.map((jo: (typeof jobOrders)[number]) => ({
+                        id: jo.id,
+                        joNo: jo.joNo,
+                        customerName: jo.customer.name,
+                        makeModel: jo.vehicle.makeModel,
+                      }))}
+                      initialAllocations={si.allocations.map(
+                        (a: (typeof si.allocations)[number]) => ({
+                          joId: a.joId,
+                          amount: a.amount,
+                          description: a.description || '',
+                        })
+                      )}
+                      onSave={async (allocations) => {
+                        'use server';
+                        await allocateSupplierInvoice(si.id, allocations);
+                      }}
+                    />
+                  )}
 
                 {si.status === 'ALLOCATED' && (
                   <form action={approveSiFormAction}>

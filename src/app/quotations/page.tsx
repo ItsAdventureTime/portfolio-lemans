@@ -1,7 +1,8 @@
 import { db } from '@/lib/db';
-import Link from 'next/link';
 import { FileText, ArrowRight, Plus } from 'lucide-react';
 import { convertQuoteToJobOrder, createSalesQuotation } from '@/lib/actions/job-orders';
+import SalesQuoteBuilder from '@/components/sales-quote-builder';
+import CascadingCustomerVehicleSelector from '@/components/cascading-customer-vehicle-selector';
 
 export default async function QuotationsPage() {
   const [customers, quotes] = await Promise.all([
@@ -17,27 +18,22 @@ export default async function QuotationsPage() {
 
   async function createFormAction(formData: FormData) {
     'use server';
-    const raw = String(formData.get('items') || '');
-    const lines = raw
-      .split('\n')
-      .filter(Boolean)
-      .map((line) => {
-        const [type, description, qty, unitPrice, discount] = line.split('|').map((s) => s.trim());
-        return {
-          itemType: (type?.toUpperCase() as 'LABOR' | 'PARTS' | 'MISC') || 'PARTS',
-          description,
-          quantity: Number(qty) || 1,
-          unitPrice: Number(unitPrice) || 0,
-          discount: Number(discount) || 0,
-        };
-      })
-      .filter((i) => i.description);
+    const rawItems = String(formData.get('items') || '');
+    const items = rawItems
+      ? (JSON.parse(rawItems) as Array<{
+          itemType: 'LABOR' | 'PARTS' | 'MISC';
+          description: string;
+          quantity: number;
+          unitPrice: number;
+          discount: number;
+        }>)
+      : [];
 
     await createSalesQuotation({
       customerId: String(formData.get('customerId')),
       vehicleId: String(formData.get('vehicleId')),
       advisor: String(formData.get('advisor')),
-      items: lines,
+      items,
     });
   }
 
@@ -57,48 +53,29 @@ export default async function QuotationsPage() {
 
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
         <h3 className="text-base font-bold text-slate-900 mb-4">New Sales Quote</h3>
-        <form action={createFormAction} className="space-y-3">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <select
-              name="customerId"
-              required
-              className="px-3 py-2 rounded-xl border border-slate-300 text-base"
-            >
-              <option value="">Select Customer</option>
-              {customers.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.customerNo} - {c.name}
-                </option>
-              ))}
-            </select>
-            <select
-              name="vehicleId"
-              required
-              className="px-3 py-2 rounded-xl border border-slate-300 text-base"
-            >
-              <option value="">Select Vehicle</option>
-              {customers.flatMap((c) =>
-                c.vehicles.map((v) => (
-                  <option key={v.id} value={v.id}>
-                    {v.plateNo} - {v.makeModel}
-                  </option>
-                ))
-              )}
-            </select>
-            <input
-              name="advisor"
-              placeholder="Service Advisor"
-              required
-              className="px-3 py-2 rounded-xl border border-slate-300 text-base"
-            />
-          </div>
-          <textarea
-            name="items"
-            placeholder={`Line format: type | description | qty | unitPrice | discount\nExample: labor | Service labor | 1 | 2000 | 200`}
-            required
-            rows={4}
-            className="w-full px-3 py-2 rounded-xl border border-slate-300 text-base"
+        <form action={createFormAction} className="space-y-4">
+          <CascadingCustomerVehicleSelector
+            customers={customers.map((c: (typeof customers)[number]) => ({
+              id: c.id,
+              customerNo: c.customerNo,
+              name: c.name,
+            }))}
+            vehicles={customers.flatMap((c: (typeof customers)[number]) =>
+              c.vehicles.map((v: (typeof c.vehicles)[number]) => ({
+                id: v.id,
+                customerId: c.id,
+                plateNo: v.plateNo,
+                makeModel: v.makeModel,
+              }))
+            )}
           />
+          <input
+            name="advisor"
+            placeholder="Service Advisor"
+            required
+            className="w-full sm:w-1/3 px-3 py-2 rounded-xl border border-slate-300 text-base"
+          />
+          <SalesQuoteBuilder name="items" />
           <button
             type="submit"
             className="px-4 py-2 bg-[#d32f2f] text-white rounded-xl text-sm font-semibold hover:bg-[#b71c1c] flex items-center space-x-1 whitespace-nowrap h-9"
@@ -109,7 +86,7 @@ export default async function QuotationsPage() {
         </form>
       </div>
 
-      {quotes.map((quote) => {
+      {quotes.map((quote: (typeof quotes)[number]) => {
         async function convertFormAction() {
           'use server';
           await convertQuoteToJobOrder(quote.id);
@@ -169,7 +146,7 @@ export default async function QuotationsPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-200 text-slate-700">
-                  {quote.items.map((item) => (
+                  {quote.items.map((item: (typeof quote.items)[number]) => (
                     <tr key={item.id}>
                       <td className="px-6 py-4 font-bold text-blue-600">{item.itemType}</td>
                       <td className="px-6 py-4">{item.description}</td>

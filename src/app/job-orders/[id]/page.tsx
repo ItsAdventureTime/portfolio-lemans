@@ -10,6 +10,7 @@ import {
 import { auth } from '@/lib/auth';
 import { hasPermission } from '@/lib/roles';
 import { Camera, CalendarDays, Plus } from 'lucide-react';
+import StatusWorkflowStepper from '@/components/status-workflow-stepper';
 
 const STATUS_OPTIONS = [
   'DRAFT',
@@ -49,7 +50,10 @@ export default async function JobOrderDetailPage({ params }: { params: { id: str
   async function statusFormAction(formData: FormData) {
     'use server';
     const nextStatus = formData.get('nextStatus') as string;
-    await transitionJobOrderStatus(jobOrder.id, nextStatus as import('@prisma/client').JOStatus);
+    await transitionJobOrderStatus(
+      jobOrder.id,
+      nextStatus as Parameters<typeof transitionJobOrderStatus>[1]
+    );
   }
 
   async function eventFormAction(formData: FormData) {
@@ -103,6 +107,10 @@ export default async function JobOrderDetailPage({ params }: { params: { id: str
           <div className="text-base font-bold font-mono text-slate-900">
             ₱{jo.billedAmount.toFixed(2)}
           </div>
+        </div>
+
+        <div className="pt-2">
+          <StatusWorkflowStepper status={jo.status} />
         </div>
 
         {canManage && (
@@ -204,7 +212,7 @@ export default async function JobOrderDetailPage({ params }: { params: { id: str
           <h3 className="text-base font-bold text-slate-900">Event Timeline</h3>
         </div>
         <div className="p-5 space-y-3">
-          {jo.events.map((event) => (
+          {jo.events.map((event: (typeof jo.events)[number]) => (
             <div key={event.id} className="flex items-start space-x-3">
               <div className="w-2 h-2 mt-1.5 rounded-full bg-[#d32f2f]" />
               <div>

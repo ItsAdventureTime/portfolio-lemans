@@ -14,6 +14,7 @@
 The objective of this specification is to transform the `lemans-bridge-dashboard` application from a developer scaffold into a **fully functional, mature, highly intuitive enterprise platform** that feels complete and production-ready in every view and for every user role.
 
 ### 1.1 Core Principles
+
 1. **One Job Order (`JO` / `RA`) is the Single Source of Truth**: All estimates, parts procurement, labor logs, supplier invoice allocations, OPEX requests, customer billings, and job profitability calculations bind directly to the Job Order.
 2. **Zero Developer Shortcuts / Zero Pipe Syntax**: Developer temporary shortcuts—such as requiring users to type raw pipe-delimited text (`labor | Service labor | 1 | 2000 | 200`) into a text area—are strictly prohibited. All user input MUST occur via intuitive, interactive UI components with real-time feedback and validation.
 3. **Role-Aware Personalization**: The interface MUST dynamically adapt to the logged-in user's role. Un-permitted navigation links must be hidden from the UI, and unauthorized URL access must yield an explicit **403 Access Restricted** view (never a silent redirect).
@@ -24,6 +25,7 @@ The objective of this specification is to transform the `lemans-bridge-dashboard
 ## 2. Role-by-Role UX & Feature Specifications
 
 ### 2.1 `ROLE-SALES` (Sales & Customer Intake)
+
 - **Primary Tasks**: Customer intake, vehicle registration, drafting labor & parts estimates, generating Sales Quotations (`SQ`), sending quotes for customer approval, and converting approved quotes into Job Orders (`JO`).
 - **Required UI Components & Workflows**:
   - **Customer & Vehicle Registry (`/customers`)**: High-density searchable customer table with expandable vehicle cards, TIN validation, contact person details, and vehicle service history lookup.
@@ -34,6 +36,7 @@ The objective of this specification is to transform the `lemans-bridge-dashboard
   - **Quote-to-JO Conversion**: Visual "Convert to Job Order" CTA button on approved quotes with one-click cloning of estimated labor and parts line items into a new Job Order (`RA0003973+`).
 
 ### 2.2 `ROLE-SVC` (Service Delivery & Workshop)
+
 - **Primary Tasks**: Managing active Job Orders, technician assignment, repair progress tracking, recording work completion, and attaching inspection photos.
 - **Required UI Components & Workflows**:
   - **Workshop Kanban & List View (`/job-orders`)**: Filterable job order grid by status (`DRAFT`, `APPROVED`, `IN_PROGRESS`, `PARTS_PENDING`, `COMPLETED`, `BILLED`, `CLOSED`).
@@ -44,6 +47,7 @@ The objective of this specification is to transform the `lemans-bridge-dashboard
     - One-click "Print Repair Order (`RA`)" generating official document layout matching client template (`photo_2026-08-03_00-36-12.jpg`).
 
 ### 2.3 `ROLE-PURCH` (Purchasing & Procurement)
+
 - **Primary Tasks**: Converting JO parts estimates into Purchase Requests (`PR`), issuing Purchase Orders (`PO`) after GM approval, recording Supplier Invoices, and allocating supplier invoice lines across single or multiple JOs.
 - **Required UI Components & Workflows**:
   - **Purchase Requests & POs (`/purchasing`)**: Form to create PRs linked to specific JOs or general shop replenishment. Visual status pills (`PENDING_APPROVAL`, `APPROVED_BY_GM`, `PO_ISSUED`, `FULFILLED`).
@@ -52,6 +56,7 @@ The objective of this specification is to transform the `lemans-bridge-dashboard
     - Real-time unallocated balance calculator to prevent allocation errors.
 
 ### 2.4 `ROLE-GM` (General Manager)
+
 - **Primary Tasks**: Approving Purchase Requests (`PR`), approving Other Expenses / OPEX Requests, reviewing final Customer Billing drafts, and monitoring enterprise profitability reports.
 - **Required UI Components & Workflows**:
   - **GM Executive Overview (`/`)**: High-visibility KPI cards displaying Active JOs, Quotations Value, Enterprise Job Profitability Margin (%), and Pending Approvals count.
@@ -59,6 +64,7 @@ The objective of this specification is to transform the `lemans-bridge-dashboard
   - **Job Costing Analytics (`/job-costing/[id]`)**: Detailed breakdown comparing Estimated vs Actual Labor, Parts, and Allocated Direct OPEX with Net Job Profit ($ and %).
 
 ### 2.5 `ROLE-DCS` (Disbursement & Cashier Services)
+
 - **Primary Tasks**: Executing disbursements for GM-approved PRs and OPEX requests, uploading proof of payment receipts/cheques, and recording customer payments.
 - **Restrictions**: Strictly barred from approving requests (`AC-DCS-001`).
 - **Required UI Components & Workflows**:
@@ -68,6 +74,7 @@ The objective of this specification is to transform the `lemans-bridge-dashboard
   - **Payment Release Modal**: Fields for Payment Mode (Cheque, Cash, Bank Transfer), Bank Name (BDO, BPI, MBTC), Cheque Number, Release Date, and file drop zone for receipt upload.
 
 ### 2.6 `ROLE-ADMIN` (System Administrator)
+
 - **Primary Tasks**: Full system management, user role assignment, RBAC permission matrix audit, audit log inspection, system backup/restore, QBO export engine, and Admin-Only Accounting Module.
 - **Required UI Components & Workflows**:
   - **QBO Export Engine (`/accounting`)**: One-click export of structured CSV/Excel/JSON files for Customers, Vendors, Bills, Expenses, Invoices, and Payments.
@@ -79,6 +86,7 @@ The objective of this specification is to transform the `lemans-bridge-dashboard
 ## 3. Interactive Component Architecture (Zero Shortcut Mandate)
 
 ### 3.1 `<SalesQuoteBuilder />` (Replacing Raw Textarea)
+
 - **File Location**: `src/components/sales-quote-builder.tsx`
 - **Features**:
   - Form state containing an array of item rows: `{ id, itemType, description, quantity, unitPrice, discount, netAmount }`.
@@ -90,23 +98,27 @@ The objective of this specification is to transform the `lemans-bridge-dashboard
   - Summary Card: Displays Labor Subtotal, Parts Subtotal, Total Discounts, and Quote Grand Total.
 
 ### 3.2 `<CascadingCustomerVehicleSelector />`
+
 - **Behavior**:
   - Customer `<select>` triggers an `onChange` handler that filters the Vehicle `<select>` options.
   - When no Customer is selected, the Vehicle dropdown is disabled with option `"Select Customer First"`.
   - Includes inline `+ New Customer` and `+ New Vehicle` quick-modal triggers so users can register new accounts without navigating away.
 
 ### 3.3 `<MultiJoAllocationModal />`
+
 - **Behavior**:
   - Displays total Supplier Invoice amount.
   - Renders a list of active Job Orders with input fields for allocated amounts.
   - Displays real-time **Remaining Unallocated Balance**: Highlights in emerald green when ₱0.00, amber yellow when partially allocated, and rose red if over-allocated.
 
 ### 3.4 `<StatusWorkflowStepper />`
+
 - **Behavior**:
   - Renders a horizontal visual stepper bar on Job Order and Quotation pages showing progress across lifecycle stages (`Draft` → `Approved` → `In Progress` → `Completed` → `Billed`).
   - Active step highlighted in LeMans Racing Red (`#d32f2f`); completed steps in Emerald Green (`#059669`).
 
 ### 3.5 `<AccessDenied />` (Explicit 403 Component)
+
 - **File Location**: `src/components/access-denied.tsx`
 - **Behavior**:
   - Rendered when a user accesses a route without required permissions (e.g. `ROLE-GM` accessing `/accounting`).
@@ -120,6 +132,7 @@ The objective of this specification is to transform the `lemans-bridge-dashboard
 The executing agent MUST expand `prisma/seed.ts` to create a rich, multi-month operational dataset:
 
 ### 4.1 Accounts & User Personas (6 Authenticated Accounts)
+
 - `admin@lemans.ph` / `demo12345` (`ROLE-ADMIN`)
 - `gm@lemans.ph` / `demo12345` (`ROLE-GM`)
 - `sales@lemans.ph` / `demo12345` (`ROLE-SALES`)
@@ -128,6 +141,7 @@ The executing agent MUST expand `prisma/seed.ts` to create a rich, multi-month o
 - `dcs@lemans.ph` / `demo12345` (`ROLE-DCS`)
 
 ### 4.2 Corporate & Individual Customers (6 Accounts)
+
 1. **Accustandard Medical & Diagnostic Corp.** (TIN: `009-881-234-000`, Corporate, Angeles City)
 2. **Angeles Logistics & Freight Inc.** (TIN: `210-443-199-000`, Corporate, Highway Pampang)
 3. **Juan Dela Cruz** (Individual, Balibago, Angeles City)
@@ -136,6 +150,7 @@ The executing agent MUST expand `prisma/seed.ts` to create a rich, multi-month o
 6. **Engr. Robert Tan** (Individual, Telebastagan, Pampanga)
 
 ### 4.3 Vehicles (10 Vehicle Profiles)
+
 1. 2023 Toyota LiteAce (`CBE7864`, White, Manual) — Accustandard Medical
 2. 2022 Isuzu Traviz (`NBF4912`, White, Diesel) — Accustandard Medical
 3. 2021 Mitsubishi L300 FB (`NDR8821`, Silver, Manual) — Angeles Logistics
@@ -148,6 +163,7 @@ The executing agent MUST expand `prisma/seed.ts` to create a rich, multi-month o
 10. 2021 Toyota Hilux Conquest (`NDN3302`, Red, Automatic) — Engr. Robert Tan
 
 ### 4.4 Job Orders (`RA0003973` to `RA0003982` — 10 JOs Across All Statuses)
+
 - **RA0003973** (`BILLED`): Accustandard LiteAce — PMS 10k, Oil, Filter, Brake Pads. Billed: ₱15,931.49.
 - **RA0003974** (`IN_PROGRESS`): Angeles Logistics L300 — Transmission Overhaul, Clutch Lining. Billed: ₱28,450.00.
 - **RA0003975** (`PARTS_PENDING`): Juan Dela Cruz Ford Ranger — Aircon General Cleaning, Evaporator. Billed: ₱18,200.00.
@@ -160,12 +176,14 @@ The executing agent MUST expand `prisma/seed.ts` to create a rich, multi-month o
 - **RA0003982** (`IN_PROGRESS`): Engr. Robert Tan Hilux — EGR Cleaning & Fuel Injector Calibration. Billed: ₱19,500.00.
 
 ### 4.5 Vendors, Supplier Invoices & Multi-JO Allocations (5 POs / Invoices)
+
 - **Vendors**: Tri-Star Auto Parts Angeles, Pampanga Automotive Supply, Central Luzon Hardware.
 - **Allocated Invoices**:
   - `INV-TS-9910` (₱45,000.00 from Tri-Star) → Allocated to `RA0003974` (₱20k) and `RA0003975` (₱15k), ₱10k Shop Stock.
   - `INV-PAS-4011` (₱28,000.00 from Pampanga Automotive) → Allocated to `RA0003977` (₱18k) and `RA0003978` (₱10k).
 
 ### 4.6 OPEX Budget Requests & DCS Disbursements (8 Records)
+
 - `OPEX-GJOB-JULY/2026-007` (Acetylene Gas Refill: ₱4,500.00 — `DISBURSED`, Cheque `BDO-0089201`)
 - `OPEX-GJOB-AUG/2026-001` (Technician Pneumatic Wrench Upgrade: ₱12,800.00 — `APPROVED`)
 - `OPEX-GJOB-AUG/2026-002` (Facility Electric Utility Bill: ₱28,900.00 — `PENDING_APPROVAL`)
@@ -194,6 +212,7 @@ The executing agent MUST expand `prisma/seed.ts` to create a rich, multi-month o
 Before declaring completion, the executing agent MUST run and pass:
 
 1. **Containerized Build & Test Suite**:
+
    ```bash
    export PATH="/opt/podman/bin:$PATH"
    ./scripts/verify-local.sh
@@ -216,6 +235,7 @@ Copy and paste the following prompt when assigning implementation to the coding 
 You are assigned to implement the Master UX & Demo Data Overhaul for the Le Mans Operations System (`lemans-bridge-dashboard`) according to `docs/UX-AND-DEMO-DATA-OVERHAUL-SPEC.md`, `docs/UI-UX-OVERHAUL-SPECIFICATION.md`, and `docs/DESIGN-SYSTEM.md`.
 
 ### Core Deliverables:
+
 1. **Interactive Line Item Builder (`src/components/sales-quote-builder.tsx`)**:
    - Replace the developer pipe-string `<textarea>` on `/quotations` with an interactive `<SalesQuoteBuilder />`.
    - Provide explicit row fields: Type (Labor/Parts/Misc), Description, Quantity, Unit Price, Discount, and Row Subtotal.
