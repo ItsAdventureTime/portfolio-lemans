@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: lemans-demo-app
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=postgresql://postgres:postgres_demo_pass@db:5432/lemans_demo_db?schema=public
+    volumes:
+      - ./src:/app/src
+      - ./prisma:/app/prisma
+      - ./public:/app/public
+    depends_on:
+      - db
+    networks:
+      - lemans-demo-net
+
+  db:
+    container_name: lemans-demo-db
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres_demo_pass
+      - POSTGRES_DB=lemans_demo_db
+    # DB port 5432 is strictly NOT published to host
+    volumes:
+      - lemans-demo-db-data:/var/lib/postgresql/data
+    networks:
+      - lemans-demo-net
+
+networks:
+  lemans-demo-net:
+    name: lemans-demo-net
+    driver: bridge
+
+volumes:
+  lemans-demo-db-data:
+    name: lemans-demo-db-data

@@ -1,0 +1,19 @@
+# Local Demo Build Container - node:20-alpine (latest-alpine)
+FROM node:20-alpine AS dev
+
+WORKDIR /app
+
+RUN apk add --no-cache libc6-compat openssl
+
+COPY package.json package-lock.json* ./
+
+RUN npm install
+
+COPY . .
+
+EXPOSE 3000
+
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
+
+CMD ["npm", "run", "dev"]

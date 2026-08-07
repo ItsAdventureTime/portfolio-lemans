@@ -1,0 +1,131 @@
+// Prisma schema for Le Mans Operations & Job Cost Management System
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SQStatus {
+  DRAFT
+  APPROVED
+  CONVERTED
+  REJECTED
+}
+
+enum JOStatus {
+  DRAFT
+  APPROVED
+  IN_PROGRESS
+  PARTS_PENDING
+  COMPLETED
+  BILLED
+  CLOSED
+}
+
+enum ItemType {
+  LABOR
+  PARTS
+  MISC
+}
+
+model Customer {
+  id          String    @id @default(uuid())
+  customerNo  String    @unique
+  name        String
+  tin         String?
+  address     String?
+  phone       String?
+  email       String?
+  vehicles    Vehicle[]
+  quotations  SalesQuotation[]
+  jobOrders   JobOrder[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Vehicle {
+  id          String    @id @default(uuid())
+  customerId  String
+  customer    Customer  @relation(fields: [customerId], references: [id])
+  plateNo     String    @unique
+  vinChassis  String?
+  engineNo    String?
+  makeModel   String
+  year        String?
+  color       String?
+  odometer    Int?
+  quotations  SalesQuotation[]
+  jobOrders   JobOrder[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model SalesQuotation {
+  id          String               @id @default(uuid())
+  quoteNo     String               @unique
+  customerId  String
+  customer    Customer             @relation(fields: [customerId], references: [id])
+  vehicleId   String
+  vehicle     Vehicle              @relation(fields: [vehicleId], references: [id])
+  advisor     String
+  totalLabor  Float                @default(0)
+  totalParts  Float                @default(0)
+  netTotal    Float                @default(0)
+  status      SQStatus             @default(DRAFT)
+  items       SalesQuotationItem[]
+  jobOrders   JobOrder[]
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+}
+
+model SalesQuotationItem {
+  id          String         @id @default(uuid())
+  quoteId     String
+  quote       SalesQuotation @relation(fields: [quoteId], references: [id], onDelete: Cascade)
+  itemType    ItemType
+  description String
+  quantity    Float          @default(1)
+  unitPrice   Float          @default(0)
+  discount    Float          @default(0)
+  netAmount   Float          @default(0)
+}
+
+model JobOrder {
+  id                 String         @id @default(uuid())
+  joNo               String         @unique // e.g. RA0003973
+  sqId               String?
+  sq                 SalesQuotation? @relation(fields: [sqId], references: [id])
+  customerId         String
+  customer           Customer       @relation(fields: [customerId], references: [id])
+  vehicleId          String
+  vehicle            Vehicle        @relation(fields: [vehicleId], references: [id])
+  advisor            String
+  cubeTopperNo       String?
+  status             JOStatus       @default(IN_PROGRESS)
+  totalEstimatedLabor Float         @default(0)
+  totalEstimatedParts Float         @default(0)
+  actualLaborCost    Float          @default(0)
+  actualPartsCost    Float          @default(0)
+  billedAmount       Float          @default(0)
+  netProfit          Float          @default(0)
+  items              JobOrderItem[]
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+}
+
+model JobOrderItem {
+  id          String   @id @default(uuid())
+  joId        String
+  jo          JobOrder @relation(fields: [joId], references: [id], onDelete: Cascade)
+  itemType    ItemType
+  description String
+  quantity    Float    @default(1)
+  unitPrice   Float    @default(0)
+  discount    Float    @default(0)
+  netAmount   Float    @default(0)
+}
