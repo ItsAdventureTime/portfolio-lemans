@@ -81,6 +81,28 @@ export B2_SECRET_ACCESS_KEY=<your-b2-key-secret>
 
 Production follows the same flow but **does not seed the database** and enables a **daily B2 backup timer** instead of a reset timer.
 
+## Demo Login Credentials
+
+The demo seed creates six role-based accounts. Default password is `demo12345` unless overridden with `DEMO_SEED_PASSWORD`.
+
+| Email             | Role            | Access                                       |
+| :---------------- | :-------------- | :------------------------------------------- |
+| `admin@lemans.ph` | Admin           | Full system access                           |
+| `gm@lemans.ph`    | General Manager | Approvals, reports, accounting               |
+| `sales@lemans.ph` | Sales           | Quotations, customers, invoices              |
+| `svc@lemans.ph`   | Service Advisor | Job orders, vehicle records                  |
+| `purch@lemans.ph` | Purchasing      | Purchase requests, orders, supplier invoices |
+| `dcs@lemans.ph`   | DCS             | Disbursements, payments                      |
+
+**Password**: `demo12345`
+
+To use a custom password when starting the local demo:
+
+```bash
+export DEMO_SEED_PASSWORD=your-secret
+./scripts/run-local.sh
+```
+
 ## Manual Remote Demo Reset
 
 ```bash
