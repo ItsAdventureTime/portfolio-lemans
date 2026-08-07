@@ -4,6 +4,8 @@
 
 Phase 2 thin vertical slice implementation and empirical validation has been completed 100% inside rootless Podman containers on macOS Apple Silicon. Zero host contamination occurred, zero dependencies were run natively on macOS, and no remote environment was accessed or modified.
 
+**Historical Note**: Phase 2 originally used `podman compose` with `docker-compose.yml` files. These files have since been removed in favor of `podman run --rm` helper scripts and rootless Podman Quadlets. See current procedures in [`AGENTS.md`](../AGENTS.md) and [`docs/ENVIRONMENTS-AND-PATHS.md`](./ENVIRONMENTS-AND-PATHS.md).
+
 ---
 
 ## 2. Podman Machine & Rootless Environment Inspection
@@ -30,13 +32,13 @@ security.selinuxEnabled: true
 | Execution Step               | Command Executed Inside Container                                                                                                   | Exit Code | Empirical Result / Output Summary                                                                                                              |
 | ---------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | --------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Dependency Install**       | `podman run --rm -v $(pwd):/app:Z node:20-alpine sh -c "cd /app && npm install"`                                                    | `0`       | Installed 132 packages cleanly inside Linux container.                                                                                         |
-| **Type Checking**            | `podman exec -i lemans-demo-app npx tsc --noEmit`                                                                                   | `0`       | Clean TypeScript compilation, 0 errors found.                                                                                                  |
-| **Unit & Integration Tests** | `podman exec -i lemans-demo-app sh -c "npx ts-node --compiler-options '{\"module\":\"commonjs\"}' src/__tests__/job-order.test.ts"` | `0`       | `✓ All 2 Job Order Unit & Integration Tests Passed!` Verified costing math (Total Cost: ₱11,950.00, Net Profit: ₱3,981.49, Margin: 25.0%).     |
-| **Database Migration**       | `podman exec -i lemans-demo-app npx prisma db push`                                                                                 | `0`       | `Your database is now in sync with your Prisma schema. Done in 109ms`.                                                                         |
-| **Database Seeding**         | `podman exec -i lemans-demo-app npx ts-node --compiler-options '{\"module\":\"commonjs\"}' prisma/seed.ts`                          | `0`       | `Seeding complete! Job Order RA0003973 created.`                                                                                               |
-| **Production Image Build**   | `podman compose -f docker-compose.prodlike.yml build`                                                                               | `0`       | Standalone multi-stage build completed. `✓ Compiled successfully. Generating static pages (7/7).` Tagged `lemans-bridge-dashboard-app:latest`. |
-| **Local Demo Startup**       | `podman compose -f docker-compose.yml up -d`                                                                                        | `0`       | `lemans-demo-app` listening on `127.0.0.1:3000`. DB port 5432 unexposed.                                                                       |
-| **Local Prodlike Startup**   | `podman compose -f docker-compose.prodlike.yml up -d`                                                                               | `0`       | `lemans-prodlike-app` listening on `127.0.0.1:3001`. Non-root `nextjs` user execution.                                                         |
+| **Type Checking**            | `podman run --rm -v $(pwd):/app:Z node:20-alpine sh -c "cd /app && npx tsc --noEmit"`                                              | `0`       | Clean TypeScript compilation, 0 errors found.                                                                                                  |
+| **Unit & Integration Tests** | `podman run --rm -v $(pwd):/app:Z node:20-alpine sh -c "cd /app && npx ts-node --compiler-options '{\"module\":\"commonjs\"}' src/__tests__/job-order.test.ts"` | `0`       | `✓ All 2 Job Order Unit & Integration Tests Passed!` Verified costing math (Total Cost: ₱11,950.00, Net Profit: ₱3,981.49, Margin: 25.0%).     |
+| **Database Migration**       | `podman run --rm --net lemans-demo-net -v $(pwd):/app:Z node:20-alpine sh -c "cd /app && npx prisma db push"`                      | `0`       | `Your database is now in sync with your Prisma schema. Done in 109ms`.                                                                         |
+| **Database Seeding**         | `podman run --rm --net lemans-demo-net -v $(pwd):/app:Z node:20-alpine sh -c "cd /app && npx ts-node --compiler-options '{\"module\":\"commonjs\"}' prisma/seed.ts"` | `0`       | `Seeding complete! Job Order RA0003973 created.`                                                                                               |
+| **Production Image Build**   | `podman build -f Dockerfile.prod -t lemans-bridge-dashboard:lts-alpine .`                                                            | `0`       | Standalone multi-stage build completed. `✓ Compiled successfully. Generating static pages (7/7).`                                                |
+| **Local Demo Startup**       | `./scripts/run-local.sh`                                                                                                            | `0`       | `lemans-demo-app` listening on `127.0.0.1:3000`. DB port 5432 unexposed.                                                                       |
+| **Local Prodlike Startup**   | `./scripts/build.sh prod` then `podman run --rm ...`                                                                                  | `0`       | `lemans-prodlike-app` listening on `127.0.0.1:3001`. Non-root `nextjs` user execution.                                                          |
 
 ---
 
@@ -56,8 +58,8 @@ All routes verified via HTTP loopback requests against both environments:
 
 ## 5. Persistence & Restart Verification
 
-- Executed `podman compose -f docker-compose.yml restart`.
-- Containers restarted cleanly; queried `/job-orders/RA0003973` immediately after restart.
+- Restarted the local demo containers via `podman restart`.
+- Queried `/job-orders/RA0003973` immediately after restart.
 - Result: `200 OK`, data persisted in named volume `lemans-demo-db-data`.
 
 ---

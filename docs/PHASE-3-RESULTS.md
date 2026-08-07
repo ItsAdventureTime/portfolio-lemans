@@ -44,10 +44,10 @@
 
 ### Containerization
 
-- Switched from Alpine to `node:20-slim` images to resolve OpenSSL/Prisma engine mismatch.
-- Updated `Dockerfile.dev` and `Dockerfile.prod` to install OpenSSL and use build-time secret placeholders.
+- All container images now use `node:20-alpine` and `postgres:16-alpine` for the smallest secure footprint; `openssl` is installed to satisfy Prisma's musl OpenSSL 3.0.x engine target.
+- Updated `Dockerfile.dev` and `Dockerfile.prod` to use Alpine, install `openssl`, and inject build-time secret placeholders.
 - Added `.env.demo` and `.env.prodlike` (git-ignored) for runtime secrets.
-- `docker-compose.yml` uses narrow source bind mount for demo; `docker-compose.prodlike.yml` is immutable.
+- `docker-compose.yml` and `docker-compose.prodlike.yml` were removed; local execution now uses `podman run --rm` helper scripts (`scripts/run-local.sh`, `scripts/build.sh`, etc.).
 - `lemans-demo-app` on `127.0.0.1:3000`, `lemans-prodlike-app` on `127.0.0.1:3001`.
 - Both DB containers run on internal networks with **no published host database ports**.
 

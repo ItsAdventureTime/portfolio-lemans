@@ -11,7 +11,7 @@ Phase 3 has been executed in Build mode according to `docs/PHASE-3-IMPLEMENTATIO
 - ✅ All approved Phase 3 requirements implemented.
 - ✅ Critical workflows covered by unit/integration tests.
 - ✅ Format, lint, type-check pass.
-- ✅ Production build succeeds and produces `lemans-bridge-dashboard:lts-slim`.
+- ✅ Production build succeeds and produces `lemans-bridge-dashboard:lts-alpine`.
 - ✅ Local demo (`lemans-demo-app`) works on `127.0.0.1:3000`.
 - ✅ Local production-like (`lemans-prodlike-app`) works on `127.0.0.1:3001`.
 - ✅ Health checks pass on both environments.
@@ -21,25 +21,27 @@ Phase 3 has been executed in Build mode according to `docs/PHASE-3-IMPLEMENTATIO
 
 ## 2. Repository State
 
-| Area            | Key Files                                                                                                                               |
-| --------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-| Source          | `src/app/**/*`, `src/components/**/*`, `src/lib/**/*`                                                                                   |
-| Auth            | `src/lib/auth.ts`, `src/lib/auth-client.ts`, `src/middleware.ts`, `src/app/api/auth/[...all]/route.ts`, `src/app/login/**/*`            |
-| Domain actions  | `src/lib/actions/{job-orders,purchasing,expenses,dcs,billing}.ts`                                                                       |
-| Schema          | `prisma/schema.prisma`, `prisma/seed.ts`                                                                                                |
-| Tests           | `src/__tests__/*.test.ts`, `src/__tests__/index.ts`                                                                                     |
-| Containers      | `Dockerfile.dev`, `Dockerfile.prod`, `docker-compose.yml`, `docker-compose.prodlike.yml`                                                |
-| Local env files | `.env.demo`, `.env.prodlike` (git-ignored)                                                                                              |
-| Verification    | `scripts/verify-vertical-slice.sh`                                                                                                      |
-| Remote assets   | `quadlet/remote-demo/*`, `quadlet/remote-prod/*`, `scripts/build-multiarch.sh`, `docs/REMOTE-OPERATIONS.md`                             |
+| Area            | Key Files                                                                                                                                       |
+| --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| Source          | `src/app/**/*`, `src/components/**/*`, `src/lib/**/*`                                                                                           |
+| Auth            | `src/lib/auth.ts`, `src/lib/auth-client.ts`, `src/middleware.ts`, `src/app/api/auth/[...all]/route.ts`, `src/app/login/**/*`                    |
+| Domain actions  | `src/lib/actions/{job-orders,purchasing,expenses,dcs,billing}.ts`                                                                               |
+| Schema          | `prisma/schema.prisma`, `prisma/seed.ts`                                                                                                        |
+| Tests           | `src/__tests__/*.test.ts`, `src/__tests__/index.ts`                                                                                             |
+| Containers      | `Dockerfile.dev`, `Dockerfile.prod` (Alpine-based, no `docker-compose.yml`)                                                                      |
+| Local env files | `.env.demo`, `.env.prodlike` (git-ignored)                                                                                                      |
+| Local scripts   | `scripts/run-local.sh`, `scripts/stop-local.sh`, `scripts/reset-local.sh`, `scripts/build.sh`, `scripts/verify-local.sh`, `scripts/verify-vertical-slice.sh` |
+| Remote assets   | `quadlet/remote-demo/*`, `quadlet/remote-prod/*`, `scripts/build-multiarch.sh`, `scripts/deploy-remote-demo.sh`, `scripts/deploy-remote-prod.sh`, `docs/REMOTE-OPERATIONS.md` |
 | Docs            | `docs/PHASE-3-IMPLEMENTATION.md`, `docs/PHASE-3-RESULTS.md`, `docs/ENVIRONMENTS-AND-PATHS.md`, `docs/REMOTE-OPERATIONS.md`, `AGENTS.md` |
 
 ## 3. Local Environment Quick Reference
 
 | Environment    | Container             | URL                     | Command                                                                  |
 | -------------- | --------------------- | ----------------------- | ------------------------------------------------------------------------ |
-| Local demo     | `lemans-demo-app`     | `http://127.0.0.1:3000` | `podman compose -f docker-compose.yml -p lemans-demo up -d`              |
-| Local prodlike | `lemans-prodlike-app` | `http://127.0.0.1:3001` | `podman compose -f docker-compose.prodlike.yml -p lemans-prodlike up -d` |
+| Local demo     | `lemans-demo-app`     | `http://127.0.0.1:3000` | `./scripts/run-local.sh`                                                 |
+| Local prodlike | `lemans-prodlike-app` | `http://127.0.0.1:3001` | `./scripts/build.sh prod` then run the resulting image                   |
+
+Use `./scripts/reset-local.sh` to reset the demo database/attachments to the seeded state.
 
 Demo credentials (seeded):
 
@@ -63,8 +65,8 @@ export PATH="/opt/podman/bin:$PATH"
 
 1. **CI/CD pipeline**: wire `scripts/build-multiarch.sh` into a GitHub Actions / GitLab CI runner.
 2. **Secret management**: replace `.env` files and Quadlet `{{ ... }}` placeholders with a production secrets manager.
-3. **Remote deployment**: copy Quadlets to the remote host, push tested digest, run `systemctl --user start ...`.
-4. **Backup automation**: schedule `pg_dump` per `docs/REMOTE-OPERATIONS.md`.
+3. **Remote deployment**: use `scripts/deploy-remote-demo.sh` / `scripts/deploy-remote-prod.sh` to install Quadlets on the VPS.
+4. **Backup automation**: the production daily backup timer is installed by `deploy-remote-prod.sh`; verify it in `docs/REMOTE-OPERATIONS.md`.
 5. **QBO/CSV export**: implement export in `/accounting`.
 6. **Full OPEX/PR form creation**: wire create forms to the existing Server Actions.
 7. **End-to-end tests**: add Playwright tests for GM → approve → DCS pay flow.
@@ -76,6 +78,7 @@ export PATH="/opt/podman/bin:$PATH"
 - Do not use `--privileged`, `--net=host`, or broad host bind mounts.
 - Expose app ports only on `127.0.0.1`.
 - Do not publish PostgreSQL ports.
+- Do not use `podman compose` or `docker compose`.
 - Do not push/deploy to remote without explicit approval.
 - Do not modify DNS or reverse-proxy configuration.
 

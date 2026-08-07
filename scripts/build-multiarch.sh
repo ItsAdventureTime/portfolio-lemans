@@ -8,7 +8,8 @@ cd "$PROJECT_ROOT"
 
 source "${PROJECT_ROOT}/scripts/lib/common.sh"
 
-echo "=== Multi-arch build for demo and production ==="
+# Pure Podman multi-arch build using manifests.
+# Requires qemu-user-static for cross-architecture builds.
 
 REGISTRY="${REGISTRY:-docker.io}"
 IMAGE_PREFIX="${IMAGE_PREFIX:-library}"
@@ -16,32 +17,27 @@ DEMO_TAG="${DEMO_TAG:-latest-alpine}"
 PROD_TAG="${PROD_TAG:-lts-alpine}"
 IMAGE_NAME="${REGISTRY}/${IMAGE_PREFIX}/lemans-bridge-dashboard"
 
-BUILDER="${BUILDER:-lemans-multiarch}"
+PLATFORMS="linux/amd64,linux/arm64"
 
-ensure_builder() {
-  if ! podman buildx inspect "${BUILDER}" > /dev/null 2>&amp;1; then
-    podman buildx create --name "${BUILDER}" --platform linux/amd64,linux/arm64 --use
-  fi
-}
+build_and_push_manifest() {
+  local tag="$1"
+  local manifest_name="${IMAGE_NAME}:${tag}"
 
-build_demo() {
-  echo "Building demo image ${IMAGE_NAME}:${DEMO_TAG}..."
-  podman buildx build \
-    --platform linux/amd64,linux/arm64 \
-    -t "${IMAGE_NAME}:${DEMO_TAG}" \
+  echo "Building multi-arch manifest ${manifest_name}..."
+
+  # Remove any existing manifest with this name to avoid conflicts
+  podman manifest rm "${manifest_name}" 2> /dev/null || true
+
+  podman build \
+    --platform "$PLATFORMS" \
+    --manifest "${manifest_name}" \
     -f Dockerfile.prod \
-    --push \
     .
-}
 
-build_prod() {
-  echo "Building production image ${IMAGE_NAME}:${PROD_TAG}..."
-  podman buildx build \
-    --platform linux/amd64,linux/arm64 \
-    -t "${IMAGE_NAME}:${PROD_TAG}" \
-    -f Dockerfile.prod \
-    --push \
-    .
+  echo "Pushing manifest ${manifest_name}..."
+  podman manifest push --all "${manifest_name}" "${manifest_name}"
+
+  echo "Manifest ${manifest_name} pushed."
 }
 
 promote_demo_to_prod() {
@@ -56,25 +52,22 @@ promote_demo_to_prod() {
     exit 1
   fi
   echo "Promoting ${digest} to ${IMAGE_NAME}:${PROD_TAG}"
-  podman buildx imagetools create -t "${IMAGE_NAME}:${PROD_TAG}" "$digest"
+  podman manifest push --all "${IMAGE_NAME}:${DEMO_TAG}" "${IMAGE_NAME}:${PROD_TAG}"
 }
 
 case "${1:-all}" in
   demo)
-    ensure_builder
-    build_demo
+    build_and_push_manifest "$DEMO_TAG"
     ;;
   prod)
-    ensure_builder
-    build_prod
+    build_and_push_manifest "$PROD_TAG"
     ;;
   promote)
     promote_demo_to_prod
     ;;
   all)
-    ensure_builder
-    build_demo
-    build_prod
+    build_and_push_manifest "$DEMO_TAG"
+    build_and_push_manifest "$PROD_TAG"
     ;;
   *)
     echo "Usage: $0 {demo|prod|promote|all}"
