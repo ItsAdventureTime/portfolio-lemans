@@ -1,3 +1,9 @@
+[Unit]
+Description=Le Mans remote production internal network
+
 [Network]
 NetworkName=lemans-remote-prod-net
 Driver=bridge
+
+[Install]
+WantedBy=default.target

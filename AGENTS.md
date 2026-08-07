@@ -16,15 +16,30 @@
    - Verified active rootless VM: `podman-machine-default` (`podman info` rootless = true).
    - The agent MUST NOT initialize, reset, remove, resize, reconfigure, or convert `podman-machine-default` to rootful mode.
 4. **Image Tagging Standard**:
-   - **Demo Builds**: Use image tag `latest-alpine` or `latest-slim` (fallback: `latest`).
-   - **Production Builds**: Use image tag `lts-alpine` or `lts-slim` (fallback: `lts`).
+   - **Demo Builds**: Use image tag `latest-alpine` (fallback: `latest-slim`, then `latest`).
+   - **Production Builds**: Use image tag `lts-alpine` (fallback: `lts-slim`, then `lts`).
+5. **Container Runtime Standard**:
+   - Prefer `node:20-alpine` and `postgres:16-alpine` for all images unless dependency compatibility explicitly requires the lightest Debian-based image.
+   - Never use `podman compose` or `docker compose` for local builds, tests, or execution.
+   - Always run local builds, linting, type-checking, and tests inside disposable `podman run --rm` containers (or a single combined container).
+   - Do not leave transient containers or images running; remove them immediately with `--rm` or targeted cleanup.
+6. **Local Execution Standard**:
+   - Use `podman run --rm` to create short-lived containers for builds/tests.
+   - For local demo runtime, use `scripts/run-local.sh` which starts a database container and app container, both removable via `scripts/stop-local.sh` and resettable via `scripts/reset-local.sh`.
+   - Local demo database and uploaded files reset to seeded state on demand; production does not auto-reset.
+7. **Remote Execution Standard**:
+   - VPS demo and production deployments use rootless Podman Quadlet files (`.container`, `.network`, `.volume`).
+   - Join the existing Caddy reverse-proxy network (`caddy.network`) with a single bridge container per environment.
+   - Internal app↔database traffic stays on a dedicated internal network (`lemans-remote-demo-net` or `lemans-remote-prod-net`).
+   - Database ports are never published to host interfaces.
 
-## Verified Phase 2 Execution Boundaries & Results
+## Verified Execution Boundaries & Results
 
 - **Local Demo Container**: `lemans-demo-app` listening on `127.0.0.1:3000` (`200 OK`).
-- **Local Prodlike Container**: `lemans-prodlike-app` listening on `127.0.0.1:3001` (`200 OK`).
-- **Database Isolation**: PostgreSQL containers `lemans-demo-db` and `lemans-prodlike-db` run on internal bridge networks with 0 published host database ports.
-- **Empirical Validation Documented**: [`docs/PHASE-2-RESULTS.md`](file:///Users/jk.deguzman/dev/lemans-bridge-dashboard/docs/PHASE-2-RESULTS.md) and [`docs/PHASE-3-HANDOFF.md`](file:///Users/jk.deguzman/dev/lemans-bridge-dashboard/docs/PHASE-3-HANDOFF.md).
+- **Remote Demo Container**: `lemans-remote-demo-app` listening on `127.0.0.1:3002` behind Caddy (`200 OK`).
+- **Remote Production Container**: `lemans-remote-prod-app` listening on `127.0.0.1:3003` behind Caddy (`200 OK`).
+- **Database Isolation**: PostgreSQL containers run on internal bridge networks with 0 published host database ports.
+- **Empirical Validation Documented**: [`docs/PHASE-2-RESULTS.md`](file:///Users/jk.deguzman/dev/lemans-bridge-dashboard/docs/PHASE-2-RESULTS.md), [`docs/PHASE-3-HANDOFF.md`](file:///Users/jk.deguzman/dev/lemans-bridge-dashboard/docs/PHASE-3-HANDOFF.md), and [`docs/REMOTE-DEMO-RESULTS.md`](file:///Users/jk.deguzman/dev/lemans-bridge-dashboard/docs/REMOTE-DEMO-RESULTS.md).
 
 ## Strict Sandbox Restrictions
 

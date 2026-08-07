@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+export PATH="/opt/podman/bin:$PATH"
+
+generate_password() {
+  openssl rand -hex 16
+}
+
+ensure_podman_machine() {
+  if ! podman machine inspect podman-machine-default --format '{{.State}}' 2> /dev/null | grep -q 'running'; then
+    echo "Starting podman machine..."
+    podman machine start
+  fi
+}
+
+wait_for_db() {
+  local container_name="$1"
+  local retries=30
+  for ((i=1; i<=retries; i++)); do
+    if podman exec "$container_name" pg_isready -U postgres > /dev/null 2>&amp;1; then
+      echo "Database ready"
+      return 0
+    fi
+    sleep 1
+  done
+  echo "Database failed to become ready"
+  return 1
+}
+
+wait_for_http() {
+  local url="$1"
+  local retries=30
+  for ((i=1; i<=retries; i++)); do
+    local status
+    status=$(curl -s -o /dev/null -w '%{http_code}' "$url" 2> /dev/null || true)
+    if [[ "$status" == "200" ]]; then
+      echo "HTTP ready: $url"
+      return 0
+    fi
+    sleep 1
+  done
+  echo "HTTP failed to become ready: $url"
+  return 1
+}
+
+# Targeted cleanup helpers - never do broad prunes
+cleanup_containers() {
+  local pattern="$1"
+  local containers
+  containers=$(podman ps -aq --filter "name=${pattern}" 2> /dev/null || true)
+  if [[ -n "$containers" ]]; then
+    podman rm -f $containers 2> /dev/null || true
+  fi
+}

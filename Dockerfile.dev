@@ -1,24 +1,18 @@
-# Local Demo Build Container - node:20-slim (latest-slim)
-FROM node:20-slim AS dev
+FROM node:20-alpine AS dev
+RUN apk add --no-cache openssl
 
 WORKDIR /app
 
-RUN apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
-
-# Build-time placeholders. Real secrets are injected at container runtime.
-ENV BETTER_AUTH_SECRET=dev-build-secret-change-at-runtime
+ENV NEXT_TELEMETRY_DISABLED=1
+ENV PORT=3000
+ENV HOSTNAME="0.0.0.0"
 
 COPY package.json package-lock.json* ./
-
 RUN npm install
 
 COPY . .
-
 RUN npx prisma generate
 
 EXPOSE 3000
-
-ENV PORT=3000
-ENV HOSTNAME="0.0.0.0"
 
 CMD ["npm", "run", "dev"]

@@ -2,11 +2,11 @@
 Description=Le Mans remote demo PostgreSQL
 
 [Container]
-Image=postgres:16-alpine
+Image=docker.io/library/postgres:16-alpine
 ContainerName=lemans-remote-demo-db
 Network=lemans-remote-demo-net
 Environment=POSTGRES_USER=postgres
-Environment=POSTGRES_PASSWORD=postgres_remote_demo_pass
+Environment=POSTGRES_PASSWORD_FILE=/run/secrets/db_password
 Environment=POSTGRES_DB=lemans_remote_demo_db
 Volume=lemans-remote-demo-db-data:/var/lib/postgresql/data
 

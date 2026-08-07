@@ -1,0 +1,16 @@
+[Unit]
+Description=Le Mans remote demo Caddy bridge container
+After=caddy.service
+
+[Container]
+Image=docker.io/library/caddy:2-alpine
+ContainerName=lemans-demo-caddy-bridge
+Network=caddy.network
+Network=lemans-remote-demo-net
+Exec=sleep infinity
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

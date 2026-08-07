@@ -1,0 +1,9 @@
+[Unit]
+Description=Le Mans production database backup to Backblaze B2
+
+[Service]
+Type=oneshot
+ExecStart=%h/bridge-ph/lemans/backup-prod.sh
+
+[Install]
+WantedBy=default.target

@@ -1,3 +1,9 @@
+[Unit]
+Description=Le Mans remote demo internal network
+
 [Network]
 NetworkName=lemans-remote-demo-net
 Driver=bridge
+
+[Install]
+WantedBy=default.target

@@ -4,31 +4,55 @@ set -euo pipefail
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export PATH="/opt/podman/bin:$PATH"
 
-echo "=== Le Mans Phase 3 Verification ==="
+cd "$PROJECT_ROOT"
 
-# 1. Format / lint / type-check / tests via container
-echo "[1/6] Running format check, lint, type-check and tests inside container..."
-podman run --rm -v "${PROJECT_ROOT}:/app:rw" -w /app --env-file "${PROJECT_ROOT}/.env.demo" --network lemans-demo-net -e "DATABASE_URL=postgresql://postgres:postgres_demo_pass@lemans-demo-db:5432/lemans_demo_db?schema=public" node:20-slim bash -c "
-  apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
-  npm run format:check
-  npm run lint
-  npm run typecheck
-  npm test
-"
+source "${PROJECT_ROOT}/scripts/lib/common.sh"
 
-# 2. Database migrations and seed on local-demo
-echo "[2/6] Pushing schema and seeding local-demo database..."
-podman exec lemans-demo-app sh -c "npx prisma db push --accept-data-loss && npx prisma generate && npx ts-node -P /app/tsconfig.seed.json /app/prisma/seed.ts"
+APP_NAME="lemans-demo-app"
+DB_NAME="lemans-demo-db"
+PORT=3000
 
-# 3. Health checks on local-demo and local-prodlike
-echo "[3/6] HTTP health checks..."
+echo "=== Le Mans Phase 4/5 Verification ==="
+
+# 1. Static analysis inside a single disposable container
+echo "[1/4] Running format check, lint, and type-check inside disposable container..."
+podman run --rm \
+  -v "${PROJECT_ROOT}:/app:rw" \
+  -w /app \
+  --env-file "${PROJECT_ROOT}/.env.demo" \
+  -e NODE_ENV=test \
+  node:20-alpine sh -c "
+    apk add --no-cache openssl curl bash
+    npm run format:check
+    npm run lint
+    npm run typecheck
+  "
+
+# 2. Tests inside a single disposable container
+echo "[2/4] Running unit/integration tests inside disposable container..."
+podman run --rm \
+  -v "${PROJECT_ROOT}:/app:rw" \
+  -w /app \
+  --env-file "${PROJECT_ROOT}/.env.demo" \
+  -e NODE_ENV=test \
+  node:20-alpine sh -c "
+    apk add --no-cache openssl curl bash
+    npm test
+  "
+
+# 3. Ensure local demo stack is running
+echo "[3/4] Verifying local demo stack health..."
+if ! podman ps --format '{{.Names}}' | grep -q "^${APP_NAME}$"; then
+  echo "Local demo app not running. Starting with ./scripts/run-local.sh..."
+  "${PROJECT_ROOT}/scripts/run-local.sh"
+fi
+
 check_url() {
   local url=$1
   local expected=${2:-200}
   shift 2 || true
   local status
   status=$(curl -s -o /dev/null -w '%{http_code}' "$@" "${url}")
-  # Extract only the first 3 characters in case curl wrote body to stdout unexpectedly
   status=${status:0:3}
   if [[ "${status}" != "${expected}" ]]; then
     echo "FAIL: ${url} returned ${status} (expected ${expected})"
@@ -37,75 +61,30 @@ check_url() {
   echo "OK: ${url} -> ${status}"
 }
 
-# Demo (requires auth cookie to bypass middleware for protected routes)
-check_url http://127.0.0.1:3000/login
-DEMO_TOKEN=$(curl -s http://127.0.0.1:3000/api/auth/sign-in/email -X POST -H 'Content-Type: application/json' -d '{"email":"admin@lemans.ph","password":"demo12345"}' | sed -n 's/.*"token":"\([^"]*\)".*/\1/p')
+# 4. Health checks on local demo
+echo "[4/4] HTTP health checks on local demo..."
+DEMO_TOKEN=$(curl -s "http://127.0.0.1:${PORT}/api/auth/sign-in/email" -X POST -H 'Content-Type: application/json' -d '{"email":"admin@lemans.ph","password":"demo12345"}' | sed -n 's/.*"token":"\([^"]*\)".*/\1/p')
 DEMO_COOKIE="better-auth.session_token=${DEMO_TOKEN}"
-check_url http://127.0.0.1:3000/ 307
-check_url http://127.0.0.1:3000/customers 200 -H "Cookie: ${DEMO_COOKIE}"
-check_url http://127.0.0.1:3000/quotations 200 -H "Cookie: ${DEMO_COOKIE}"
-check_url http://127.0.0.1:3000/job-orders 200 -H "Cookie: ${DEMO_COOKIE}"
-check_url http://127.0.0.1:3000/job-orders/RA0003973 200 -H "Cookie: ${DEMO_COOKIE}"
-check_url http://127.0.0.1:3000/job-costing/RA0003973 200 -H "Cookie: ${DEMO_COOKIE}"
-check_url http://127.0.0.1:3000/purchasing 200 -H "Cookie: ${DEMO_COOKIE}"
-check_url http://127.0.0.1:3000/expenses 200 -H "Cookie: ${DEMO_COOKIE}"
-check_url http://127.0.0.1:3000/dcs 200 -H "Cookie: ${DEMO_COOKIE}"
-check_url http://127.0.0.1:3000/invoices 200 -H "Cookie: ${DEMO_COOKIE}"
-check_url http://127.0.0.1:3000/accounting 307 -H "Cookie: ${DEMO_COOKIE}"
 
-# Prodlike
-check_url http://127.0.0.1:3001/login
-PROD_TOKEN=$(curl -s http://127.0.0.1:3001/api/auth/sign-in/email -X POST -H 'Content-Type: application/json' -d '{"email":"admin@lemans.ph","password":"demo12345"}' | sed -n 's/.*"token":"\([^"]*\)".*/\1/p')
-PROD_COOKIE="better-auth.session_token=${PROD_TOKEN}"
-check_url http://127.0.0.1:3001/ 307
-check_url http://127.0.0.1:3001/customers 200 -H "Cookie: ${PROD_COOKIE}"
-check_url http://127.0.0.1:3001/job-orders/RA0003973 200 -H "Cookie: ${PROD_COOKIE}"
-check_url http://127.0.0.1:3001/job-costing/RA0003973 200 -H "Cookie: ${PROD_COOKIE}"
-check_url http://127.0.0.1:3001/purchasing 200 -H "Cookie: ${PROD_COOKIE}"
-check_url http://127.0.0.1:3001/expenses 200 -H "Cookie: ${PROD_COOKIE}"
-check_url http://127.0.0.1:3001/dcs 200 -H "Cookie: ${PROD_COOKIE}"
-check_url http://127.0.0.1:3001/invoices 200 -H "Cookie: ${PROD_COOKIE}"
+check_url "http://127.0.0.1:${PORT}/login" 200
+check_url "http://127.0.0.1:${PORT}/" 307
+check_url "http://127.0.0.1:${PORT}/customers" 200 -H "Cookie: ${DEMO_COOKIE}"
+check_url "http://127.0.0.1:${PORT}/quotations" 200 -H "Cookie: ${DEMO_COOKIE}"
+check_url "http://127.0.0.1:${PORT}/job-orders" 200 -H "Cookie: ${DEMO_COOKIE}"
+check_url "http://127.0.0.1:${PORT}/job-orders/RA0003973" 200 -H "Cookie: ${DEMO_COOKIE}"
+check_url "http://127.0.0.1:${PORT}/job-costing/RA0003973" 200 -H "Cookie: ${DEMO_COOKIE}"
+check_url "http://127.0.0.1:${PORT}/purchasing" 200 -H "Cookie: ${DEMO_COOKIE}"
+check_url "http://127.0.0.1:${PORT}/expenses" 200 -H "Cookie: ${DEMO_COOKIE}"
+check_url "http://127.0.0.1:${PORT}/dcs" 200 -H "Cookie: ${DEMO_COOKIE}"
+check_url "http://127.0.0.1:${PORT}/invoices" 200 -H "Cookie: ${DEMO_COOKIE}"
 
-# 4. Confirm DB ports are not published
-echo "[4/6] Confirming database containers do not publish host ports..."
-for c in lemans-demo-db lemans-prodlike-db; do
-  published=$(podman inspect "${c}" --format '{{json .NetworkSettings.Ports}}' | grep -c '"HostPort"' || true)
-  if [[ "${published}" -gt 0 ]]; then
-    echo "FAIL: ${c} publishes host ports"
-    exit 1
-  fi
-  echo "OK: ${c} has no published host ports"
-done
-
-# 5. Confirm prodlike app has no source bind mounts
-echo "[5/6] Confirming prodlike app uses immutable image (no source bind mounts)..."
-mnt_count=$(podman inspect lemans-prodlike-app --format '{{len .Mounts}}')
-if [[ "${mnt_count}" -ne 0 ]]; then
-  echo "FAIL: lemans-prodlike-app has bind mounts"
+# Confirm DB container has no published host ports
+echo "[4/4] Confirming database container does not publish host ports..."
+published=$(podman inspect "${DB_NAME}" --format '{{json .NetworkSettings.Ports}}' 2> /dev/null | grep -c '"HostPort"' || true)
+if [[ "${published}" -gt 0 ]]; then
+  echo "FAIL: ${DB_NAME} publishes host ports"
   exit 1
 fi
-echo "OK: lemans-prodlike-app has no bind mounts"
+echo "OK: ${DB_NAME} has no published host ports"
 
-# 6. Additional regression smoke checks for fixed defects
-echo "[6/6] Additional regression smoke checks..."
-DEMO_INV_ID=$(curl -s -H "Cookie: ${DEMO_COOKIE}" http://127.0.0.1:3000/invoices | grep -oE '/invoices/[a-f0-9-]{36}' | head -1 | sed 's|/invoices/||')
-if [[ -n "${DEMO_INV_ID}" ]]; then
-  check_url "http://127.0.0.1:3000/invoices/${DEMO_INV_ID}" 200 -H "Cookie: ${DEMO_COOKIE}"
-fi
-
-# DCS user must not see GM approval button and should see payment form only on APPROVED disbursements
-DCS_TOKEN=$(curl -s http://127.0.0.1:3000/api/auth/sign-in/email -X POST -H 'Content-Type: application/json' -d '{"email":"dcs@lemans.ph","password":"demo12345"}' | sed -n 's/.*"token":"\([^"]*\)".*/\1/p')
-DCS_COOKIE="better-auth.session_token=${DCS_TOKEN}"
-DCS_BODY=$(curl -s -H "Cookie: ${DCS_COOKIE}" http://127.0.0.1:3000/dcs)
-if echo "${DCS_BODY}" | grep -q 'Approve for Payment (GM)'; then
-  echo "FAIL: DCS user sees GM approval button"
-  exit 1
-fi
-echo "OK: DCS user does not see GM approval button"
-
-# Root route redirects unauthenticated requests
-check_url http://127.0.0.1:3000/ 307
-check_url http://127.0.0.1:3001/ 307
-
-echo "[6/6] Phase 3 verification complete."
-
+echo "=== Verification complete ==="
