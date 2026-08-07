@@ -91,5 +91,7 @@ See [`docs/REMOTE-OPERATIONS.md`](./docs/REMOTE-OPERATIONS.md) for full details.
 - [`docs/PHASE-3-HANDOFF.md`](./docs/PHASE-3-HANDOFF.md): Architecture Readiness & Phase 3 Scope
 - [`docs/PHASE-3-IMPLEMENTATION.md`](./docs/PHASE-3-IMPLEMENTATION.md): Phase 3 Build Plan & Verification Strategy
 - [`docs/PHASE-4-HANDOFF.md`](./docs/PHASE-4-HANDOFF.md): Phase 4 Completion & Next Steps
+- [`docs/UI-UX-OVERHAUL-SPECIFICATION.md`](./docs/UI-UX-OVERHAUL-SPECIFICATION.md): UI/UX Overhaul & Readability Blueprint
+- [`docs/UX-AND-DEMO-DATA-OVERHAUL-SPEC.md`](./docs/UX-AND-DEMO-DATA-OVERHAUL-SPEC.md): UX Workflow & Realistic Demo Seeding Specification
 - [`docs/adr/0003-authentication-and-session-strategy.md`](./docs/adr/0003-authentication-and-session-strategy.md): Auth Architecture Decision
 - [`docs/adr/0004-attachment-storage-strategy.md`](./docs/adr/0004-attachment-storage-strategy.md): Backblaze B2 Attachment Decision
