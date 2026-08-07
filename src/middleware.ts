@@ -3,6 +3,7 @@ import type { NextRequest } from 'next/server';
 
 const PUBLIC_PATHS = ['/login', '/api/auth'];
 const PROTECTED_PATHS = [
+  '/',
   '/customers',
   '/quotations',
   '/job-orders',
@@ -21,7 +22,10 @@ export function middleware(request: NextRequest) {
     request.cookies.get('session_token')?.value;
 
   const isPublic = PUBLIC_PATHS.some((p) => pathname.startsWith(p));
-  const isProtected = PROTECTED_PATHS.some((p) => pathname.startsWith(p));
+  const isProtected =
+    !isPublic &&
+    (pathname === '/' ||
+      PROTECTED_PATHS.filter((p) => p !== '/').some((p) => pathname.startsWith(p)));
 
   if (!sessionCookie && isProtected) {
     const loginUrl = request.nextUrl.clone();

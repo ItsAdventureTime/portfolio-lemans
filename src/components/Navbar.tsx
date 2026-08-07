@@ -18,6 +18,10 @@ import {
 export default function Navbar() {
   const pathname = usePathname();
 
+  if (pathname === '/login') {
+    return null;
+  }
+
   const navItems = [
     { href: '/', label: 'Overview', icon: LayoutDashboard },
     { href: '/customers', label: 'Customers', icon: Users },

@@ -1,7 +1,6 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { OpexStatus } from '@prisma/client';
 import { db } from '@/lib/db';
 import { requirePermission } from '@/lib/auth';
 

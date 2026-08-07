@@ -1,13 +1,36 @@
-import { headers } from 'next/headers';
 import { db } from '@/lib/db';
 import Link from 'next/link';
 import { Users, Car, Plus } from 'lucide-react';
+import { createCustomerAndVehicle } from '@/lib/actions/job-orders';
 
 export default async function CustomersPage() {
   const customers = await db.customer.findMany({
     include: { vehicles: true },
     orderBy: { createdAt: 'desc' },
   });
+
+  async function createFormAction(formData: FormData) {
+    'use server';
+    await createCustomerAndVehicle({
+      customer: {
+        customerNo: String(formData.get('customerNo')),
+        name: String(formData.get('name')),
+        tin: String(formData.get('tin') || ''),
+        address: String(formData.get('address') || ''),
+        phone: String(formData.get('phone') || ''),
+        email: String(formData.get('email') || ''),
+      },
+      vehicle: {
+        plateNo: String(formData.get('plateNo')),
+        makeModel: String(formData.get('makeModel')),
+        vinChassis: String(formData.get('vinChassis') || ''),
+        engineNo: String(formData.get('engineNo') || ''),
+        year: String(formData.get('year') || ''),
+        color: String(formData.get('color') || ''),
+        odometer: Number(formData.get('odometer') || 0),
+      },
+    });
+  }
 
   return (
     <div className="space-y-6">
@@ -21,10 +44,97 @@ export default async function CustomersPage() {
             Maintain customer records and linked vehicle service profiles.
           </p>
         </div>
-        <button className="px-4 py-2 bg-brand-primary text-white rounded-xl text-xs font-semibold hover:bg-brand-hover transition-colors inline-flex items-center space-x-1.5 shadow-sm">
-          <Plus className="h-4 w-4" />
-          <span>Register First Customer</span>
-        </button>
+      </div>
+
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <h3 className="text-sm font-bold text-slate-900 mb-4">Register Customer & Vehicle</h3>
+        <form action={createFormAction} className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <input
+              name="customerNo"
+              placeholder="Customer No"
+              required
+              className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+            />
+            <input
+              name="name"
+              placeholder="Customer / Company Name"
+              required
+              className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+            />
+            <input
+              name="tin"
+              placeholder="TIN"
+              className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+            />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <input
+              name="address"
+              placeholder="Address"
+              className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+            />
+            <input
+              name="phone"
+              placeholder="Phone"
+              className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+            />
+            <input
+              name="email"
+              placeholder="Email"
+              className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+            />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+            <input
+              name="plateNo"
+              placeholder="Plate No"
+              required
+              className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+            />
+            <input
+              name="makeModel"
+              placeholder="Year / Make / Model"
+              required
+              className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+            />
+            <input
+              name="vinChassis"
+              placeholder="VIN / Chassis"
+              className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+            />
+            <input
+              name="engineNo"
+              placeholder="Engine No"
+              className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+            />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <input
+              name="year"
+              placeholder="Year"
+              className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+            />
+            <input
+              name="color"
+              placeholder="Color"
+              className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+            />
+            <input
+              name="odometer"
+              type="number"
+              placeholder="Odometer"
+              className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+            />
+          </div>
+          <button
+            type="submit"
+            className="px-4 py-2 bg-brand-primary text-white rounded-xl text-xs font-semibold hover:bg-brand-hover flex items-center space-x-1"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Register Customer</span>
+          </button>
+        </form>
       </div>
 
       {customers.length === 0 ? (

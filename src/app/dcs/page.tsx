@@ -1,8 +1,15 @@
+import { headers } from 'next/headers';
 import { db } from '@/lib/db';
-import { Wallet, CheckCircle } from 'lucide-react';
-import { approveDisbursement } from '@/lib/actions/dcs';
+import { Wallet, CheckCircle, Upload } from 'lucide-react';
+import { approveDisbursement, recordPayment } from '@/lib/actions/dcs';
+import { auth } from '@/lib/auth';
+import { hasPermission } from '@/lib/roles';
 
 export default async function DcsPage() {
+  const session = await auth.api.getSession({ headers: headers() });
+  const canApprove = hasPermission(session?.user.role, 'disburseApprove');
+  const canPay = hasPermission(session?.user.role, 'disburseRecordPayment');
+
   const disbursements = await db.disbursement.findMany({
     include: { opexRequest: true, supplierInvoice: true },
     orderBy: { createdAt: 'desc' },
@@ -31,6 +38,15 @@ export default async function DcsPage() {
               await approveDisbursement(d.id);
             }
 
+            async function payFormAction(formData: FormData) {
+              'use server';
+              await recordPayment(d.id, {
+                paymentMethod: String(formData.get('paymentMethod')),
+                referenceNo: String(formData.get('referenceNo') || ''),
+                paidAt: new Date(String(formData.get('paidAt'))),
+              });
+            }
+
             return (
               <div key={d.id} className="border border-slate-200 rounded-xl p-4">
                 <div className="flex items-center justify-between">
@@ -49,7 +65,8 @@ export default async function DcsPage() {
                       ? `Supplier Invoice: ${d.supplierInvoice.siNo}`
                       : 'Manual disbursement'}
                 </p>
-                {d.status === 'PENDING' && (
+
+                {d.status === 'PENDING' && canApprove && (
                   <form action={approveFormAction} className="mt-3">
                     <button
                       type="submit"
@@ -59,6 +76,48 @@ export default async function DcsPage() {
                       <span>Approve for Payment (GM)</span>
                     </button>
                   </form>
+                )}
+
+                {d.status === 'APPROVED' && canPay && (
+                  <form
+                    action={payFormAction}
+                    className="mt-3 grid grid-cols-1 sm:grid-cols-4 gap-3"
+                  >
+                    <input
+                      name="paymentMethod"
+                      placeholder="Payment method (Cheque / Bank)"
+                      required
+                      defaultValue={d.paymentMethod ?? ''}
+                      className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+                    />
+                    <input
+                      name="referenceNo"
+                      placeholder="Cheque / Ref #"
+                      defaultValue={d.referenceNo ?? ''}
+                      className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+                    />
+                    <input
+                      name="paidAt"
+                      type="date"
+                      required
+                      defaultValue={d.paidAt ? new Date(d.paidAt).toISOString().split('T')[0] : ''}
+                      className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+                    />
+                    <button
+                      type="submit"
+                      className="px-3 py-2 bg-brand-primary text-white rounded-xl text-xs font-semibold hover:bg-brand-hover flex items-center justify-center space-x-1"
+                    >
+                      <Upload className="h-3.5 w-3.5" />
+                      <span>Record Payment</span>
+                    </button>
+                  </form>
+                )}
+
+                {d.status === 'PAID' && d.referenceNo && (
+                  <p className="mt-3 text-xs text-slate-500">
+                    Paid via {d.paymentMethod} • Ref {d.referenceNo} •{' '}
+                    {d.paidAt ? new Date(d.paidAt).toLocaleDateString() : 'N/A'}
+                  </p>
                 )}
               </div>
             );

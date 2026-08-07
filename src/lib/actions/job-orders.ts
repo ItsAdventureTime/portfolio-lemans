@@ -128,3 +128,114 @@ export async function addJobOrderEvent(joId: string, eventType: string, descript
   });
   revalidatePath(`/job-orders/${joId}`);
 }
+
+export async function createCustomerAndVehicle(input: {
+  customer: {
+    customerNo: string;
+    name: string;
+    tin?: string;
+    address?: string;
+    phone?: string;
+    email?: string;
+  };
+  vehicle: {
+    plateNo: string;
+    makeModel: string;
+    vinChassis?: string;
+    engineNo?: string;
+    year?: string;
+    color?: string;
+    odometer?: number;
+  };
+}) {
+  const session = await requirePermission('customerCreate');
+
+  const existingCustomer = await db.customer.findUnique({
+    where: { customerNo: input.customer.customerNo },
+  });
+  if (existingCustomer) {
+    throw new Error(`Customer number ${input.customer.customerNo} already exists`);
+  }
+
+  const existingVehicle = await db.vehicle.findUnique({
+    where: { plateNo: input.vehicle.plateNo },
+  });
+  if (existingVehicle) {
+    throw new Error(`Plate number ${input.vehicle.plateNo} already exists`);
+  }
+
+  await db.customer.create({
+    data: {
+      customerNo: input.customer.customerNo,
+      name: input.customer.name,
+      tin: input.customer.tin,
+      address: input.customer.address,
+      phone: input.customer.phone,
+      email: input.customer.email,
+      vehicles: {
+        create: {
+          plateNo: input.vehicle.plateNo,
+          makeModel: input.vehicle.makeModel,
+          vinChassis: input.vehicle.vinChassis,
+          engineNo: input.vehicle.engineNo,
+          year: input.vehicle.year,
+          color: input.vehicle.color,
+          odometer: input.vehicle.odometer,
+        },
+      },
+    },
+  });
+
+  revalidatePath('/customers');
+}
+
+export async function createSalesQuotation(input: {
+  customerId: string;
+  vehicleId: string;
+  advisor: string;
+  items: Array<{
+    itemType: 'LABOR' | 'PARTS' | 'MISC';
+    description: string;
+    quantity: number;
+    unitPrice: number;
+    discount: number;
+  }>;
+}) {
+  const session = await requirePermission('salesQuotationCreate');
+
+  const totalLabor = input.items
+    .filter((i) => i.itemType === 'LABOR')
+    .reduce((sum, i) => sum + (i.quantity * i.unitPrice - i.discount), 0);
+  const totalParts = input.items
+    .filter((i) => i.itemType === 'PARTS')
+    .reduce((sum, i) => sum + (i.quantity * i.unitPrice - i.discount), 0);
+  const netTotal = input.items.reduce((sum, i) => sum + (i.quantity * i.unitPrice - i.discount), 0);
+
+  const count = await db.salesQuotation.count();
+  const quoteNo = `SQ-${new Date().getFullYear()}-${String(1000 + count + 1).slice(1)}`;
+
+  await db.salesQuotation.create({
+    data: {
+      quoteNo,
+      customerId: input.customerId,
+      vehicleId: input.vehicleId,
+      advisor: input.advisor,
+      totalLabor,
+      totalParts,
+      netTotal,
+      status: 'DRAFT',
+      items: {
+        create: input.items.map((i) => ({
+          itemType: i.itemType,
+          description: i.description,
+          quantity: i.quantity,
+          unitPrice: i.unitPrice,
+          discount: i.discount,
+          netAmount: i.quantity * i.unitPrice - i.discount,
+        })),
+      },
+    },
+  });
+
+  revalidatePath('/quotations');
+}

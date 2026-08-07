@@ -31,7 +31,7 @@ build_demo() {
   podman buildx build \
     --platform linux/amd64,linux/arm64 \
     -t "${IMAGE_NAME}:${DEMO_TAG}" \
-    -f Dockerfile.dev \
+    -f Dockerfile.prod \
     --push \
     .
 }
@@ -47,7 +47,13 @@ build_prod() {
 }
 
 promote_demo_to_prod() {
-  # After remote demo passes health checks, the same digest is promoted to prod.
+  # Only permit promotion when demo was built from the production Dockerfile.
+  # Verify the demo image runs the standalone Next.js server (node server.js).
+  demo_cmd=$(podman inspect "${IMAGE_NAME}:${DEMO_TAG}" --format '{{json .Config.Cmd}}' 2>/dev/null || true)
+  if [[ "$demo_cmd" != *"node server.js"* ]]; then
+    echo "Refusing to promote ${IMAGE_NAME}:${DEMO_TAG}: not built from Dockerfile.prod (Cmd: ${demo_cmd})"
+    exit 1
+  fi
   digest=$(podman inspect "${IMAGE_NAME}:${DEMO_TAG}" --format '{{index .RepoDigests 0}}' || true)
   if [[ -z "${digest}" ]]; then
     echo "Could not resolve digest for ${IMAGE_NAME}:${DEMO_TAG}"

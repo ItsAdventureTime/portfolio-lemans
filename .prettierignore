@@ -1,0 +1,5 @@
+.serena
+.next
+node_modules
+*.log
+.env*

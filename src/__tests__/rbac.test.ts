@@ -36,5 +36,22 @@ export function runRbacTests() {
     throw new Error('DCS should be allowed to record payment');
   }
 
+  // Creation permissions
+  if (!hasPermission('ROLE_SALES', 'salesQuotationCreate')) {
+    throw new Error('Sales should be allowed to create sales quotations');
+  }
+
+  if (!hasPermission('ROLE_SVC', 'customerCreate')) {
+    throw new Error('Service should be allowed to create customers');
+  }
+
+  if (!hasPermission('ROLE_PURCH', 'prCreate')) {
+    throw new Error('Purchasing should be allowed to create purchase requests');
+  }
+
+  if (!hasPermission('ROLE_SVC', 'opexCreate')) {
+    throw new Error('Service should be allowed to create OPEX requests');
+  }
+
   console.log('✓ RBAC tests passed.');
 }

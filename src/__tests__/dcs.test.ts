@@ -1,5 +1,5 @@
 import { canDisburseBePaid } from '../lib/dcs';
-import { ProjectRole } from '../lib/roles';
+import { hasPermission, ProjectRole } from '../lib/roles';
 
 export function runDcsTests() {
   console.log('Running DCS disbursement tests...');
@@ -17,6 +17,15 @@ export function runDcsTests() {
   // GM can approve a pending disbursement but not pay it
   if (canDisburseBePaid('PENDING', 'ROLE_GM')) {
     throw new Error('GM paying a pending disbursement should not be treated as DCS payment');
+  }
+
+  // DCS must never see GM-only approval permission
+  if (hasPermission('ROLE_DCS', 'disburseApprove')) {
+    throw new Error('DCS should not be allowed to approve disbursements');
+  }
+
+  if (!hasPermission('ROLE_DCS', 'disburseRecordPayment')) {
+    throw new Error('DCS should be allowed to record payment');
   }
 
   console.log('✓ DCS tests passed.');

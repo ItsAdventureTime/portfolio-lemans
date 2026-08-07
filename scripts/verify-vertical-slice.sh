@@ -8,7 +8,8 @@ echo "=== Le Mans Phase 3 Verification ==="
 
 # 1. Format / lint / type-check / tests via container
 echo "[1/6] Running format check, lint, type-check and tests inside container..."
-podman run --rm -v "${PROJECT_ROOT}:/app:rw" -w /app --env-file "${PROJECT_ROOT}/.env.demo" node:20-slim bash -c "
+podman run --rm -v "${PROJECT_ROOT}:/app:rw" -w /app --env-file "${PROJECT_ROOT}/.env.demo" --network lemans-demo-net -e "DATABASE_URL=postgresql://postgres:postgres_demo_pass@lemans-demo-db:5432/lemans_demo_db?schema=public" node:20-slim bash -c "
+  apt-get update -y && apt-get install -y openssl && rm -rf /var/lib/apt/lists/*
   npm run format:check
   npm run lint
   npm run typecheck
@@ -37,10 +38,10 @@ check_url() {
 }
 
 # Demo (requires auth cookie to bypass middleware for protected routes)
+check_url http://127.0.0.1:3000/login
 DEMO_TOKEN=$(curl -s http://127.0.0.1:3000/api/auth/sign-in/email -X POST -H 'Content-Type: application/json' -d '{"email":"admin@lemans.ph","password":"demo12345"}' | sed -n 's/.*"token":"\([^"]*\)".*/\1/p')
 DEMO_COOKIE="better-auth.session_token=${DEMO_TOKEN}"
-check_url http://127.0.0.1:3000/
-check_url http://127.0.0.1:3000/login
+check_url http://127.0.0.1:3000/ 307
 check_url http://127.0.0.1:3000/customers 200 -H "Cookie: ${DEMO_COOKIE}"
 check_url http://127.0.0.1:3000/quotations 200 -H "Cookie: ${DEMO_COOKIE}"
 check_url http://127.0.0.1:3000/job-orders 200 -H "Cookie: ${DEMO_COOKIE}"
@@ -53,10 +54,10 @@ check_url http://127.0.0.1:3000/invoices 200 -H "Cookie: ${DEMO_COOKIE}"
 check_url http://127.0.0.1:3000/accounting 307 -H "Cookie: ${DEMO_COOKIE}"
 
 # Prodlike
+check_url http://127.0.0.1:3001/login
 PROD_TOKEN=$(curl -s http://127.0.0.1:3001/api/auth/sign-in/email -X POST -H 'Content-Type: application/json' -d '{"email":"admin@lemans.ph","password":"demo12345"}' | sed -n 's/.*"token":"\([^"]*\)".*/\1/p')
 PROD_COOKIE="better-auth.session_token=${PROD_TOKEN}"
-check_url http://127.0.0.1:3001/
-check_url http://127.0.0.1:3001/login
+check_url http://127.0.0.1:3001/ 307
 check_url http://127.0.0.1:3001/customers 200 -H "Cookie: ${PROD_COOKIE}"
 check_url http://127.0.0.1:3001/job-orders/RA0003973 200 -H "Cookie: ${PROD_COOKIE}"
 check_url http://127.0.0.1:3001/job-costing/RA0003973 200 -H "Cookie: ${PROD_COOKIE}"
@@ -85,4 +86,26 @@ if [[ "${mnt_count}" -ne 0 ]]; then
 fi
 echo "OK: lemans-prodlike-app has no bind mounts"
 
+# 6. Additional regression smoke checks for fixed defects
+echo "[6/6] Additional regression smoke checks..."
+DEMO_INV_ID=$(curl -s -H "Cookie: ${DEMO_COOKIE}" http://127.0.0.1:3000/invoices | grep -oE '/invoices/[a-f0-9-]{36}' | head -1 | sed 's|/invoices/||')
+if [[ -n "${DEMO_INV_ID}" ]]; then
+  check_url "http://127.0.0.1:3000/invoices/${DEMO_INV_ID}" 200 -H "Cookie: ${DEMO_COOKIE}"
+fi
+
+# DCS user must not see GM approval button and should see payment form only on APPROVED disbursements
+DCS_TOKEN=$(curl -s http://127.0.0.1:3000/api/auth/sign-in/email -X POST -H 'Content-Type: application/json' -d '{"email":"dcs@lemans.ph","password":"demo12345"}' | sed -n 's/.*"token":"\([^"]*\)".*/\1/p')
+DCS_COOKIE="better-auth.session_token=${DCS_TOKEN}"
+DCS_BODY=$(curl -s -H "Cookie: ${DCS_COOKIE}" http://127.0.0.1:3000/dcs)
+if echo "${DCS_BODY}" | grep -q 'Approve for Payment (GM)'; then
+  echo "FAIL: DCS user sees GM approval button"
+  exit 1
+fi
+echo "OK: DCS user does not see GM approval button"
+
+# Root route redirects unauthenticated requests
+check_url http://127.0.0.1:3000/ 307
+check_url http://127.0.0.1:3001/ 307
+
 echo "[6/6] Phase 3 verification complete."
+

@@ -1,11 +1,21 @@
 import { db } from '@/lib/db';
 import { Receipt, Plus, CheckCircle } from 'lucide-react';
-import { approveOpexRequest } from '@/lib/actions/expenses';
+import { approveOpexRequest, createOpexRequest } from '@/lib/actions/expenses';
 
 export default async function ExpensesPage() {
   const opexRequests = await db.opexRequest.findMany({
     orderBy: { requestedAt: 'desc' },
   });
+
+  async function createFormAction(formData: FormData) {
+    'use server';
+    await createOpexRequest({
+      category: String(formData.get('category')),
+      description: String(formData.get('description')),
+      amount: Number(formData.get('amount')),
+      notes: String(formData.get('notes') || ''),
+    });
+  }
 
   return (
     <div className="space-y-6">
@@ -19,10 +29,44 @@ export default async function ExpensesPage() {
             Request, approve, and track operational expenses pending GM approval.
           </p>
         </div>
-        <button className="px-4 py-2 bg-brand-primary text-white text-xs font-semibold rounded-xl hover:bg-brand-hover transition-colors shadow-sm flex items-center space-x-1.5">
-          <Plus className="h-4 w-4" />
-          <span>New OPEX Request</span>
-        </button>
+      </div>
+
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+        <h3 className="text-sm font-bold text-slate-900 mb-4">New OPEX Request</h3>
+        <form action={createFormAction} className="grid grid-cols-1 sm:grid-cols-5 gap-3">
+          <input
+            name="category"
+            placeholder="Category"
+            required
+            className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+          />
+          <input
+            name="description"
+            placeholder="Description"
+            required
+            className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+          />
+          <input
+            name="amount"
+            type="number"
+            step="0.01"
+            placeholder="Amount"
+            required
+            className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+          />
+          <input
+            name="notes"
+            placeholder="Notes"
+            className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
+          />
+          <button
+            type="submit"
+            className="px-4 py-2 bg-brand-primary text-white rounded-xl text-xs font-semibold hover:bg-brand-hover flex items-center justify-center space-x-1"
+          >
+            <Plus className="h-4 w-4" />
+            <span>Submit</span>
+          </button>
+        </form>
       </div>
 
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">

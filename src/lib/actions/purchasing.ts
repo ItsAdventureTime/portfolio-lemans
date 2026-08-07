@@ -120,6 +120,36 @@ export async function approveSupplierInvoice(siId: string) {
   revalidatePath('/purchasing');
 }
 
+export async function createPurchaseRequest(input: {
+  supplier: string;
+  notes?: string;
+  items: Array<{ description: string; quantity: number; unitCost: number }>;
+}) {
+  const session = await requirePermission('prCreate');
+  const count = await db.purchaseRequest.count();
+  const prNo = `PR-${new Date().getFullYear()}-${String(1000 + count + 1).slice(1)}`;
+  const total = input.items.reduce((sum, item) => sum + item.quantity * item.unitCost, 0);
+
+  await db.purchaseRequest.create({
+    data: {
+      prNo,
+      status: 'PENDING_APPROVAL',
+      requestedById: session.user.id,
+      notes: input.notes ?? `Supplier: ${input.supplier}`,
+      items: {
+        create: input.items.map((item) => ({
+          description: item.description,
+          quantity: item.quantity,
+          unitCost: item.unitCost,
+          total: item.quantity * item.unitCost,
+        })),
+      },
+    },
+  });
+
+  revalidatePath('/purchasing');
+}
+
 export async function createPurchaseRequestFromJo(
   joId: string,
   items: Array<{ description: string; quantity: number; unitCost: number }>

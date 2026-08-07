@@ -4,7 +4,7 @@
 - **Date**: 2026-08-07
 - **Environment**: macOS (arm64) + rootless Podman `podman-machine-default`
 - **Agent**: Lead Software Architect / AI Engineering Agent
-- **Scope**: Implement approved Phase 3 plan in Build mode.
+- **Scope**: Implement approved Phase 3 plan in Build mode. Phase 4 defect fixes applied to local demo and local-prodlike environments.
 
 ## 1. What Was Built
 
@@ -37,8 +37,10 @@
 
 ### Tests
 
-- `src/__tests__/index.ts` runner.
+- `src/__tests__/index.ts` async runner.
 - `job-order.test.ts`, `rbac.test.ts`, `purchasing.test.ts`, `billing.test.ts`, `dcs.test.ts`.
+- Phase 4 regression tests: `creation-forms.test.ts`, `dashboard.test.ts`.
+- Test stub `src/__tests__/setup.ts` forces Prisma OpenSSL 3.0 engine on Linux and stubs `server-only` for unit tests.
 
 ### Containerization
 
@@ -51,7 +53,7 @@
 
 ### Verification Script
 
-- `scripts/verify-vertical-slice.sh` runs format/lint/type-check/tests, migrates/seeds demo DB, performs HTTP health checks on both environments, verifies DB port isolation, and confirms prodlike immutability.
+- `scripts/verify-vertical-slice.sh` runs format/lint/type-check/tests, migrates/seeds demo DB, performs HTTP health checks on both environments, verifies DB port isolation, confirms prodlike immutability, asserts unauthenticated `/` returns 307, and includes regression smoke checks for invoice detail and DCS UI.
 
 ### Remote Assets (Prepared, Not Installed)
 
@@ -60,37 +62,47 @@
 - `scripts/build-multiarch.sh` for `latest-slim` and `lts-slim` multi-arch images.
 - `docs/REMOTE-OPERATIONS.md` covering install, backup, restore, rollback, and health checks.
 
-## 2. Verification Results
+## 2. Verification Results (After Phase 4 Defect Fixes)
 
-All checks from `scripts/verify-vertical-slice.sh` passed:
+All checks from `scripts/verify-vertical-slice.sh` passed on `2026-08-07`:
 
-| Check                                               | Result                              |
-| --------------------------------------------------- | ----------------------------------- |
-| Prettier format check                               | ✅                                  |
-| ESLint (`next lint`)                                | ✅                                  |
-| TypeScript (`tsc --noEmit`)                         | ✅                                  |
-| Unit/integration tests                              | ✅                                  |
-| `prisma db push` + seed                             | ✅                                  |
-| `http://127.0.0.1:3000/`                            | 200 OK                              |
-| `http://127.0.0.1:3001/`                            | 200 OK                              |
-| Protected routes with auth cookie (demo + prodlike) | 200 OK                              |
-| `/accounting` with admin cookie                     | 307 redirect (expected, admin only) |
-| `/accounting` with non-admin cookie                 | 307 redirect (expected)             |
-| DB host port exposure                               | ✅ none                             |
-| Prodlike bind mounts                                | ✅ none                             |
+| Check                                            | Result                       |
+| ------------------------------------------------ | ---------------------------- |
+| Prettier format check                            | ✅                           |
+| ESLint (`next lint`)                             | ✅                           |
+| TypeScript (`tsc --noEmit`)                      | ✅                           |
+| Unit/integration tests                           | ✅ (7 suites)                |
+| `prisma db push` + seed                          | ✅                           |
+| `http://127.0.0.1:3000/` unauthenticated         | 307 redirect to `/login`     |
+| `http://127.0.0.1:3001/` unauthenticated         | 307 redirect to `/login`     |
+| Authenticated protected routes (demo + prodlike) | 200 OK                       |
+| `/invoices/[id]` detail / payment page           | 200 OK                       |
+| `/job-orders/[id]` detail page                   | 200 OK                       |
+| DCS UI does not show GM approval button          | ✅ confirmed via smoke check |
+| `/accounting` with non-admin cookie              | 307 redirect (expected)      |
+| DB host port exposure                            | ✅ none                      |
+| Prodlike bind mounts                             | ✅ none                      |
 
-## 3. Known Limitations
+## 3. Resolved Limitations
 
-- Backblaze B2 credentials are placeholders in local `.env` files. Real uploads will only work after injecting production credentials.
-- OPEX/PR creation forms are UI placeholders; the underlying Server Actions are implemented and tested, and demo seed records exist.
-- QBO/CSV export is a scaffold in `/accounting` for Phase 4.
-- The verification script uses hardcoded demo credentials for automated health checks; production must use a secrets manager.
-- Local `npm run build` must run with `NODE_ENV=production`. The `docker-compose.yml` no longer forces `NODE_ENV=development`, so builds inside the demo container use the correct runtime.
+- Root dashboard now enforces authentication in middleware and renders live aggregated data from the database.
+- Invoice detail route `/invoices/[id]` is implemented with payment history, balance, and customer payment recording.
+- Creation buttons on `/expenses`, `/purchasing`, `/customers`, and `/quotations` now open functional forms.
+- Supplier invoice recording and multi-JO allocation UI are wired to server actions.
+- DCS page distinguishes GM approval queue from payment execution queue and renders payment/proof controls for `ROLE_DCS` only.
+- Multi-arch build script builds from `Dockerfile.prod` and verifies promoted `lts-slim` image runs `node server.js` as unprivileged `nextjs`.
+- Job order detail page includes event logging and photo attachment metadata form (B2 upload uses placeholder credentials).
 
-## 4. Conclusion
+## 4. Remaining Out-of-Scope Items
 
-Phase 3 core requirements are implemented, tested, containerized, and documented. Local demo and production-like environments are running and healthy. Remote deployment assets are prepared but not installed.
+- Backblaze B2 credentials are still placeholders in local `.env` files. Real uploads require production credential injection.
+- QBO/CSV export remains a scaffold in `/accounting` for a future phase.
+- Minor/cosmetic defects DEFECT-009 through DEFECT-011 were not addressed in this pass.
 
-## 5. Next Step
+## 5. Conclusion
 
-Phase 4 handoff is ready in `docs/PHASE-4-HANDOFF.md`.
+Phase 3 core requirements plus all release-blocking Phase 4 defects (DEFECT-001 through DEFECT-008) are implemented, tested, containerized, and verified in both local demo and production-like environments. Remote deployment assets are prepared but not installed.
+
+## 6. Next Step
+
+Phase 4 handoff and defect details are recorded in `docs/PHASE-4-HANDOFF.md` and `reviews/DEFECTS.md`.

@@ -11,8 +11,10 @@ export const ROLES: Record<ProjectRole, string> = {
 };
 
 export const PERMISSIONS: Record<string, readonly ProjectRole[]> = {
+  customerCreate: ['ROLE_SALES', 'ROLE_SVC', 'ROLE_ADMIN'],
   quoteApprove: ['ROLE_SALES', 'ROLE_GM', 'ROLE_ADMIN'],
   quoteConvert: ['ROLE_SALES', 'ROLE_SVC', 'ROLE_GM', 'ROLE_ADMIN'],
+  salesQuotationCreate: ['ROLE_SALES', 'ROLE_SVC', 'ROLE_GM', 'ROLE_ADMIN'],
   joAssignTech: ['ROLE_SVC', 'ROLE_GM', 'ROLE_ADMIN'],
   joChangeStatus: ['ROLE_SVC', 'ROLE_GM', 'ROLE_ADMIN'],
   attachmentView: ['ROLE_SVC', 'ROLE_GM', 'ROLE_DCS', 'ROLE_ADMIN'],

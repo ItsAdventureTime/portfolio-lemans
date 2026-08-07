@@ -2,7 +2,15 @@
 node_modules
 .git
 .env*.local
+.env.demo
+.env.prodlike
 _intake
 references
 docs
 README.md
+.serena
+.gemini
+reviews
+tsconfig.tsbuildinfo
+coverage
+*.log

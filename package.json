@@ -10,7 +10,7 @@
     "format:check": "prettier --check .",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "test": "ts-node --compiler-options '{\"module\":\"commonjs\"}' src/__tests__/index.ts",
+    "test": "ts-node --compiler-options '{\"module\":\"commonjs\"}' -r ./src/__tests__/setup.ts -r tsconfig-paths/register src/__tests__/index.ts",
     "db:push": "prisma db push",
     "db:seed": "ts-node -P tsconfig.seed.json prisma/seed.ts",
     "db:generate": "prisma generate",
@@ -46,6 +46,7 @@
     "prisma": "^5.19.0",
     "tailwindcss": "^3.4.10",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.5.4"
   }
 }

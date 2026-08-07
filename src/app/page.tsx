@@ -1,3 +1,5 @@
+import { redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import React from 'react';
 import Link from 'next/link';
 import {
@@ -10,8 +12,64 @@ import {
   UserCheck,
   Plus,
 } from 'lucide-react';
+import { db } from '@/lib/db';
+import { auth } from '@/lib/auth';
 
-export default function DashboardOverview() {
+export default async function DashboardOverview() {
+  const session = await auth.api.getSession({ headers: headers() });
+  if (!session) {
+    redirect('/login');
+  }
+
+  const activeJoCount = await db.jobOrder.count({
+    where: { status: { in: ['IN_PROGRESS', 'PARTS_PENDING', 'APPROVED'] } },
+  });
+
+  const completedJoCount = await db.jobOrder.count({
+    where: { status: 'COMPLETED' },
+  });
+
+  const quotationsAgg = await db.salesQuotation.aggregate({
+    _sum: { netTotal: true },
+    where: { status: { in: ['DRAFT', 'APPROVED'] } },
+  });
+
+  const pendingApprovals =
+    (await db.purchaseRequest.count({ where: { status: 'PENDING_APPROVAL' } })) +
+    (await db.opexRequest.count({ where: { status: 'PENDING_APPROVAL' } }));
+
+  const recentJos = await db.jobOrder.findMany({
+    take: 10,
+    orderBy: { createdAt: 'desc' },
+    include: { customer: true, vehicle: true },
+  });
+
+  const totalBilled = await db.jobOrder.aggregate({
+    _sum: { billedAmount: true },
+  });
+
+  const totalActual = await db.jobOrder.aggregate({
+    _sum: { actualLaborCost: true, actualPartsCost: true },
+  });
+
+  const totalPartsAllocations = await db.supplierInvoiceAllocation.groupBy({
+    by: ['joId'],
+    _sum: { amount: true },
+  });
+
+  const totalAllocatedExpenses = totalPartsAllocations.reduce(
+    (sum, a) => sum + (a._sum.amount ?? 0),
+    0
+  );
+
+  const billedTotal = totalBilled._sum.billedAmount ?? 0;
+  const actualCostTotal =
+    (totalActual._sum.actualLaborCost ?? 0) +
+    (totalActual._sum.actualPartsCost ?? 0) +
+    totalAllocatedExpenses;
+  const netProfitTotal = billedTotal - actualCostTotal;
+  const profitMarginPercent = billedTotal > 0 ? (netProfitTotal / billedTotal) * 100 : 0;
+
   return (
     <div className="space-y-6">
       {/* Top Banner / Welcome */}
@@ -40,9 +98,8 @@ export default function DashboardOverview() {
         </div>
       </div>
 
-      {/* KPI Overview Cards - ColdTrace Style */}
+      {/* KPI Overview Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Card 1 */}
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500">Active Job Orders</span>
@@ -51,13 +108,11 @@ export default function DashboardOverview() {
             </span>
           </div>
           <div className="flex items-baseline space-x-2">
-            <span className="text-2xl font-bold text-slate-900">12</span>
-            <span className="text-xs font-semibold text-emerald-600">+15% vs last week</span>
+            <span className="text-2xl font-bold text-slate-900">{activeJoCount}</span>
           </div>
-          <p className="text-[11px] text-slate-400">8 In Progress • 4 Pending Parts</p>
+          <p className="text-[11px] text-slate-400">{completedJoCount} Completed</p>
         </div>
 
-        {/* Card 2 */}
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500">Quotations Value</span>
@@ -66,13 +121,17 @@ export default function DashboardOverview() {
             </span>
           </div>
           <div className="flex items-baseline space-x-2">
-            <span className="text-2xl font-bold text-slate-900">₱142,500</span>
-            <span className="text-xs font-semibold text-emerald-600">Optimal</span>
+            <span className="text-2xl font-bold text-slate-900">
+              ₱
+              {(quotationsAgg._sum.netTotal ?? 0).toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </span>
           </div>
-          <p className="text-[11px] text-slate-400">5 Quotes Awaiting Approval</p>
+          <p className="text-[11px] text-slate-400">Pending & Draft Quotes</p>
         </div>
 
-        {/* Card 3 */}
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500">Job Profitability</span>
@@ -81,13 +140,19 @@ export default function DashboardOverview() {
             </span>
           </div>
           <div className="flex items-baseline space-x-2">
-            <span className="text-2xl font-bold text-slate-900">25.0%</span>
-            <span className="text-xs font-semibold text-emerald-600">+2.4% Target</span>
+            <span className="text-2xl font-bold text-slate-900">
+              {profitMarginPercent.toFixed(1)}%
+            </span>
           </div>
-          <p className="text-[11px] text-slate-400">Average Net Profit Margin</p>
+          <p className="text-[11px] text-slate-400">
+            Net Profit ₱
+            {netProfitTotal.toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
+          </p>
         </div>
 
-        {/* Card 4 */}
         <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-2">
           <div className="flex items-center justify-between">
             <span className="text-xs font-semibold text-slate-500">Pending GM Approvals</span>
@@ -96,10 +161,9 @@ export default function DashboardOverview() {
             </span>
           </div>
           <div className="flex items-baseline space-x-2">
-            <span className="text-2xl font-bold text-slate-900">3 Requests</span>
-            <span className="text-xs font-semibold text-amber-600">Needs Review</span>
+            <span className="text-2xl font-bold text-slate-900">{pendingApprovals} Requests</span>
           </div>
-          <p className="text-[11px] text-slate-400">2 Purchase Requests • 1 OPEX</p>
+          <p className="text-[11px] text-slate-400">PRs & OPEX awaiting review</p>
         </div>
       </div>
 
@@ -129,43 +193,48 @@ export default function DashboardOverview() {
                 <th className="px-5 py-3.5">Service Advisor</th>
                 <th className="px-5 py-3.5">Status</th>
                 <th className="px-5 py-3.5 text-right">Billed Amount</th>
-                <th className="px-5 py-3.5 text-right">Est Profit</th>
                 <th className="px-5 py-3.5 text-center">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
-              <tr className="hover:bg-slate-50 transition-colors">
-                <td className="px-5 py-4 font-bold text-slate-900">RA0003973</td>
-                <td className="px-5 py-4 font-medium text-slate-800">
-                  ACCUSTANDARD MEDICAL AND DIAGNOSTIC CORP.
-                </td>
-                <td className="px-5 py-4">
-                  <div className="flex items-center space-x-2">
-                    <Car className="h-3.5 w-3.5 text-slate-400" />
-                    <span>2023 TOYOTA LITEACE (CBE7864)</span>
-                  </div>
-                </td>
-                <td className="px-5 py-4">JEFFREY P. PERIN</td>
-                <td className="px-5 py-4">
-                  <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-                    IN PROGRESS
-                  </span>
-                </td>
-                <td className="px-5 py-4 text-right font-mono font-bold text-slate-900">
-                  ₱15,931.49
-                </td>
-                <td className="px-5 py-4 text-right font-mono font-bold text-emerald-600">
-                  ₱3,981.49 (25.0%)
-                </td>
-                <td className="px-5 py-4 text-center">
-                  <Link
-                    href="/job-orders/RA0003973"
-                    className="px-3 py-1.5 rounded-lg bg-slate-900 text-white hover:bg-slate-800 font-semibold text-[11px] transition-colors"
-                  >
-                    View RA
-                  </Link>
-                </td>
-              </tr>
+              {recentJos.length === 0 && (
+                <tr>
+                  <td colSpan={7} className="px-5 py-8 text-center text-slate-500">
+                    No job orders found.
+                  </td>
+                </tr>
+              )}
+              {recentJos.map((jo) => (
+                <tr key={jo.id} className="hover:bg-slate-50 transition-colors">
+                  <td className="px-5 py-4 font-bold text-slate-900">{jo.joNo}</td>
+                  <td className="px-5 py-4 font-medium text-slate-800">{jo.customer.name}</td>
+                  <td className="px-5 py-4">
+                    <div className="flex items-center space-x-2">
+                      <Car className="h-3.5 w-3.5 text-slate-400" />
+                      <span>
+                        {jo.vehicle.makeModel} ({jo.vehicle.plateNo})
+                      </span>
+                    </div>
+                  </td>
+                  <td className="px-5 py-4">{jo.advisor}</td>
+                  <td className="px-5 py-4">
+                    <span className="px-2.5 py-1 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                      {jo.status}
+                    </span>
+                  </td>
+                  <td className="px-5 py-4 text-right font-mono font-bold text-slate-900">
+                    ₱{jo.billedAmount.toFixed(2)}
+                  </td>
+                  <td className="px-5 py-4 text-center">
+                    <Link
+                      href={`/job-orders/${jo.joNo}`}
+                      className="px-3 py-1.5 rounded-lg bg-slate-900 text-white hover:bg-slate-800 font-semibold text-[11px] transition-colors"
+                    >
+                      View RA
+                    </Link>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>

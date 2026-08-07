@@ -8,7 +8,7 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
     include: {
       customer: true,
       jo: { include: { items: true } },
-      payments: true,
+      payments: { orderBy: { paidAt: 'desc' } },
     },
   });
   if (!invoice) notFound();
@@ -39,6 +39,7 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
             <p className="text-xs text-slate-500">
               {invoice.customer.name} • TIN: {invoice.customer.tin ?? 'N/A'}
             </p>
+            <p className="text-[11px] text-slate-400 mt-0.5">RO/JO: {invoice.jo?.joNo ?? 'N/A'}</p>
           </div>
           <div className="text-right">
             <p className="text-xs text-slate-500">VAT 12%</p>
@@ -62,8 +63,20 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
             </div>
           ))}
           <div className="flex justify-between pt-3 font-bold text-sm">
+            <span className="text-slate-900">Subtotal</span>
+            <span className="font-mono">₱{invoice.subtotal.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between pt-1 font-bold text-sm">
             <span className="text-slate-900">Total Due</span>
             <span className="font-mono text-brand-primary">₱{invoice.total.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between pt-1 text-xs text-slate-500">
+            <span>Paid</span>
+            <span className="font-mono">₱{invoice.amountPaid.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between pt-1 text-xs font-bold text-slate-900">
+            <span>Remaining</span>
+            <span className="font-mono">₱{remaining.toFixed(2)}</span>
           </div>
         </div>
       </div>
@@ -83,7 +96,7 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
             />
             <input
               name="paymentMethod"
-              placeholder="Method"
+              placeholder="Method (Cash / Bank / GCash)"
               required
               className="px-3 py-2 rounded-xl border border-slate-300 text-sm"
             />
@@ -102,8 +115,40 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
         </div>
       )}
 
+      {invoice.payments.length > 0 && (
+        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="px-5 py-3 border-b border-slate-200 bg-slate-50">
+            <h3 className="text-sm font-bold text-slate-900">Payment History</h3>
+          </div>
+          <div className="p-5 space-y-3">
+            {invoice.payments.map((p) => (
+              <div
+                key={p.id}
+                className="flex justify-between text-xs border-b border-slate-100 pb-2"
+              >
+                <div>
+                  <p className="font-semibold text-slate-800">
+                    {p.paymentMethod}
+                    {p.referenceNo && <span className="text-slate-500"> • {p.referenceNo}</span>}
+                  </p>
+                  <p className="text-[11px] text-slate-400">
+                    {new Date(p.paidAt).toLocaleString()}
+                  </p>
+                </div>
+                <span className="font-mono font-bold">₱{p.amount.toFixed(2)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Printable Service Invoice Notice */}
       <div className="text-center text-[11px] text-slate-500 border-t border-slate-200 pt-4">
         Le Mans Service Plus OPC • Single Source of Truth Job Order Management System
+        <br />
+        <span className="font-bold uppercase">
+          THIS IS NOT AN OFFICIAL RECEIPT. NOT VALID FOR CLAIMING INPUT TAX
+        </span>
       </div>
     </div>
   );
