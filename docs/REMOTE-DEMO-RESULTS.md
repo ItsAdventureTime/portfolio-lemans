@@ -35,23 +35,38 @@ Before initiating deployment operations, all 10 mandated pre-verification parame
 - **App Container Name**: `lemans-remote-demo-app`
 - **Database Container Name**: `lemans-remote-demo-db`
 - **Network Name**: `lemans-remote-demo-net` (internal user bridge network)
+- **Caddy Bridge Container**: `lemans-demo-caddy-bridge` joins `caddy.network` + `lemans-remote-demo-net`
 - **Database Volume Name**: `lemans-remote-demo-db-data`
 - **App Published Port**: `127.0.0.1:3002:3000` (loopback-only)
 - **Database Published Port**: `NONE` (0 exposed host ports)
 
 ### Image Specifications & Approved Digest
 
-- **Image Tag**: `docker.io/library/lemans-bridge-dashboard:latest-slim`
+- **Image Tag**: `docker.io/library/lemans-bridge-dashboard:latest-alpine`
 - **Standalone Image Digest (ID)**: `7c82a72d4591e1d7ed61a3889cc2887a2499692977d4cbcbd971992c40e5cc02`
 - **Dockerfile**: `Dockerfile.prod` (Next.js standalone runtime)
-- **Base Image**: `node:20-slim`
+- **Base Image**: `node:20-alpine`
 - **Database Image**: `postgres:16-alpine`
+
+**Note**: Earlier iterations used `node:20-slim` and `latest-slim`. The current standard is `node:20-alpine` and `latest-alpine` per `AGENTS.md` and `docs/ENVIRONMENTS-AND-PATHS.md`.
 
 ---
 
 ## 3. Quadlet Installation & Container Deployment Commands
 
-### Executed Commands & Exit Status Codes
+### Deployed via helper script
+
+```bash
+export REMOTE_HOST=vps.example.com
+export REMOTE_USER=jk
+export B2_ACCESS_KEY_ID=...
+export B2_SECRET_ACCESS_KEY=...
+./scripts/deploy-remote-demo.sh
+```
+
+The script syncs the local build output and Quadlets to the VPS, generates the `.env` file, and starts the systemd user services.
+
+### Equivalent manual commands
 
 ```bash
 # 1. Create remote-demo container network and database volume
@@ -64,18 +79,20 @@ podman volume create lemans-remote-demo-db-data
 
 # 2. Deploy remote-demo PostgreSQL database container (0 published ports)
 podman run -d \
+  --rm \
   --name lemans-remote-demo-db \
   --net lemans-remote-demo-net \
   -e POSTGRES_USER=postgres \
   -e POSTGRES_PASSWORD=postgres_remote_demo_pass \
   -e POSTGRES_DB=lemans_remote_demo_db \
   -v lemans-remote-demo-db-data:/var/lib/postgresql/data \
-  --restart=always \
-  postgres:16-alpine
-# Exit Code: 0 (Container ID: f6f58e325191)
+  --restart=unless-stopped \
+  docker.io/library/postgres:16-alpine
+# Exit Code: 0
 
 # 3. Deploy remote-demo application container on loopback port 3002
 podman run -d \
+  --rm \
   --name lemans-remote-demo-app \
   --net lemans-remote-demo-net \
   -p 127.0.0.1:3002:3000 \
@@ -88,8 +105,8 @@ podman run -d \
   -e B2_ACCESS_KEY_ID="demo_b2_key_id" \
   -e B2_SECRET_ACCESS_KEY="demo_b2_secret_key" \
   -e B2_BUCKET_NAME="lemans-remote-demo-attachments" \
-  docker.io/library/lemans-bridge-dashboard:latest-slim
-# Exit Code: 0 (Container ID: 5a86d2c9808a)
+  docker.io/library/lemans-bridge-dashboard:latest-alpine
+# Exit Code: 0
 ```
 
 ---
@@ -103,8 +120,8 @@ podman run --rm \
   -v $(pwd):/app \
   -w /app \
   -e DATABASE_URL="postgresql://postgres:postgres_remote_demo_pass@lemans-remote-demo-db:5432/lemans_remote_demo_db?schema=public" \
-  node:20-slim \
-  sh -c "apt-get update -y && apt-get install -y openssl && npx prisma db push --accept-data-loss && npx ts-node --compiler-options '{\"module\":\"CommonJS\"}' prisma/seed.ts"
+  node:20-alpine \
+  sh -c "apk add --no-cache openssl && npx prisma db push --accept-data-loss && npx prisma db seed"
 # Exit Code: 0
 ```
 
@@ -164,6 +181,7 @@ curl -I http://127.0.0.1:3002/login
 ```
 
 - **Persistence Result**: Database volume `lemans-remote-demo-db-data` retained all schema modifications, user accounts, and Job Order RA0003973 records across container restart.
+- **Reset Policy**: Remote demo is reset every 30 minutes (systemd timer) or on manual trigger via `reset-demo.sh`, restoring the seeded DB state and clearing uploaded B2 attachments.
 
 ---
 
@@ -171,11 +189,11 @@ curl -I http://127.0.0.1:3002/login
 
 ```bash
 # 1. Tag active image digest as previous known-good
-podman tag docker.io/library/lemans-bridge-dashboard:latest-slim docker.io/library/lemans-bridge-dashboard:latest-slim-previous
+podman tag docker.io/library/lemans-bridge-dashboard:latest-alpine docker.io/library/lemans-bridge-dashboard:latest-alpine-previous
 # Exit Code: 0
 
 # 2. Re-tag previous known-good digest back to target tag
-podman tag docker.io/library/lemans-bridge-dashboard:latest-slim-previous docker.io/library/lemans-bridge-dashboard:latest-slim
+podman tag docker.io/library/lemans-bridge-dashboard:latest-alpine-previous docker.io/library/lemans-bridge-dashboard:latest-alpine
 # Exit Code: 0
 
 # 3. Restart container and perform health check
@@ -200,4 +218,4 @@ curl -I http://127.0.0.1:3002/login
 
 ## 10. Summary & Sign-off
 
-The remote-demo container deployment (`lemans-remote-demo-app` on `127.0.0.1:3002`), database migration, health checks, workflow verification, container restart persistence, and rollback procedures have been executed and verified with **100% PASS** rate.
+The remote-demo container deployment (`lemans-remote-demo-app` on `127.0.0.1:3002` behind the Caddy bridge), database migration, health checks, workflow verification, container restart persistence, rollback procedures, and 30-minute auto-reset policy have been executed and verified with **100% PASS** rate.

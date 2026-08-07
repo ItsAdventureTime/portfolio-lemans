@@ -11,14 +11,20 @@ This document specifies the containerized fullstack architecture for the **Le Ma
 Based on current 2026 containerization standards for Node.js/Next.js and Podman Quadlet:
 
 1. **Next.js Standalone Optimization**:
-   - Next.js is configured with `output: 'standalone'` in `next.config.js`.
+   - Next.js is configured with `output: 'standalone'` in `next.config.js` to preserve Server Actions, API routes, middleware, and dynamic DB-backed pages.
    - Multi-stage Dockerfile builds separate dependencies (`deps`), build (`builder`), and runtime (`runner`) stages.
    - Production images run under an unprivileged non-root user (`nextjs:nodejs`, UID/GID 1001).
    - Telemetry disabled (`NEXT_TELEMETRY_DISABLED=1`).
-2. **Container Image Tagging Policy**:
-   - **Demo Builds**: Use `node:20-alpine` tagged as `latest-alpine` or `latest-slim` (fallback: `latest`).
-   - **Production Builds**: Use `node:20-alpine` tagged as `lts-alpine` or `lts-slim` (fallback: `lts`).
-3. **Declarative Podman Quadlet Systemd Management**:
+2. **Container Image Runtime Policy**:
+   - **Base Images**: `node:20-alpine` for application; `postgres:16-alpine` for database.
+   - **Fallback**: lightest Debian-based image (`-slim`) only when dependency compatibility explicitly requires it.
+3. **Container Image Tagging Policy**:
+   - **Demo Builds**: Tag `latest-alpine` (fallback: `latest-slim`, then `latest`).
+   - **Production Builds**: Tag `lts-alpine` (fallback: `lts-slim`, then `lts`).
+4. **No Compose Mandate**:
+   - `podman compose` / `docker compose` are not used.
+   - Local builds, linting, testing, and execution use `podman run --rm` helper scripts or rootless Quadlet systemd units.
+5. **Declarative Podman Quadlet Systemd Management**:
    - Production containers are managed declaratively using Quadlet files (`.container`, `.volume`, `.network`) placed in user systemd paths (`~/.config/containers/systemd/`).
    - Systemd user lingering enabled (`loginctl enable-linger <user>`) to keep services active across reboots.
    - Observability via structured JSON logging to `stdout`/`stderr` collected by systemd journal (`journalctl --user -u <service>`) and `podman logs`.
@@ -49,7 +55,7 @@ Based on current 2026 containerization standards for Node.js/Next.js and Podman 
 │  │   ┌───────────────────────────────────────────────────────────────────────────┐  │  │
 │  │   │ DATABASE CONTAINER (`lemans-db`)                                         │  │  │
 │  │   │ - Engine: PostgreSQL 16 Alpine                                            │  │  │
-│  │   │ - Image Tag: demo (`postgres:alpine`), prod (`postgres:16-alpine`)       │  │  │
+│  │   │ - Image Tag: `postgres:16-alpine`                                         │  │  │
 │  │   │ - Volume: Named Volume (`lemans-db-data`)                                 │  │  │
 │  │   │ - Published Ports: NONE (0 Exposed Ports to Host)                        │  │  │
 │  │   └───────────────────────────────────────────────────────────────────────────┘  │  │
@@ -58,6 +64,10 @@ Based on current 2026 containerization standards for Node.js/Next.js and Podman 
 └────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
+### Remote Caddy Bridge Pattern
+
+For VPS demo and production, a single lightweight Caddy bridge container joins both the public `caddy.network` (shared with the existing rootless Caddy reverse proxy) and the internal app network, allowing Caddy to route traffic to the app container by name without publishing the app port to the public interface.
+
 ---
 
 ## 4. Security, Observability, & Failure Recovery
@@ -65,8 +75,9 @@ Based on current 2026 containerization standards for Node.js/Next.js and Podman 
 ### Security Baseline
 
 - **Zero Exposed Database Ports**: Database container listens exclusively on container-internal bridge network (`lemans-net`). Host cannot access port 5432 directly.
-- **Loopback App Port Binding**: Application container binds exclusively to `127.0.0.1:3000` locally.
+- **Loopback App Port Binding**: Application container binds exclusively to `127.0.0.1:3000` locally; on VPS, only the Caddy bridge container binds the public proxy port.
 - **Unprivileged Container Execution**: Application process runs as non-root `nextjs` user (UID 1001).
+- **No Compose**: All execution uses `podman run --rm` scripts or Quadlet units; no `docker.sock` or compose socket mounts.
 
 ### Observability & Logging
 
@@ -88,6 +99,7 @@ Based on current 2026 containerization standards for Node.js/Next.js and Podman 
 
 ### Backup & Disaster Recovery
 
-- **Database Backup**: Nightly containerized `pg_dump` execution storing compressed SQL backups into dedicated volume.
+- **Database Backup**: Daily containerized `pg_dump` execution storing compressed SQL backups to Backblaze B2 `backups/db/` (production only).
 - **Object Storage Backup**: Backblaze B2 bucket versioning and lifecycle rules managed in Backblaze console; references preserved in PostgreSQL.
 - **Restore Protocol**: One-line container execution: `podman exec -i lemans-db psql -U postgres lemans_db < backup.sql`.
+- **Demo Reset**: Remote demo resets every 30 minutes (systemd timer) or on manual trigger, restoring DB to seeded state and clearing uploaded attachments.

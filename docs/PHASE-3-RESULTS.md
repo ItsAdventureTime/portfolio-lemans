@@ -57,9 +57,10 @@
 
 ### Remote Assets (Prepared, Not Installed)
 
-- `quadlet/remote-demo/lemans-demo.{container,network,volume}` + `lemans-demo-db.container`
-- `quadlet/remote-prod/lemans.{container,network,volume}` + `lemans-db.container`
-- `scripts/build-multiarch.sh` for `latest-slim` and `lts-slim` multi-arch images.
+- `quadlet/remote-demo/lemans-demo.{container,network,volume}` + `lemans-demo-db.container` + `lemans-demo-caddy-bridge.container` + reset service/timer
+- `quadlet/remote-prod/lemans.{container,network,volume}` + `lemans-db.container` + `lemans-caddy-bridge.container` + backup service/timer
+- `scripts/build-multiarch.sh` for `latest-alpine` and `lts-alpine` multi-arch images using pure `podman build` + `podman manifest`.
+- `scripts/deploy-remote-demo.sh` and `scripts/deploy-remote-prod.sh` for VPS deployments.
 - `docs/REMOTE-OPERATIONS.md` covering install, backup, restore, rollback, and health checks.
 
 ## 2. Verification Results (After Phase 4 Defect Fixes)
@@ -90,7 +91,7 @@ All checks from `scripts/verify-vertical-slice.sh` passed on `2026-08-07`:
 - Creation buttons on `/expenses`, `/purchasing`, `/customers`, and `/quotations` now open functional forms.
 - Supplier invoice recording and multi-JO allocation UI are wired to server actions.
 - DCS page distinguishes GM approval queue from payment execution queue and renders payment/proof controls for `ROLE_DCS` only.
-- Multi-arch build script builds from `Dockerfile.prod` and verifies promoted `lts-slim` image runs `node server.js` as unprivileged `nextjs`.
+- Multi-arch build script builds from `Dockerfile.prod` using pure `podman build` + `podman manifest` and verifies the promoted `lts-alpine` image runs `node server.js` as unprivileged `nextjs`.
 - Job order detail page includes event logging and photo attachment metadata form (B2 upload uses placeholder credentials).
 
 ## 4. Remaining Out-of-Scope Items

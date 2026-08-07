@@ -18,12 +18,18 @@ We decide to mandate rootless Podman as the **exclusive runtime and tooling envi
    - Remote Demo Quadlet Path: `/home/jk/.config/containers/systemd/bridge-ph/lemans-demo`
    - Remote Prod Quadlet Path: `/home/jk/.config/containers/systemd/bridge-ph/lemans`
 4. **Image Tag Standard**:
-   - Demo Builds: `latest-alpine` or `latest-slim` (fallback: `latest`).
-   - Production Builds: `lts-alpine` or `lts-slim` (fallback: `lts`).
-5. **No Database Host Ports**: PostgreSQL database containers run on internal user networks (`lemans-net`) without exposed host ports.
-6. **Loopback Application Binding**: Exposed application HTTP ports bind to `127.0.0.1`.
+   - Demo Builds: `latest-alpine` (fallback: `latest-slim`, then `latest`).
+   - Production Builds: `lts-alpine` (fallback: `lts-slim`, then `lts`).
+5. **Container Runtime Standard**:
+   - Prefer `node:20-alpine` and `postgres:16-alpine` for all images unless dependency compatibility explicitly requires the lightest Debian-based image.
+   - Never use `podman compose` or `docker compose` for local builds, tests, or execution.
+   - Always run local builds, linting, type-checking, and tests inside disposable `podman run --rm` containers.
+   - Do not leave transient containers or images running; remove them immediately with `--rm` or targeted cleanup.
+6. **No Database Host Ports**: PostgreSQL database containers run on internal user networks (`lemans-net`) without exposed host ports.
+7. **Loopback Application Binding**: Exposed application HTTP ports bind to `127.0.0.1`.
+8. **Caddy Bridge Pattern**: Each VPS environment joins the existing `caddy.network` via a single bridge container for reverse proxy access.
 
 ## Consequences
 
 - **Positive**: Complete parity between development and production environments; zero host contamination; strict security isolation; declarative version-controlled infrastructure via Quadlet.
-- **Negative**: Development tools must be executed via `podman exec` or container scripts rather than bare metal host binaries.
+- **Negative**: Development tools must be executed via `podman run --rm` helper scripts or `podman exec` rather than bare metal host binaries.

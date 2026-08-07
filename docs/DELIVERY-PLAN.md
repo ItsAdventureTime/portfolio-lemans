@@ -14,7 +14,7 @@
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
 │ PHASE 2: THIN VERTICAL SLICE VALIDATION (COMPLETED & VERIFIED)                         │
 │ - Verified rootless Podman environment via `podman machine start` & `podman info`      │
-│ - Built & verified local-demo container stack (127.0.0.1:3000) with narrow bind mount    │
+│ - Built & verified local-demo container stack (127.0.0.1:3000) with disposable `podman run --rm` │
 │ - Built & verified local-prodlike standalone container stack (127.0.0.1:3001)           │
 │ - Implemented End-to-End Flow: Customer/Vehicle -> Sales Quote -> JO RA0003973 -> Cost Sheet│
 │ - Passed automated unit tests, type-checking, database migrations, and loopback HTTP   │
@@ -45,10 +45,12 @@
                                             ▼
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
 │ PHASE 5: QUADLET CONTAINERIZATION & DEPLOYMENT PREPARATION                             │
-│ - Multi-architecture container image builds (arm64 & amd64 tags)                      │
-│ - Generate Quadlet unit files (`.container`, `.volume`, `.network`) for remote paths:  │
+│ - Multi-architecture container image builds (arm64 & amd64 tags) using pure `podman build` │
+│ - Generate Quadlet unit files (`.container`, `.volume`, `.network`, `.service`, `.timer`) │
 │   - Demo: `/home/jk/.config/containers/systemd/bridge-ph/lemans-demo`                 │
 │   - Prod: `/home/jk/.config/containers/systemd/bridge-ph/lemans`                      │
+│ - Deploy via `scripts/deploy-remote-demo.sh` and `scripts/deploy-remote-prod.sh`        │
+│ - Remote demo auto-reset every 30 minutes; production daily backup to Backblaze B2    │
 └────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
