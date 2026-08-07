@@ -37,9 +37,13 @@ create_local_resources() {
 
 echo "=== Le Mans Local Run (single-podman-container) ==="
 
+# Remove any existing demo containers from a previous run so names are free.
+podman rm -f "$APP_NAME" "$DB_NAME" 2> /dev/null || true
+
 create_local_resources
 
 podman run -d \
+  --replace \
   --name "$DB_NAME" \
   --network "$NETWORK_NAME" \
   -e POSTGRES_USER=postgres \
@@ -59,7 +63,7 @@ for i in {1..30}; do
 done
 
 podman run -d \
-  --rm \
+  --replace \
   --name "$APP_NAME" \
   --network "$NETWORK_NAME" \
   -p "127.0.0.1:${PORT}:3000" \
