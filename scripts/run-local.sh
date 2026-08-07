@@ -40,7 +40,6 @@ echo "=== Le Mans Local Run (single-podman-container) ==="
 create_local_resources
 
 podman run -d \
-  --rm \
   --name "$DB_NAME" \
   --network "$NETWORK_NAME" \
   -e POSTGRES_USER=postgres \
@@ -52,7 +51,7 @@ podman run -d \
 
 # Wait for DB
 for i in {1..30}; do
-  if podman exec "$DB_NAME" pg_isready -U postgres > /dev/null 2>&amp;1; then
+  if podman exec "$DB_NAME" pg_isready -U postgres > /dev/null 2>&1; then
     echo "Database ready"
     break
   fi
@@ -80,7 +79,16 @@ for i in {1..30}; do
 done
 
 echo "=== Migrations and seed ==="
-podman exec -i "$APP_NAME" sh -c "npx prisma db push --accept-data-loss && npx prisma db seed"
+podman run --rm \
+  -v "${PROJECT_ROOT}:/app:rw" \
+  -w /app \
+  --network "$NETWORK_NAME" \
+  -e DATABASE_URL="postgresql://postgres:postgres_demo_pass@${DB_NAME}:5432/lemans_demo_db?schema=public" \
+  node:20-alpine3.20 sh -c "
+    apk add --no-cache openssl curl bash
+    npx prisma db push --accept-data-loss
+    npx prisma db seed
+  "
 
 echo "=== Local demo running at http://127.0.0.1:${PORT}/ ==="
 echo "Run ./scripts/reset-local.sh to reset to seeded state."

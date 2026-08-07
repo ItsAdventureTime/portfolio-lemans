@@ -16,7 +16,7 @@ Based on current 2026 containerization standards for Node.js/Next.js and Podman 
    - Production images run under an unprivileged non-root user (`nextjs:nodejs`, UID/GID 1001).
    - Telemetry disabled (`NEXT_TELEMETRY_DISABLED=1`).
 2. **Container Image Runtime Policy**:
-   - **Base Images**: `node:20-alpine` for application; `postgres:16-alpine` for database.
+   - **Base Images**: `node:20-alpine3.20` for application; `postgres:16-alpine` for database.
    - **Fallback**: lightest Debian-based image (`-slim`) only when dependency compatibility explicitly requires it.
 3. **Container Image Tagging Policy**:
    - **Demo Builds**: Tag `latest-alpine` (fallback: `latest-slim`, then `latest`).

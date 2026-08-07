@@ -21,7 +21,7 @@ podman run --rm \
   -w /app \
   --env-file "${PROJECT_ROOT}/.env.demo" \
   -e NODE_ENV=test \
-  node:20-alpine sh -c "
+  node:20-alpine3.20 sh -c "
     apk add --no-cache openssl curl bash
     npm run format:check
     npm run lint
@@ -35,7 +35,7 @@ podman run --rm \
   -w /app \
   --env-file "${PROJECT_ROOT}/.env.demo" \
   -e NODE_ENV=test \
-  node:20-alpine sh -c "
+  node:20-alpine3.20 sh -c "
     apk add --no-cache openssl curl bash
     npm test
   "

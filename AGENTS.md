@@ -19,7 +19,7 @@
    - **Demo Builds**: Use image tag `latest-alpine` (fallback: `latest-slim`, then `latest`).
    - **Production Builds**: Use image tag `lts-alpine` (fallback: `lts-slim`, then `lts`).
 5. **Container Runtime Standard**:
-   - Prefer `node:20-alpine` and `postgres:16-alpine` for all images unless dependency compatibility explicitly requires the lightest Debian-based image.
+   - Prefer `node:20-alpine3.20` and `postgres:16-alpine` for all images unless dependency compatibility explicitly requires the lightest Debian-based image.
    - Never use `podman compose` or `docker compose` for local builds, tests, or execution.
    - Always run local builds, linting, type-checking, and tests inside disposable `podman run --rm` containers (or a single combined container).
    - Do not leave transient containers or images running; remove them immediately with `--rm` or targeted cleanup.

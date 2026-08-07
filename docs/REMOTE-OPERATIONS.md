@@ -2,10 +2,10 @@
 
 ## Environments
 
-| Environment       | Quadlet Path                                         | App Port         | DB Volume                    | Image                                    |
-| ----------------- | ---------------------------------------------------- | ---------------- | ---------------------------- | ---------------------------------------- |
-| Remote demo       | `~/.config/containers/systemd/bridge-ph/lemans-demo` | `127.0.0.1:3002` | `lemans-remote-demo-db-data` | `lemans-bridge-dashboard:latest-alpine`  |
-| Remote production | `~/.config/containers/systemd/bridge-ph/lemans`      | `127.0.0.1:3003` | `lemans-remote-prod-db-data` | `lemans-bridge-dashboard:lts-alpine`       |
+| Environment       | Quadlet Path                                         | App Port         | DB Volume                    | Image                                   |
+| ----------------- | ---------------------------------------------------- | ---------------- | ---------------------------- | --------------------------------------- |
+| Remote demo       | `~/.config/containers/systemd/bridge-ph/lemans-demo` | `127.0.0.1:3002` | `lemans-remote-demo-db-data` | `lemans-bridge-dashboard:latest-alpine` |
+| Remote production | `~/.config/containers/systemd/bridge-ph/lemans`      | `127.0.0.1:3003` | `lemans-remote-prod-db-data` | `lemans-bridge-dashboard:lts-alpine`    |
 
 ## Caddy Integration
 
@@ -15,6 +15,20 @@ An existing rootless Caddy quadlet already handles public HTTP/HTTPS traffic. Ea
 - Remote production bridge: `lemans-prod-caddy-bridge`
 
 The app container is reachable by Caddy via its container name on the shared `caddy.network`. The app port (`127.0.0.1:3002/3003`) is only published for direct loopback health checks.
+
+### Example Caddyfile snippet
+
+```caddy
+lemans-demo.example.com {
+    reverse_proxy lemans-remote-demo-app:3000
+}
+
+lemans.example.com {
+    reverse_proxy lemans-remote-prod-app:3000
+}
+```
+
+Replace `example.com` hostnames with the actual DNS records. Because the bridge containers join `caddy.network`, Caddy can resolve the app container names directly.
 
 ## Required Secrets
 
@@ -46,7 +60,8 @@ export B2_SECRET_ACCESS_KEY=<your-b2-key-secret>
 ```
 
 This will:
-1. Build the app locally inside a `node:20-alpine` container.
+
+1. Build the app locally inside a `node:20-alpine3.20` container.
 2. Sync the standalone/static output to `/home/jk/bridge-ph/lemans-demo`.
 3. Sync Quadlets to `~/.config/containers/systemd/bridge-ph/lemans-demo`.
 4. Generate and install a remote `.env` file.
@@ -133,5 +148,5 @@ curl -I http://127.0.0.1:3002/
 - Do not commit secrets to source control.
 - Keep remote demo and production databases and buckets isolated.
 - DNS and reverse proxy configuration are managed by the existing Caddy quadlet; only Caddy binds public ports.
-- Use `node:20-alpine` and `postgres:16-alpine` for all images unless dependency compatibility explicitly requires a Debian-based image.
+- Use `node:20-alpine3.20` and `postgres:16-alpine` for all images unless dependency compatibility explicitly requires a Debian-based image.
 - All deployment containers and temporary build containers are `--rm` or explicitly removed.

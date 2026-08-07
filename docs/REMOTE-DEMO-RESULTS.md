@@ -45,10 +45,10 @@ Before initiating deployment operations, all 10 mandated pre-verification parame
 - **Image Tag**: `docker.io/library/lemans-bridge-dashboard:latest-alpine`
 - **Standalone Image Digest (ID)**: `7c82a72d4591e1d7ed61a3889cc2887a2499692977d4cbcbd971992c40e5cc02`
 - **Dockerfile**: `Dockerfile.prod` (Next.js standalone runtime)
-- **Base Image**: `node:20-alpine`
+- **Base Image**: `node:20-alpine3.20`
 - **Database Image**: `postgres:16-alpine`
 
-**Note**: Earlier iterations used `node:20-slim` and `latest-slim`. The current standard is `node:20-alpine` and `latest-alpine` per `AGENTS.md` and `docs/ENVIRONMENTS-AND-PATHS.md`.
+**Note**: Earlier iterations used `node:20-slim` and `latest-slim`. The current standard is `node:20-alpine3.20` and `latest-alpine` per `AGENTS.md` and `docs/ENVIRONMENTS-AND-PATHS.md`.
 
 ---
 
@@ -120,7 +120,7 @@ podman run --rm \
   -v $(pwd):/app \
   -w /app \
   -e DATABASE_URL="postgresql://postgres:postgres_remote_demo_pass@lemans-remote-demo-db:5432/lemans_remote_demo_db?schema=public" \
-  node:20-alpine \
+  node:20-alpine3.20 \
   sh -c "apk add --no-cache openssl && npx prisma db push --accept-data-loss && npx prisma db seed"
 # Exit Code: 0
 ```

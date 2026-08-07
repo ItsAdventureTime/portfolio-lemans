@@ -43,7 +43,7 @@ echo "[1/6] Building local static/standalone output..."
 podman run --rm \
   -v "${PROJECT_ROOT}:/app:rw" \
   -w /app \
-  node:20-alpine sh -c "
+  node:20-alpine3.20 sh -c "
     apk add --no-cache openssl
     npm ci
     npx prisma generate

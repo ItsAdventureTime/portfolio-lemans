@@ -44,7 +44,7 @@
 
 ### Containerization
 
-- All container images now use `node:20-alpine` and `postgres:16-alpine` for the smallest secure footprint; `openssl` is installed to satisfy Prisma's musl OpenSSL 3.0.x engine target.
+- All container images now use `node:20-alpine3.20` and `postgres:16-alpine` for the smallest secure footprint; `openssl` is installed to satisfy Prisma's musl OpenSSL 3.0.x engine target.
 - Updated `Dockerfile.dev` and `Dockerfile.prod` to use Alpine, install `openssl`, and inject build-time secret placeholders.
 - Added `.env.demo` and `.env.prodlike` (git-ignored) for runtime secrets.
 - `docker-compose.yml` and `docker-compose.prodlike.yml` were removed; local execution now uses `podman run --rm` helper scripts (`scripts/run-local.sh`, `scripts/build.sh`, etc.).
