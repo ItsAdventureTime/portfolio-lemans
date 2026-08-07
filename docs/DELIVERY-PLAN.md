@@ -24,10 +24,11 @@
                                             ▼
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
 │ PHASE 3: CORE OPERATIONS MODULES IMPLEMENTATION (NEXT PHASE)                           │
+│ - Authentication & RBAC: Better Auth integration, role matrix, session DAL              │
 │ - Service Delivery & Technician Progress Tracking                                      │
 │ - Purchasing: Purchase Requests (PR), POs, Supplier Invoice Multi-JO Line Allocation   │
 │ - Expenses: OPEX Request Budget Form & GM Approval Workflow                            │
-│ - DCS Module: Payment Execution & Proof-of-Payment Upload (Enforcing AC-DCS-001)       │
+│ - DCS Module: Payment Execution & Proof-of-Payment Upload via Backblaze B2            │
 │ - Billing: Official Service Invoice Generation (RA0003973 format with 12% VAT)        │
 └───────────────────────────────────────────┬────────────────────────────────────────────┘
                                             │
@@ -57,3 +58,4 @@
 - **Verification Summary**: Documented in [`docs/PHASE-2-RESULTS.md`](file:///Users/jk.deguzman/dev/lemans-bridge-dashboard/docs/PHASE-2-RESULTS.md).
 - **Handoff Summary**: Documented in [`docs/PHASE-3-HANDOFF.md`](file:///Users/jk.deguzman/dev/lemans-bridge-dashboard/docs/PHASE-3-HANDOFF.md).
 - **Architecture Readiness**: Verified & Approved for Phase 3.
+- **Phase 3 Implementation Plan**: [`docs/PHASE-3-IMPLEMENTATION.md`](file:///Users/jk.deguzman/dev/lemans-bridge-dashboard/docs/PHASE-3-IMPLEMENTATION.md).

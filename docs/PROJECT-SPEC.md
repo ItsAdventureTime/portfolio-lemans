@@ -22,6 +22,10 @@ This product specification synthesizes two mutually compensating handoff documen
    - Progress billing calculations and retention/variation order tracking primitives;
    - Complete audit trail logging, file attachments, and full database backup/restore mechanisms.
 
+### Authentication & Attachment Foundations
+- **Authentication**: See ADR-0003. The system uses **Better Auth** with database sessions stored in PostgreSQL, enforcing role-based access control for all server actions and protected routes.
+- **Attachments**: See ADR-0004. All file attachments (inspection photos, DCS proof-of-payment, invoice/OPEX supporting documents) are stored in **Backblaze B2** via its S3-compatible API. Access is gated by role/ownership checks and served through presigned URLs.
+
 ### Governing Core Principle
 > **One Job Order (`JO` / `RA`) is the single operational source of truth.** All estimations, parts procurement, labor tracking, supplier invoice allocations, out-of-pocket expenses, customer billings, QBO exports, and profitability calculations bind directly to the Job Order.
 
@@ -116,3 +120,8 @@ The platform includes server-side rendering for official printable receipts and 
 - **AC-GM-001**: Disbursements cannot be released by DCS unless the associated PR or Expense record has status `APPROVED_BY_GM`.
 - **AC-BILL-001**: Generated Service Invoices must compute VAT at 12% on taxable lines and display required footer notice: *"THIS IS NOT AN OFFICIAL RECEIPT. NOT VALID FOR CLAIMING INPUT TAX"*.
 - **AC-ACCT-001**: Non-admin user roles accessing `/accounting` routes must be redirected to `/dashboard` with an authorization warning.
+
+### Non-Functional Security Requirements
+- **NF-AUTH-001**: Server Actions, Route Handlers, and Server Components must verify both authentication and authorization on every request.
+- **NF-AUTH-002**: DCS role must never be able to invoke GM-only actions; UI hiding is not sufficient (defense-in-depth).
+- **NF-ATTACH-001**: File attachments must be stored off-host in private object storage; presigned download URLs must expire within 15 minutes.

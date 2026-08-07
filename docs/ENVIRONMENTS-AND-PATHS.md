@@ -22,6 +22,8 @@ All application logic, container build files, database schemas, and Quadlet defi
 | **Container Name** | `lemans-demo-app` | `lemans-prodlike-app` | `lemans-remote-demo-app` | `lemans-remote-prod-app` |
 | **DB Volume Name** | `lemans-demo-db-data` | `lemans-prodlike-db-data` | `lemans-remote-demo-db-data` | `lemans-remote-prod-db-data` |
 | **Podman Network** | `lemans-demo-net` | `lemans-prodlike-net` | `lemans-remote-demo-net` | `lemans-remote-prod-net` |
+| **Better Auth Secret** | `BETTER_AUTH_SECRET` (dev value, injected) | `BETTER_AUTH_SECRET` (prod value, injected) | `BETTER_AUTH_SECRET` (injected) | `BETTER_AUTH_SECRET` (injected) |
+| **Backblaze B2 Bucket** | `lemans-demo-attachments` | `lemans-prodlike-attachments` | `lemans-remote-demo-attachments` | `lemans-remote-prod-attachments` |
 
 ---
 
@@ -32,9 +34,28 @@ All application logic, container build files, database schemas, and Quadlet defi
   `/home/jk/bridge-ph/lemans-demo`
 - **Remote Demo Systemd Quadlet Path**:
   `/home/jk/.config/containers/systemd/bridge-ph/lemans-demo`
+- **Remote Demo Backblaze Bucket**:
+  `lemans-remote-demo-attachments`
 
 ### Remote Production Environment
 - **Remote Production Application Build Path**:
   `/home/jk/bridge-ph/lemans`
 - **Remote Production Systemd Quadlet Path**:
   `/home/jk/.config/containers/systemd/bridge-ph/lemans`
+- **Remote Production Backblaze Bucket**:
+  `lemans-remote-prod-attachments`
+
+## 4. Required Secrets / Environment Variables
+
+Each environment requires the following environment variables. Values are injected at container runtime via `Environment=` in Quadlet files or `environment:` in Compose files; they are **never committed to source control**.
+
+| Variable | Purpose | Provider |
+|---|---|---|
+| `DATABASE_URL` | PostgreSQL connection string | Container env |
+| `BETTER_AUTH_SECRET` | Better Auth token signing secret | Secrets manager / env file |
+| `BETTER_AUTH_URL` | Canonical app URL for Better Auth callbacks | `http://127.0.0.1:3000` (demo), proxy URL for remote |
+| `B2_ENDPOINT` | Backblaze S3-compatible endpoint, e.g. `https://s3.us-west-004.backblazeb2.com` | Secrets manager / env file |
+| `B2_REGION` | Backblaze region segment, e.g. `us-west-004` | Secrets manager / env file |
+| `B2_ACCESS_KEY_ID` | Backblaze application key ID | Secrets manager / env file |
+| `B2_SECRET_ACCESS_KEY` | Backblaze application key secret | Secrets manager / env file |
+| `B2_BUCKET_NAME` | Target bucket name per environment | Per-environment env file |

@@ -13,6 +13,8 @@ Enterprise operational and job costing platform built for **Le Mans Service Plus
 - **Single Source Repository**: [`ItsAdventureTime/bridge-lemans`](https://github.com/ItsAdventureTime/bridge-lemans)
 - **Single Source of Truth**: One Job Order (`JO` / `RA`) governs estimations, procurement allocations, OPEX requests, customer billing, and net job profitability.
 - **Containerized Execution**: 100% rootless Podman execution (`podman machine start` on macOS Apple Silicon).
+- **Authentication**: Better Auth with PostgreSQL database sessions and role-based access control (see ADR-0003).
+- **Attachments**: Backblaze B2 S3-compatible object storage for inspection photos, receipts, and supporting documents (see ADR-0004).
 
 ---
 
@@ -55,3 +57,6 @@ open http://127.0.0.1:3001
 - [`docs/DELIVERY-PLAN.md`](./docs/DELIVERY-PLAN.md): Project Roadmap & Phase Specifications
 - [`docs/PHASE-2-RESULTS.md`](./docs/PHASE-2-RESULTS.md): Empirical Phase 2 Validation Log
 - [`docs/PHASE-3-HANDOFF.md`](./docs/PHASE-3-HANDOFF.md): Architecture Readiness & Phase 3 Scope
+- [`docs/PHASE-3-IMPLEMENTATION.md`](./docs/PHASE-3-IMPLEMENTATION.md): Phase 3 Build Plan & Verification Strategy
+- [`docs/adr/0003-authentication-and-session-strategy.md`](./docs/adr/0003-authentication-and-session-strategy.md): Auth Architecture Decision
+- [`docs/adr/0004-attachment-storage-strategy.md`](./docs/adr/0004-attachment-storage-strategy.md): Backblaze B2 Attachment Decision
