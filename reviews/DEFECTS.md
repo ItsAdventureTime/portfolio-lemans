@@ -26,11 +26,16 @@
 | **DEFECT-009** | Minor    | Job Costing navbar link hardcoded specific JO                     | Failed (Hardcoded) |      **RESOLVED (Fixed)**      |
 | **DEFECT-010** | Minor    | Static environment badge in header                                |  Failed (Static)   |     **RESOLVED (Dynamic)**     |
 | **DEFECT-011** | Cosmetic | Brand logo graphic missing from header accent                     |   Failed (Text)    |  **RESOLVED (Logo Rendered)**  |
+| **DEFECT-012** | Medium   | Navigation shows all tabs regardless of role                      |  Failed (Static)   |  **RESOLVED (Role-Filtered)**  |
+| **DEFECT-013** | Medium   | Restricted routes silently redirect to `/`                        |  Failed (Silent)   |  **RESOLVED (AccessDenied)**   |
+| **DEFECT-014** | Low      | Page wrappers lack consistent max-width/spacing                   |  Failed (Layout)   |   **RESOLVED (Full-Bleed)**    |
+| **DEFECT-015** | Low      | Typography scale inconsistent across modules                      |   Failed (Type)    |      **RESOLVED (Scale)**      |
+| **DEFECT-016** | Low      | Table action buttons wrap awkwardly / lack height                 |  Failed (Button)   |    **RESOLVED (h-9 px-4)**     |
 
 ---
 
 ## Retest Verdict
 
-> **VERDICT: ALL 11 DEFECTS RESOLVED & VERIFIED**
+> **VERDICT: ALL 16 DEFECTS RESOLVED & VERIFIED**
 >
-> Automated test suites (7/7 suites passed), container security isolation checks, zero database host port exposures, and loopback HTTP health checks pass across `local-demo` and `local-prodlike`. Remote-demo deployment is **APPROVED**.
+> Automated test suites (7/7 suites passed), container security isolation checks, zero database host port exposures, loopback HTTP health checks, and UI/UX standardization pass across `local-demo` and `local-prodlike`. Design-system and operations documentation are updated. Remote-demo deployment is **APPROVED**.

@@ -165,6 +165,12 @@ curl -I http://127.0.0.1:3002/login
 curl -I http://127.0.0.1:3002/
 ```
 
+## Role-Based Navigation & 403 Access Restricted
+
+The navigation bar filters menu items by the active user's role permissions (`src/components/Navbar.tsx`). Users will only see modules they have permission to access.
+
+If a user without permission manually navigates to a restricted URL (e.g. a `ROLE-GM` user accessing `/accounting`), the application renders an explicit **403 Access Restricted** page (`src/components/AccessDenied.tsx`) with a **Return to Overview** button instead of silently redirecting.
+
 ## Notes
 
 - Do not commit secrets to source control.

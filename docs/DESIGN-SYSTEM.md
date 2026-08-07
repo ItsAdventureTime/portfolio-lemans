@@ -34,6 +34,12 @@ This design system synthesizes evidence and directives from core sources:
   --brand-primary: #d32f2f; /* LeMans Racing Red */
   --brand-primary-hover: #b71c1c; /* Dark Red Hover */
   --brand-primary-light: #ffebee; /* Light Red Tint for Badges */
+  /* Implementation note: applied across src/app/page.tsx, src/app/login/**/*,
+     src/app/customers/page.tsx, src/app/quotations/page.tsx,
+     src/app/job-orders/page.tsx, src/app/job-orders/[id]/page.tsx,
+     src/app/job-costing/[id]/page.tsx, src/app/purchasing/page.tsx,
+     src/app/expenses/page.tsx, src/app/dcs/page.tsx, src/app/invoices/page.tsx,
+     and src/app/invoices/[id]/page.tsx. */
 
   /* Neutral Slate Palette (High Contrast & Low Eye Strain) */
   --bg-app: #f8fafc; /* Clean Off-White Application Canvas */
@@ -80,8 +86,9 @@ This design system synthesizes evidence and directives from core sources:
 ### Spacing Grid & Full-Bleed Container Constraints
 
 - All layout outer wrappers MUST use fluid width: `w-full max-w-[1920px] mx-auto px-6 lg:px-8 xl:px-10`.
+- Implemented in `src/app/layout.tsx` and `src/components/Header.tsx`.
 - All padding, margin, and gap values MUST follow strict 4px multiples (`p-2` [8px], `p-4` [16px], `p-6` [24px], `p-8` [32px]).
-- Table action buttons MUST enforce `whitespace-nowrap inline-flex items-center justify-center` to prevent awkward line breaks (e.g. `View RA`).
+- Table action buttons MUST enforce `whitespace-nowrap inline-flex items-center justify-center h-9 px-4` to prevent awkward line breaks (e.g. `View RA`).
 
 ---
 
@@ -90,8 +97,11 @@ This design system synthesizes evidence and directives from core sources:
 1. **Role-Aware Navigation**:
    - `Navbar` components MUST inspect the active user's permissions via `hasPermission(role, permission)`.
    - Links for un-permitted modules (e.g. `Accounting` for `ROLE-GM`) MUST be filtered out of the navigation menu.
+   - Navigation implementation: `src/components/Navbar.tsx` accepts a `role` prop and filters `navItems` by permission. Active tab uses LeMans Red (`#d32f2f`).
 2. **Explicit 403 Access Restricted View**:
    - When an un-permitted user attempts to access a restricted URL directly, the page MUST render a dedicated `<AccessDenied />` component.
+   - Component location: `src/components/AccessDenied.tsx`.
+   - Usage example: `src/app/accounting/page.tsx` renders `<AccessDenied />` for non-Admin users instead of calling `redirect('/')`.
    - **Prohibited**: Silent `redirect('/')` without user feedback is strictly forbidden.
 
 ---
