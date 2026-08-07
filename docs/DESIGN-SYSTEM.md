@@ -1,20 +1,30 @@
 # Le Mans Service Plus - Enterprise Design System & UI/UX Specification
 
+- **Document Version**: 2.0.0 (Updated with 2026 UI/UX Overhaul Guidelines)
+- **Target Audience**: AI Agents, UI Engineers, Mobile Developers (SwiftUI / Jetpack Compose)
+- **Client Brand**: LeMans Service Plus OPC (Angeles City, Pampanga)
+
+---
+
 ## 1. Design Philosophy & Evidence Basis
 
-This design system synthesizes evidence and directives from four core sources:
+This design system synthesizes evidence and directives from core sources:
 
-1. **Client Brand Identity**: Official logo for **LeMans Service Plus OPC** (`references/branding/logo.jpg`), featuring a racing-inspired shield badge with LeMans Racing Red, Crisp White, and Dark Slate.
-2. **UI Architecture Inspiration**: ColdTrace Operations Dashboard (`references/design-inspiration/coldtrace-ui-mockup.webp`), showcasing a modern light interface, elevated cards, subtle borders, rounded pills, high-visibility metric displays, and data-dense tables.
-3. **UI Context Prompt Directives**: Enterprise UI blueprint (`llm_ui_context_prompt_framework.md` & `llm-interface-design-context-prompt.md`), enforcing **low visual token entropy**, **semantic primitive abstractions**, strict 4-state visual contracts, and cross-platform alignment for future iOS (SwiftUI) and Android (Jetpack Compose) native releases.
-4. **Printable Document Templates**: Standardized layouts matching client OPEX Budget (`photo_2026-08-03_00-36-03.jpg`), Service Invoice (`photo_2026-08-03_00-36-09.jpg`), and Repair Order (`photo_2026-08-03_00-36-12.jpg`).
+1. **Client Brand Identity**: Official logo for **LeMans Service Plus OPC** (`references/branding/logo.jpg`), featuring a racing-inspired shield badge with LeMans Racing Red (`#d32f2f`), Crisp White (`#ffffff`), and Dark Slate (`#0f172a`).
+2. **UI Architecture Inspiration**: ColdTrace Operations Dashboard (`references/design-inspiration/coldtrace-ui-mockup.webp`), featuring a modern light interface, elevated cards, subtle borders, high-visibility metric displays, and data-dense tables.
+3. **UI Context Prompt Directives**: Enterprise UI blueprint (`llm_ui_context_prompt_framework.md` & `llm-interface-design-context-prompt.md`), enforcing low visual token entropy, semantic primitive abstractions, strict 4-state visual contracts, and cross-platform alignment for web, iOS (SwiftUI), and Android (Jetpack Compose).
+4. **2026 Modern UX & WCAG 2.2 Standards**:
+   - **Zero Wasted Space**: Fluid full-bleed layouts (`max-w-[1920px]` container grids) replacing cramped centered frames.
+   - **High-Readability Typography**: 16px baseline body text and high-contrast typography designed for users wearing glasses or viewing under shop lighting.
+   - **Role-Aware RBAC Navigation**: Navigation items filtered by active role; explicit 403 "Access Restricted" views instead of silent redirects.
+   - **Accessible Target Sizing**: Minimum 44x44px touch/click targets with focus ring states.
 
 ---
 
 ## 2. Visual Identity & Semantic Palette
 
 > [!IMPORTANT]
-> **Prohibited Interpretation Rule**: Words like "internal", "demo", "confidential", or "not for production" MUST NOT be used to justify a harsh red danger theme across the interface. LeMans Racing Red is a **brand accent** for key primary actions, active tabs, and logo accents. Red alert/danger colors MUST be reserved strictly for real validation errors, stock shortages, system alerts, or destructive actions (e.g., voiding a JO).
+> **Prohibited Interpretation Rule**: Words like "internal", "demo", "confidential", or "not for production" MUST NOT be used to justify a harsh red danger theme across the interface. LeMans Racing Red (`#d32f2f`) is a **brand accent** for key primary actions, active tabs, and logo accents. Red alert/danger colors MUST be reserved strictly for real validation errors, stock shortages, system alerts, or destructive actions (e.g., voiding a JO).
 
 ### Color Token Palette
 
@@ -25,27 +35,27 @@ This design system synthesizes evidence and directives from four core sources:
   --brand-primary-hover: #b71c1c; /* Dark Red Hover */
   --brand-primary-light: #ffebee; /* Light Red Tint for Badges */
 
-  /* Neutral Slate Palette (Derived from ColdTrace Inspiration) */
+  /* Neutral Slate Palette (High Contrast & Low Eye Strain) */
   --bg-app: #f8fafc; /* Clean Off-White Application Canvas */
   --bg-surface: #ffffff; /* Pure White Elevated Card Surfaces */
   --bg-subtle: #f1f5f9; /* Subtle Input & Secondary Backgrounds */
 
-  /* Typography & Border Neutrals */
+  /* Typography & Border Neutrals (WCAG AAA Target > 7:1) */
   --text-primary: #0f172a; /* Deep Slate for Primary Headings & Data */
-  --text-secondary: #475569; /* Muted Slate for Labels & Secondary Copy */
-  --text-tertiary: #94a3b8; /* Light Slate for Placeholders & Timestamps */
+  --text-secondary: #334155; /* Dark Slate for Labels & Secondary Copy */
+  --text-tertiary: #64748b; /* Muted Slate for Timestamps & Secondary Badges */
   --border-subtle: #e2e8f0; /* Fine Light Card & Table Divider Borders */
   --border-strong: #cbd5e1; /* Interactive Control Borders */
 
   /* Semantic Status Colors (Functional Only) */
   --status-success-bg: #ecfdf5; /* Emerald Light Tint */
-  --status-success-text: #059669; /* Emerald Green (Completed, Approved, Optimal) */
+  --status-success-text: #047857; /* Emerald Green (Completed, Approved) */
   --status-warning-bg: #fffbeb; /* Amber Light Tint */
-  --status-warning-text: #d97706; /* Amber Yellow (Pending Approval, In Progress) */
+  --status-warning-text: #b45309; /* Amber Yellow (Pending Approval, In Progress) */
   --status-danger-bg: #fef2f2; /* Rose Light Tint */
-  --status-danger-text: #dc2626; /* Rose Red (Overdue AR, Rejected, Error) */
+  --status-danger-text: #b91c1c; /* Rose Red (Overdue AR, Rejected, Error) */
   --status-info-bg: #eff6ff; /* Blue Light Tint */
-  --status-info-text: #2563eb; /* Blue (Draft, Info) */
+  --status-info-text: #1d4ed8; /* Blue (Draft, Info) */
 
   /* Elevation Shadows */
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
@@ -56,38 +66,53 @@ This design system synthesizes evidence and directives from four core sources:
 
 ---
 
-## 3. Typography Scale & Spacing Grid
+## 3. High-Readability Typography Scale & Spacing Grid
 
-### Semantic Typography Scale
+### Accessible Typography Scale
 
-- `text-2xl` (24px, bold): Main page headers and KPI metric values.
-- `text-lg` (18px, semibold): Card container titles and section headings.
-- `text-base` (16px, medium): Primary form input text and primary button labels.
-- `text-sm` (14px, regular/medium): Table cell values, standard copy, navigation tabs.
-- `text-xs` (12px, semibold): Status pills, table column headers, metadata tags.
+- `text-3xl` / `text-4xl` (32px-36px, font-extrabold): Primary KPI metric numbers.
+- `text-2xl` (24px, font-bold): Main page headers and section titles.
+- `text-xl` (20px, font-bold): Card container titles and modal headers.
+- `text-base` (16px, font-medium/semibold): Baseline body text, form input text, table cell primary values.
+- `text-sm` (14px, font-semibold): Navigation tabs, table column headers, form field labels.
+- `text-xs` (12px, font-bold): Status pills, metadata tags.
 
-### Spacing Grid (Multiples of 4)
+### Spacing Grid & Full-Bleed Container Constraints
 
-All padding, margin, and gap values MUST follow strict 4px multiples (`p-2` [8px], `p-4` [16px], `p-6` [24px], `p-8` [32px]). Arbitrary pixel values (e.g., `px-[13px]`) are forbidden.
+- All layout outer wrappers MUST use fluid width: `w-full max-w-[1920px] mx-auto px-6 lg:px-8 xl:px-10`.
+- All padding, margin, and gap values MUST follow strict 4px multiples (`p-2` [8px], `p-4` [16px], `p-6` [24px], `p-8` [32px]).
+- Table action buttons MUST enforce `whitespace-nowrap inline-flex items-center justify-center` to prevent awkward line breaks (e.g. `View RA`).
 
 ---
 
-## 4. Mandatory Multi-State Visual UI Contract
+## 4. Role-Aware RBAC Navigation & Error Feedback Contract
+
+1. **Role-Aware Navigation**:
+   - `Navbar` components MUST inspect the active user's permissions via `hasPermission(role, permission)`.
+   - Links for un-permitted modules (e.g. `Accounting` for `ROLE-GM`) MUST be filtered out of the navigation menu.
+2. **Explicit 403 Access Restricted View**:
+   - When an un-permitted user attempts to access a restricted URL directly, the page MUST render a dedicated `<AccessDenied />` component.
+   - **Prohibited**: Silent `redirect('/')` without user feedback is strictly forbidden.
+
+---
+
+## 5. Mandatory Multi-State Visual UI Contract
 
 Every dynamic component MUST explicitly implement four discrete visual UI states:
 
-1. **LOADING STATE**: Render pulse skeleton loaders (`animate-pulse`) matching the target geometry.
-2. **EMPTY STATE**: Render an accessible container displaying instructional copy, icon, and a primary call-to-action button (e.g., "Create First Job Order").
+1. **LOADING STATE**: Render pulse skeleton loaders (`animate-pulse`) matching target geometry.
+2. **EMPTY STATE**: Render an accessible container displaying instructional copy, icon, and a primary call-to-action button.
 3. **ERROR STATE**: Render clear error boundary notifications with action retry triggers (`onClick={retry}`).
 4. **SUCCESS / DEFAULT STATE**: Render the fully hydrated, populated user interface.
 
 ---
 
-## 5. Accessibility & Cross-Platform Mobile Alignment
+## 6. Accessibility & Native Mobile Alignment
 
-- **Accessibility**:
-  - Every interactive visual element MUST include explicit `aria-label` attributes and visible keyboard focus ring indicators (`focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:outline-none`).
-  - Contrast ratios meet WCAG 2.1 AA standards (minimum 4.5:1 for body copy).
-- **Mobile Cross-Platform Preparation**:
-  - Web UI component states and view models map cleanly to declarative mobile paradigms (SwiftUI `@Observable` / Jetpack Compose `State`).
-  - Dynamic font scaling and flexible frame bounds (`w-full`, `max-w-7xl`) are enforced to prevent text clipping across screen densities.
+- **WCAG 2.2 Compliance**:
+  - Interactive targets meet minimum **44x44px** on touch and **36px-40px** on desktop.
+  - Visible keyboard focus rings (`focus-visible:ring-2 focus-visible:ring-[#d32f2f]`).
+  - Text contrast ratio exceeds 7:1 for primary copy.
+- **Cross-Platform Preparedness**:
+  - Web UI views map directly to declarative mobile view models (SwiftUI `@Observable` / Jetpack Compose `State`).
+  - Fluid layouts prevent clipping across mobile, tablet, and desktop screens.
