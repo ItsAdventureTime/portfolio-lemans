@@ -1,0 +1,17 @@
+[Unit]
+Description=Le Mans remote demo PostgreSQL
+
+[Container]
+Image=postgres:16-alpine
+ContainerName=lemans-remote-demo-db
+Network=lemans-remote-demo-net
+Environment=POSTGRES_USER=postgres
+Environment=POSTGRES_PASSWORD=postgres_remote_demo_pass
+Environment=POSTGRES_DB=lemans_remote_demo_db
+Volume=lemans-remote-demo-db-data:/var/lib/postgresql/data
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

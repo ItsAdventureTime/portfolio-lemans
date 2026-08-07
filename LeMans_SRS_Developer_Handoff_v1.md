@@ -1,10 +1,9 @@
-
 ---
-title: "Le Mans Operations & Job Cost Management System Developer Handoff"
-document_type: "Software Requirements Specification"
-version: "1.0"
-status: "Approved Scope"
-language: "English (US)"
+title: 'Le Mans Operations & Job Cost Management System Developer Handoff'
+document_type: 'Software Requirements Specification'
+version: '1.0'
+status: 'Approved Scope'
+language: 'English (US)'
 ---
 
 # Executive Summary
@@ -12,6 +11,7 @@ language: "English (US)"
 Build a web-based operations platform for an auto service center covering quotation, job orders, procurement, approvals, disbursement, customer billing, reporting, and job profitability.
 
 ## Core Principle
+
 One Job Order is the single source of truth.
 
 # Modules
@@ -47,36 +47,47 @@ Customer → Inspection → Labor Estimate → Parts Estimate → Sales Quote �
 # Functional Requirements
 
 ## FR-001 Customer & Vehicle
+
 Create, update, search and maintain customer and vehicle records.
 
 ## FR-002 Sales Quotation
+
 Create quotations using estimated materials and labor. Convert approved quotations into Job Orders.
 
 ## FR-003 Job Orders
+
 Track inspection, work progress, technician assignment, completion and attachments.
 
 ## FR-004 Purchasing
+
 Support Purchase Request, Purchase Order, Supplier Invoice and allocation of supplier invoice lines to one or more Job Orders.
 
 ## FR-005 Other Expenses
+
 GM approval required before DCS payment.
 
 ## FR-006 DCS
+
 Record payments only for approved transactions and upload proof of payment.
 
 ## FR-007 Customer Billing
+
 Generate customer billing after job completion and record customer payment.
 
 ## FR-008 Job Cost Sheet
+
 Display estimated vs actual materials, labor, other expenses, profitability, payment history and timeline.
 
 ## FR-009 Reports
+
 Sales, Job Orders, Purchases, Supplier Payments, Expenses, Profitability, Customer and Vehicle History.
 
 ## FR-010 Administration
+
 Users, Roles, Permissions, Approval Matrix, Audit Logs, Backup, Restore, Export, Feature Management.
 
 ## FR-011 Accounting
+
 Visible only to Admin. Includes General Ledger views, Accounts Payable, Journal Entries and financial reports.
 
 # Business Rules

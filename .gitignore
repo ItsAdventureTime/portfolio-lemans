@@ -8,9 +8,12 @@
 /out/
 
 # Production & Dev Environment files
+.env
 .env*.local
 .env.local-demo
 .env.local-prodlike
+.env.demo
+.env.prodlike
 
 # Log files
 *.log

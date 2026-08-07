@@ -7,6 +7,7 @@
 ## Context
 
 The system must store file attachments for:
+
 - Inspection / repair photos on Job Orders.
 - Proof-of-payment receipts and cheques uploaded by DCS.
 - Supporting documents on Supplier Invoices and OPEX Requests.

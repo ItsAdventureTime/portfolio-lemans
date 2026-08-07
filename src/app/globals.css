@@ -3,32 +3,41 @@
 @tailwindcss utilities;
 
 :root {
-  --brand-primary: #D32F2F;
-  --brand-primary-hover: #B71C1C;
-  --brand-primary-light: #FFEBEE;
-  
-  --bg-app: #F8FAFC;
-  --bg-surface: #FFFFFF;
-  --bg-subtle: #F1F5F9;
-  
-  --text-primary: #0F172A;
+  --brand-primary: #d32f2f;
+  --brand-primary-hover: #b71c1c;
+  --brand-primary-light: #ffebee;
+
+  --bg-app: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-subtle: #f1f5f9;
+
+  --text-primary: #0f172a;
   --text-secondary: #475569;
-  --text-tertiary: #94A3B8;
-  --border-subtle: #E2E8F0;
-  --border-strong: #CBD5E1;
-  
-  --status-success-bg: #ECFDF5;
+  --text-tertiary: #94a3b8;
+  --border-subtle: #e2e8f0;
+  --border-strong: #cbd5e1;
+
+  --status-success-bg: #ecfdf5;
   --status-success-text: #059669;
-  --status-warning-bg: #FFFBEB;
-  --status-warning-text: #D97706;
-  --status-danger-bg: #FEF2F2;
-  --status-danger-text: #DC2626;
-  --status-info-bg: #EFF6FF;
-  --status-info-text: #2563EB;
+  --status-warning-bg: #fffbeb;
+  --status-warning-text: #d97706;
+  --status-danger-bg: #fef2f2;
+  --status-danger-text: #dc2626;
+  --status-info-bg: #eff6ff;
+  --status-info-text: #2563eb;
 }
 
 body {
   background-color: var(--bg-app);
   color: var(--text-primary);
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    Oxygen,
+    Ubuntu,
+    Cantarell,
+    sans-serif;
 }

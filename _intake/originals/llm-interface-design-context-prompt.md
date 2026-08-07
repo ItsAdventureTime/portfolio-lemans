@@ -1,9 +1,9 @@
 ---
-title: "Context Prompt for LLM-Generated Web and Mobile Interfaces"
-version: "1.0"
-updated: "2026-08-03"
-language: "English (US)"
-source_basis: "Design Intelligence for LLM-Generated Web and Mobile Interfaces"
+title: 'Context Prompt for LLM-Generated Web and Mobile Interfaces'
+version: '1.0'
+updated: '2026-08-03'
+language: 'English (US)'
+source_basis: 'Design Intelligence for LLM-Generated Web and Mobile Interfaces'
 ---
 
 # Context Prompt for LLM-Generated Web and Mobile Interfaces
@@ -748,18 +748,18 @@ Append a completed version of this template after the context prompt.
 
 ```yaml
 project:
-  name: ""
-  product_type: "public website | transactional website | web app | AI workspace | iOS app | Android app | cross-platform app"
-  objective: ""
+  name: ''
+  product_type: 'public website | transactional website | web app | AI workspace | iOS app | Android app | cross-platform app'
+  objective: ''
   primary_users: []
-  primary_user_job: ""
-  success_condition: ""
+  primary_user_job: ''
+  success_condition: ''
   excluded_behavior: []
 
 platforms:
   targets: []
   minimum_versions: {}
-  native_or_cross_platform: ""
+  native_or_cross_platform: ''
 
 implementation:
   existing_repository: true | false
@@ -767,25 +767,25 @@ implementation:
   approved_components: []
   prohibited_dependencies: []
   design_tokens_available: true | false
-  design_system_reference: ""
+  design_system_reference: ''
 
 content_and_data:
   content_types: []
   data_sources: []
   sensitive_data: []
-  retention_requirements: ""
-  offline_requirements: ""
+  retention_requirements: ''
+  offline_requirements: ''
 
 ai_features:
   enabled: true | false
   model_tasks: []
   tools: []
   consequential_actions: []
-  citation_requirements: ""
-  human_approval_requirements: ""
+  citation_requirements: ''
+  human_approval_requirements: ''
 
 quality:
-  accessibility_target: "WCAG 2.2 AA or platform equivalent"
+  accessibility_target: 'WCAG 2.2 AA or platform equivalent'
   supported_locales: []
   rtl_required: true | false
   performance_budget: {}
@@ -793,10 +793,10 @@ quality:
   privacy_requirements: []
 
 requested_output:
-  mode: "DISCOVER | SPECIFY | BUILD | AUDIT | REPAIR"
+  mode: 'DISCOVER | SPECIFY | BUILD | AUDIT | REPAIR'
   deliverables: []
-  output_format: ""
-  verbosity: "low | medium | high"
+  output_format: ''
+  verbosity: 'low | medium | high'
 ```
 
 # Research and Optimization Basis

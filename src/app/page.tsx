@@ -1,6 +1,15 @@
 import React from 'react';
 import Link from 'next/link';
-import { Wrench, FileText, TrendingUp, CheckCircle, ArrowRight, Car, UserCheck, Plus } from 'lucide-react';
+import {
+  Wrench,
+  FileText,
+  TrendingUp,
+  CheckCircle,
+  ArrowRight,
+  Car,
+  UserCheck,
+  Plus,
+} from 'lucide-react';
 
 export default function DashboardOverview() {
   return (
@@ -8,9 +17,7 @@ export default function DashboardOverview() {
       {/* Top Banner / Welcome */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
         <div>
-          <h2 className="text-xl font-bold text-slate-900">
-            Welcome Back, Operations Team 👋
-          </h2>
+          <h2 className="text-xl font-bold text-slate-900">Welcome Back, Operations Team 👋</h2>
           <p className="text-xs text-slate-500 mt-1">
             Le Mans Service Plus OPC • Highway Pampang, Angeles City Branch
           </p>
@@ -128,9 +135,7 @@ export default function DashboardOverview() {
             </thead>
             <tbody className="divide-y divide-slate-200">
               <tr className="hover:bg-slate-50 transition-colors">
-                <td className="px-5 py-4 font-bold text-slate-900">
-                  RA0003973
-                </td>
+                <td className="px-5 py-4 font-bold text-slate-900">RA0003973</td>
                 <td className="px-5 py-4 font-medium text-slate-800">
                   ACCUSTANDARD MEDICAL AND DIAGNOSTIC CORP.
                 </td>

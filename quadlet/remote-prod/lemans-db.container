@@ -1,0 +1,17 @@
+[Unit]
+Description=Le Mans remote production PostgreSQL
+
+[Container]
+Image=postgres:16-alpine
+ContainerName=lemans-remote-prod-db
+Network=lemans-remote-prod-net
+Environment=POSTGRES_USER=postgres
+Environment=POSTGRES_PASSWORD=postgres_remote_prod_pass
+Environment=POSTGRES_DB=lemans_remote_prod_db
+Volume=lemans-remote-prod-db-data:/var/lib/postgresql/data
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

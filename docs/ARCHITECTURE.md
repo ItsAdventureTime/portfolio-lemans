@@ -1,6 +1,7 @@
 # Le Mans Operations & Job Cost Management System - Architecture Specification
 
 ## 1. Executive Summary & Strategy
+
 This document specifies the containerized fullstack architecture for the **Le Mans Operations & Job Cost Management System**. All proposed solutions comply strictly with the project's **Rootless Podman Containerization Mandate** (local Apple Silicon macOS development via `podman machine start` + remote Linux Quadlet systemd deployment).
 
 ---
@@ -62,26 +63,31 @@ Based on current 2026 containerization standards for Node.js/Next.js and Podman 
 ## 4. Security, Observability, & Failure Recovery
 
 ### Security Baseline
+
 - **Zero Exposed Database Ports**: Database container listens exclusively on container-internal bridge network (`lemans-net`). Host cannot access port 5432 directly.
 - **Loopback App Port Binding**: Application container binds exclusively to `127.0.0.1:3000` locally.
 - **Unprivileged Container Execution**: Application process runs as non-root `nextjs` user (UID 1001).
 
 ### Observability & Logging
+
 - **Structured JSON Logging**: Application outputs structured JSON logs to `stdout`/`stderr`.
 - **Podman Systemd Journaling**: Collected via `journalctl --user -u <service>` or `podman logs -f <container_name>`.
 
 ### Authentication & Authorization Layer
+
 - **Framework**: Better Auth with database sessions (see ADR-0003).
 - **Role Enforcement**: Project-specific role matrix in `src/lib/auth.ts`, enforced in Server Actions, Route Handlers, and Server Components through `auth.api.getSession()` / `verifySession()`.
 - **Middleware**: `src/middleware.ts` performs coarse optimistic checks only; real authorization happens at the data layer.
 
 ### File Attachment Layer
+
 - **Object Store**: Backblaze B2 via S3-compatible API (see ADR-0004).
 - **SDK**: AWS SDK for JavaScript v3.
 - **Access Pattern**: Server-side `PutObject` uploads; presigned `GetObject` URLs for authorized downloads.
 - **Metadata Registry**: PostgreSQL `Attachment` table links S3 object keys to Job Orders, DCS payments, supplier invoices, and OPEX requests.
 
 ### Backup & Disaster Recovery
+
 - **Database Backup**: Nightly containerized `pg_dump` execution storing compressed SQL backups into dedicated volume.
 - **Object Storage Backup**: Backblaze B2 bucket versioning and lifecycle rules managed in Backblaze console; references preserved in PostgreSQL.
 - **Restore Protocol**: One-line container execution: `podman exec -i lemans-db psql -U postgres lemans_db < backup.sql`.

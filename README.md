@@ -10,6 +10,7 @@ Enterprise operational and job costing platform built for **Le Mans Service Plus
 ---
 
 ## 1. Core Architecture
+
 - **Single Source Repository**: [`ItsAdventureTime/bridge-lemans`](https://github.com/ItsAdventureTime/bridge-lemans)
 - **Single Source of Truth**: One Job Order (`JO` / `RA`) governs estimations, procurement allocations, OPEX requests, customer billing, and net job profitability.
 - **Containerized Execution**: 100% rootless Podman execution (`podman machine start` on macOS Apple Silicon).
@@ -49,6 +50,7 @@ open http://127.0.0.1:3001
 ---
 
 ## 4. Primary Documentation Index
+
 - [`AGENTS.md`](./AGENTS.md): Agent Operating Guidelines & Sandbox Policy
 - [`docs/PROJECT-SPEC.md`](./docs/PROJECT-SPEC.md): Product Requirements Specification
 - [`docs/DESIGN-SYSTEM.md`](./docs/DESIGN-SYSTEM.md): Enterprise UI/UX Specification & Token System

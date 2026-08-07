@@ -1,0 +1,24 @@
+[Unit]
+Description=Le Mans remote demo application
+After=lemans-remote-demo-db.service
+
+[Container]
+Image=lemans-bridge-dashboard:latest-slim
+ContainerName=lemans-remote-demo-app
+Network=lemans-remote-demo-net
+PublishPort=127.0.0.1:3002:3000
+Environment=NODE_ENV=production
+Environment=DATABASE_URL=postgresql://postgres:postgres_remote_demo_pass@lemans-remote-demo-db:5432/lemans_remote_demo_db?schema=public
+Environment=BETTER_AUTH_SECRET={{ BetterAuthSecret }}
+Environment=BETTER_AUTH_URL=http://127.0.0.1:3002
+Environment=B2_ENDPOINT={{ B2Endpoint }}
+Environment=B2_REGION={{ B2Region }}
+Environment=B2_ACCESS_KEY_ID={{ B2AccessKeyId }}
+Environment=B2_SECRET_ACCESS_KEY={{ B2SecretAccessKey }}
+Environment=B2_BUCKET_NAME=lemans-remote-demo-attachments
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

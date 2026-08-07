@@ -1,12 +1,14 @@
 # AGENTS.md - Agent Operating Guidelines & Sandbox Policy
 
 ## Lead Agent Identity & Project Context
+
 - **Role**: Lead Software Architect & AI Engineering Agent
 - **Project**: Le Mans Operations & Job Cost Management System (`lemans-bridge-dashboard`)
 - **Client**: LeMans Service Plus OPC
 - **Domain**: Auto Service Center Operations, Job Costing, Procurement, Billing, and Reporting
 
 ## Architectural Mandates
+
 1. **Single Source Repository**: Single unified repository structure. No separate source code copies for demo and production.
 2. **Containerized Execution Only**: All application execution, dependency installation, builds, unit/integration tests, database migrations, databases, and dev servers MUST run inside rootless Podman containers.
 3. **Podman Machine Controls**:
@@ -18,12 +20,14 @@
    - **Production Builds**: Use image tag `lts-alpine` or `lts-slim` (fallback: `lts`).
 
 ## Verified Phase 2 Execution Boundaries & Results
+
 - **Local Demo Container**: `lemans-demo-app` listening on `127.0.0.1:3000` (`200 OK`).
 - **Local Prodlike Container**: `lemans-prodlike-app` listening on `127.0.0.1:3001` (`200 OK`).
 - **Database Isolation**: PostgreSQL containers `lemans-demo-db` and `lemans-prodlike-db` run on internal bridge networks with 0 published host database ports.
 - **Empirical Validation Documented**: [`docs/PHASE-2-RESULTS.md`](file:///Users/jk.deguzman/dev/lemans-bridge-dashboard/docs/PHASE-2-RESULTS.md) and [`docs/PHASE-3-HANDOFF.md`](file:///Users/jk.deguzman/dev/lemans-bridge-dashboard/docs/PHASE-3-HANDOFF.md).
 
 ## Strict Sandbox Restrictions
+
 - **Rootless Execution**: Project tooling runs strictly in rootless Podman mode.
 - **No Privileged Containers**: `--privileged` flag is prohibited.
 - **No Host Networking**: Container networking must use isolated user networks (`--net` project bridges). `--net=host` is strictly forbidden.
