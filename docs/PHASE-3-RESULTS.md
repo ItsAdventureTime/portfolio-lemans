@@ -6,6 +6,11 @@
 - **Agent**: Lead Software Architect / AI Engineering Agent
 - **Scope**: Implement approved Phase 3 plan in Build mode. Phase 4 defect fixes applied to local demo and local-prodlike environments.
 
+> **Historical results notice (2026-08-09):** These results describe an earlier
+> authentication-based runtime and are retained as historical evidence only.
+> They do not supersede the current demo rules in
+> [`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md).
+
 ## 1. What Was Built
 
 ### Foundation

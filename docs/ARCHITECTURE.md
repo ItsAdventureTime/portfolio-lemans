@@ -4,6 +4,13 @@
 
 This document specifies the containerized fullstack architecture for the **Le Mans Operations & Job Cost Management System**. All proposed solutions comply strictly with the project's **Rootless Podman Containerization Mandate** (local Apple Silicon macOS development via `podman machine start` + remote Linux Quadlet systemd deployment).
 
+> **Demo profile override (2026-08-09):** The demo build is intentionally
+> authentication-free. It defaults to the Admin simulated actor and provides a
+> visible role switcher. Better Auth, session persistence, and protected-route
+> behavior described elsewhere in this document belong to the future production
+> profile and must not block the demo. Production is promoted from the validated
+> demo source/image lineage; it is not a separately maintained codebase.
+
 ---
 
 ## 2. Industry Research Grounding & Best Practices

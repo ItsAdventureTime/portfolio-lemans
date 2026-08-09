@@ -4,6 +4,11 @@
 - **Date**: 2026-08-07
 - **Depends on**: ADR-0003 (Better Auth), ADR-0004 (Backblaze B2)
 
+> **Historical document notice (2026-08-09):** This plan records a prior
+> authentication-based implementation state. It is not current proof of demo
+> completeness. Follow [`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md)
+> for the current no-auth Admin-default demo profile and acceptance criteria.
+
 ## 1. Objective
 
 Expand the Phase 2 vertical slice into the complete core operations suite while preserving the approved architecture (Next.js 14 App Router + Prisma + PostgreSQL + rootless Podman) and satisfying all Phase 3 functional requirements.

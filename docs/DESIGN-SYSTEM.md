@@ -126,3 +126,27 @@ Every dynamic component MUST explicitly implement four discrete visual UI states
 - **Cross-Platform Preparedness**:
   - Web UI views map directly to declarative mobile view models (SwiftUI `@Observable` / Jetpack Compose `State`).
   - Fluid layouts prevent clipping across mobile, tablet, and desktop screens.
+
+---
+
+## 7. Demo Shell, Motion, and Role Simulation
+
+The current demo profile is intentionally authentication-free. The application
+opens as the `Admin` simulated actor and exposes a visible role switcher for all
+six business roles. The shell MUST show a persistent `Demo mode` indicator and
+the active role. Role simulation changes navigation and available workflow
+actions, but is not a production security boundary.
+
+Motion is functional and restrained:
+
+- Use short transitions for color, opacity, border, and elevation changes.
+- Prefer opacity and transform over large movement or layout animation.
+- Use View Transition API features only as progressive enhancement with a normal
+  navigation fallback.
+- Honor `prefers-reduced-motion: reduce` by removing non-essential movement,
+  large scaling, parallax, and continuous animation.
+- Do not use motion as the only signal for status, success, failure, or focus.
+
+Every page and data-dependent component must visibly support loading, empty,
+error, and success/default states. The full interaction and acceptance contract
+is maintained in [`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md).

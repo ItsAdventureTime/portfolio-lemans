@@ -9,6 +9,11 @@
 - **Date**: 2026-08-07
 - **Status**: Approved Base Scope & Workflow Pattern Integration
 
+> **Demo profile override (2026-08-09):** The current demo build intentionally
+> runs without authentication. It opens as the Admin simulated actor and uses a
+> visible role switcher. The Better Auth requirement below remains the future
+> production profile and must not introduce a login requirement into the demo.
+
 ---
 
 ## 2. Project Purpose & Integrated Specification Basis
@@ -26,10 +31,15 @@ This product specification synthesizes two mutually compensating handoff documen
    - Progress billing calculations and retention/variation order tracking primitives;
    - Complete audit trail logging, file attachments, and full database backup/restore mechanisms.
 
-### Authentication & Attachment Foundations
+### Production Authentication & Attachment Foundations
 
 - **Authentication**: See ADR-0003. The system uses **Better Auth** with database sessions stored in PostgreSQL, enforcing role-based access control for all server actions and protected routes.
 - **Attachments**: See ADR-0004. All file attachments (inspection photos, DCS proof-of-payment, invoice/OPEX supporting documents) are stored in **Backblaze B2** via its S3-compatible API. Access is gated by role/ownership checks and served through presigned URLs.
+
+For the demo, preserve the attachment workflow and role-aware presentation but
+use the local demo storage/profile described in
+[`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md). Do not
+require production credentials to run a walkthrough.
 
 ### Governing Core Principle
 

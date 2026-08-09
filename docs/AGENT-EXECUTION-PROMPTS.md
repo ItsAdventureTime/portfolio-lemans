@@ -1,0 +1,153 @@
+# Agent Execution Prompts
+
+These prompts are copy-paste instructions for the next coding or review agent.
+Use them with [`docs/DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md)
+open in the same workspace.
+
+## 1. Discovery and planning prompt
+
+```text
+You are the implementation agent for the Le Mans demo build.
+
+Read AGENTS.md, docs/DEMO-IMPLEMENTATION-PLAYBOOK.md, docs/DESIGN-SYSTEM.md,
+docs/PROJECT-SPEC.md, and the current source before editing anything.
+
+The demo is intentionally authentication-free. It opens as Admin and supports
+visible role simulation for Admin, General Manager, Sales Advisor, Service
+Advisor, Purchasing, and DCS. Do not add a login requirement or treat the demo
+role switcher as production security.
+
+Inspect the current worktree and preserve unrelated user changes. Produce a
+short implementation plan that maps every playbook requirement to exact files,
+data models, actions, UI states, and tests. Identify contradictions or missing
+dependencies before coding. Search official current Next.js, React, Prisma,
+Podman, WCAG, OWASP, and MDN guidance for any API or framework decision.
+
+Do not modify files during this planning pass.
+```
+
+## 2. Implementation prompt
+
+```text
+Implement the approved plan for the Le Mans demo build.
+
+Follow docs/DEMO-IMPLEMENTATION-PLAYBOOK.md as the authoritative specification.
+Focus on a deterministic, no-auth demo: default Admin actor, visible role
+switching, role-aware navigation and action behavior, no login redirect, and
+fictional seeded data.
+
+Complete real workflows rather than placeholders: customer and vehicle history,
+quote approval and conversion, job-order status including PARTS_PENDING,
+purchasing and multi-job invoice allocation, OPEX approval, DCS release/payment
+and proof upload, invoice subtotals/VAT/AR, job costing, accounting summaries,
+and deterministic exports.
+
+Keep the interface visually consistent with docs/DESIGN-SYSTEM.md. Implement all
+loading, empty, error, and success states. Add restrained transitions with a
+prefers-reduced-motion fallback. Maintain keyboard access, visible focus, and
+44px touch targets.
+
+Use server-side input validation, exact monetary arithmetic, centralized demo
+actor/policy helpers, and focused tests. Use apply_patch for edits. Run all
+execution, builds, tests, migrations, and servers inside rootless Podman. Do not
+use Compose, privileged containers, host networking, broad mounts, published DB
+ports, or remote deployment.
+
+At the end, report changed files, requirement coverage, commands run, exact
+results, warnings, and any remaining blockers. Do not claim completion for
+untested or placeholder behavior.
+```
+
+## 3. Review prompt
+
+```text
+Review the current Le Mans demo implementation against
+docs/DEMO-IMPLEMENTATION-PLAYBOOK.md and docs/PROJECT-SPEC.md.
+
+Review read-only first. Verify the no-auth Admin default and every simulated
+role. Check the full workflow from customer → quotation → job order → parts →
+supplier invoice → completion → invoice → collection, plus OPEX → approval →
+DCS payment and proof of payment.
+
+Look specifically for missing persistence, client-only enforcement, invalid
+financial calculations, unhandled loading/empty/error states, PARTS_PENDING
+regressions, hard-coded IDs, inaccessible controls, broken mobile layouts,
+missing reduced-motion behavior, and documentation that claims more than the
+code proves.
+
+Run the containerized checks. Return findings by severity with exact file paths,
+line numbers, reproduction steps, and a recommended fix. Do not edit files.
+```
+
+## 4. Verification prompt
+
+```text
+Verify the Le Mans demo from a clean, disposable rootless Podman runtime.
+
+Run:
+  podman machine start
+  ./scripts/run-local.sh
+  ./scripts/verify-local.sh
+  ./scripts/verify-vertical-slice.sh
+
+Exercise the UI as Admin, General Manager, Sales Advisor, Service Advisor,
+Purchasing, and DCS. Verify role switching without login, deterministic reset,
+all major workflow transitions, exports, attachment states, keyboard focus,
+mobile target sizing, and prefers-reduced-motion behavior.
+
+Stop and remove only the project-specific resources created by this run.
+Report every pass, failure, warning, skipped check, exposed port, and remaining
+limitation. A partial check is not a pass.
+```
+
+## 5. Handoff prompt
+
+```text
+Prepare the implementation handoff for the next agent.
+
+Summarize the final architecture, demo actor/role model, completed requirements,
+files changed, seed/reset behavior, verification commands and exact results,
+official web guidance consulted, and unresolved risks.
+
+Clearly separate implemented, partially implemented, and not implemented items.
+Link to the authoritative documents and never repeat historical credentials or
+claim production readiness for the no-auth demo.
+```
+
+## 6. Repository commands
+
+Run these from `/Users/jk.deguzman/dev/lemans-bridge-dashboard`:
+
+```bash
+# Inspect before editing
+git status --short --untracked-files=all
+git diff --check
+
+# Start and validate the demo
+podman machine start
+./scripts/run-local.sh
+./scripts/verify-local.sh
+./scripts/verify-vertical-slice.sh
+
+# Stop only the project demo runtime after validation
+./scripts/stop-local.sh
+```
+
+If a script reports success while an inner check failed, inspect the script and
+run the failing command independently. Do not accept a green wrapper as proof.
+
+## 7. Documentation and Git synchronization prompt
+
+```text
+For every code, configuration, schema, seed, container, deployment, or UX
+change, update all affected requirements, design documents, operating guides,
+README/index entries, verification evidence, and handoff notes in the same
+change set. Mark historical or superseded documents clearly.
+
+Inspect git status before staging and preserve unrelated user changes. Use local
+git for branches, staging, commits, and local history. Use the official GitHub
+CLI (`gh`) for GitHub operations, keep the remote URL on HTTPS, and do not use
+SSH or SSH keys. Run focused verification before commit and report the exact
+branch, commit, files included, and remote push result. Never stage unrelated
+dirty-worktree files just to create a clean-looking release.
+```

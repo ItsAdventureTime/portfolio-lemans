@@ -12,10 +12,12 @@ Enterprise operational and job costing platform built for **Le Mans Service Plus
 ## 1. Core Architecture
 
 - **Single Source Repository**: [`ItsAdventureTime/bridge-lemans`](https://github.com/ItsAdventureTime/bridge-lemans)
+- **Release model**: The demo is the canonical actively developed build. Production is promoted from the validated demo source/image lineage with production runtime configuration enabled.
+- **Documentation and Git synchronization**: Every change updates affected guides and verification evidence; local Git uses `git`, and GitHub operations use the official `gh` CLI over HTTPS.
 - **Single Source of Truth**: One Job Order (`JO` / `RA`) governs estimations, procurement allocations, OPEX requests, customer billing, and net job profitability.
 - **Containerized Execution**: 100% rootless Podman execution (`podman machine start` on macOS Apple Silicon; Linux rootless for VPS).
 - **No Compose**: `podman compose` / `docker compose` are not used. Local execution uses `podman run --rm` via helper scripts.
-- **Authentication**: Better Auth with PostgreSQL database sessions and role-based access control (see ADR-0003).
+- **Demo authentication**: None. The demo opens as Admin and provides visible role simulation. Production authentication remains a future deployment profile (see ADR-0003).
 - **Attachments**: Backblaze B2 S3-compatible object storage for inspection photos, receipts, and supporting documents (see ADR-0004).
 
 ---
@@ -81,6 +83,8 @@ See [`docs/REMOTE-OPERATIONS.md`](./docs/REMOTE-OPERATIONS.md) for full details.
 ## 5. Primary Documentation Index
 
 - [`AGENTS.md`](./AGENTS.md): Agent Operating Guidelines & Sandbox Policy
+- [`docs/DEMO-IMPLEMENTATION-PLAYBOOK.md`](./docs/DEMO-IMPLEMENTATION-PLAYBOOK.md): Authoritative Demo Specification, Workflow, UI/UX, and Verification Contract
+- [`docs/AGENT-EXECUTION-PROMPTS.md`](./docs/AGENT-EXECUTION-PROMPTS.md): Copy-Paste Prompts and Commands for Coding, Review, and Handoff Agents
 - [`docs/PROJECT-SPEC.md`](./docs/PROJECT-SPEC.md): Product Requirements Specification
 - [`docs/DESIGN-SYSTEM.md`](./docs/DESIGN-SYSTEM.md): Enterprise UI/UX Specification & Token System
 - [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md): Containerized Architecture & Web Grounding
