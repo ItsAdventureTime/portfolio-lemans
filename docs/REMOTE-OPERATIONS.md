@@ -1,5 +1,7 @@
 # Remote Operations Guide
 
+> **Current authority:** Follow [`REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`](./REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md) for the remote demo. This guide contains historical procedures that require reconciliation, including local standalone-output sync, login credentials, and hostname-root Caddy examples.
+
 ## Environments
 
 | Environment       | Quadlet Path                                         | App Port         | DB Volume                    | Image                                   |

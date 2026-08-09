@@ -18,30 +18,32 @@ Enterprise operational and job costing platform built for **Le Mans Service Plus
 - **Containerized Execution**: 100% rootless Podman execution (`podman machine start` on macOS Apple Silicon; Linux rootless for VPS).
 - **No Compose**: `podman compose` / `docker compose` are not used. Local execution uses `podman run --rm` via helper scripts.
 - **Demo authentication**: None. The demo opens as Admin and provides visible role simulation. Production authentication remains a future deployment profile (see ADR-0003).
+- **Deployment**: No persistent local deployment. The remote demo is deployed by `./scripts/deploy-remote-demo.sh` as rootless Quadlets at `https://delegateops.business/lemans/demo`.
 - **Attachments**: Backblaze B2 S3-compatible object storage for inspection photos, receipts, and supporting documents (see ADR-0004).
 
 ---
 
-## 2. Quick Start (Local Demo)
+## 2. Local Validation and Remote Demo Deployment
 
 ```bash
 # 1. Start local Podman machine
 podman machine start
 
-# 2. Run the local demo stack (DB + app as named, removable containers)
-./scripts/run-local.sh
+# 2. Run disposable local validation/build checks only
+./scripts/verify-local.sh
 
-# 3. The script automatically applies migrations and seeds RA0003973.
+# 3. Deploy the remote demo with one command when remote access is authorized
+REMOTE_HOST=<server-host> ./scripts/deploy-remote-demo.sh
 
-# 4. Open in browser
-open http://127.0.0.1:3000
+# 4. Open the remote demo
+open https://delegateops.business/lemans/demo
 ```
 
 Stop / reset:
 
 ```bash
-./scripts/stop-local.sh    # stop containers
-./scripts/reset-local.sh   # remove DB volume + reset to seeded state
+./scripts/stop-local.sh    # remove any temporary local runtime
+./scripts/reset-local.sh   # legacy local reset; not a deployment target
 ```
 
 ---
@@ -85,6 +87,7 @@ See [`docs/REMOTE-OPERATIONS.md`](./docs/REMOTE-OPERATIONS.md) for full details.
 - [`AGENTS.md`](./AGENTS.md): Agent Operating Guidelines & Sandbox Policy
 - [`docs/DEMO-IMPLEMENTATION-PLAYBOOK.md`](./docs/DEMO-IMPLEMENTATION-PLAYBOOK.md): Authoritative Demo Specification, Workflow, UI/UX, and Verification Contract
 - [`docs/AGENT-EXECUTION-PROMPTS.md`](./docs/AGENT-EXECUTION-PROMPTS.md): Copy-Paste Prompts and Commands for Coding, Review, and Handoff Agents
+- [`docs/REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`](./docs/REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md): Remote-Only Rootless Quadlet Deployment Contract
 - [`docs/PROJECT-SPEC.md`](./docs/PROJECT-SPEC.md): Product Requirements Specification
 - [`docs/DESIGN-SYSTEM.md`](./docs/DESIGN-SYSTEM.md): Enterprise UI/UX Specification & Token System
 - [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md): Containerized Architecture & Web Grounding

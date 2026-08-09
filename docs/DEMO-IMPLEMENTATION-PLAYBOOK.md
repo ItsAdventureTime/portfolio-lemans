@@ -93,6 +93,9 @@ Implementation sequence:
 7. Add focused tests, browser workflow tests, and accessibility checks.
 8. Run the containerized verification commands and update the handoff evidence.
 
+For deployment-specific requirements, follow
+[`REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`](./REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md).
+
 ## 3. Functional definition of done
 
 The demo is not complete until each item below works with seeded data and with

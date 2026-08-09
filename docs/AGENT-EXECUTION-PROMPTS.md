@@ -151,3 +151,32 @@ SSH or SSH keys. Run focused verification before commit and report the exact
 branch, commit, files included, and remote push result. Never stage unrelated
 dirty-worktree files just to create a clean-looking release.
 ```
+
+## 8. Remote demo deployment prompt
+
+```text
+Deploy only the remote demo profile. Do not maintain or start a persistent local
+deployment. Local Podman is allowed only for disposable builds, compilation,
+tests, and verification using podman run --rm; start podman machine only if it
+is not running.
+
+Use ./scripts/deploy-remote-demo.sh as the single deployment entry point. The
+rootless Quadlets must install under:
+  /home/jk/.config/containers/systemd/bridge-ph/lemans-demo
+
+The remote demo data, config, database, uploads, and release evidence must stay
+under:
+  /home/jk/bridge-ph/lemans-demo
+
+The target URL is:
+  https://delegateops.business/lemans/demo
+
+Follow docs/REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md. Build and promote an immutable
+image, attach the app directly to the Caddy and internal networks, keep the DB
+internal with no published port, use safe migrations, and verify the subpath,
+assets, API routes, no-auth Admin default, role switching, and health checks.
+
+Do not modify the shared Caddyfile or perform remote deployment until the user
+has explicitly authorized it and any required Caddy container/network context is
+available.
+```
