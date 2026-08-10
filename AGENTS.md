@@ -79,9 +79,10 @@ deployment and provides any required Caddy context.
 
 ## Verified Execution Boundaries & Results
 
-- **Local Demo Container**: `lemans-demo-app` listening on `127.0.0.1:3000` (`200 OK`).
-- **Remote Demo Container**: `lemans-remote-demo-app` listening on `127.0.0.1:3002` behind Caddy (`200 OK`).
-- **Remote Production Container**: `lemans-remote-prod-app` listening on `127.0.0.1:3003` behind Caddy (`200 OK`).
+- **Local Demo Container**: `lemans-demo-app` listening on `127.0.0.1:3000`, readiness probed at `/lemans/demo` (`200 OK`).
+- **Remote Demo Container**: `lemans-demo-app` listening on `127.0.0.1:3002` behind Caddy (`200 OK`).
+- **Remote Production Container**: `lemans-prod-app` listening on `127.0.0.1:3003` behind Caddy (`200 OK`).
+- **Quadlet Service Names**: Demo units are `lemans-demo.service`, `lemans-demo-go.service`, `lemans-demo-db.service`; production units are `lemans.service`, `lemans-go.service`, `lemans-db.service`. Container names remain `lemans-demo-app`/`lemans-demo-go`/`lemans-demo-db` and `lemans-prod-app`/`lemans-prod-go`/`lemans-prod-db` respectively.
 - **Database Isolation**: PostgreSQL containers run on internal bridge networks with 0 published host database ports.
 - **Empirical Validation Documented**: [`docs/PHASE-2-RESULTS.md`](file:///Users/jk.deguzman/dev/lemans-bridge-dashboard/docs/PHASE-2-RESULTS.md), [`docs/PHASE-3-HANDOFF.md`](file:///Users/jk.deguzman/dev/lemans-bridge-dashboard/docs/PHASE-3-HANDOFF.md), and [`docs/REMOTE-DEMO-RESULTS.md`](file:///Users/jk.deguzman/dev/lemans-bridge-dashboard/docs/REMOTE-DEMO-RESULTS.md).
 
@@ -97,4 +98,16 @@ deployment and provides any required Caddy context.
 - **No Broad Prune / Reset Commands**: `podman system prune -a`, `podman rm -fa`, `podman rmi -a`, `podman machine rm`, or `podman machine reset` commands are STRICTLY PROHIBITED.
 - **Exact Resource Cleanup**: Any container or volume cleanup must explicitly reference project specific names/labels (e.g., `lemans-demo-db`, `lemans-prodlike-app`).
 - **No Unsanctioned Remote Operations**: No SSH connection, remote file transfer, remote DB migration, remote container restart, DNS modification, reverse proxy setup, or remote deployment (demo or production) without explicit, direct user instructions. Do not connect to or modify any remote environment during Phase 2 or Phase 3.
+- **Verification commands for the next agent**:
+  ```bash
+  export PATH="/opt/podman/bin:$PATH"
+  podman info --format '{{.Host.Security.Rootless}}'
+  ./scripts/build.sh demo
+  ./scripts/build.sh prod
+  ./scripts/verify-local.sh
+  ./scripts/run-local.sh
+  ./scripts/verify-vertical-slice.sh
+  # Manual spot checks at http://127.0.0.1:3000/lemans/demo/...
+  ./scripts/stop-local.sh
+  ```
 - **Review Mode**: Keep terminal execution in review/ask mode where the platform supports it.

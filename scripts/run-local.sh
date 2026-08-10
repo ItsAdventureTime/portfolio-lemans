@@ -76,8 +76,11 @@ podman run -d \
   -e API_BASE_URL="http://${GO_NAME}:8080" \
   lemans-bridge-dashboard:demo-web
 
-wait_for_http "http://127.0.0.1:${PORT}/" ""
-
 BASE_PATH="/lemans/demo"
+if ! wait_for_http "http://127.0.0.1:${PORT}${BASE_PATH}" ""; then
+  echo "Error: local demo app did not become ready at ${BASE_PATH}"
+  exit 1
+fi
+
 echo "=== Local demo running at http://127.0.0.1:${PORT}${BASE_PATH}/ ==="
 echo "Run ./scripts/reset-local.sh to reset to seeded state."

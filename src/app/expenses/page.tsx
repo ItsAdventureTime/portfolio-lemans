@@ -14,16 +14,23 @@ export default async function ExpensesPage() {
   async function createAction(formData: FormData) {
     'use server';
     const currentRole = (await import('@/lib/actor')).getDemoRole();
+    const category = String(formData.get('category')).trim();
+    const description = String(formData.get('description')).trim();
+    const amount = Number(formData.get('amount'));
+    if (!category || !description || Number.isNaN(amount) || amount <= 0) {
+      throw new Error('Category, description, and a positive amount are required');
+    }
     await createOpexRequest(
       {
-        category: String(formData.get('category')),
-        description: String(formData.get('description')),
-        amountCents: Math.round(Number(formData.get('amount')) * 100),
+        category,
+        description,
+        amountCents: Math.round(amount * 100),
         notes: String(formData.get('notes')),
       },
       await currentRole
     );
     revalidatePath('/expenses');
+    revalidatePath('/dcs');
   }
 
   return (

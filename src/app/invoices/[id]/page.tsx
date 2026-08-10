@@ -1,6 +1,7 @@
 import { getDemoRole } from '@/lib/actor';
 import { getInvoice } from '@/lib/api';
-import { formatPeso } from '@/lib/api';
+import { formatPeso } from '@/lib/money';
+import { StatusBadge } from '@/components/ui';
 import { notFound } from 'next/navigation';
 
 export default async function InvoiceDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -29,8 +30,8 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
         <p>
           <strong>Paid:</strong> {formatPeso(invoice.amount_paid_cents)}
         </p>
-        <p>
-          <strong>Status:</strong> {invoice.status}
+        <p className="flex items-center gap-2">
+          <strong>Status:</strong> <StatusBadge status={invoice.status} />
         </p>
       </div>
 
@@ -42,14 +43,21 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
 
       <h2 className="text-lg font-semibold">Payments</h2>
       <div className="bg-white rounded border border-slate-200 divide-y">
-        {payments.map((p: any) => (
-          <div key={p.id} className="px-4 py-3 text-sm flex justify-between">
-            <span>
-              {p.payment_method} — {p.reference_no || '—'}
-            </span>
-            <span className="font-medium">{formatPeso(p.amount_cents)}</span>
-          </div>
-        ))}
+        {payments.map(
+          (p: {
+            id: string;
+            payment_method: string;
+            reference_no?: string;
+            amount_cents: number;
+          }) => (
+            <div key={p.id} className="px-4 py-3 text-sm flex justify-between">
+              <span>
+                {p.payment_method} — {p.reference_no || '—'}
+              </span>
+              <span className="font-medium">{formatPeso(p.amount_cents)}</span>
+            </div>
+          )
+        )}
       </div>
     </div>
   );

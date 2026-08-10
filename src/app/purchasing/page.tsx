@@ -9,6 +9,7 @@ import { hasPermission } from '@/lib/roles';
 import { revalidatePath } from 'next/cache';
 import PageHeader from '@/components/PageHeader';
 import { SectionCard } from '@/components/ui';
+import type { JobOrder } from '@/lib/types';
 import PurchaseRequestForm from './PurchaseRequestForm';
 import PurchaseList from './PurchaseList';
 import SupplierInvoiceForm from './SupplierInvoiceForm';
@@ -27,16 +28,32 @@ export default async function PurchasingPage() {
   async function createPRAction(formData: FormData) {
     'use server';
     const r = (await import('@/lib/actor')).getDemoRole();
+    const supplier = String(formData.get('supplier')).trim();
+    const description = String(formData.get('description')).trim();
+    const quantity = Number(formData.get('quantity'));
+    const unitCost = Number(formData.get('unitCost'));
+    if (
+      !supplier ||
+      !description ||
+      Number.isNaN(quantity) ||
+      quantity <= 0 ||
+      Number.isNaN(unitCost) ||
+      unitCost <= 0
+    ) {
+      throw new Error(
+        'Supplier, description, positive quantity, and positive unit cost are required'
+      );
+    }
     const items = [
       {
-        description: String(formData.get('description')),
-        quantity: Number(formData.get('quantity')),
-        unitCostCents: Math.round(Number(formData.get('unitCost')) * 100),
+        description,
+        quantity,
+        unitCostCents: Math.round(unitCost * 100),
       },
     ];
     await createPurchaseRequest(
       {
-        supplier: String(formData.get('supplier')),
+        supplier,
         notes: String(formData.get('notes')),
         items,
       },
@@ -48,17 +65,24 @@ export default async function PurchasingPage() {
   async function createSIAction(formData: FormData) {
     'use server';
     const r = (await import('@/lib/actor')).getDemoRole();
+    const supplier = String(formData.get('supplier')).trim();
+    const totalAmountCents = Number(formData.get('totalAmountCents'));
+    const invoiceDate = String(formData.get('invoiceDate'));
+    if (!supplier || Number.isNaN(totalAmountCents) || totalAmountCents <= 0 || !invoiceDate) {
+      throw new Error('Supplier, positive total amount, and invoice date are required');
+    }
     await createSupplierInvoice(
       {
-        supplier: String(formData.get('supplier')),
-        totalAmountCents: Number(formData.get('totalAmountCents')),
-        invoiceDate: String(formData.get('invoiceDate')),
+        supplier,
+        totalAmountCents,
+        invoiceDate,
         dueDate: String(formData.get('dueDate')),
         notes: String(formData.get('notes')),
       },
       await r
     );
     revalidatePath('/purchasing');
+    revalidatePath('/dcs');
   }
 
   return (
@@ -87,11 +111,11 @@ export default async function PurchasingPage() {
 
 async function listJobOrdersForPurchasing(role: string) {
   const { listJobOrders } = await import('@/lib/api');
-  const jos = await listJobOrders(role);
-  return jos.map((jo: any) => ({
+  const jos: JobOrder[] = await listJobOrders(role);
+  return jos.map((jo) => ({
     id: jo.id,
     joNo: jo.jo_no,
     customerName: jo.customer_name,
-    makeModel: jo.vehicle_make_model,
+    makeModel: jo.vehicle_make_model || '—',
   }));
 }

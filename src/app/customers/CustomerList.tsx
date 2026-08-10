@@ -2,14 +2,7 @@
 
 import Link from 'next/link';
 import { DataTable } from '@/components/ui';
-
-interface Customer {
-  id: string;
-  customer_no: string;
-  name: string;
-  phone: string;
-  email: string;
-}
+import type { Customer } from '@/lib/types';
 
 interface CustomerListProps {
   customers: Customer[];
@@ -27,7 +20,10 @@ export default function CustomerList({ customers }: CustomerListProps) {
           key: 'customerNo',
           header: 'Customer No',
           render: (c) => (
-            <Link href={`/customers/${c.id}`} className="text-brand-primary hover:underline">
+            <Link
+              href={`/customers/${c.id}`}
+              className="text-brand-primary hover:underline focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 rounded"
+            >
               {c.customer_no}
             </Link>
           ),

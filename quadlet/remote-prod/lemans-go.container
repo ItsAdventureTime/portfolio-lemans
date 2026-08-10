@@ -1,6 +1,7 @@
 [Unit]
 Description=Le Mans remote production Go API backend
 After=lemans-prod-db.service
+Requires=lemans-prod-db.service
 
 [Container]
 Image=docker.io/library/lemans-bridge-dashboard-go:prod-go

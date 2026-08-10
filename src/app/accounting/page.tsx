@@ -2,7 +2,9 @@ import { getDemoRole } from '@/lib/actor';
 import { getAccountingSummary } from '@/lib/api';
 import { formatPeso } from '@/lib/money';
 import { hasPermission } from '@/lib/roles';
+import { DataTable, StatusBadge } from '@/components/ui';
 import AccessDenied from '@/components/AccessDenied';
+import type { Customer, Invoice } from '@/lib/types';
 
 export default async function AccountingPage() {
   const role = await getDemoRole();
@@ -17,48 +19,37 @@ export default async function AccountingPage() {
 
       <section className="bg-white rounded border border-slate-200 p-4">
         <h2 className="text-lg font-semibold mb-3">Customers</h2>
-        <table className="w-full text-sm">
-          <thead className="bg-slate-50">
-            <tr>
-              <th className="text-left px-4 py-2">No</th>
-              <th className="text-left px-4 py-2">Name</th>
-              <th className="text-left px-4 py-2">TIN</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {data.customers.map((c: any) => (
-              <tr key={c.id}>
-                <td className="px-4 py-2">{c.customer_no}</td>
-                <td className="px-4 py-2">{c.name}</td>
-                <td className="px-4 py-2">{c.tin}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <DataTable<Customer>
+          items={data.customers}
+          caption="Customer summary"
+          emptyTitle="No customers"
+          emptyDescription="No customer records found."
+          columns={[
+            { key: 'customerNo', header: 'No', render: (c) => c.customer_no },
+            { key: 'name', header: 'Name', render: (c) => c.name },
+            { key: 'tin', header: 'TIN', render: (c) => c.tin || '—' },
+          ]}
+        />
       </section>
 
       <section className="bg-white rounded border border-slate-200 p-4">
         <h2 className="text-lg font-semibold mb-3">Invoices</h2>
-        <table className="w-full text-sm">
-          <thead className="bg-slate-50">
-            <tr>
-              <th className="text-left px-4 py-2">Invoice No</th>
-              <th className="text-left px-4 py-2">Customer</th>
-              <th className="text-left px-4 py-2">Total</th>
-              <th className="text-left px-4 py-2">Status</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {data.invoices.map((inv: any) => (
-              <tr key={inv.id}>
-                <td className="px-4 py-2">{inv.invoice_no}</td>
-                <td className="px-4 py-2">{inv.customer_name}</td>
-                <td className="px-4 py-2">{formatPeso(inv.total_cents)}</td>
-                <td className="px-4 py-2">{inv.status}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <DataTable<Invoice>
+          items={data.invoices}
+          caption="Invoice summary"
+          emptyTitle="No invoices"
+          emptyDescription="No invoice records found."
+          columns={[
+            { key: 'invoiceNo', header: 'Invoice No', render: (inv) => inv.invoice_no },
+            { key: 'customer', header: 'Customer', render: (inv) => inv.customer_name },
+            { key: 'total', header: 'Total', render: (inv) => formatPeso(inv.total_cents) },
+            {
+              key: 'status',
+              header: 'Status',
+              render: (inv) => <StatusBadge status={inv.status} />,
+            },
+          ]}
+        />
       </section>
     </div>
   );

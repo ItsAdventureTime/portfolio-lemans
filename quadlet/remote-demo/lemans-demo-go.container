@@ -1,6 +1,7 @@
 [Unit]
 Description=Le Mans remote demo Go API backend
 After=lemans-demo-db.service
+Requires=lemans-demo-db.service
 
 [Container]
 Image=docker.io/library/lemans-bridge-dashboard-go:demo-go

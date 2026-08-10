@@ -2,15 +2,7 @@
 
 import Link from 'next/link';
 import { DataTable, StatusBadge } from '@/components/ui';
-
-interface JobOrder {
-  id: string;
-  jo_no: string;
-  customer_name: string;
-  vehicle_plate: string;
-  status: string;
-  technician?: string;
-}
+import type { JobOrder } from '@/lib/types';
 
 interface JobOrderListProps {
   jobOrders: JobOrder[];
@@ -28,7 +20,10 @@ export default function JobOrderList({ jobOrders }: JobOrderListProps) {
           key: 'joNo',
           header: 'JO No',
           render: (jo) => (
-            <Link href={`/job-orders/${jo.jo_no}`} className="text-brand-primary hover:underline">
+            <Link
+              href={`/job-orders/${jo.jo_no}`}
+              className="text-brand-primary hover:underline focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 rounded"
+            >
               {jo.jo_no}
             </Link>
           ),

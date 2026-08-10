@@ -55,7 +55,7 @@ export default function CascadingCustomerVehicleSelector({
             <button
               type="button"
               onClick={onQuickAddCustomer}
-              className="inline-flex items-center text-xs font-semibold text-brand-primary hover:text-brand-hover"
+              className="inline-flex items-center text-xs font-semibold text-brand-primary hover:text-brand-hover focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 rounded"
             >
               <Plus className="h-3 w-3 mr-0.5" />
               Quick Add
@@ -63,11 +63,12 @@ export default function CascadingCustomerVehicleSelector({
           )}
         </label>
         <select
+          id={customerName}
           name={customerName}
           required
           value={selectedCustomerId}
           onChange={(e) => handleCustomerChange(e.target.value)}
-          className="w-full px-3 py-2 rounded-xl border border-slate-300 text-base"
+          className="w-full px-3 py-2 rounded-xl border border-slate-300 text-base focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
         >
           <option value="">Select Customer</option>
           {customers.map((c) => (
@@ -86,7 +87,7 @@ export default function CascadingCustomerVehicleSelector({
               <button
                 type="button"
                 onClick={onQuickAddVehicle}
-                className="inline-flex items-center text-xs font-semibold text-brand-primary hover:text-brand-hover"
+                className="inline-flex items-center text-xs font-semibold text-brand-primary hover:text-brand-hover focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 rounded"
               >
                 <Plus className="h-3 w-3 mr-0.5" />
                 Quick Add
@@ -97,12 +98,13 @@ export default function CascadingCustomerVehicleSelector({
           )}
         </label>
         <select
+          id={vehicleName}
           name={vehicleName}
           required
           disabled={!selectedCustomerId}
           value={selectedVehicleId}
           onChange={(e) => setSelectedVehicleId(e.target.value)}
-          className="w-full px-3 py-2 rounded-xl border border-slate-300 text-base disabled:bg-slate-100 disabled:text-slate-400"
+          className="w-full px-3 py-2 rounded-xl border border-slate-300 text-base disabled:bg-slate-100 disabled:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
         >
           <option value="">
             {selectedCustomerId ? 'Select Vehicle' : 'Select Customer First'}

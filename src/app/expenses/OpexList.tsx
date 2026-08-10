@@ -7,15 +7,7 @@ import { formatPeso } from '@/lib/money';
 import { hasPermission, ProjectRole } from '@/lib/roles';
 import { approveOpexRequest } from '@/lib/api';
 import { Loader2, Check } from 'lucide-react';
-
-interface OpexRequest {
-  id: string;
-  request_no: string;
-  category: string;
-  description: string;
-  amount_cents: number;
-  status: string;
-}
+import type { OpexRequest } from '@/lib/types';
 
 interface OpexListProps {
   requests: OpexRequest[];
@@ -58,7 +50,7 @@ export default function OpexList({ requests, role }: OpexListProps) {
               <button
                 onClick={() => handleApprove(o.id)}
                 disabled={isPending}
-                className="inline-flex items-center h-8 px-3 rounded-lg bg-brand-primary text-white text-xs font-semibold hover:bg-brand-hover transition-colors disabled:opacity-50"
+                className="inline-flex items-center h-8 px-3 rounded-lg bg-brand-primary text-white text-xs font-semibold hover:bg-brand-hover transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
               >
                 {isPending ? (
                   <Loader2 className="h-3 w-3 animate-spin" />

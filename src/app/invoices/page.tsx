@@ -14,8 +14,13 @@ export default async function InvoicesPage() {
   async function createAction(formData: FormData) {
     'use server';
     const r = (await import('@/lib/actor')).getDemoRole();
-    await createInvoiceFromJO(String(formData.get('joId')), '', await r);
+    const joId = String(formData.get('joId')).trim();
+    if (!joId) {
+      throw new Error('Job Order ID is required');
+    }
+    await createInvoiceFromJO(joId, '', await r);
     revalidatePath('/invoices');
+    revalidatePath('/job-orders');
   }
 
   return (

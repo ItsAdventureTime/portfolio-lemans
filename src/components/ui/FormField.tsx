@@ -38,7 +38,7 @@ export default function FormField({
         defaultValue={defaultValue}
         min={min}
         step={step}
-        className="w-full px-3 py-2 rounded-lg border border-slate-300 text-base focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+        className="w-full px-3 py-2 rounded-lg border border-slate-300 text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary min-h-[44px]"
         aria-describedby={helpText ? `${name}-help` : undefined}
       />
       {helpText && (

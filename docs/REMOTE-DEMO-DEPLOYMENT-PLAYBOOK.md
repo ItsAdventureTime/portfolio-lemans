@@ -86,10 +86,18 @@ Recommended units:
 - `lemans-demo-db.volume` or a bind mount under the remote demo data root.
 - `lemans-demo-db.container` with no published port.
 - `lemans-demo-go.container` attached only to `lemans-demo-net`.
+  Its unit name is `lemans-demo-go.service` and it should
+  `After=lemans-demo-db.service` (and ideally `Requires=lemans-demo-db.service`).
 - `lemans-demo.container` attached to both `caddy.network` and
-  `lemans-demo-net`.
+  `lemans-demo-net`. Its unit name is `lemans-demo.service` and it should
+  `After=lemans-demo-go.service` (and ideally `Requires=lemans-demo-go.service`).
 - The Go API container runs migrations on startup and serves the
   `/admin/seed` endpoint only when `DEMO_MODE=true`.
+
+Unit names are generated from the Quadlet filename (e.g., `lemans-demo.container`
+becomes `lemans-demo.service`). Container names (`lemans-demo-app`,
+`lemans-demo-go`, `lemans-demo-db`) remain separate and are used for
+internal references such as DNS aliases and `podman exec` commands.
 
 Do not use a container that only runs `sleep infinity` as a network bridge. The
 application container should join both networks directly, or a real configured
@@ -149,7 +157,11 @@ The script may accept `REMOTE_USER`, but it defaults to `jk`. It must:
 4. Record the image digest and source commit in a release manifest.
 5. Transfer both images and the Quadlet units to the remote paths.
 6. Install or update the rootless Quadlets under the canonical Quadlet path.
-7. Reload the user's systemd manager and start only the demo units.
+7. Create the remote release directory (`/home/jk/bridge-ph/lemans-demo/releases`)
+   before copying the release manifest, reload the user's systemd manager, start
+   only the demo units using their generated unit names
+   (`lemans-demo-db.service`, `lemans-demo-go.service`, `lemans-demo.service`),
+   and verify generated units with `systemd-analyze --user --generators=true verify`.
 8. Seed the database on first install or when an explicit reset flag is
    provided. Migrations run automatically inside the Go API container.
 9. Check the public URL and internal Go API / web health endpoints.
@@ -244,6 +256,9 @@ and the Next.js web container joins `caddy.network` directly.
   joins both `caddy.network` and `lemans-demo-net`.
 - Go migrations run automatically inside `lemans-demo-go.service`.
 - The `/admin/seed` endpoint is only available when `DEMO_MODE=true`.
+- Temporary local env/release files are removed on success and failure; the
+  remote env file is chmod `600`; release manifests are written to
+  `/home/jk/bridge-ph/lemans-demo/releases`.
 
 Do not claim the target URL is operational until the Caddy context and remote
 health checks are verified.

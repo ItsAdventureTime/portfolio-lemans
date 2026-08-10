@@ -29,13 +29,16 @@ export default function InvoiceList({ invoices, role }: InvoiceListProps) {
   const [isPending, startTransition] = useTransition();
 
   function handlePay(inv: Invoice, formData: FormData) {
-    const amount = Math.round(Number(formData.get('amount')) * 100);
-    if (amount <= 0 || amount > inv.total_cents - inv.amount_paid_cents) return;
+    const amount = Number(formData.get('amount'));
+    if (Number.isNaN(amount) || amount <= 0) return;
+    const amountCents = Math.round(amount * 100);
+    const remaining = inv.total_cents - inv.amount_paid_cents;
+    if (amountCents > remaining) return;
     startTransition(async () => {
       await recordInvoicePayment(
         inv.id,
         {
-          amountCents: amount,
+          amountCents,
           paymentMethod: String(formData.get('paymentMethod')),
           referenceNo: String(formData.get('referenceNo')),
           paidAt: new Date().toISOString(),
@@ -100,7 +103,7 @@ export default function InvoiceList({ invoices, role }: InvoiceListProps) {
                 <button
                   type="submit"
                   disabled={isPending}
-                  className="inline-flex items-center h-8 px-3 rounded-lg bg-brand-primary text-white text-xs font-semibold hover:bg-brand-hover transition-colors disabled:opacity-50"
+                  className="inline-flex items-center h-8 px-3 rounded-lg bg-brand-primary text-white text-xs font-semibold hover:bg-brand-hover transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
                 >
                   {isPending ? (
                     <Loader2 className="h-3 w-3 animate-spin" />

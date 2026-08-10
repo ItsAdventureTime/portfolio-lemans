@@ -13,6 +13,7 @@ export default async function CustomersPage() {
 
   async function createFormAction(formData: FormData) {
     'use server';
+    const currentRole = (await import('@/lib/actor')).getDemoRole();
     const customer = {
       customerNo: String(formData.get('customerNo')),
       name: String(formData.get('name')),
@@ -30,7 +31,9 @@ export default async function CustomersPage() {
       color: String(formData.get('color')),
       odometer: Number(formData.get('odometer')),
     };
-    const currentRole = (await import('@/lib/actor')).getDemoRole();
+    if (!customer.customerNo || !customer.name || !vehicle.plateNo || !vehicle.makeModel) {
+      throw new Error('Customer No, Name, Plate No, and Make/Model are required');
+    }
     await createCustomerAndVehicle({ customer, vehicle }, await currentRole);
     revalidatePath('/customers');
   }

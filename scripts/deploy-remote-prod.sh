@@ -16,6 +16,9 @@ DB_VOLUME="lemans-prod-db-data"
 DB_CONTAINER="lemans-prod-db"
 GO_CONTAINER="lemans-prod-go"
 APP_CONTAINER="lemans-prod-app"
+APP_SERVICE="lemans.service"
+GO_SERVICE="lemans-go.service"
+DB_SERVICE="lemans-db.service"
 WEB_IMAGE="docker.io/library/lemans-bridge-dashboard:prod-web"
 GO_IMAGE="docker.io/library/lemans-bridge-dashboard-go:prod-go"
 
@@ -91,15 +94,15 @@ cat > "$RELEASE_FILE" <<EOF
 }
 EOF
 
+ssh "${REMOTE_USER}@${REMOTE_HOST}" "mkdir -p ${RELEASE_DIR}"
 scp "$ENV_FILE" "${REMOTE_USER}@${REMOTE_HOST}:${QUADLET_PATH}/lemans.env"
 scp "$RELEASE_FILE" "${REMOTE_USER}@${REMOTE_HOST}:${RELEASE_DIR}/${RELEASE_ID}.json"
 rm -f "$ENV_FILE" "$RELEASE_FILE"
 
-ssh "${REMOTE_USER}@${REMOTE_HOST}" <<REMOTE_SCRIPT
+ssh "${REMOTE_USER}@${REMOTE_HOST}" <<'REMOTE_SCRIPT'
   set -euo pipefail
-  export PATH="/opt/podman/bin:\$PATH"
+  export PATH="/opt/podman/bin:$PATH"
 
-  mkdir -p ${RELEASE_DIR}
   chmod 600 ${QUADLET_PATH}/lemans.env
 
   if ! podman secret exists db_password; then
@@ -108,16 +111,24 @@ ssh "${REMOTE_USER}@${REMOTE_HOST}" <<REMOTE_SCRIPT
     printf '%s' '${DB_PASSWORD}' | podman secret create --replace db_password -
   fi
 
+  echo "Validating generated units..."
+  if ! systemd-analyze --user --generators=true verify ${DB_SERVICE} ${GO_SERVICE} ${APP_SERVICE} 2>/dev/null; then
+    echo "Error: generated unit verification failed"
+    exit 1
+  fi
   systemctl --user daemon-reload
 
   echo "Starting database service..."
-  systemctl --user start ${DB_CONTAINER}.service
+  if ! systemctl --user start ${DB_SERVICE}; then
+    echo "Error: failed to start ${DB_SERVICE}"
+    exit 1
+  fi
 REMOTE_SCRIPT
 
 echo "Waiting for services and running verification..."
-ssh "${REMOTE_USER}@${REMOTE_HOST}" <<REMOTE_SCRIPT
+ssh "${REMOTE_USER}@${REMOTE_HOST}" <<'REMOTE_SCRIPT'
   set -euo pipefail
-  export PATH="/opt/podman/bin:\$PATH"
+  export PATH="/opt/podman/bin:$PATH"
 
   for i in {1..30}; do
     if podman exec ${DB_CONTAINER} pg_isready -U postgres > /dev/null 2>&1; then
@@ -131,7 +142,12 @@ ssh "${REMOTE_USER}@${REMOTE_HOST}" <<REMOTE_SCRIPT
     exit 1
   fi
 
-  systemctl --user start ${GO_CONTAINER}.service
+  echo "Starting Go API service..."
+  if ! systemctl --user start ${GO_SERVICE}; then
+    echo "Error: failed to start ${GO_SERVICE}"
+    exit 1
+  fi
+
   for i in {1..30}; do
     status=\$(curl -s -o /dev/null -w '%{http_code}' "http://${GO_CONTAINER}:8080/health" 2>/dev/null || true)
     if [[ "\$status" == "200" ]]; then
@@ -145,7 +161,12 @@ ssh "${REMOTE_USER}@${REMOTE_HOST}" <<REMOTE_SCRIPT
     exit 1
   fi
 
-  systemctl --user start ${APP_CONTAINER}.service
+  echo "Starting web app service..."
+  if ! systemctl --user start ${APP_SERVICE}; then
+    echo "Error: failed to start ${APP_SERVICE}"
+    exit 1
+  fi
+
   for i in {1..30}; do
     status=\$(curl -sL -o /dev/null -w '%{http_code}' "http://127.0.0.1:${APP_PORT}/lemans" 2>/dev/null || true)
     if [[ "\$status" == "200" ]]; then
@@ -197,3 +218,4 @@ echo "=== Remote production deployed at https://${REMOTE_HOST}/lemans ==="
 echo "Release: ${RELEASE_ID}"
 echo "Web digest: ${WEB_DIGEST}"
 echo "Go digest: ${GO_DIGEST}"
+echo "Release manifest: ${RELEASE_DIR}/${RELEASE_ID}.json"

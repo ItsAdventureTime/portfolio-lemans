@@ -18,7 +18,16 @@ export default async function QuotationsPage() {
   async function createAction(formData: FormData) {
     'use server';
     const currentRole = (await import('@/lib/actor')).getDemoRole();
-    const items = JSON.parse(String(formData.get('items') || '[]'));
+    const itemsRaw = JSON.parse(String(formData.get('items') || '[]'));
+    const items = Array.isArray(itemsRaw)
+      ? itemsRaw.map((it) => ({
+          itemType: String(it.itemType ?? ''),
+          description: String(it.description ?? ''),
+          quantity: Number(it.quantity ?? 0),
+          unitPriceCents: Number(it.unitPriceCents ?? 0),
+          discountCents: Number(it.discountCents ?? 0),
+        }))
+      : [];
     await createSalesQuotation(
       {
         customerId: String(formData.get('customerId')),
@@ -29,6 +38,7 @@ export default async function QuotationsPage() {
       await currentRole
     );
     revalidatePath('/quotations');
+    revalidatePath('/job-orders');
   }
 
   return (

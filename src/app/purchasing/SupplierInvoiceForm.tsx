@@ -74,7 +74,7 @@ export default function SupplierInvoiceForm({ jobOrders, action }: SupplierInvoi
             setTotalAmount(total);
             setShowModal(true);
           }}
-          className="inline-flex items-center h-9 px-4 rounded-xl bg-slate-100 text-slate-700 text-sm font-semibold hover:bg-slate-200 transition-colors"
+          className="inline-flex items-center h-9 px-4 rounded-xl bg-slate-100 text-slate-700 text-sm font-semibold hover:bg-slate-200 transition-colors focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2"
         >
           Allocate Across JOs
         </button>
@@ -97,7 +97,7 @@ export default function SupplierInvoiceForm({ jobOrders, action }: SupplierInvoi
       <button
         type="submit"
         disabled={isPending}
-        className="inline-flex items-center justify-center h-10 px-5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-hover transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+        className="inline-flex items-center justify-center h-10 px-5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-hover transition-colors disabled:opacity-60 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
       >
         {isPending ? (
           <Loader2 className="h-4 w-4 mr-2 animate-spin" />

@@ -1,6 +1,7 @@
 [Unit]
 Description=Le Mans remote demo Next.js web application
 After=lemans-demo-go.service
+Requires=lemans-demo-go.service
 
 [Container]
 Image=docker.io/library/lemans-bridge-dashboard:demo-web

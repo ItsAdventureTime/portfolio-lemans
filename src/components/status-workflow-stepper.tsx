@@ -4,13 +4,7 @@ import React from 'react';
 import { CheckIcon } from 'lucide-react';
 
 type WorkflowStatus =
-  | 'DRAFT'
-  | 'APPROVED'
-  | 'IN_PROGRESS'
-  | 'PARTS_PENDING'
-  | 'COMPLETED'
-  | 'BILLED'
-  | 'CLOSED';
+  'DRAFT' | 'APPROVED' | 'IN_PROGRESS' | 'PARTS_PENDING' | 'COMPLETED' | 'BILLED' | 'CLOSED';
 
 interface StatusWorkflowStepperProps {
   status: WorkflowStatus | string;

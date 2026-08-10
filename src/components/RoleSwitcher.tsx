@@ -21,7 +21,7 @@ export default function RoleSwitcher({ currentRole }: { currentRole: ProjectRole
       <select
         value={currentRole}
         onChange={(e) => switchRole(e.target.value as ProjectRole)}
-        className="text-sm border border-slate-300 rounded px-2 py-1 bg-white"
+        className="text-sm border border-slate-300 rounded px-2 py-1 bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
       >
         {ROLE_ORDER.map((role) => (
           <option key={role} value={role}>

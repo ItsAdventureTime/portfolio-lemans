@@ -2,6 +2,7 @@ import { getDemoRole } from '@/lib/actor';
 import { getJobCosting } from '@/lib/api';
 import { formatPeso } from '@/lib/money';
 import { hasPermission } from '@/lib/roles';
+import { SectionCard } from '@/components/ui';
 import AccessDenied from '@/components/AccessDenied';
 import { notFound } from 'next/navigation';
 
@@ -39,9 +40,8 @@ export default async function JobCostingPage({ params }: { params: Promise<{ id:
 
 function CostCard({ label, cents }: { label: string; cents: number }) {
   return (
-    <div className="bg-white p-4 rounded border border-slate-200">
-      <p className="text-sm text-slate-500">{label}</p>
+    <SectionCard title={label}>
       <p className="text-xl font-semibold">{formatPeso(cents)}</p>
-    </div>
+    </SectionCard>
   );
 }

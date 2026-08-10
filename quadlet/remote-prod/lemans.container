@@ -1,6 +1,7 @@
 [Unit]
 Description=Le Mans remote production Next.js web application
 After=lemans-prod-go.service
+Requires=lemans-prod-go.service
 
 [Container]
 Image=docker.io/library/lemans-bridge-dashboard:prod-web

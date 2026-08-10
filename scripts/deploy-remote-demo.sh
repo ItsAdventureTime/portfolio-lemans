@@ -17,6 +17,9 @@ NETWORK_NAME="lemans-demo-net"
 APP_CONTAINER="lemans-demo-app"
 GO_CONTAINER="lemans-demo-go"
 DB_CONTAINER="lemans-demo-db"
+APP_SERVICE="lemans-demo.service"
+GO_SERVICE="lemans-demo-go.service"
+DB_SERVICE="lemans-demo-db.service"
 WEB_IMAGE="docker.io/library/lemans-bridge-dashboard:demo-web"
 GO_IMAGE="docker.io/library/lemans-bridge-dashboard-go:demo-go"
 PUBLIC_URL="https://${REMOTE_HOST}/lemans/demo"
@@ -29,6 +32,9 @@ if [[ -z "$REMOTE_HOST" ]]; then
 fi
 
 PUBLIC_URL="https://${REMOTE_HOST}/lemans/demo"
+RELEASE_COMMIT="$(git rev-parse HEAD 2>/dev/null || echo 'unknown')"
+RELEASE_TIME="$(date -u +%Y%m%d-%H%M%S)"
+RELEASE_ID="${RELEASE_TIME}-${RELEASE_COMMIT:0:8}"
 
 if [[ -z "${B2_ACCESS_KEY_ID:-}" ]] || [[ -z "${B2_SECRET_ACCESS_KEY:-}" ]]; then
   echo "Backblaze B2 credentials required for remote demo."
@@ -40,9 +46,6 @@ if [[ -z "${B2_ACCESS_KEY_ID:-}" ]] || [[ -z "${B2_SECRET_ACCESS_KEY:-}" ]]; the
 fi
 
 DB_PASSWORD="$(generate_password)"
-RELEASE_COMMIT="$(git rev-parse HEAD 2>/dev/null || echo 'unknown')"
-RELEASE_TIME="$(date -u +%Y%m%d-%H%M%S)"
-RELEASE_ID="${RELEASE_TIME}-${RELEASE_COMMIT:0:8}"
 
 echo "=== Deploying remote demo to ${REMOTE_HOST} ==="
 
@@ -99,15 +102,15 @@ cat > "$RELEASE_FILE" <<EOF
 }
 EOF
 
+ssh "${REMOTE_USER}@${REMOTE_HOST}" "mkdir -p ${RELEASE_DIR}"
 scp "$ENV_FILE" "${REMOTE_USER}@${REMOTE_HOST}:${QUADLET_PATH}/lemans-demo.env"
 scp "$RELEASE_FILE" "${REMOTE_USER}@${REMOTE_HOST}:${RELEASE_DIR}/${RELEASE_ID}.json"
 rm -f "$ENV_FILE" "$RELEASE_FILE"
 
-ssh "${REMOTE_USER}@${REMOTE_HOST}" <<REMOTE_SCRIPT
+ssh "${REMOTE_USER}@${REMOTE_HOST}" <<'REMOTE_SCRIPT'
   set -euo pipefail
-  export PATH="/opt/podman/bin:\$PATH"
+  export PATH="/opt/podman/bin:$PATH"
 
-  mkdir -p ${RELEASE_DIR}
   chmod 600 ${QUADLET_PATH}/lemans-demo.env
 
   if ! podman secret exists db_password; then
@@ -119,16 +122,22 @@ ssh "${REMOTE_USER}@${REMOTE_HOST}" <<REMOTE_SCRIPT
   systemctl --user daemon-reload
 
   echo "Validating generated units..."
-  if ! systemctl --user --quiet start ${DB_CONTAINER}.service 2>/dev/null; then
-    echo "Error: failed to start ${DB_CONTAINER}.service"
+  if ! systemd-analyze --user --generators=true verify ${DB_SERVICE} ${GO_SERVICE} ${APP_SERVICE} 2>/dev/null; then
+    echo "Error: generated unit verification failed"
+    exit 1
+  fi
+
+  echo "Starting database service..."
+  if ! systemctl --user start ${DB_SERVICE}; then
+    echo "Error: failed to start ${DB_SERVICE}"
     exit 1
   fi
 REMOTE_SCRIPT
 
 echo "[6/6] Waiting for services and running verification..."
-ssh "${REMOTE_USER}@${REMOTE_HOST}" <<REMOTE_SCRIPT
+ssh "${REMOTE_USER}@${REMOTE_HOST}" <<'REMOTE_SCRIPT'
   set -euo pipefail
-  export PATH="/opt/podman/bin:\$PATH"
+  export PATH="/opt/podman/bin:$PATH"
 
   for i in {1..30}; do
     if podman exec ${DB_CONTAINER} pg_isready -U postgres > /dev/null 2>&1; then
@@ -142,7 +151,12 @@ ssh "${REMOTE_USER}@${REMOTE_HOST}" <<REMOTE_SCRIPT
     exit 1
   fi
 
-  systemctl --user start ${GO_CONTAINER}.service
+  echo "Starting Go API service..."
+  if ! systemctl --user start ${GO_SERVICE}; then
+    echo "Error: failed to start ${GO_SERVICE}"
+    exit 1
+  fi
+
   for i in {1..30}; do
     status=\$(curl -s -o /dev/null -w '%{http_code}' "http://${GO_CONTAINER}:8080/health" 2>/dev/null || true)
     if [[ "\$status" == "200" ]]; then
@@ -162,7 +176,12 @@ ssh "${REMOTE_USER}@${REMOTE_HOST}" <<REMOTE_SCRIPT
     echo "Database seeded"
   fi
 
-  systemctl --user start ${APP_CONTAINER}.service
+  echo "Starting web app service..."
+  if ! systemctl --user start ${APP_SERVICE}; then
+    echo "Error: failed to start ${APP_SERVICE}"
+    exit 1
+  fi
+
   for i in {1..30}; do
     status=\$(curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:${APP_PORT}/lemans/demo" 2>/dev/null || true)
     if [[ "\$status" == "200" ]]; then
@@ -243,4 +262,5 @@ echo "=== Remote demo deployed at ${PUBLIC_URL} ==="
 echo "Release: ${RELEASE_ID}"
 echo "Web digest: ${WEB_DIGEST}"
 echo "Go digest: ${GO_DIGEST}"
+echo "Release manifest: ${RELEASE_DIR}/${RELEASE_ID}.json"
 echo "To reset: RESET=true REMOTE_HOST=${REMOTE_HOST} ./scripts/deploy-remote-demo.sh"

@@ -35,7 +35,7 @@ export default function InvoiceForm({ action }: InvoiceFormProps) {
       <button
         type="submit"
         disabled={isPending}
-        className="inline-flex items-center justify-center h-10 px-5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-hover transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+        className="inline-flex items-center justify-center h-10 px-5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-hover transition-colors disabled:opacity-60 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
       >
         {isPending ? (
           <Loader2 className="h-4 w-4 mr-2 animate-spin" />

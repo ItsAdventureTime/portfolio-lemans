@@ -5,7 +5,7 @@
 > **Repository:** `lemans-bridge-dashboard`  
 > **Project:** Le Mans Operations & Job Cost Management System (LeMans Service Plus OPC)  
 > **Handoff date:** 2026-08-10  
-> **Authoring agent:** OpenCode / Lead Software Architect agent  
+> **Authoring agent:** OpenCode / Lead Software Architect agent
 
 ---
 
@@ -17,18 +17,18 @@ This document tells the **reviewer/evaluator agent** (or human reviewer) exactly
 
 ## 2. What changed (high-level)
 
-| Area | Before | After |
-|------|--------|-------|
-| **Frontend pages** | Monolithic server pages with inline tables/forms (`page.tsx` files only) | Modular component split: `*Form.tsx` (client), `*List.tsx` (client), and thin `page.tsx` (server) for customers, quotations, job orders, invoices, expenses, purchasing |
-| **Shared UI** | Ad-hoc raw inputs/buttons everywhere | New `src/components/ui/` library: `DataTable`, `FormField`, `StatusBadge`, `EmptyState`, `SectionCard`, `Skeleton` |
-| **Money formatting** | Inline `₱${(cents/100).toFixed(2)}` duplicated | Centralized `src/lib/money.ts` using `Intl.NumberFormat('en-PH', { currency: 'PHP' })` |
-| **Error boundaries** | Default Next.js fallbacks | Custom `error.tsx`, `global-error.tsx`, `loading.tsx`, `not-found.tsx`, and `AccessDenied.tsx` |
-| **Backend API** | No `ListVehicles` endpoint; selector passed raw IDs | Added `/api/vehicles` + generated `ListVehicles` query; selectors now show plate/make-model labels |
-| **Backend tests** | No unit tests | Added `actor_test.go`, `money_test.go`, `policy_test.go` |
-| **Deployment scripts** | Basic image save/ssh + single env file | Hardened with release manifests, image digests, Podman secret creation, health checks, DB port-unexposure checks, role/actor checks, `--delete` rsync |
-| **Remote Quadlet naming** | `lemans-remote-demo-*` / `lemans-remote-prod-*` | Simplified to `lemans-demo-*` / `lemans-prod-*`; internal networks renamed accordingly |
-| **Base path** | Local demo served at `/` | Local demo aligned to `/lemans/demo`; `verify-vertical-slice.sh` updated |
-| **Accessibility** | Animated loading skeletons only | Added `prefers-reduced-motion` media query in `globals.css` |
+| Area                      | Before                                                                   | After                                                                                                                                                                   |
+| ------------------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Frontend pages**        | Monolithic server pages with inline tables/forms (`page.tsx` files only) | Modular component split: `*Form.tsx` (client), `*List.tsx` (client), and thin `page.tsx` (server) for customers, quotations, job orders, invoices, expenses, purchasing |
+| **Shared UI**             | Ad-hoc raw inputs/buttons everywhere                                     | New `src/components/ui/` library: `DataTable`, `FormField`, `StatusBadge`, `EmptyState`, `SectionCard`, `Skeleton`                                                      |
+| **Money formatting**      | Inline `₱${(cents/100).toFixed(2)}` duplicated                           | Centralized `src/lib/money.ts` using `Intl.NumberFormat('en-PH', { currency: 'PHP' })`                                                                                  |
+| **Error boundaries**      | Default Next.js fallbacks                                                | Custom `error.tsx`, `global-error.tsx`, `loading.tsx`, `not-found.tsx`, and `AccessDenied.tsx`                                                                          |
+| **Backend API**           | No `ListVehicles` endpoint; selector passed raw IDs                      | Added `/api/vehicles` + generated `ListVehicles` query; selectors now show plate/make-model labels                                                                      |
+| **Backend tests**         | No unit tests                                                            | Added `actor_test.go`, `money_test.go`, `policy_test.go`                                                                                                                |
+| **Deployment scripts**    | Basic image save/ssh + single env file                                   | Hardened with release manifests, image digests, Podman secret creation, health checks, DB port-unexposure checks, role/actor checks, `--delete` rsync                   |
+| **Remote Quadlet naming** | `lemans-remote-demo-*` / `lemans-remote-prod-*`                          | Simplified to `lemans-demo-*` / `lemans-prod-*`; internal networks renamed accordingly                                                                                  |
+| **Base path**             | Local demo served at `/`                                                 | Local demo aligned to `/lemans/demo`; `verify-vertical-slice.sh` updated                                                                                                |
+| **Accessibility**         | Animated loading skeletons only                                          | Added `prefers-reduced-motion` media query in `globals.css`                                                                                                             |
 
 ---
 
@@ -36,12 +36,12 @@ This document tells the **reviewer/evaluator agent** (or human reviewer) exactly
 
 The authoring agent ran the following inside disposable rootless Podman containers on macOS (Apple Silicon). You **must** rerun at least the starred checks before approving.
 
-| Check | Command | Result | Notes |
-|-------|---------|--------|-------|
-| **Containerized TypeScript check** | `export PATH="/opt/podman/bin:$PATH" && ./scripts/verify-local.sh` | ✅ Pass | format check + `tsc --noEmit`; Go build + `go test ./...` |
-| **Containerized production build** | `export PATH="/opt/podman/bin:$PATH" && ./scripts/build.sh demo` | ✅ Pass | images `lemans-bridge-dashboard:demo-web` and `lemans-bridge-dashboard-go:demo-go` |
-| **Vertical slice health** | `export PATH="/opt/podman/bin:$PATH" && ./scripts/verify-vertical-slice.sh` | ✅ Pass | HTTP 200 on `/lemans/demo`, `/customers`, `/quotations`, `/job-orders`, `/job-orders/RA0003973`, `/job-costing/RA0003973`, `/purchasing`, `/expenses`, `/dcs`, `/invoices`; Go `/health`; DB no published host ports |
-| Live smoke test | `curl http://127.0.0.1:3000/lemans/demo` | ✅ 200 | Static assets load, role switcher visible, 404 on unknown route |
+| Check                              | Command                                                                     | Result  | Notes                                                                                                                                                                                                                |
+| ---------------------------------- | --------------------------------------------------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Containerized TypeScript check** | `export PATH="/opt/podman/bin:$PATH" && ./scripts/verify-local.sh`          | ✅ Pass | format check + `tsc --noEmit`; Go build + `go test ./...`                                                                                                                                                            |
+| **Containerized production build** | `export PATH="/opt/podman/bin:$PATH" && ./scripts/build.sh demo`            | ✅ Pass | images `lemans-bridge-dashboard:demo-web` and `lemans-bridge-dashboard-go:demo-go`                                                                                                                                   |
+| **Vertical slice health**          | `export PATH="/opt/podman/bin:$PATH" && ./scripts/verify-vertical-slice.sh` | ✅ Pass | HTTP 200 on `/lemans/demo`, `/customers`, `/quotations`, `/job-orders`, `/job-orders/RA0003973`, `/job-costing/RA0003973`, `/purchasing`, `/expenses`, `/dcs`, `/invoices`; Go `/health`; DB no published host ports |
+| Live smoke test                    | `curl http://127.0.0.1:3000/lemans/demo`                                    | ✅ 200  | Static assets load, role switcher visible, 404 on unknown route                                                                                                                                                      |
 
 **Lint caveat:** `next lint` is currently disabled in `verify-local.sh` because Next.js 16.3.0/Turbopack’s CLI does not expose a working `lint` command in this environment (it resolves to a non-existent `/app/lint` directory when invoked inside the container). ESLint 9 flat-config + `eslint-config-next` also produce a circular JSON error when invoked directly. Type checking (`tsc --noEmit`) and the production build both pass and catch the same class of static issues. **If you know a working invocation, please add it; do not block approval solely because the disabled lint step is missing unless you can demonstrate a real lint rule violation.**
 
@@ -50,6 +50,7 @@ The authoring agent ran the following inside disposable rootless Podman containe
 ## 4. Files to review (grouped by concern)
 
 ### 4.1 Frontend UX / component refactor (most user-visible)
+
 - `src/app/customers/CustomerForm.tsx`
 - `src/app/customers/CustomerList.tsx`
 - `src/app/customers/page.tsx`
@@ -71,6 +72,7 @@ The authoring agent ran the following inside disposable rootless Podman containe
 - `src/app/purchasing/page.tsx`
 
 ### 4.2 Shared UI primitives
+
 - `src/components/ui/DataTable.tsx`
 - `src/components/ui/FormField.tsx`
 - `src/components/ui/StatusBadge.tsx`
@@ -82,6 +84,7 @@ The authoring agent ran the following inside disposable rootless Podman containe
 - `src/components/AccessDenied.tsx`
 
 ### 4.3 Design system / formatting / boundaries
+
 - `src/lib/money.ts`
 - `src/lib/api.ts` (re-export `formatPeso` from `money`; add `listVehicles`)
 - `src/app/error.tsx`
@@ -96,6 +99,7 @@ The authoring agent ran the following inside disposable rootless Podman containe
 - `src/components/cascading-customer-vehicle-selector.tsx`
 
 ### 4.4 Backend additions
+
 - `backend/internal/api/handlers_customers.go` (new `handleListVehicles`)
 - `backend/internal/api/routes.go` (`GET /api/vehicles`)
 - `backend/queries.sql` (new `ListVehicles` query)
@@ -105,6 +109,7 @@ The authoring agent ran the following inside disposable rootless Podman containe
 - `backend/internal/policy/policy_test.go`
 
 ### 4.5 Deployment / infrastructure hardening
+
 - `scripts/build.sh`
 - `scripts/run-local.sh`
 - `scripts/verify-local.sh`
@@ -121,6 +126,7 @@ The authoring agent ran the following inside disposable rootless Podman containe
 Apply the following checklist. Score each item **PASS / WARN / FAIL**. A single WARN is acceptable if justified; two or more WARNs on the same concern should be treated as a FAIL for that concern.
 
 ### 5.1 Correctness & behavior
+
 - [ ] **C1.** All pages load without 500 errors in the local demo (`./scripts/verify-vertical-slice.sh` passes).
 - [ ] **C2.** A known job-order detail route (e.g. `/lemans/demo/job-orders/RA0003973`) still renders.
 - [ ] **C3.** Unknown routes return the custom 404 page (`src/app/not-found.tsx`), not a generic stack trace.
@@ -129,6 +135,7 @@ Apply the following checklist. Score each item **PASS / WARN / FAIL**. A single 
 - [ ] **C6.** Form submissions (customer create, quotation create, OPEX create, invoice create, PR create, SI create) refresh the list and preserve role context.
 
 ### 5.2 Code quality & maintainability
+
 - [ ] **Q1.** No duplicated inline money formatting remains; `src/lib/money.ts` is the single source of truth.
 - [ ] **Q2.** No duplicated table markup remains; `DataTable` is used consistently for list views.
 - [ ] **Q3.** Form fields use the shared `FormField` component; raw `<input>` elements in business pages are gone.
@@ -137,12 +144,14 @@ Apply the following checklist. Score each item **PASS / WARN / FAIL**. A single 
 - [ ] **Q6.** Server actions in `page.tsx` files correctly use `'use server'` and revalidate paths after mutations.
 
 ### 5.3 Backend & data layer
+
 - [ ] **B1.** `go test ./...` inside the Go container passes.
 - [ ] **B2.** The new `ListVehicles` query is generated from `queries.sql` (do not hand-edit `queries.sql.go` without a corresponding SQL change).
 - [ ] **B3.** `GET /api/vehicles` returns vehicles and is wired in `routes.go`.
 - [ ] **B4.** No new backend code introduces SQL injection, unchecked `r.PathValue` conversions, or panics.
 
 ### 5.4 Security & sandbox compliance (non-negotiable)
+
 - [ ] **S1.** No `--privileged` containers are introduced.
 - [ ] **S2.** No `--net=host` usage is introduced.
 - [ ] **S3.** Database containers do not publish host ports (`scripts/verify-vertical-slice.sh` confirms).
@@ -151,6 +160,7 @@ Apply the following checklist. Score each item **PASS / WARN / FAIL**. A single 
 - [ ] **S6.** Deploy scripts only transfer images/Quadlets and do not perform unsanctioned remote SSH commands beyond the declared orchestration.
 
 ### 5.5 Deployment / operations
+
 - [ ] **D1.** `./scripts/build.sh demo` and `./scripts/build.sh prod` still produce tagged images per `AGENTS.md`.
 - [ ] **D2.** `./scripts/run-local.sh` starts the stack and reports `http://127.0.0.1:3000/lemans/demo/`.
 - [ ] **D3.** `./scripts/verify-vertical-slice.sh` checks the `/lemans/demo/*` paths, not root paths.
@@ -159,12 +169,14 @@ Apply the following checklist. Score each item **PASS / WARN / FAIL**. A single 
 - [ ] **D6.** Remote deploy scripts record release manifests (commit, time, digests) under the configured release directory.
 
 ### 5.6 Accessibility & design system
+
 - [ ] **A1.** `prefers-reduced-motion` is present in `globals.css`.
 - [ ] **A2.** Focus-visible rings are present on interactive elements (buttons, links, inputs).
 - [ ] **A3.** Error boundaries include `role="alert"` and `aria-live` attributes.
 - [ ] **A4.** Brand red (`#d32f2f` / `brand-primary`) is used as an accent, not as a global danger theme.
 
 ### 5.7 Demo fidelity
+
 - [ ] **DF1.** Demo still requires **no authentication** and opens as Admin by default.
 - [ ] **DF2.** Role switcher is visible and offers Admin, GM, Sales, Service, Purchasing, DCS.
 - [ ] **DF3.** No `requireSession`, login redirect, or password prompt was added.
@@ -205,9 +217,38 @@ If `verify-local.sh` fails for you, capture the full raw output (do not truncate
 
 ## 7. Known issues / open questions for the reviewer
 
-1. **Lint step disabled.** `verify-local.sh` no longer runs `next lint` because the Next.js 16.3.0 CLI inside the container resolves the command incorrectly. The production build and `tsc --noEmit` pass. If you can supply a working container invocation, the authoring agent recommends adding it back in a follow-up commit rather than expanding this one.
+1. **Lint step disabled.** `verify-local.sh` no longer runs `next lint` because the Next.js 16.3.0/Turbopack’s CLI inside the container resolves the command incorrectly. The production build and `tsc --noEmit` pass and catch the same class of static issues. **If you know a working container invocation, please add it; do not block approval solely because the disabled lint step is missing unless you can demonstrate a real lint rule violation.**
 2. **Remote deployment not executed.** The deploy scripts were hardened but not run against a live VPS. A reviewer with authorized remote access may run `REMOTE_HOST=... ./scripts/deploy-remote-demo.sh` with `RESET=true` only if explicitly authorized by the user.
 3. **Production not seeded.** The demo deploy can seed via `/admin/seed`; production deploy intentionally does not.
+
+## 8. Fixes applied after review
+
+The implementation agent addressed the following review findings in the same branch:
+
+- `scripts/run-local.sh` now probes `/lemans/demo` for readiness and reports `http://127.0.0.1:3000/lemans/demo/`. It returns a nonzero exit code only on genuine startup failure.
+- `scripts/verify-local.sh` now uses `set -euo pipefail` inside each disposable container so formatting, type-check, Go generation, build, and test failures propagate and fail the command.
+- Remote deploy scripts create the release directory before copying manifests, remove temporary env/release files on both success and failure, and chmod remote env files to `600`. Service references use generated systemd unit names (`lemans-demo.service`, `lemans-demo-go.service`, `lemans-demo-db.service`; production uses `lemans.service`, `lemans-go.service`, `lemans-db.service`), while container names remain unchanged.
+- Shared UI component adoption completed for ordinary list pages (`DataTable`) and forms (`FormField`); `StatusBadge` replaces raw `{status}` display.
+- Accessibility: global `:focus-visible` ring, 44×44 minimum touch targets, `prefers-reduced-motion` preserved, ARIA labels on live/error regions.
+- Server actions now validate required fields server-side, use exact monetary arithmetic, and revalidate the affected paths (and cross-module paths where applicable) after mutations.
+- Removed new `any` usage; introduced `src/lib/types.ts` for shared frontend types and replaced remaining `any` with explicit types.
+- No authentication or login redirects added; demo opens as Admin; role switcher remains visible for all six demo roles.
+
+Commands for the next implementation agent:
+
+```bash
+export PATH="/opt/podman/bin:$PATH"
+podman info --format '{{.Host.Security.Rootless}}'
+./scripts/build.sh demo
+./scripts/build.sh prod
+./scripts/verify-local.sh
+./scripts/run-local.sh
+./scripts/verify-vertical-slice.sh
+# Manual spot checks at http://127.0.0.1:3000/lemans/demo/...
+./scripts/stop-local.sh
+```
+
+Note: `next lint` is still disabled in `verify-local.sh` pending a working Next.js 16.3.0 container invocation.
 
 ---
 
@@ -236,6 +277,7 @@ Please conclude your review with one of:
 - **CHANGES REQUESTED** — at least one item in sections 5.1–5.6 is FAIL or two+ are WARN.
 
 Include:
+
 - Summary scorecard (PASS/WARN/FAIL per section).
 - List of CONFIRMED issues, if any.
 - Commands you ran and their outcomes.
