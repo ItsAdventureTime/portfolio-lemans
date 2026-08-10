@@ -18,7 +18,7 @@ wait_for_db() {
   local container_name="$1"
   local retries=30
   for ((i=1; i<=retries; i++)); do
-    if podman exec "$container_name" pg_isready -U postgres > /dev/null 2>&amp;1; then
+    if podman exec "$container_name" pg_isready -U postgres > /dev/null 2>&1; then
       echo "Database ready"
       return 0
     fi
@@ -30,10 +30,19 @@ wait_for_db() {
 
 wait_for_http() {
   local url="$1"
+  local network="${2:-}"
+  local curl_args=("$url")
+  if [[ -n "$network" ]]; then
+    curl_args=("--network" "$network" "curlimages/curl:latest" "-s" "-o" "/dev/null" "-w" "%{http_code}" "$url")
+  fi
   local retries=30
   for ((i=1; i<=retries; i++)); do
     local status
-    status=$(curl -s -o /dev/null -w '%{http_code}' "$url" 2> /dev/null || true)
+    if [[ -n "$network" ]]; then
+      status=$(podman run --rm "${curl_args[@]}" 2> /dev/null || true)
+    else
+      status=$(curl -s -o /dev/null -w '%{http_code}' "$url" 2> /dev/null || true)
+    fi
     if [[ "$status" == "200" ]]; then
       echo "HTTP ready: $url"
       return 0

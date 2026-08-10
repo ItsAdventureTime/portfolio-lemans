@@ -1,30 +1,64 @@
-import { auth } from '@/lib/auth';
-import { headers } from 'next/headers';
+import { getDemoRole } from '@/lib/actor';
+import { getAccountingSummary } from '@/lib/api';
 import { hasPermission } from '@/lib/roles';
-import AccessDenied from '@/components/AccessDenied';
+import { formatPeso } from '@/lib/api';
 
 export default async function AccountingPage() {
-  const session = await auth.api.getSession({ headers: headers() });
-  if (!session || !hasPermission(session.user.role, 'viewAccounting')) {
-    return <AccessDenied role={session?.user.role} requiredRole="ROLE-ADMIN" />;
+  const role = await getDemoRole();
+  if (!hasPermission(role, 'viewAccounting')) {
+    return <div className="p-6 text-red-600">Access restricted.</div>;
   }
+  const data = await getAccountingSummary(role);
 
   return (
     <div className="space-y-6">
-      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-        <h2 className="text-2xl font-bold text-slate-900">Accounting &amp; Admin Export</h2>
-        <p className="text-sm text-slate-500 mt-1">
-          Admin-only area. QBO/CSV export scaffolds will be added in Phase 4.
-        </p>
-      </div>
+      <h1 className="text-2xl font-semibold">Accounting Summary</h1>
 
-      <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-        <h3 className="text-base font-bold text-slate-900 mb-4">Role Audit</h3>
-        <div className="text-base text-slate-600">
-          Signed in as: <span className="font-semibold">{session.user.name}</span> (
-          <span className="font-mono">{session.user.role}</span>)
-        </div>
-      </div>
+      <section className="bg-white rounded border border-slate-200 p-4">
+        <h2 className="text-lg font-semibold mb-3">Customers</h2>
+        <table className="w-full text-sm">
+          <thead className="bg-slate-50">
+            <tr>
+              <th className="text-left px-4 py-2">No</th>
+              <th className="text-left px-4 py-2">Name</th>
+              <th className="text-left px-4 py-2">TIN</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {data.customers.map((c: any) => (
+              <tr key={c.id}>
+                <td className="px-4 py-2">{c.customer_no}</td>
+                <td className="px-4 py-2">{c.name}</td>
+                <td className="px-4 py-2">{c.tin}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
+
+      <section className="bg-white rounded border border-slate-200 p-4">
+        <h2 className="text-lg font-semibold mb-3">Invoices</h2>
+        <table className="w-full text-sm">
+          <thead className="bg-slate-50">
+            <tr>
+              <th className="text-left px-4 py-2">Invoice No</th>
+              <th className="text-left px-4 py-2">Customer</th>
+              <th className="text-left px-4 py-2">Total</th>
+              <th className="text-left px-4 py-2">Status</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {data.invoices.map((inv: any) => (
+              <tr key={inv.id}>
+                <td className="px-4 py-2">{inv.invoice_no}</td>
+                <td className="px-4 py-2">{inv.customer_name}</td>
+                <td className="px-4 py-2">{formatPeso(inv.total_cents)}</td>
+                <td className="px-4 py-2">{inv.status}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
     </div>
   );
 }

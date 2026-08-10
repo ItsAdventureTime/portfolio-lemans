@@ -1,54 +1,68 @@
-export type ProjectRole =
-  'ROLE_SALES' | 'ROLE_SVC' | 'ROLE_PURCH' | 'ROLE_GM' | 'ROLE_DCS' | 'ROLE_ADMIN';
-
-export const ROLES: Record<ProjectRole, string> = {
-  ROLE_SALES: 'Sales',
-  ROLE_SVC: 'Service Delivery',
-  ROLE_PURCH: 'Purchasing',
+export const ROLES = {
+  ROLE_ADMIN: 'Admin',
   ROLE_GM: 'General Manager',
-  ROLE_DCS: 'DCS / Treasury',
-  ROLE_ADMIN: 'Administrator',
-};
+  ROLE_SALES: 'Sales Advisor',
+  ROLE_SVC: 'Service Advisor',
+  ROLE_PURCH: 'Purchasing',
+  ROLE_DCS: 'DCS',
+} as const;
 
-export const PERMISSIONS: Record<string, readonly ProjectRole[]> = {
-  customerCreate: ['ROLE_SALES', 'ROLE_SVC', 'ROLE_ADMIN'],
-  quoteApprove: ['ROLE_SALES', 'ROLE_GM', 'ROLE_ADMIN'],
-  quoteConvert: ['ROLE_SALES', 'ROLE_SVC', 'ROLE_GM', 'ROLE_ADMIN'],
-  salesQuotationCreate: ['ROLE_SALES', 'ROLE_SVC', 'ROLE_GM', 'ROLE_ADMIN'],
-  joAssignTech: ['ROLE_SVC', 'ROLE_GM', 'ROLE_ADMIN'],
-  joChangeStatus: ['ROLE_SVC', 'ROLE_GM', 'ROLE_ADMIN'],
-  attachmentView: ['ROLE_SVC', 'ROLE_GM', 'ROLE_DCS', 'ROLE_ADMIN'],
-  attachmentUpload: ['ROLE_SVC', 'ROLE_DCS', 'ROLE_ADMIN'],
-  prCreate: ['ROLE_PURCH', 'ROLE_GM', 'ROLE_ADMIN'],
-  prApprove: ['ROLE_GM', 'ROLE_ADMIN'],
-  poCreate: ['ROLE_GM', 'ROLE_ADMIN'],
-  supplierInvoiceCreate: ['ROLE_PURCH', 'ROLE_GM', 'ROLE_ADMIN'],
-  supplierInvoiceAllocate: ['ROLE_PURCH', 'ROLE_GM', 'ROLE_ADMIN'],
-  supplierInvoiceApprove: ['ROLE_GM', 'ROLE_ADMIN'],
-  opexCreate: ['ROLE_SALES', 'ROLE_SVC', 'ROLE_PURCH', 'ROLE_GM', 'ROLE_ADMIN'],
-  opexApprove: ['ROLE_GM', 'ROLE_ADMIN'],
-  disburseApprove: ['ROLE_GM', 'ROLE_ADMIN'],
-  disburseRecordPayment: ['ROLE_DCS', 'ROLE_ADMIN'],
-  invoiceCreate: ['ROLE_SALES', 'ROLE_ADMIN'],
-  invoiceRecordPayment: ['ROLE_SALES', 'ROLE_DCS', 'ROLE_ADMIN'],
-  viewAccounting: ['ROLE_ADMIN'],
-  viewJobCosting: ['ROLE_GM', 'ROLE_ADMIN'],
-};
+export type ProjectRole = keyof typeof ROLES;
 
-export function hasPermission(
-  role: ProjectRole | string | undefined,
-  action: keyof typeof PERMISSIONS
-): boolean {
-  if (!role) return false;
-  const allowed = PERMISSIONS[action] ?? [];
-  return allowed.includes(role as ProjectRole);
+export const ROLE_ORDER: ProjectRole[] = [
+  'ROLE_ADMIN',
+  'ROLE_GM',
+  'ROLE_SALES',
+  'ROLE_SVC',
+  'ROLE_PURCH',
+  'ROLE_DCS',
+];
+
+export function isValidRole(role: string): role is ProjectRole {
+  return role in ROLES;
 }
 
-export function ensurePermission(
-  role: ProjectRole | string | undefined,
-  action: keyof typeof PERMISSIONS
-): void {
+export function defaultRole(): ProjectRole {
+  return 'ROLE_ADMIN';
+}
+
+export function parseRole(role: string | undefined): ProjectRole {
+  if (role && isValidRole(role)) return role;
+  return defaultRole();
+}
+
+const PERMISSIONS: Record<string, ProjectRole[]> = {
+  customerCreate: ['ROLE_ADMIN', 'ROLE_SALES', 'ROLE_SVC'],
+  quoteApprove: ['ROLE_ADMIN', 'ROLE_SALES', 'ROLE_GM'],
+  quoteConvert: ['ROLE_ADMIN', 'ROLE_SALES', 'ROLE_SVC', 'ROLE_GM'],
+  salesQuotationCreate: ['ROLE_ADMIN', 'ROLE_SALES', 'ROLE_SVC', 'ROLE_GM'],
+  joAssignTech: ['ROLE_ADMIN', 'ROLE_SVC', 'ROLE_GM'],
+  joChangeStatus: ['ROLE_ADMIN', 'ROLE_SVC', 'ROLE_GM'],
+  attachmentView: ['ROLE_ADMIN', 'ROLE_SVC', 'ROLE_GM', 'ROLE_DCS'],
+  attachmentUpload: ['ROLE_ADMIN', 'ROLE_SVC', 'ROLE_DCS'],
+  prCreate: ['ROLE_ADMIN', 'ROLE_PURCH', 'ROLE_GM'],
+  prApprove: ['ROLE_ADMIN', 'ROLE_GM'],
+  poCreate: ['ROLE_ADMIN', 'ROLE_GM'],
+  supplierInvoiceCreate: ['ROLE_ADMIN', 'ROLE_PURCH', 'ROLE_GM'],
+  supplierInvoiceAllocate: ['ROLE_ADMIN', 'ROLE_PURCH', 'ROLE_GM'],
+  supplierInvoiceApprove: ['ROLE_ADMIN', 'ROLE_GM'],
+  opexCreate: ['ROLE_ADMIN', 'ROLE_SALES', 'ROLE_SVC', 'ROLE_PURCH', 'ROLE_GM'],
+  opexApprove: ['ROLE_ADMIN', 'ROLE_GM'],
+  disburseApprove: ['ROLE_ADMIN', 'ROLE_GM'],
+  disburseRecordPayment: ['ROLE_ADMIN', 'ROLE_DCS'],
+  invoiceCreate: ['ROLE_ADMIN', 'ROLE_SALES'],
+  invoiceRecordPayment: ['ROLE_ADMIN', 'ROLE_SALES', 'ROLE_DCS'],
+  viewAccounting: ['ROLE_ADMIN'],
+  viewJobCosting: ['ROLE_ADMIN', 'ROLE_GM'],
+};
+
+export function hasPermission(role: ProjectRole, action: keyof typeof PERMISSIONS): boolean {
+  const allowed = PERMISSIONS[action] ?? [];
+  return allowed.includes(role);
+}
+
+export function ensurePermission(role: ProjectRole, action: keyof typeof PERMISSIONS): void {
   if (!hasPermission(role, action)) {
-    throw new Error(`Forbidden: role ${role ?? 'unknown'} lacks permission ${action}`);
+    throw new Error(`Forbidden: role ${role} lacks permission ${action}`);
   }
 }

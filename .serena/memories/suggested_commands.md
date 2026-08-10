@@ -3,47 +3,61 @@ Common project commands (run inside rootless Podman containers)
 Start local demo
 
 ```bash
+export PATH="/opt/podman/bin:$PATH"
 podman machine start
-podman compose up -d
-podman exec -i lemans-demo-app sh -c "npx prisma db push && npx ts-node --compiler-options '{\"module\":\"commonjs\"}' prisma/seed.ts"
+./scripts/run-local.sh
 open http://127.0.0.1:3000
 ```
 
-Start local prodlike
+Stop local demo
 
 ```bash
-podman compose -f docker-compose.prodlike.yml up -d --build
-open http://127.0.0.1:3001
+./scripts/stop-local.sh
+```
+
+Reset local demo to seeded state
+
+```bash
+./scripts/stop-local.sh
+./scripts/reset-local.sh
+./scripts/run-local.sh
 ```
 
 Run verification
 
 ```bash
+./scripts/verify-local.sh
 ./scripts/verify-vertical-slice.sh
 ```
 
-Run tests
+Run Go checks
 
 ```bash
-podman exec -i lemans-demo-app sh -c "npx ts-node --compiler-options '{\"module\":\"commonjs\"}' src/__tests__/job-order.test.ts"
-```
-
-Type check
-
-```bash
-podman exec -i lemans-demo-app npx tsc --noEmit
+cd backend
+podman run --rm -v "$(pwd):/app" -w /app golang:1.24-alpine sh -c "go mod tidy && go vet ./... && go test ./..."
 ```
 
 Container logs
 
 ```bash
 podman logs -f lemans-demo-app
+podman logs -f lemans-demo-go
 journalctl --user -u lemans-demo-app
+journalctl --user -u lemans-demo-go
 ```
 
-Git
+Local Git & Remote GitHub CLI (gh)
 
 ```bash
+# Local commits & branch status
 git status
 git log --oneline -10
+git commit -m "commit message"
+
+# Remote commits & repository operations via gh CLI (HTTPS default auth)
+gh auth status
+gh auth setup-git
+gh repo view
+gh pr status
+gh pr create
 ```

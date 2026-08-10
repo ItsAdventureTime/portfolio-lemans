@@ -1,35 +1,15 @@
-# Dependencies
 /node_modules
-/.pnpm
-/.yarn
-
-# Next.js build output
-/.next/
-/out/
-
-# Production & Dev Environment files
+/.next
+/out
+.DS_Store
 .env
-.env*.local
-.env.local-demo
-.env.local-prodlike
-.env.demo
-.env.prodlike
-
-# Log files
-*.log
+.env.*
+!.env.demo
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+tsconfig.tsbuildinfo
+backend/bin
+backend/tmp
+backend/api
 
-# Database files
-/*.db
-/*.sqlite
-
-# OS generated files
-.DS_Store
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db

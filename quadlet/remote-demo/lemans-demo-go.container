@@ -1,0 +1,18 @@
+[Unit]
+Description=Le Mans remote demo Go API backend
+After=lemans-remote-demo-db.service
+
+[Container]
+Image=docker.io/library/lemans-bridge-dashboard-go:demo-go
+ContainerName=lemans-remote-demo-go
+Network=lemans-remote-demo-net
+Environment=NODE_ENV=production
+Environment=LISTEN_ADDR=:8080
+Environment=DEMO_MODE=true
+EnvironmentFile=%h/.config/containers/systemd/bridge-ph/lemans-demo/lemans-demo.env
+
+[Service]
+Restart=always
+
+[Install]
+WantedBy=default.target

@@ -1,8 +1,7 @@
 import './globals.css';
-import { headers } from 'next/headers';
 import Header from '@/components/Header';
 import Navbar from '@/components/Navbar';
-import { auth } from '@/lib/auth';
+import { getDemoRole } from '@/lib/actor';
 
 export const metadata = {
   title: 'Le Mans Service Plus - Operations & Job Cost Management',
@@ -11,13 +10,13 @@ export const metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const session = await auth.api.getSession({ headers: headers() });
+  const role = await getDemoRole();
 
   return (
     <html lang="en">
       <body className="min-h-screen bg-slate-50 text-slate-900 flex flex-col antialiased">
         <Header />
-        <Navbar role={session?.user.role} />
+        <Navbar role={role} />
         <main className="flex-1 w-full max-w-[1920px] mx-auto px-6 lg:px-8 xl:px-10 py-6">
           {children}
         </main>

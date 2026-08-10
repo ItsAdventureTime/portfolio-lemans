@@ -5,40 +5,32 @@ PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export PATH="/opt/podman/bin:$PATH"
 
 cd "$PROJECT_ROOT"
-
 source "${PROJECT_ROOT}/scripts/lib/common.sh"
-
-# Start local Podman machine if not running
-if ! podman machine inspect podman-machine-default --format '{{.State}}' 2>/dev/null | grep -q 'running'; then
-  echo "Starting podman machine..."
-  podman machine start
-fi
 
 NETWORK_NAME="lemans-demo-net"
 VOLUME_NAME="lemans-demo-db-data"
 DB_NAME="lemans-demo-db"
+GO_NAME="lemans-demo-go"
 APP_NAME="lemans-demo-app"
 PORT=3000
 
 cleanup_local() {
   echo "Cleaning up local resources..."
-  podman rm -f "$APP_NAME" "$DB_NAME" 2>/dev/null || true
+  podman rm -f "$APP_NAME" "$GO_NAME" "$DB_NAME" 2>/dev/null || true
 }
 
 create_local_resources() {
   if ! podman network exists "$NETWORK_NAME"; then
     podman network create "$NETWORK_NAME"
   fi
-
   if ! podman volume exists "$VOLUME_NAME"; then
     podman volume create "$VOLUME_NAME"
   fi
 }
 
-echo "=== Le Mans Local Run (single-podman-container) ==="
+echo "=== Le Mans Local Run ==="
 
-# Remove any existing demo containers from a previous run so names are free.
-podman rm -f "$APP_NAME" "$DB_NAME" 2> /dev/null || true
+podman rm -f "$APP_NAME" "$GO_NAME" "$DB_NAME" 2>/dev/null || true
 
 create_local_resources
 
@@ -51,16 +43,29 @@ podman run -d \
   -e POSTGRES_DB=lemans_demo_db \
   -v "${VOLUME_NAME}:/var/lib/postgresql/data" \
   --restart=unless-stopped \
-  docker.io/library/postgres:16-alpine
+  docker.io/library/postgres:17-alpine
 
-# Wait for DB
-for i in {1..30}; do
-  if podman exec "$DB_NAME" pg_isready -U postgres > /dev/null 2>&1; then
-    echo "Database ready"
-    break
-  fi
-  sleep 1
-done
+wait_for_db "$DB_NAME"
+
+podman run -d \
+  --replace \
+  --name "$GO_NAME" \
+  --network "$NETWORK_NAME" \
+  -e DATABASE_URL="postgresql://postgres:postgres_demo_pass@${DB_NAME}:5432/lemans_demo_db" \
+  -e DEMO_MODE=true \
+  -e LISTEN_ADDR=:8080 \
+  --restart=unless-stopped \
+  lemans-bridge-dashboard-go:demo-go
+
+# Wait for Go API
+wait_for_http "http://${GO_NAME}:8080/health" "$NETWORK_NAME"
+
+# Seed the demo database
+podman run --rm --network "$NETWORK_NAME" curlimages/curl:latest \
+  -s -X POST "http://${GO_NAME}:8080/admin/seed" \
+  -H 'Content-Type: application/json' \
+  -d '{}'
+echo "Demo database seeded"
 
 podman run -d \
   --replace \
@@ -68,31 +73,11 @@ podman run -d \
   --network "$NETWORK_NAME" \
   -p "127.0.0.1:${PORT}:3000" \
   --env-file "${PROJECT_ROOT}/.env.demo" \
-  -e DATABASE_URL="postgresql://postgres:postgres_demo_pass@${DB_NAME}:5432/lemans_demo_db?schema=public" \
-  -e BETTER_AUTH_URL="http://127.0.0.1:${PORT}" \
-  -e BETTER_AUTH_SECRET="${BETTER_AUTH_SECRET:-$(openssl rand -hex 32)}" \
-  lemans-bridge-dashboard:latest-alpine
+  -e API_BASE_URL="http://${GO_NAME}:8080" \
+  -e NEXT_PUBLIC_BASE_PATH="" \
+  lemans-bridge-dashboard:demo-web
 
-# Wait for app
-for i in {1..30}; do
-  if curl -s -o /dev/null -w '%{http_code}' "http://127.0.0.1:${PORT}/login" 2> /dev/null | grep -q '^200$'; then
-    echo "App ready at http://127.0.0.1:${PORT}"
-    break
-  fi
-  sleep 1
-done
-
-echo "=== Migrations and seed ==="
-podman run --rm \
-  -v "${PROJECT_ROOT}:/app:rw" \
-  -w /app \
-  --network "$NETWORK_NAME" \
-  -e DATABASE_URL="postgresql://postgres:postgres_demo_pass@${DB_NAME}:5432/lemans_demo_db?schema=public" \
-  node:20-alpine3.20 sh -c "
-    apk add --no-cache openssl curl bash
-    npx prisma db push --accept-data-loss
-    npx prisma db seed
-  "
+wait_for_http "http://127.0.0.1:${PORT}/" ""
 
 echo "=== Local demo running at http://127.0.0.1:${PORT}/ ==="
 echo "Run ./scripts/reset-local.sh to reset to seeded state."

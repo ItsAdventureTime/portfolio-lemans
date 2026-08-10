@@ -16,22 +16,66 @@
    - Verified active rootless VM: `podman-machine-default` (`podman info` rootless = true).
    - The agent MUST NOT initialize, reset, remove, resize, reconfigure, or convert `podman-machine-default` to rootful mode.
 4. **Image Tagging Standard**:
-   - **Demo Builds**: Use image tag `latest-alpine` (fallback: `latest-slim`, then `latest`).
-   - **Production Builds**: Use image tag `lts-alpine` (fallback: `lts-slim`, then `lts`).
+   - **Demo Builds**: Web image `lemans-bridge-dashboard:demo-web`, Go API image `lemans-bridge-dashboard-go:demo-go`.
+   - **Production Builds**: Web image `lemans-bridge-dashboard:prod-web`, Go API image `lemans-bridge-dashboard-go:prod-go`.
 5. **Container Runtime Standard**:
-   - Prefer `node:20-alpine3.20` and `postgres:16-alpine` for all images unless dependency compatibility explicitly requires the lightest Debian-based image.
+   - Next.js web images use `node:24-alpine`; Go API images use `golang:1.24-alpine` build stage and `alpine:latest` runtime; PostgreSQL uses `postgres:17-alpine` unless dependency compatibility explicitly requires a Debian-based image.
+   - Next.js runtime calls the Go API over the internal Podman network; the Go API owns migrations, business logic, persistence, and presigned attachment URLs.
    - Never use `podman compose` or `docker compose` for local builds, tests, or execution.
    - Always run local builds, linting, type-checking, and tests inside disposable `podman run --rm` containers (or a single combined container).
    - Do not leave transient containers or images running; remove them immediately with `--rm` or targeted cleanup.
 6. **Local Execution Standard**:
    - Use `podman run --rm` to create short-lived containers for builds/tests.
-   - For local demo runtime, use `scripts/run-local.sh` which starts a database container and app container, both removable via `scripts/stop-local.sh` and resettable via `scripts/reset-local.sh`.
+   - For local demo runtime, use `scripts/run-local.sh` which starts a PostgreSQL container, a Go API container, and a Next.js web container. Remove with `scripts/stop-local.sh` and reset to seeded state with `scripts/reset-local.sh`.
    - Local demo database and uploaded files reset to seeded state on demand; production does not auto-reset.
+   - The Go API container runs migrations on startup and serves the `/admin/seed` endpoint only when `DEMO_MODE=true`.
 7. **Remote Execution Standard**:
    - VPS demo and production deployments use rootless Podman Quadlet files (`.container`, `.network`, `.volume`).
    - Join the existing Caddy reverse-proxy network (`caddy.network`) with a single bridge container per environment.
    - Internal app↔database traffic stays on a dedicated internal network (`lemans-remote-demo-net` or `lemans-remote-prod-net`).
    - Database ports are never published to host interfaces.
+   - The Go API container is attached only to the internal network; the Next.js web container is attached to both the Caddy network and the internal network.
+8. **Git & GitHub Operations Standard**:
+   - **Local Commits**: Local commits and local branch operations MUST use local `git` command.
+   - **Remote Commits & Operations**: Remote commits, pushes, and GitHub repository operations MUST use GitHub official CLI (`gh` command).
+   - **Transport Protocol**: Remote repository access MUST use HTTPS (`https://...`), not SSH. Authentication is assumed default via `gh auth setup-git` credential helper.
+
+## Demo Build Authority
+
+For the current demo-focused work, read [`docs/DEMO-IMPLEMENTATION-PLAYBOOK.md`](docs/DEMO-IMPLEMENTATION-PLAYBOOK.md) before planning or editing. It is the authoritative demo specification and overrides older phase-completion claims where they conflict.
+
+- The demo intentionally has **no authentication** and no login requirement.
+- The demo opens as the `Admin` simulated actor by default.
+- The UI MUST provide a visible role switcher for Admin, General Manager, Sales Advisor, Service Advisor, Purchasing, and DCS.
+- Demo role simulation is for walkthroughs and testing only; it is not a production security boundary.
+- Do not add login redirects, password prompts, or `requireSession` checks to the demo profile.
+- The demo is the canonical actively developed build; production is promoted from validated demo source and image lineage.
+- Keep production authentication, secrets, persistence, backups, and deployment controls isolated as runtime/build-profile configuration.
+- Never maintain a separate production source copy or promote an unverified demo build.
+- Every role-sensitive action still validates input and uses the centralized demo actor/policy helper.
+- Demo work must prioritize a complete, deterministic workflow and coherent UI/UX over production deployment work.
+
+The companion execution prompts are in [`docs/AGENT-EXECUTION-PROMPTS.md`](docs/AGENT-EXECUTION-PROMPTS.md).
+
+## Remote Demo Deployment Authority
+
+The current demo has no persistent local deployment target. Local Podman may be
+started with `podman machine start` only when disposable build, compile, test, or
+verification work needs it; use `podman run --rm` and clean up temporary runtime
+resources afterward.
+
+The remote demo is deployed through the single orchestrator
+`./scripts/deploy-remote-demo.sh` and rootless Quadlets. The authoritative remote
+locations are:
+
+- Quadlets: `/home/jk/.config/containers/systemd/bridge-ph/lemans-demo`
+- Demo data/config/database/backups: `/home/jk/bridge-ph/lemans-demo`
+- Public URL: `https://delegateops.business/lemans/demo`
+
+Follow [`docs/REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`](docs/REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md)
+before changing deployment code. Do not connect to, reload, or modify the remote
+host or shared Caddy configuration until the user explicitly authorizes the
+deployment and provides any required Caddy context.
 
 ## Verified Execution Boundaries & Results
 

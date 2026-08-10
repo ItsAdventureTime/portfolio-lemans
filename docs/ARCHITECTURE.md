@@ -15,30 +15,36 @@ This document specifies the containerized fullstack architecture for the **Le Ma
 
 ## 2. Industry Research Grounding & Best Practices
 
-Based on current 2026 containerization standards for Node.js/Next.js and Podman Quadlet:
+Based on current 2026 containerization standards for Node.js/Next.js, Go, and Podman Quadlet:
 
 1. **Next.js Standalone Optimization**:
-   - Next.js is configured with `output: 'standalone'` in `next.config.js` to preserve Server Actions, API routes, middleware, and dynamic DB-backed pages.
+   - Next.js is configured with `output: 'standalone'` in `next.config.js` to preserve API routes, dynamic DB-backed pages, and client-side navigation.
    - Multi-stage Dockerfile builds separate dependencies (`deps`), build (`builder`), and runtime (`runner`) stages.
    - Production images run under an unprivileged non-root user (`nextjs:nodejs`, UID/GID 1001).
    - Telemetry disabled (`NEXT_TELEMETRY_DISABLED=1`).
-2. **Container Image Runtime Policy**:
-   - **Base Images**: `node:20-alpine3.20` for application; `postgres:16-alpine` for database.
+2. **Go API Backend**:
+   - All persistence, business logic, migrations, and S3 presigned URLs are owned by the Go API (`backend/`).
+   - Built with `golang:1.24-alpine`; runtime image based on `alpine:latest`.
+   - Chi router, sqlc-generated repository, `goose` migrations, structured logging via `slog`.
+3. **Container Image Runtime Policy**:
+   - **Web Base Image**: `node:24-alpine`.
+   - **Go API Base Images**: `golang:1.24-alpine` (build), `alpine:latest` (runtime).
+   - **Database Image**: `postgres:17-alpine`.
    - **Fallback**: lightest Debian-based image (`-slim`) only when dependency compatibility explicitly requires it.
-3. **Container Image Tagging Policy**:
-   - **Demo Builds**: Tag `latest-alpine` (fallback: `latest-slim`, then `latest`).
-   - **Production Builds**: Tag `lts-alpine` (fallback: `lts-slim`, then `lts`).
-4. **No Compose Mandate**:
+4. **Container Image Tagging Policy**:
+   - **Demo Builds**: Web `lemans-bridge-dashboard:demo-web`, Go API `lemans-bridge-dashboard-go:demo-go`.
+   - **Production Builds**: Web `lemans-bridge-dashboard:prod-web`, Go API `lemans-bridge-dashboard-go:prod-go`.
+5. **No Compose Mandate**:
    - `podman compose` / `docker compose` are not used.
    - Local builds, linting, testing, and execution use `podman run --rm` helper scripts or rootless Quadlet systemd units.
-5. **Declarative Podman Quadlet Systemd Management**:
+6. **Declarative Podman Quadlet Systemd Management**:
    - Production containers are managed declaratively using Quadlet files (`.container`, `.volume`, `.network`) placed in user systemd paths (`~/.config/containers/systemd/`).
    - Systemd user lingering enabled (`loginctl enable-linger <user>`) to keep services active across reboots.
    - Observability via structured JSON logging to `stdout`/`stderr` collected by systemd journal (`journalctl --user -u <service>`) and `podman logs`.
 
 ---
 
-## 3. Recommended Architecture: Next.js 14+ App Router + PostgreSQL Container
+## 3. Recommended Architecture: Next.js 16 + Go API + PostgreSQL Container
 
 ### Component Diagram
 
@@ -50,19 +56,29 @@ Based on current 2026 containerization standards for Node.js/Next.js and Podman 
 │  │ PODMAN USER NETWORK (`lemans-net` - Isolated Bridge, No Host Port Publishing DB) │  │
 │  │                                                                                  │  │
 │  │   ┌───────────────────────────────────────────────────────────────────────────┐  │  │
-│  │   │ APP CONTAINER (`lemans-app`)                                              │  │  │
-│  │   │ - Framework: Next.js 14 App Router (Node 20 Alpine Standalone)            │  │  │
-│  │   │ - Server Actions & API Routes for RBAC & Business Logic                  │  │  │
-│  │   │ - Image Tag: demo (`latest-alpine`), prod (`lts-alpine`)                 │  │  │
+│  │   │ WEB CONTAINER (`lemans-app`)                                              │  │  │
+│  │   │ - Framework: Next.js 16 App Router (Node 24 Alpine Standalone)            │  │  │
+│  │   │ - Role simulation, API routes for attachments, server-side API client      │  │  │
+│  │   │ - Image Tag: demo (`demo-web`), prod (`prod-web`)                        │  │  │
 │  │   │ - Exposed Port: 127.0.0.1:3000 (Loopback Only)                            │  │  │
 │  │   └─────────────────────────────────────┬─────────────────────────────────────┘  │  │
 │  │                                         │                                        │  │
-│  │                                         │ Prisma Connection (Internal Port 5432) │  │
+│  │              HTTP (internal net)        │ HTTP over internal bridge (5432)       │  │
+│  │                                         ▼                                        │  │
+│  │   ┌───────────────────────────────────────────────────────────────────────────┐  │  │
+│  │   │ GO API CONTAINER (`lemans-go`)                                            │  │  │
+│  │   │ - Go 1.24, Chi router, sqlc, goose migrations, slog logging              │  │  │
+│  │   │ - Business logic, migrations, presigned B2 URLs                            │  │  │
+│  │   │ - Image Tag: demo (`demo-go`), prod (`prod-go`)                          │  │  │
+│  │   │ - Exposed Port: internal only                                              │  │  │
+│  │   └─────────────────────────────────────┬─────────────────────────────────────┘  │  │
+│  │                                         │                                        │  │
+│  │                                         │ PostgreSQL (internal port 5432)        │  │
 │  │                                         ▼                                        │  │
 │  │   ┌───────────────────────────────────────────────────────────────────────────┐  │  │
 │  │   │ DATABASE CONTAINER (`lemans-db`)                                         │  │  │
-│  │   │ - Engine: PostgreSQL 16 Alpine                                            │  │  │
-│  │   │ - Image Tag: `postgres:16-alpine`                                         │  │  │
+│  │   │ - Engine: PostgreSQL 17 Alpine                                            │  │  │
+│  │   │ - Image Tag: `postgres:17-alpine`                                         │  │  │
 │  │   │ - Volume: Named Volume (`lemans-db-data`)                                 │  │  │
 │  │   │ - Published Ports: NONE (0 Exposed Ports to Host)                        │  │  │
 │  │   └───────────────────────────────────────────────────────────────────────────┘  │  │
@@ -71,9 +87,13 @@ Based on current 2026 containerization standards for Node.js/Next.js and Podman 
 └────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-### Remote Caddy Bridge Pattern
+### Remote Caddy Pattern
 
-For VPS demo and production, a single lightweight Caddy bridge container joins both the public `caddy.network` (shared with the existing rootless Caddy reverse proxy) and the internal app network, allowing Caddy to route traffic to the app container by name without publishing the app port to the public interface.
+For VPS demo and production, the Next.js web container joins both the public
+`caddy.network` (shared with the existing rootless Caddy reverse proxy) and the
+internal app network, allowing Caddy to route traffic to the web container by
+name without publishing the web port to the public interface. The Go API
+container is attached only to the internal network.
 
 ---
 
@@ -93,16 +113,16 @@ For VPS demo and production, a single lightweight Caddy bridge container joins b
 
 ### Authentication & Authorization Layer
 
-- **Framework**: Better Auth with database sessions (see ADR-0003).
-- **Role Enforcement**: Project-specific role matrix in `src/lib/auth.ts`, enforced in Server Actions, Route Handlers, and Server Components through `auth.api.getSession()` / `verifySession()`.
-- **Middleware**: `src/middleware.ts` performs coarse optimistic checks only; real authorization happens at the data layer.
+- **Framework**: Demo uses no authentication. Role simulation via `lemans-demo-role` cookie and `X-Demo-Role` header. Production will use a real auth layer (separate planning).
+- **Role Enforcement**: Project-specific role matrix in `src/lib/roles.ts`, validated server-side by the Go API using `internal/actor` and `internal/policy`.
+- **Middleware**: None required for the demo profile.
 
 ### File Attachment Layer
 
 - **Object Store**: Backblaze B2 via S3-compatible API (see ADR-0004).
-- **SDK**: AWS SDK for JavaScript v3.
-- **Access Pattern**: Server-side `PutObject` uploads; presigned `GetObject` URLs for authorized downloads.
-- **Metadata Registry**: PostgreSQL `Attachment` table links S3 object keys to Job Orders, DCS payments, supplier invoices, and OPEX requests.
+- **SDK**: AWS SDK for Go v2.
+- **Access Pattern**: Server-side `PutObject` uploads; presigned `GetObject` URLs for authorized downloads generated by the Go API.
+- **Metadata Registry**: PostgreSQL `attachments` table links S3 object keys to Job Orders, DCS payments, supplier invoices, and OPEX requests.
 
 ### Backup & Disaster Recovery
 

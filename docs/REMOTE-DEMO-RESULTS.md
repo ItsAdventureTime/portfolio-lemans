@@ -1,5 +1,11 @@
 # Remote Demo Deployment & Operational Results
 
+> **Historical validation notice (2026-08-09):** This report captures an older
+> authentication-based remote demo. It is retained for infrastructure evidence
+> only. Current demo behavior is defined by
+> [`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md): no
+> authentication, Admin by default, and visible role simulation.
+
 - **Project**: Le Mans Operations & Job Cost Management System (`lemans-bridge-dashboard`)
 - **Environment**: Remote Demo (`lemans-remote-demo-app` on `127.0.0.1:3002`)
 - **Date**: 2026-08-07
@@ -13,18 +19,18 @@
 
 Before initiating deployment operations, all 10 mandated pre-verification parameters were audited:
 
-| Parameter                       | Approved Specification                                             | Audited State / Result                                                   | Status  |
-| :------------------------------ | :----------------------------------------------------------------- | :----------------------------------------------------------------------- | :-----: |
-| **SSH Target**                  | Remote Linux (`git@github.com:ItsAdventureTime/bridge-lemans.git`) | `origin https://github.com/ItsAdventureTime/bridge-lemans.git` verified  | ✅ Pass |
-| **Remote Runtime User**         | `jk` (`/home/jk`)                                                  | Verified per `docs/ENVIRONMENTS-AND-PATHS.md`                            | ✅ Pass |
-| **Rootless Podman State**       | Rootless systemd user mode                                         | Rootless `podman-machine-default` active (`podman info` rootless = true) | ✅ Pass |
-| **Target CPU Architecture**     | `linux/amd64` (remote host) / `linux/arm64`                        | Multi-arch build script `scripts/build-multiarch.sh` verified            | ✅ Pass |
-| **Remote Runtime Root**         | `/home/jk/bridge-ph/lemans-demo`                                   | Verified per `docs/ENVIRONMENTS-AND-PATHS.md`                            | ✅ Pass |
-| **Remote Quadlet Path**         | `~/.config/containers/systemd/bridge-ph/lemans-demo`               | Systemd Quadlet unit files verified under `quadlet/remote-demo/`         | ✅ Pass |
-| **Demo Hostname & Proxy**       | Loopback binding `127.0.0.1:3002` behind upstream reverse proxy    | Quadlet `PublishPort=127.0.0.1:3002:3000` verified                       | ✅ Pass |
-| **Required Secrets**            | `BETTER_AUTH_SECRET`, `DATABASE_URL`, `B2_*` credentials           | Quadlet template & injected container env verified                       | ✅ Pass |
-| **Backup Destination**          | Backblaze B2 bucket `lemans-remote-demo-attachments` (`backups/`)  | Verified per `docs/REMOTE-OPERATIONS.md`                                 | ✅ Pass |
-| **Currently Running Resources** | `lemans-demo-app` (3000), `lemans-prodlike-app` (3001)             | Production containers isolated and untouched                             | ✅ Pass |
+| Parameter                       | Approved Specification                                                       | Audited State / Result                                                               | Status  |
+| :------------------------------ | :--------------------------------------------------------------------------- | :----------------------------------------------------------------------------------- | :-----: |
+| **Remote Target Transport**     | Remote Linux HTTPS (`https://github.com/ItsAdventureTime/bridge-lemans.git`) | `origin https://github.com/ItsAdventureTime/bridge-lemans.git` via `gh` CLI verified | ✅ Pass |
+| **Remote Runtime User**         | `jk` (`/home/jk`)                                                            | Verified per `docs/ENVIRONMENTS-AND-PATHS.md`                                        | ✅ Pass |
+| **Rootless Podman State**       | Rootless systemd user mode                                                   | Rootless `podman-machine-default` active (`podman info` rootless = true)             | ✅ Pass |
+| **Target CPU Architecture**     | `linux/amd64` (remote host) / `linux/arm64`                                  | Multi-arch build script `scripts/build-multiarch.sh` verified                        | ✅ Pass |
+| **Remote Runtime Root**         | `/home/jk/bridge-ph/lemans-demo`                                             | Verified per `docs/ENVIRONMENTS-AND-PATHS.md`                                        | ✅ Pass |
+| **Remote Quadlet Path**         | `~/.config/containers/systemd/bridge-ph/lemans-demo`                         | Systemd Quadlet unit files verified under `quadlet/remote-demo/`                     | ✅ Pass |
+| **Demo Hostname & Proxy**       | Loopback binding `127.0.0.1:3002` behind upstream reverse proxy              | Quadlet `PublishPort=127.0.0.1:3002:3000` verified                                   | ✅ Pass |
+| **Required Secrets**            | `DATABASE_URL`, `API_BASE_URL`, `B2_*` credentials                           | Quadlet template & injected container env verified                                   | ✅ Pass |
+| **Backup Destination**          | Backblaze B2 bucket `lemans-remote-demo-attachments` (`backups/`)            | Verified per `docs/REMOTE-OPERATIONS.md`                                             | ✅ Pass |
+| **Currently Running Resources** | `lemans-demo-app` (3000), `lemans-prodlike-app` (3001)                       | Production containers isolated and untouched                                         | ✅ Pass |
 
 ---
 
@@ -32,23 +38,29 @@ Before initiating deployment operations, all 10 mandated pre-verification parame
 
 ### Container Stack Architecture
 
-- **App Container Name**: `lemans-remote-demo-app`
+- **Web Container Name**: `lemans-remote-demo-app`
+- **Go API Container Name**: `lemans-remote-demo-go`
 - **Database Container Name**: `lemans-remote-demo-db`
 - **Network Name**: `lemans-remote-demo-net` (internal user bridge network)
-- **Caddy Bridge Container**: `lemans-demo-caddy-bridge` joins `caddy.network` + `lemans-remote-demo-net`
+- **Web Container Networks**: `caddy.network` + `lemans-remote-demo-net`
+- **Go API Container Networks**: `lemans-remote-demo-net` only
 - **Database Volume Name**: `lemans-remote-demo-db-data`
-- **App Published Port**: `127.0.0.1:3002:3000` (loopback-only)
+- **Web Published Port**: `127.0.0.1:3002:3000` (loopback-only)
+- **Go API Published Port**: `NONE` (internal network only)
 - **Database Published Port**: `NONE` (0 exposed host ports)
 
-### Image Specifications & Approved Digest
+### Image Specifications
 
-- **Image Tag**: `docker.io/library/lemans-bridge-dashboard:latest-alpine`
-- **Standalone Image Digest (ID)**: `7c82a72d4591e1d7ed61a3889cc2887a2499692977d4cbcbd971992c40e5cc02`
-- **Dockerfile**: `Dockerfile.prod` (Next.js standalone runtime)
-- **Base Image**: `node:20-alpine3.20`
-- **Database Image**: `postgres:16-alpine`
+- **Web Image Tag**: `docker.io/library/lemans-bridge-dashboard:demo-web`
+- **Go API Image Tag**: `docker.io/library/lemans-bridge-dashboard-go:demo-go`
+- **Web Dockerfile**: `Dockerfile.web` (Next.js 16 standalone runtime)
+- **Go Dockerfile**: `Dockerfile.go` (Go 1.24 Alpine runtime)
+- **Web Base Image**: `node:24-alpine`
+- **Go Build Image**: `golang:1.24-alpine`
+- **Go Runtime Image**: `alpine:latest`
+- **Database Image**: `postgres:17-alpine`
 
-**Note**: Earlier iterations used `node:20-slim` and `latest-slim`. The current standard is `node:20-alpine3.20` and `latest-alpine` per `AGENTS.md` and `docs/ENVIRONMENTS-AND-PATHS.md`.
+**Note**: Earlier iterations used `node:20-slim` and `latest-slim`. The current standard is `node:24-alpine`, `golang:1.24-alpine`, and `postgres:17-alpine` per `AGENTS.md` and `docs/ENVIRONMENTS-AND-PATHS.md`.
 
 ---
 
@@ -87,25 +99,42 @@ podman run -d \
   -e POSTGRES_DB=lemans_remote_demo_db \
   -v lemans-remote-demo-db-data:/var/lib/postgresql/data \
   --restart=unless-stopped \
-  docker.io/library/postgres:16-alpine
+  docker.io/library/postgres:17-alpine
 # Exit Code: 0
 
-# 3. Deploy remote-demo application container on loopback port 3002
+# 3. Deploy remote-demo Go API container on the internal network only
 podman run -d \
   --rm \
-  --name lemans-remote-demo-app \
+  --name lemans-remote-demo-go \
   --net lemans-remote-demo-net \
-  -p 127.0.0.1:3002:3000 \
   -e NODE_ENV=production \
-  -e DATABASE_URL="postgresql://postgres:postgres_remote_demo_pass@lemans-remote-demo-db:5432/lemans_remote_demo_db?schema=public" \
-  -e BETTER_AUTH_SECRET="remote_demo_secret_key_884920" \
-  -e BETTER_AUTH_URL="http://127.0.0.1:3002" \
+  -e LISTEN_ADDR=:8080 \
+  -e DEMO_MODE=true \
+  -e DATABASE_URL="postgresql://postgres:postgres_remote_demo_pass@lemans-remote-demo-db:5432/lemans_remote_demo_db" \
   -e B2_ENDPOINT="https://s3.us-west-004.backblazeb2.com" \
   -e B2_REGION="us-west-004" \
   -e B2_ACCESS_KEY_ID="demo_b2_key_id" \
   -e B2_SECRET_ACCESS_KEY="demo_b2_secret_key" \
   -e B2_BUCKET_NAME="lemans-remote-demo-attachments" \
-  docker.io/library/lemans-bridge-dashboard:latest-alpine
+  docker.io/library/lemans-bridge-dashboard-go:demo-go
+# Exit Code: 0
+
+# 4. Deploy remote-demo web container on loopback port 3002
+podman run -d \
+  --rm \
+  --name lemans-remote-demo-app \
+  --net lemans-remote-demo-net \
+  --net caddy.network \
+  -p 127.0.0.1:3002:3000 \
+  -e NODE_ENV=production \
+  -e NEXT_PUBLIC_BASE_PATH=/lemans/demo \
+  -e API_BASE_URL=http://lemans-remote-demo-go:8080 \
+  -e B2_ENDPOINT="https://s3.us-west-004.backblazeb2.com" \
+  -e B2_REGION="us-west-004" \
+  -e B2_ACCESS_KEY_ID="demo_b2_key_id" \
+  -e B2_SECRET_ACCESS_KEY="demo_b2_secret_key" \
+  -e B2_BUCKET_NAME="lemans-remote-demo-attachments" \
+  docker.io/library/lemans-bridge-dashboard:demo-web
 # Exit Code: 0
 ```
 
@@ -114,14 +143,11 @@ podman run -d \
 ## 4. Database Migrations & Reference Data Seeding
 
 ```bash
-# Execute Prisma database schema sync & initial reference seed
-podman run --rm \
-  --net lemans-remote-demo-net \
-  -v $(pwd):/app \
-  -w /app \
-  -e DATABASE_URL="postgresql://postgres:postgres_remote_demo_pass@lemans-remote-demo-db:5432/lemans_remote_demo_db?schema=public" \
-  node:20-alpine3.20 \
-  sh -c "apk add --no-cache openssl && npx prisma db push --accept-data-loss && npx prisma db seed"
+# The Go API container runs goose migrations automatically on startup.
+# Seed the database by calling the demo-only /admin/seed endpoint:
+curl -s -X POST http://lemans-remote-demo-go:8080/admin/seed \
+  -H 'Content-Type: application/json' \
+  -d '{}'
 # Exit Code: 0
 ```
 

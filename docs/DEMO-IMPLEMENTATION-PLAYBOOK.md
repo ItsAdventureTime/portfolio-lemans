@@ -302,11 +302,11 @@ Review these sources before implementation and again before handoff:
 - [OWASP ASVS](https://github.com/OWASP/ASVS)
 - [MDN reduced-motion guidance](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/%40media/prefers-reduced-motion)
 - [MDN View Transition API](https://developer.mozilla.org/en-US/docs/Web/API/View_Transition_API)
-- [Prisma migrate deploy](https://docs.prisma.io/docs/cli/migrate/deploy)
+- [goose migrations](https://github.com/pressly/goose)
 - [Podman Quadlet](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html)
 
 At the time of this playbook update, the repository baseline is Next.js 14,
-React 18, Tailwind 3, and Prisma 5, while the official release guidance has
+React 19, Tailwind 4, Next.js 16, Go 1.24, and PostgreSQL 17, while the official release guidance has
 moved to newer major versions. Review [Next.js 16](https://nextjs.org/blog/next-16)
 and [React 19.2](https://react.dev/blog/2025/10/01/react-19-2) before planning an
 upgrade. Treat an upgrade as a separate, compatibility-tested work item; never

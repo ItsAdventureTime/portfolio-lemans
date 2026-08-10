@@ -1,180 +1,147 @@
-import { db } from '@/lib/db';
-import { FileText, ArrowRight, Plus } from 'lucide-react';
-import { convertQuoteToJobOrder, createSalesQuotation } from '@/lib/actions/job-orders';
-import SalesQuoteBuilder from '@/components/sales-quote-builder';
-import CascadingCustomerVehicleSelector from '@/components/cascading-customer-vehicle-selector';
+import { getDemoRole } from '@/lib/actor';
+import {
+  listQuotations,
+  createSalesQuotation,
+  approveQuotation,
+  rejectQuotation,
+  convertQuotation,
+} from '@/lib/api';
+import { hasPermission } from '@/lib/roles';
+import { revalidatePath } from 'next/cache';
 
 export default async function QuotationsPage() {
-  const [customers, quotes] = await Promise.all([
-    db.customer.findMany({
-      include: { vehicles: true },
-      orderBy: { createdAt: 'desc' },
-    }),
-    db.salesQuotation.findMany({
-      include: { customer: true, vehicle: true, items: true },
-      orderBy: { createdAt: 'desc' },
-    }),
-  ]);
+  const role = await getDemoRole();
+  const quotes = await listQuotations(role);
+  const canCreate = hasPermission(role, 'salesQuotationCreate');
+  const canApprove = hasPermission(role, 'quoteApprove');
+  const canConvert = hasPermission(role, 'quoteConvert');
 
-  async function createFormAction(formData: FormData) {
+  async function createAction(formData: FormData) {
     'use server';
-    const rawItems = String(formData.get('items') || '');
-    const items = rawItems
-      ? (JSON.parse(rawItems) as Array<{
-          itemType: 'LABOR' | 'PARTS' | 'MISC';
-          description: string;
-          quantity: number;
-          unitPrice: number;
-          discount: number;
-        }>)
-      : [];
-
-    await createSalesQuotation({
-      customerId: String(formData.get('customerId')),
-      vehicleId: String(formData.get('vehicleId')),
-      advisor: String(formData.get('advisor')),
-      items,
-    });
+    const currentRole = (await import('@/lib/actor')).getDemoRole();
+    const items = JSON.parse(String(formData.get('items') || '[]'));
+    await createSalesQuotation(
+      {
+        customerId: String(formData.get('customerId')),
+        vehicleId: String(formData.get('vehicleId')),
+        advisor: String(formData.get('advisor')),
+        items,
+      },
+      await currentRole
+    );
+    revalidatePath('/quotations');
   }
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-900 flex items-center space-x-2">
-            <FileText className="h-5 w-5 text-slate-700" />
-            <span>Sales Quotations</span>
-          </h2>
-          <p className="text-sm text-slate-500 mt-1">
-            Create labor &amp; parts estimates. Convert approved quotes into Job Orders.
-          </p>
-        </div>
-      </div>
+      <h1 className="text-2xl font-semibold">Sales Quotations</h1>
 
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-        <h3 className="text-base font-bold text-slate-900 mb-4">New Sales Quote</h3>
-        <form action={createFormAction} className="space-y-4">
-          <CascadingCustomerVehicleSelector
-            customers={customers.map((c: (typeof customers)[number]) => ({
-              id: c.id,
-              customerNo: c.customerNo,
-              name: c.name,
-            }))}
-            vehicles={customers.flatMap((c: (typeof customers)[number]) =>
-              c.vehicles.map((v: (typeof c.vehicles)[number]) => ({
-                id: v.id,
-                customerId: c.id,
-                plateNo: v.plateNo,
-                makeModel: v.makeModel,
-              }))
-            )}
-          />
-          <input
-            name="advisor"
-            placeholder="Service Advisor"
-            required
-            className="w-full sm:w-1/3 px-3 py-2 rounded-xl border border-slate-300 text-base"
-          />
-          <SalesQuoteBuilder name="items" />
+      {canCreate && (
+        <form
+          action={createAction}
+          className="bg-white p-4 rounded border border-slate-200 space-y-3"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <input
+              name="customerId"
+              placeholder="Customer ID"
+              required
+              className="border rounded px-3 py-2"
+            />
+            <input
+              name="vehicleId"
+              placeholder="Vehicle ID"
+              required
+              className="border rounded px-3 py-2"
+            />
+            <input
+              name="advisor"
+              placeholder="Advisor"
+              required
+              className="border rounded px-3 py-2"
+            />
+            <textarea
+              name="items"
+              placeholder='[{"itemType":"LABOR","description":"...","quantity":1,"unitPriceCents":0,"discountCents":0}]'
+              className="border rounded px-3 py-2 md:col-span-3"
+              rows={3}
+            />
+          </div>
           <button
             type="submit"
-            className="px-4 py-2 bg-[#d32f2f] text-white rounded-xl text-sm font-semibold hover:bg-[#b71c1c] flex items-center space-x-1 whitespace-nowrap h-9"
+            className="bg-brand-primary text-white px-4 py-2 rounded hover:bg-brand-hover"
           >
-            <Plus className="h-4 w-4" />
-            <span>Create Quote</span>
+            Create Quotation
           </button>
         </form>
-      </div>
+      )}
 
-      {quotes.map((quote: (typeof quotes)[number]) => {
-        async function convertFormAction() {
-          'use server';
-          await convertQuoteToJobOrder(quote.id);
-        }
-
-        return (
-          <div
-            key={quote.id}
-            className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-6"
-          >
-            <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-200 pb-4 gap-4">
-              <div>
-                <div className="flex items-center space-x-2">
-                  <span className="text-lg font-bold text-slate-900">{quote.quoteNo}</span>
-                  <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700 border border-slate-200">
-                    {quote.status}
-                  </span>
-                </div>
-                <p className="text-sm text-slate-500 mt-1">
-                  Customer: {quote.customer.name} • Vehicle: {quote.vehicle.makeModel} (
-                  {quote.vehicle.plateNo})
-                </p>
-              </div>
-
-              <div className="flex items-center space-x-3">
-                {quote.status === 'APPROVED' && (
-                  <form action={convertFormAction}>
-                    <button
-                      type="submit"
-                      className="px-4 py-2 bg-[#d32f2f] text-white rounded-xl text-sm font-semibold hover:bg-[#b71c1c] transition-colors shadow-sm flex items-center space-x-1.5 whitespace-nowrap h-9"
+      <div className="bg-white rounded border border-slate-200">
+        <table className="w-full text-sm">
+          <thead className="bg-slate-50">
+            <tr>
+              <th className="text-left px-4 py-2">Quote No</th>
+              <th className="text-left px-4 py-2">Customer</th>
+              <th className="text-left px-4 py-2">Vehicle</th>
+              <th className="text-left px-4 py-2">Net Total</th>
+              <th className="text-left px-4 py-2">Status</th>
+              <th className="text-left px-4 py-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {quotes.map((q: any) => (
+              <tr key={q.id}>
+                <td className="px-4 py-2">{q.quote_no}</td>
+                <td className="px-4 py-2">{q.customer_name}</td>
+                <td className="px-4 py-2">{q.vehicle_plate}</td>
+                <td className="px-4 py-2">₱{(q.net_total_cents / 100).toFixed(2)}</td>
+                <td className="px-4 py-2">{q.status}</td>
+                <td className="px-4 py-2 flex gap-2">
+                  {q.status === 'DRAFT' && canApprove && (
+                    <form
+                      action={async () => {
+                        'use server';
+                        const r = (await import('@/lib/actor')).getDemoRole();
+                        await approveQuotation(q.id, await r);
+                        revalidatePath('/quotations');
+                      }}
                     >
-                      <span>Convert to Job Order</span>
-                      <ArrowRight className="h-4 w-4" />
-                    </button>
-                  </form>
-                )}
-              </div>
-            </div>
-
-            <div className="overflow-x-auto border border-slate-200 rounded-xl">
-              <table className="w-full text-left text-base">
-                <thead className="bg-slate-100/80 text-slate-700 font-bold border-b border-slate-200 sticky top-0 z-10">
-                  <tr>
-                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">Type</th>
-                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider">
-                      Description
-                    </th>
-                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-right">
-                      Qty
-                    </th>
-                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-right">
-                      Unit Price
-                    </th>
-                    <th className="px-6 py-4 text-xs font-bold uppercase tracking-wider text-right">
-                      Net Amount
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200 text-slate-700">
-                  {quote.items.map((item: (typeof quote.items)[number]) => (
-                    <tr key={item.id}>
-                      <td className="px-6 py-4 font-bold text-blue-600">{item.itemType}</td>
-                      <td className="px-6 py-4">{item.description}</td>
-                      <td className="px-6 py-4 text-right font-mono">{item.quantity}</td>
-                      <td className="px-6 py-4 text-right font-mono">
-                        ₱{item.unitPrice.toFixed(2)}
-                      </td>
-                      <td className="px-6 py-4 text-right font-mono font-bold">
-                        ₱{item.netAmount.toFixed(2)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-                <tfoot className="bg-slate-50 border-t border-slate-200 font-bold text-slate-900">
-                  <tr>
-                    <td colSpan={4} className="px-6 py-4 text-right">
-                      Quote Grand Total:
-                    </td>
-                    <td className="px-6 py-4 text-right font-mono text-base text-[#d32f2f]">
-                      ₱{quote.netTotal.toFixed(2)}
-                    </td>
-                  </tr>
-                </tfoot>
-              </table>
-            </div>
-          </div>
-        );
-      })}
+                      <button className="text-xs bg-slate-100 px-2 py-1 rounded">Approve</button>
+                    </form>
+                  )}
+                  {q.status === 'DRAFT' && canApprove && (
+                    <form
+                      action={async () => {
+                        'use server';
+                        const r = (await import('@/lib/actor')).getDemoRole();
+                        await rejectQuotation(q.id, await r);
+                        revalidatePath('/quotations');
+                      }}
+                    >
+                      <button className="text-xs bg-slate-100 px-2 py-1 rounded">Reject</button>
+                    </form>
+                  )}
+                  {q.status === 'APPROVED' && canConvert && (
+                    <form
+                      action={async () => {
+                        'use server';
+                        const r = (await import('@/lib/actor')).getDemoRole();
+                        await convertQuotation(q.id, await r);
+                        revalidatePath('/quotations');
+                        revalidatePath('/job-orders');
+                      }}
+                    >
+                      <button className="text-xs bg-brand-primary text-white px-2 py-1 rounded">
+                        Convert to JO
+                      </button>
+                    </form>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }

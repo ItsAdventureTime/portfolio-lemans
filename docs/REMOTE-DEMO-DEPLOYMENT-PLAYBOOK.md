@@ -38,6 +38,7 @@ user's systemd user manager.
 | Demo runtime data/config/database/backups | `/home/jk/bridge-ph/lemans-demo`                            |
 | Public URL                                | `https://delegateops.business/lemans/demo`                  |
 | Remote app service                        | `lemans-demo.service`                                       |
+| Remote Go API service                     | `lemans-demo-go.service`                                    |
 | Remote database service                   | `lemans-demo-db.service`                                    |
 | Internal app/database network             | `lemans-demo-net`                                           |
 | Caddy-shared network                      | `caddy.network`                                             |
@@ -70,10 +71,13 @@ Internet
 Caddy on caddy.network
    │
    ├── lemans-demo-app on caddy.network + lemans-demo-net
-   │                                      │
-   │                                      ▼
-   │                              lemans-demo-db
-   │                              on lemans-demo-net only
+   │   │                                  │
+   │   │                                  ├── lemans-demo-go
+   │   │                                  │   on lemans-demo-net only
+   │   │                                  │
+   │   │                                  ▼
+   │   │                          lemans-demo-db
+   │   │                          on lemans-demo-net only
 ```
 
 Recommended units:
@@ -81,9 +85,11 @@ Recommended units:
 - `lemans-demo.network` for app/database traffic.
 - `lemans-demo-db.volume` or a bind mount under the remote demo data root.
 - `lemans-demo-db.container` with no published port.
+- `lemans-demo-go.container` attached only to `lemans-demo-net`.
 - `lemans-demo.container` attached to both `caddy.network` and
   `lemans-demo-net`.
-- An optional one-shot migration/seed unit or controlled `podman exec` step.
+- The Go API container runs migrations on startup and serves the
+  `/admin/seed` endpoint only when `DEMO_MODE=true`.
 
 Do not use a container that only runs `sleep infinity` as a network bridge. The
 application container should join both networks directly, or a real configured
@@ -138,17 +144,16 @@ The script may accept `REMOTE_USER`, but it defaults to `jk`. It must:
 1. Check required local tools and SSH/HTTPS registry access without exposing
    secrets.
 2. Start the local Podman machine only if needed.
-3. Build and push one immutable demo image using disposable rootless Podman.
+3. Build both immutable demo images (`lemans-bridge-dashboard:demo-web` and
+   `lemans-bridge-dashboard-go:demo-go`) using disposable rootless Podman.
 4. Record the image digest and source commit in a release manifest.
-5. Transfer only Quadlet units, safe configuration templates, and deployment
-   metadata to the remote paths.
-6. Pull the exact image digest on the remote host.
-7. Install or update the rootless Quadlets under the canonical Quadlet path.
-8. Reload the user's systemd manager and restart only the demo units.
-9. Run database migrations using the production-safe migration command.
-10. Seed only on first install or when an explicit reset flag is provided.
-11. Check the public URL and internal service health.
-12. Print the release commit, image digest, service status, URL, and rollback
+5. Transfer both images and the Quadlet units to the remote paths.
+6. Install or update the rootless Quadlets under the canonical Quadlet path.
+7. Reload the user's systemd manager and start only the demo units.
+8. Seed the database on first install or when an explicit reset flag is
+   provided. Migrations run automatically inside the Go API container.
+9. Check the public URL and internal Go API / web health endpoints.
+10. Print the release commit, image digest, service status, URL, and rollback
     command.
 
 The script must not silently deploy to production, reset the database, overwrite
@@ -172,6 +177,7 @@ APP_ENV=remote-demo
 DEMO_MODE=true
 DEMO_PUBLIC_URL=https://delegateops.business/lemans/demo
 NEXT_PUBLIC_BASE_PATH=/lemans/demo
+API_BASE_URL=http://lemans-demo-go:8080
 ```
 
 Use the actual variable names implemented by the application; do not introduce
@@ -182,8 +188,9 @@ belong to the later production profile and must not be required by the demo.
 
 ## 7. Migration, reset, and data policy
 
-- Use `prisma migrate deploy` for a deployed database once migration files are
-  established; do not use `prisma db push` as the production deployment path.
+- Migrations are embedded in the Go API binary and run automatically on
+  startup using `goose`. Do not run manual `goose` or `prisma` commands on the
+  remote database.
 - Do not run destructive reset logic during ordinary deploys.
 - Provide an explicit, separately confirmed demo reset command.
 - Keep database and uploads inside the demo data boundary.
@@ -228,22 +235,18 @@ schema changes.
 
 ## 10. Current implementation notes
 
-The existing deployment script and Quadlets require revision before this profile
-is deployed:
+The deployment script now builds and transfers both immutable demo images,
+and the Next.js web container joins `caddy.network` directly.
 
-- The script currently syncs local standalone output instead of relying solely on
-  an immutable image.
-- The current app is not directly attached to `caddy.network`.
-- The current sleeping Caddy bridge is not a proxy.
-- The current database unit references a secret file without a visible Quadlet
-  `Secret=` mapping.
-- Existing instructions assume Better Auth and login credentials, which conflict
-  with the current demo profile.
-- Existing remote-demo instructions use a hostname-root Caddy example, not the
-  required `/lemans/demo` subpath.
+- The script builds both `lemans-bridge-dashboard:demo-web` and
+  `lemans-bridge-dashboard-go:demo-go` images and transfers them to the remote host.
+- The Go API container is attached only to `lemans-demo-net`; the web container
+  joins both `caddy.network` and `lemans-demo-net`.
+- Go migrations run automatically inside `lemans-demo-go.service`.
+- The `/admin/seed` endpoint is only available when `DEMO_MODE=true`.
 
-These are implementation tasks, not deployment evidence. Do not claim the target
-URL is operational until the Caddy context and remote health checks are verified.
+Do not claim the target URL is operational until the Caddy context and remote
+health checks are verified.
 
 ## 11. Official guidance
 
@@ -252,5 +255,5 @@ URL is operational until the Caddy context and remote health checks are verified
 - [Caddy `handle_path`](https://caddyserver.com/docs/caddyfile/directives/handle)
 - [Next.js `basePath`](https://nextjs.org/docs/pages/api-reference/config/next-config-js/basePath)
 - [Next.js self-hosting](https://nextjs.org/docs/app/guides/self-hosting)
-- [Prisma migrate deploy](https://docs.prisma.io/docs/cli/migrate/deploy)
+- [goose migrations](https://github.com/pressly/goose)
 - [GitHub deployment environments and protection rules](https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments)

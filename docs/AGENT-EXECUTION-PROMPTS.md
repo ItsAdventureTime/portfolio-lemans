@@ -19,9 +19,10 @@ role switcher as production security.
 
 Inspect the current worktree and preserve unrelated user changes. Produce a
 short implementation plan that maps every playbook requirement to exact files,
-data models, actions, UI states, and tests. Identify contradictions or missing
-dependencies before coding. Search official current Next.js, React, Prisma,
-Podman, WCAG, OWASP, and MDN guidance for any API or framework decision.
+data models, API endpoints, actions, UI states, and tests. Identify
+contradictions or missing dependencies before coding. Search official current
+Next.js, React, Go, sqlc, goose, Podman, WCAG, OWASP, and MDN guidance for any
+API or framework decision.
 
 Do not modify files during this planning pass.
 ```
@@ -47,11 +48,11 @@ loading, empty, error, and success states. Add restrained transitions with a
 prefers-reduced-motion fallback. Maintain keyboard access, visible focus, and
 44px touch targets.
 
-Use server-side input validation, exact monetary arithmetic, centralized demo
-actor/policy helpers, and focused tests. Use apply_patch for edits. Run all
-execution, builds, tests, migrations, and servers inside rootless Podman. Do not
-use Compose, privileged containers, host networking, broad mounts, published DB
-ports, or remote deployment.
+Use server-side input validation in the Go API, exact monetary arithmetic,
+centralized demo actor/policy helpers, and focused tests. Use apply_patch for
+edits. Run all execution, builds, tests, migrations, and servers inside
+rootless Podman. Do not use Compose, privileged containers, host networking,
+broad mounts, published DB ports, or remote deployment.
 
 At the end, report changed files, requirement coverage, commands run, exact
 results, warnings, and any remaining blockers. Do not claim completion for
@@ -93,7 +94,8 @@ Run:
 Exercise the UI as Admin, General Manager, Sales Advisor, Service Advisor,
 Purchasing, and DCS. Verify role switching without login, deterministic reset,
 all major workflow transitions, exports, attachment states, keyboard focus,
-mobile target sizing, and prefers-reduced-motion behavior.
+mobile target sizing, and prefers-reduced-motion behavior. Check the Go API
+health endpoint at `/health` inside the internal Podman network.
 
 Stop and remove only the project-specific resources created by this run.
 Report every pass, failure, warning, skipped check, exposed port, and remaining
@@ -171,10 +173,12 @@ under:
 The target URL is:
   https://delegateops.business/lemans/demo
 
-Follow docs/REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md. Build and promote an immutable
-image, attach the app directly to the Caddy and internal networks, keep the DB
+Follow docs/REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md. Build and transfer both the
+web and Go API images, attach the web container directly to the Caddy and
+internal networks, attach the Go API only to the internal network, keep the DB
 internal with no published port, use safe migrations, and verify the subpath,
-assets, API routes, no-auth Admin default, role switching, and health checks.
+assets, API routes, Go API health, no-auth Admin default, role switching, and
+web health checks.
 
 Do not modify the shared Caddyfile or perform remote deployment until the user
 has explicitly authorized it and any required Caddy container/network context is
