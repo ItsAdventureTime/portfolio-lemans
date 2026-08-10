@@ -4,17 +4,17 @@
 
 ## Environments
 
-| Environment       | Quadlet Path                                         | Web Port         | Go API Container        | DB Volume                    | Web Image                          | Go Image                             |
-| ----------------- | ---------------------------------------------------- | ---------------- | ----------------------- | ---------------------------- | ---------------------------------- | ------------------------------------ |
-| Remote demo       | `~/.config/containers/systemd/bridge-ph/lemans-demo` | `127.0.0.1:3002` | `lemans-remote-demo-go` | `lemans-remote-demo-db-data` | `lemans-bridge-dashboard:demo-web` | `lemans-bridge-dashboard-go:demo-go` |
-| Remote production | `~/.config/containers/systemd/bridge-ph/lemans`      | `127.0.0.1:3003` | `lemans-remote-prod-go` | `lemans-remote-prod-db-data` | `lemans-bridge-dashboard:prod-web` | `lemans-bridge-dashboard-go:prod-go` |
+| Environment       | Quadlet Path                                         | Web Port         | Go API Container | DB Volume             | Web Image                          | Go Image                             |
+| ----------------- | ---------------------------------------------------- | ---------------- | ---------------- | --------------------- | ---------------------------------- | ------------------------------------ |
+| Remote demo       | `~/.config/containers/systemd/bridge-ph/lemans-demo` | `127.0.0.1:3002` | `lemans-demo-go` | `lemans-demo-db-data` | `lemans-bridge-dashboard:demo-web` | `lemans-bridge-dashboard-go:demo-go` |
+| Remote production | `~/.config/containers/systemd/bridge-ph/lemans`      | `127.0.0.1:3003` | `lemans-prod-go` | `lemans-prod-db-data` | `lemans-bridge-dashboard:prod-web` | `lemans-bridge-dashboard-go:prod-go` |
 
 ## Caddy Integration
 
 An existing rootless Caddy quadlet already handles public HTTP/HTTPS traffic. Each Le Mans environment attaches the Next.js web container to both the internal app network and `caddy.network`. The Go API container is attached only to the internal app network and is not reachable from Caddy.
 
-- Remote demo web container networks: `caddy.network` + `lemans-remote-demo-net`
-- Remote production web container networks: `caddy.network` + `lemans-remote-prod-net`
+- Remote demo web container networks: `caddy.network` + `lemans-demo-net`
+- Remote production web container networks: `caddy.network` + `lemans-prod-net`
 
 The web container is reachable by Caddy via its container name on the shared `caddy.network`. The web port (`127.0.0.1:3002/3003`) is only published for direct loopback health checks.
 
@@ -22,11 +22,11 @@ The web container is reachable by Caddy via its container name on the shared `ca
 
 ```caddy
 lemans-demo.example.com {
-    reverse_proxy lemans-remote-demo-app:3000
+    reverse_proxy lemans-demo-app:3000
 }
 
 lemans.example.com {
-    reverse_proxy lemans-remote-prod-app:3000
+    reverse_proxy lemans-prod-app:3000
 }
 ```
 

@@ -2,9 +2,10 @@
 
 > **Historical validation notice (2026-08-09):** This report captures an older
 > authentication-based remote demo. It is retained for infrastructure evidence
-> only. Current demo behavior is defined by
-> [`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md): no
-> authentication, Admin by default, and visible role simulation.
+> only, not as current runtime or naming guidance. Current demo behavior and
+> names are defined by [`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md):
+> no real authentication, optional simulated `Enter as an Admin` splash, Admin
+> by default after entry, and visible role simulation.
 
 - **Project**: Le Mans Operations & Job Cost Management System (`lemans-bridge-dashboard`)
 - **Environment**: Remote Demo (`lemans-remote-demo-app` on `127.0.0.1:3002`)

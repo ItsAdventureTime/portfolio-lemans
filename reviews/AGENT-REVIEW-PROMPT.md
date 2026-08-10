@@ -14,7 +14,7 @@ Mission: Review the current `main` branch for correctness, completeness, and con
 Context and constraints:
 - Repository: https://github.com/ItsAdventureTime/bridge-lemans
 - Default branch: `main` only. There must be no other long-lived branches. Feature/review branches may exist briefly but must be merged and deleted immediately after review.
-- Demo-first: no authentication, no login redirect. The app opens as the simulated Admin actor. A visible role switcher must support Admin, General Manager, Sales Advisor, Service Advisor, Purchasing, and DCS.
+- Demo-first: no real authentication. A login-like splash may offer `Enter as an Admin`; it enters the simulated Admin actor without passwords, sessions, login requirements, or authentication redirects. A visible role switcher must support Admin, General Manager, Sales Advisor, Service Advisor, Purchasing, and DCS.
 - Application base path: `/lemans/demo/`. The landing page and all internal links must use this prefix.
 - Containerized execution only: all builds, tests, migrations, and app execution run inside rootless Podman containers. No `docker compose`, no privileged containers, no host networking, no published database ports, no broad host mounts.
 - Image tags: demo uses `lemans-bridge-dashboard:demo-web` and `lemans-bridge-dashboard-go:demo-go`; production uses `lemans-bridge-dashboard:prod-web` and `lemans-bridge-dashboard-go:prod-go`.
@@ -39,7 +39,7 @@ Review process:
    - shared component usage (DataTable, FormField, StatusBadge) on list/form pages;
    - visible `:focus-visible` focus ring on keyboard navigation;
    - touch targets at least 44×44 CSS pixels on mobile emulation;
-   - `prefers-reduced-motion: reduce` disables nonessential motion;
+   - real browser/media emulation confirms `prefers-reduced-motion: reduce` disables nonessential motion;
    - server-side validation and error feedback on forms.
 6. Inspect these files for the specific fixes expected by the last reviewer handoff:
    - scripts/run-local.sh — readiness probe must target `/lemans/demo` and report the canonical URL.
@@ -76,6 +76,7 @@ Deliverable:
 ## Branch policy reminder
 
 This repo now follows trunk-based development:
+
 - `main` is the single source of truth.
 - Branches are short-lived (ideally < 24 hours) for review or CI checks only.
 - Branches are deleted immediately after merge.

@@ -2,7 +2,7 @@
 
 - **Status**: Authoritative for demo-build work
 - **Version**: 1.0.0
-- **Updated**: 2026-08-09
+- **Updated**: 2026-08-11
 - **Audience**: Coding agents, implementation agents, reviewers, and operators
 
 This document converts the repository audit into an executable specification.
@@ -22,10 +22,15 @@ configuration enabled.
 The demo must be easy to open, easy to reset, and easy to use during a live
 walkthrough.
 
-The demo has **no authentication**:
+The demo has **no real authentication**. It may present a simulated entry
+experience for a walkthrough, but it must not implement accounts, passwords,
+sessions, or an authorization boundary:
 
-- Opening the demo starts as the `Admin` role.
-- There is no login screen, login requirement, session check, password flow, or
+- Opening `/lemans/demo/` starts at a branded splash/landing state.
+- The splash presents an `Enter as an Admin` action. This is demo theatre, not a
+  login screen or security control.
+- Activating the action enters the dashboard as the `Admin` simulated actor.
+- There is no login requirement, session check, password flow, or
   authentication redirect in the demo profile.
 - The user can change the active simulated role from a visible role switcher.
 - The simulated role affects navigation, available actions, labels, empty states,
@@ -65,6 +70,9 @@ Rules:
    require a page reload to update navigation.
 5. Every role-sensitive action must use the shared demo actor/policy helper.
 6. Do not call production `requireSession` or redirect to `/login` in demo mode.
+
+The splash entry state must not prevent direct deterministic navigation to
+internal demo routes used by verification and walkthroughs.
 
 ## 2. Authority and implementation order
 
@@ -197,7 +205,8 @@ Use the existing tokens in `docs/DESIGN-SYSTEM.md`:
 - Use progressive-enhancement View Transitions for route or record transitions
   only when supported; the app must work normally without the API.
 - Always honor `prefers-reduced-motion: reduce`; remove non-essential movement,
-  large scaling, and parallax.
+  large scaling, and parallax. Verify this with a browser media-emulation test,
+  not CSS inspection alone.
 - Motion must communicate continuity or feedback, never delay task completion.
 
 ### 5.3 Four-state component contract
@@ -298,6 +307,9 @@ The verification result must explicitly report:
 - remaining warnings and known limitations.
 
 Do not report “verification complete” if any check failed or was skipped.
+
+The current remediation baseline and unresolved findings are tracked in
+[`reviews/NEXT-AGENT-REMEDIATION-REPORT-2026-08-11.md`](../reviews/NEXT-AGENT-REMEDIATION-REPORT-2026-08-11.md).
 
 ## 9. Official guidance used
 

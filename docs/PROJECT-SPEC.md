@@ -10,9 +10,11 @@
 - **Status**: Approved Base Scope & Workflow Pattern Integration
 
 > **Demo profile override (2026-08-09):** The current demo build intentionally
-> runs without authentication. It opens as the Admin simulated actor and uses a
-> visible role switcher. The Better Auth requirement below remains the future
-> production profile and must not introduce a login requirement into the demo.
+> runs without real authentication. It opens at a simulated `Enter as an Admin`
+> splash, then enters as the Admin simulated actor and uses a visible role
+> switcher. The Better Auth requirement below remains the future production
+> profile and must not introduce passwords, sessions, or a login requirement
+> into the demo.
 
 ---
 

@@ -24,7 +24,7 @@
                                             ▼
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
 │ PHASE 3: CORE OPERATIONS MODULES IMPLEMENTATION (NEXT PHASE)                           │
-│ - Authentication & RBAC: Better Auth integration, role matrix, session DAL              │
+│ - Production-only authentication & RBAC planning; demo uses simulated role state        │
 │ - Service Delivery & Technician Progress Tracking                                      │
 │ - Purchasing: Purchase Requests (PR), POs, Supplier Invoice Multi-JO Line Allocation   │
 │ - Expenses: OPEX Request Budget Form & GM Approval Workflow                            │
@@ -50,7 +50,7 @@
 │   - Demo: `/home/jk/.config/containers/systemd/bridge-ph/lemans-demo`                 │
 │   - Prod: `/home/jk/.config/containers/systemd/bridge-ph/lemans`                      │
 │ - Deploy via `scripts/deploy-remote-demo.sh` and `scripts/deploy-remote-prod.sh`        │
-│ - Remote demo auto-reset every 30 minutes; production daily backup to Backblaze B2    │
+│ - Remote demo reset only by explicit operator trigger; production daily backup to B2   │
 └────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 

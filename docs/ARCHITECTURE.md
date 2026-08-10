@@ -5,8 +5,9 @@
 This document specifies the containerized fullstack architecture for the **Le Mans Operations & Job Cost Management System**. All proposed solutions comply strictly with the project's **Rootless Podman Containerization Mandate** (local Apple Silicon macOS development via `podman machine start` + remote Linux Quadlet systemd deployment).
 
 > **Demo profile override (2026-08-09):** The demo build is intentionally
-> authentication-free. It defaults to the Admin simulated actor and provides a
-> visible role switcher. Better Auth, session persistence, and protected-route
+> authentication-free. It starts with a simulated `Enter as an Admin` splash,
+> then defaults to the Admin simulated actor and provides a visible role switcher.
+> Better Auth, session persistence, and protected-route
 > behavior described elsewhere in this document belong to the future production
 > profile and must not block the demo. Production is promoted from the validated
 > demo source/image lineage; it is not a separately maintained codebase.
@@ -119,7 +120,10 @@ container is attached only to the internal network.
 
 ### Authentication & Authorization Layer
 
-- **Framework**: Demo uses no authentication. Role simulation via `lemans-demo-role` cookie and `X-Demo-Role` header. Production will use a real auth layer (separate planning).
+- **Framework**: Demo uses no real authentication and may show a simulated
+  `Enter as an Admin` splash before the Admin actor. Role simulation uses the
+  `lemans-demo-role` cookie and `X-Demo-Role` header. Production will use a real
+  auth layer (separate planning).
 - **Role Enforcement**: Project-specific role matrix in `src/lib/roles.ts`, validated server-side by the Go API using `internal/actor` and `internal/policy`.
 - **Middleware**: None required for the demo profile.
 
@@ -135,4 +139,5 @@ container is attached only to the internal network.
 - **Database Backup**: Daily containerized `pg_dump` execution storing compressed SQL backups to Backblaze B2 `backups/db/` (production only).
 - **Object Storage Backup**: Backblaze B2 bucket versioning and lifecycle rules managed in Backblaze console; references preserved in PostgreSQL.
 - **Restore Protocol**: One-line container execution: `podman exec -i lemans-db psql -U postgres lemans_db < backup.sql`.
-- **Demo Reset**: Remote demo resets every 30 minutes (systemd timer) or on manual trigger, restoring DB to seeded state and clearing uploaded attachments.
+- **Demo Reset**: Remote demo resets only on an explicit, operator-controlled
+  trigger, restoring DB to seeded state and clearing uploaded attachments.

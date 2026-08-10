@@ -227,12 +227,12 @@ The implementation agent addressed the following review findings in the same bra
 
 - `scripts/run-local.sh` now probes `/lemans/demo` for readiness and reports `http://127.0.0.1:3000/lemans/demo/`. It returns a nonzero exit code only on genuine startup failure.
 - `scripts/verify-local.sh` now uses `set -euo pipefail` inside each disposable container so formatting, type-check, Go generation, build, and test failures propagate and fail the command.
-- Remote deploy scripts create the release directory before copying manifests, remove temporary env/release files on both success and failure, and chmod remote env files to `600`. Service references use generated systemd unit names (`lemans-demo.service`, `lemans-demo-go.service`, `lemans-demo-db.service`; production uses `lemans.service`, `lemans-go.service`, `lemans-db.service`), while container names remain unchanged.
+- Remote deploy scripts must create the release directory before copying manifests, remove temporary env/release files on both success and failure, and chmod remote env files to `600`. The current review found the failure-path guarantee incomplete; see [`NEXT-AGENT-REMEDIATION-REPORT-2026-08-11.md`](./NEXT-AGENT-REMEDIATION-REPORT-2026-08-11.md). Service references use generated systemd unit names (`lemans-demo.service`, `lemans-demo-go.service`, `lemans-demo-db.service`; production uses `lemans.service`, `lemans-go.service`, `lemans-db.service`), while container names remain unchanged.
 - Shared UI component adoption completed for ordinary list pages (`DataTable`) and forms (`FormField`); `StatusBadge` replaces raw `{status}` display.
 - Accessibility: global `:focus-visible` ring, 44×44 minimum touch targets, `prefers-reduced-motion` preserved, ARIA labels on live/error regions.
 - Server actions now validate required fields server-side, use exact monetary arithmetic, and revalidate the affected paths (and cross-module paths where applicable) after mutations.
 - Removed new `any` usage; introduced `src/lib/types.ts` for shared frontend types and replaced remaining `any` with explicit types.
-- No authentication or login redirects added; demo opens as Admin; role switcher remains visible for all six demo roles.
+- No real authentication or login redirects are required; a simulated `Enter as an Admin` splash may precede the Admin default. The role switcher must remain visible for all six demo roles.
 
 Commands for the next implementation agent:
 

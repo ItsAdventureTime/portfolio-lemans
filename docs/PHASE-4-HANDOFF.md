@@ -4,9 +4,10 @@
 > implementation state and is not the current demo authority. For current demo
 > work, follow [`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md)
 > and [`AGENT-EXECUTION-PROMPTS.md`](./AGENT-EXECUTION-PROMPTS.md). In particular,
-> the demo is now intentionally authentication-free, opens as Admin, and uses
-> visible role simulation. The completion claims and seeded login credentials
-> below must not be treated as current acceptance evidence.
+> the demo now has no real authentication, may use a simulated `Enter as an
+Admin` splash, enters as Admin, and uses visible role simulation. The
+> completion claims and seeded login credentials below must not be treated as
+> current acceptance evidence.
 
 - **Date**: 2026-08-07
 - **From**: Lead Software Architect / AI Engineering Agent

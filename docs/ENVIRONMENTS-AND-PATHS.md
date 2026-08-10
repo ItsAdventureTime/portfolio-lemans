@@ -12,7 +12,8 @@ All application logic, container build files, database schemas, and Quadlet defi
 
 `local-demo` and `remote-demo` are demonstration profiles, not production
 security environments. The current demo opens without authentication as the
-Admin simulated actor and supports visible role switching. The demo uses a
+simulated `Enter as an Admin` splash, then enters as the Admin simulated actor
+and supports visible role switching. The demo uses a
 Go backend API for all persistence and attachment storage. Authentication
 secrets are production-profile planning values and are not required to run
 the demo.
@@ -46,13 +47,13 @@ The current deployment target is remote-only for the demo:
 | **Web Port Binding**    | `127.0.0.1:3000`                                   | `127.0.0.1:3001` (build/verify only)               | `127.0.0.1:3002` (Behind Proxy)      | `127.0.0.1:3003` (Behind Proxy)      |
 | **Go API Port Binding** | NONE (internal net)                                | NONE (internal net)                                | NONE (internal net)                  | NONE (internal net)                  |
 | **DB Port Binding**     | `NONE` (Internal Podman Net)                       | `NONE` (Internal Podman Net)                       | `NONE` (Internal Podman Net)         | `NONE` (Internal Podman Net)         |
-| **Web Container Name**  | `lemans-demo-app`                                  | `lemans-prodlike-app`                              | `lemans-remote-demo-app`             | `lemans-remote-prod-app`             |
-| **Go Container Name**   | `lemans-demo-go`                                   | `lemans-prodlike-go`                               | `lemans-remote-demo-go`              | `lemans-remote-prod-go`              |
-| **DB Volume Name**      | `lemans-demo-db-data`                              | `lemans-prodlike-db-data`                          | `lemans-remote-demo-db-data`         | `lemans-remote-prod-db-data`         |
-| **Podman Network**      | `lemans-demo-net`                                  | `lemans-prodlike-net`                              | `lemans-remote-demo-net`             | `lemans-remote-prod-net`             |
+| **Web Container Name**  | `lemans-demo-app`                                  | `lemans-prodlike-app`                              | `lemans-demo-app`                    | `lemans-prod-app`                    |
+| **Go Container Name**   | `lemans-demo-go`                                   | `lemans-prodlike-go`                               | `lemans-demo-go`                     | `lemans-prod-go`                     |
+| **DB Volume Name**      | `lemans-demo-db-data`                              | `lemans-prodlike-db-data`                          | `lemans-demo-db-data`                | `lemans-prod-db-data`                |
+| **Podman Network**      | `lemans-demo-net`                                  | `lemans-prodlike-net`                              | `lemans-demo-net`                    | `lemans-prod-net`                    |
 | **Auth Secret**         | Not used in demo (production-only planning value)  | Production-only                                    | Not used in demo                     | Production-only                      |
 | **Backblaze B2 Bucket** | `lemans-demo-attachments`                          | `lemans-prodlike-attachments`                      | `lemans-remote-demo-attachments`     | `lemans-remote-prod-attachments`     |
-| **Reset Policy**        | Manual via `scripts/reset-local.sh`                | Manual only                                        | Auto every 30 min + manual           | None (persistent)                    |
+| **Reset Policy**        | Manual via `scripts/reset-local.sh`                | Manual only                                        | Explicit `RESET=true` only           | None (persistent)                    |
 
 ## 3. Local Quick Reference
 
@@ -99,10 +100,10 @@ podman machine start
 
 The existing rootless Caddy quadlet already exposes the public HTTP/HTTPS ports. Each Le Mans environment attaches the Next.js web container to both the internal app network (`lemans-*-net`) and `caddy.network`, allowing Caddy to reverse-proxy to the web container by container name without exposing the web port publicly. The Go API container is attached only to the internal network.
 
-| Environment       | Web Container Networks                     | Go Container Networks    | DB Container Networks    |
-| ----------------- | ------------------------------------------ | ------------------------ | ------------------------ |
-| Remote Demo       | `caddy.network` + `lemans-remote-demo-net` | `lemans-remote-demo-net` | `lemans-remote-demo-net` |
-| Remote Production | `caddy.network` + `lemans-remote-prod-net` | `lemans-remote-prod-net` | `lemans-remote-prod-net` |
+| Environment       | Web Container Networks              | Go Container Networks | DB Container Networks |
+| ----------------- | ----------------------------------- | --------------------- | --------------------- |
+| Remote Demo       | `caddy.network` + `lemans-demo-net` | `lemans-demo-net`     | `lemans-demo-net`     |
+| Remote Production | `caddy.network` + `lemans-prod-net` | `lemans-prod-net`     | `lemans-prod-net`     |
 
 ## 6. Required Secrets / Environment Variables
 
@@ -148,7 +149,7 @@ Values are injected at container runtime via `EnvironmentFile=` in Quadlet files
 - Production-like and remote environments use immutable images (no source bind mounts).
 - Local builds/tests run in disposable `podman run --rm` containers.
 - Quadlets place applications behind the upstream reverse proxy on loopback-only ports.
-- Remote demo auto-resets every 30 minutes and on manual trigger.
+- Remote demo resets only when explicitly requested with `RESET=true`.
 - Production persists data and runs daily backups to Backblaze B2.
 
 For full remote install, backup, restore, and rollback procedures, see `docs/REMOTE-OPERATIONS.md`.

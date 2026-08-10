@@ -12,10 +12,11 @@ You are the implementation agent for the Le Mans demo build.
 Read AGENTS.md, docs/DEMO-IMPLEMENTATION-PLAYBOOK.md, docs/DESIGN-SYSTEM.md,
 docs/PROJECT-SPEC.md, and the current source before editing anything.
 
-The demo is intentionally authentication-free. It opens as Admin and supports
-visible role simulation for Admin, General Manager, Sales Advisor, Service
-Advisor, Purchasing, and DCS. Do not add a login requirement or treat the demo
-role switcher as production security.
+The demo has no real authentication. It opens at a simulated splash with an
+`Enter as an Admin` action, then enters as the Admin simulated actor and exposes
+role simulation for Admin, General Manager, Sales Advisor, Service Advisor,
+Purchasing, and DCS. Do not add passwords, sessions, login redirects, or treat
+the splash or role switcher as production security.
 
 Inspect the current worktree and preserve unrelated user changes. Produce a
 short implementation plan that maps every playbook requirement to exact files,
@@ -33,7 +34,7 @@ Do not modify files during this planning pass.
 Implement the approved plan for the Le Mans demo build.
 
 Follow docs/DEMO-IMPLEMENTATION-PLAYBOOK.md as the authoritative specification.
-Focus on a deterministic, no-auth demo: default Admin actor, visible role
+Focus on a deterministic, no-auth demo: simulated Admin entry splash, default Admin actor, visible role
 switching, role-aware navigation and action behavior, no login redirect, and
 fictional seeded data.
 
@@ -91,7 +92,7 @@ Run:
   ./scripts/verify-local.sh
   ./scripts/verify-vertical-slice.sh
 
-Exercise the UI as Admin, General Manager, Sales Advisor, Service Advisor,
+Exercise the UI through `Enter as an Admin`, then as Admin, General Manager, Sales Advisor, Service Advisor,
 Purchasing, and DCS. Verify role switching without login, deterministic reset,
 all major workflow transitions, exports, attachment states, keyboard focus,
 mobile target sizing, and prefers-reduced-motion behavior. Check the Go API

@@ -2,7 +2,7 @@
 
 - **Status**: Authoritative for the remote demo deployment profile
 - **Version**: 1.1.0
-- **Updated**: 2026-08-10
+- **Updated**: 2026-08-11
 - **Target URL**: `https://delegateops.business/lemans/demo`
 - **Remote user**: `jk`
 
@@ -173,10 +173,11 @@ the Caddyfile, or modify unrelated systemd units.
 
 ## 6. Demo runtime configuration
 
-The demo profile remains authentication-free:
+The demo profile remains free of real authentication:
 
-- No login page or login redirect.
-- Admin simulated actor by default.
+- A login-like splash may present `Enter as an Admin` as demo theatre.
+- That button enters the `Admin` simulated actor by default.
+- No password, real session, login requirement, or authentication redirect.
 - Visible role switcher.
 - Fictional seeded data only.
 - Reset is explicit and operator-controlled by default.
@@ -220,7 +221,7 @@ The deployment is not successful until all checks pass:
   are published.
 - `https://delegateops.business/lemans/demo` returns a healthy response.
 - Static assets load beneath `/lemans/demo`.
-- The no-auth Admin default works.
+- The simulated `Enter as an Admin` entry and Admin default work.
 - Role switching works for all six demo roles.
 - Database-backed workflows and attachments work.
 - Reset is not triggered by ordinary deployment.
@@ -256,9 +257,11 @@ and the Next.js web container joins `caddy.network` directly.
   joins both `caddy.network` and `lemans-demo-net`.
 - Go migrations run automatically inside `lemans-demo-go.service`.
 - The `/admin/seed` endpoint is only available when `DEMO_MODE=true`.
-- Temporary local env/release files are removed on success and failure; the
-  remote env file is chmod `600`; release manifests are written to
-  `/home/jk/bridge-ph/lemans-demo/releases`.
+- Temporary local env/release files must be removed on success and failure; the
+  remote env file must be chmod `600`; release manifests must be written to
+  `/home/jk/bridge-ph/lemans-demo/releases`. Verify these guarantees against
+  both success and failure paths; see
+  [`NEXT-AGENT-REMEDIATION-REPORT-2026-08-11.md`](../reviews/NEXT-AGENT-REMEDIATION-REPORT-2026-08-11.md).
 
 Do not claim the target URL is operational until the Caddy context and remote
 health checks are verified.

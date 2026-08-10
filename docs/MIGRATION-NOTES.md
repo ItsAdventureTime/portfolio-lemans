@@ -29,8 +29,10 @@
 
 ## Demo behavior
 
-- Still no authentication.
-- Admin actor by default, with a visible role switcher for all six roles.
+- No real authentication; a simulated `Enter as an Admin` splash may precede
+  the Admin actor.
+- Admin actor by default after entry, with a visible role switcher for all six
+  roles.
 - Role-sensitive actions validated server-side by the Go API using `X-Demo-Role` header.
 
 ## Known TODOs

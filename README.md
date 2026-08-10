@@ -18,7 +18,7 @@ Enterprise operational and job costing platform built for **Le Mans Service Plus
 - **Single Source of Truth**: One Job Order (`JO` / `RA`) governs estimations, procurement allocations, OPEX requests, customer billing, and net job profitability.
 - **Containerized Execution**: 100% rootless Podman execution (`podman machine start` on macOS Apple Silicon; Linux rootless for VPS).
 - **No Compose**: `podman compose` / `docker compose` are not used. Local execution uses `podman run --rm` via helper scripts.
-- **Demo authentication**: None. The demo opens as Admin and provides visible role simulation. Production authentication remains a future deployment profile (see ADR-0003).
+- **Demo entry**: No real authentication. The demo opens at a simulated splash with `Enter as an Admin`, then enters the dashboard as Admin with visible role simulation. Production authentication remains a future deployment profile (see ADR-0003).
 - **Deployment**: No persistent local deployment. The remote demo is deployed by `./scripts/deploy-remote-demo.sh` as rootless Quadlets at `https://delegateops.business/lemans/demo`.
 - **Attachments**: Backblaze B2 S3-compatible object storage for inspection photos, receipts, and supporting documents (see ADR-0004).
 - **Backend**: Go latest API (`backend/`, `golang:alpine`) owns persistence, migrations (`goose`), business logic, and presigned B2 URLs. Next.js frontend calls the Go API over the internal Podman network.
@@ -28,7 +28,7 @@ Enterprise operational and job costing platform built for **Le Mans Service Plus
 ## 2. Local Validation and Remote Demo Deployment
 
 ```bash
-# 1. Start local Podman machine
+# 1. Ensure the local Podman machine is running (already-running is acceptable)
 export PATH="/opt/podman/bin:$PATH"
 podman machine start
 
@@ -78,7 +78,7 @@ Stop / reset:
 ## 4. Remote Deployment
 
 ```bash
-# Remote demo (auto-resets every 30 minutes)
+# Remote demo (explicit reset only; see the remote deployment playbook)
 export REMOTE_HOST=vps.example.com
 export REMOTE_USER=jk
 export B2_ACCESS_KEY_ID=...

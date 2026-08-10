@@ -131,11 +131,13 @@ Every dynamic component MUST explicitly implement four discrete visual UI states
 
 ## 7. Demo Shell, Motion, and Role Simulation
 
-The current demo profile is intentionally authentication-free. The application
-opens as the `Admin` simulated actor and exposes a visible role switcher for all
-six business roles. The shell MUST show a persistent `Demo mode` indicator and
-the active role. Role simulation changes navigation and available workflow
-actions, but is not a production security boundary.
+The current demo profile has no real authentication. A login-like splash may
+offer `Enter as an Admin` as demo theatre; that action enters the `Admin`
+simulated actor without passwords, sessions, or authentication redirects. The
+application exposes a visible role switcher for all six business roles. The
+shell MUST show a persistent `Demo mode` indicator and the active role. Role
+simulation changes navigation and available workflow actions, but is not a
+production security boundary.
 
 Motion is functional and restrained:
 

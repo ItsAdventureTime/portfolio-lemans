@@ -1,5 +1,11 @@
 # Phase 4 Defect Fix Results
 
+> **Historical implementation record:** This document describes an older
+> authentication-oriented phase and is not current demo acceptance evidence.
+> The current demo has no real authentication; follow the authoritative
+> playbook for the simulated `Enter as an Admin` entry, role simulation, and
+> current route/runtime requirements.
+
 - **Project**: Le Mans Operations & Job Cost Management System (`lemans-bridge-dashboard`)
 - **Client**: LeMans Service Plus OPC
 - **Date**: 2026-08-07

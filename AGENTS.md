@@ -32,7 +32,7 @@
 7. **Remote Execution Standard**:
    - VPS demo and production deployments use rootless Podman Quadlet files (`.container`, `.network`, `.volume`).
    - Join the existing Caddy reverse-proxy network (`caddy.network`) with a single bridge container per environment.
-   - Internal app↔database traffic stays on a dedicated internal network (`lemans-remote-demo-net` or `lemans-remote-prod-net`).
+   - Internal app↔database traffic stays on a dedicated internal network (`lemans-demo-net` or `lemans-prod-net`).
    - Database ports are never published to host interfaces.
    - The Go API container is attached only to the internal network; the Next.js web container is attached to both the Caddy network and the internal network.
 8. **Git & GitHub Operations Standard**:
@@ -44,11 +44,14 @@
 
 For the current demo-focused work, read [`docs/DEMO-IMPLEMENTATION-PLAYBOOK.md`](docs/DEMO-IMPLEMENTATION-PLAYBOOK.md) before planning or editing. It is the authoritative demo specification and overrides older phase-completion claims where they conflict.
 
-- The demo intentionally has **no authentication** and no login requirement.
-- The demo opens as the `Admin` simulated actor by default.
+- The demo intentionally has **no real authentication** or login requirement.
+- The demo opens at a simulated splash/landing screen with an `Enter as an
+Admin` action; after entry, the active simulated actor defaults to Admin.
 - The UI MUST provide a visible role switcher for Admin, General Manager, Sales Advisor, Service Advisor, Purchasing, and DCS.
 - Demo role simulation is for walkthroughs and testing only; it is not a production security boundary.
-- Do not add login redirects, password prompts, or `requireSession` checks to the demo profile.
+- Do not add real login redirects, password prompts, sessions, or
+  `requireSession` checks to the demo profile. A login-like splash is allowed
+  only as clearly labeled demo theatre and must not become a security boundary.
 - The demo is the canonical actively developed build; production is promoted from validated demo source and image lineage.
 - Keep production authentication, secrets, persistence, backups, and deployment controls isolated as runtime/build-profile configuration.
 - Never maintain a separate production source copy or promote an unverified demo build.
