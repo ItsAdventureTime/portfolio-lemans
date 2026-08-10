@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { getDemoRole } from '@/lib/actor';
-import { getDashboard, formatPeso } from '@/lib/api';
-import { hasPermission } from '@/lib/roles';
+import { getDashboard } from '@/lib/api';
+import { formatPeso } from '@/lib/money';
+import { StatusBadge } from '@/components/ui';
 
 export default async function DashboardOverview() {
   const role = await getDemoRole();
@@ -31,21 +32,29 @@ export default async function DashboardOverview() {
           <h2 className="font-medium text-slate-900">Recent Job Orders</h2>
         </div>
         <div className="divide-y divide-slate-200">
-          {data.recentJobOrders.map((jo: any) => (
-            <Link
-              key={jo.id}
-              href={`/job-orders/${jo.jo_no}`}
-              className="flex items-center justify-between px-4 py-3 hover:bg-slate-50"
-            >
-              <div>
-                <p className="font-medium text-slate-900">{jo.jo_no}</p>
-                <p className="text-sm text-slate-500">
-                  {jo.customer_name} — {jo.vehicle_plate}
-                </p>
-              </div>
-              <span className="text-sm font-medium text-brand-primary">{jo.status}</span>
-            </Link>
-          ))}
+          {data.recentJobOrders.map(
+            (jo: {
+              id: string;
+              jo_no: string;
+              customer_name: string;
+              vehicle_plate: string;
+              status: string;
+            }) => (
+              <Link
+                key={jo.id}
+                href={`/job-orders/${jo.jo_no}`}
+                className="flex items-center justify-between px-4 py-3 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-inset"
+              >
+                <div>
+                  <p className="font-medium text-slate-900">{jo.jo_no}</p>
+                  <p className="text-sm text-slate-500">
+                    {jo.customer_name} — {jo.vehicle_plate}
+                  </p>
+                </div>
+                <StatusBadge status={jo.status} />
+              </Link>
+            )
+          )}
         </div>
       </div>
     </div>

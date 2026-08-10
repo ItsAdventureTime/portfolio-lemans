@@ -1,16 +1,17 @@
 [Unit]
 Description=Le Mans remote demo Next.js web application
-After=lemans-remote-demo-go.service
+After=lemans-demo-go.service
+Requires=lemans-demo-go.service
 
 [Container]
 Image=docker.io/library/lemans-bridge-dashboard:demo-web
-ContainerName=lemans-remote-demo-app
+ContainerName=lemans-demo-app
 Network=caddy.network
-Network=lemans-remote-demo-net
+Network=lemans-demo-net
 PublishPort=127.0.0.1:3002:3000
 Environment=NODE_ENV=production
 Environment=NEXT_PUBLIC_BASE_PATH=/lemans/demo
-Environment=API_BASE_URL=http://lemans-remote-demo-go:8080
+Environment=API_BASE_URL=http://lemans-demo-go:8080
 EnvironmentFile=%h/.config/containers/systemd/bridge-ph/lemans-demo/lemans-demo.env
 
 [Service]

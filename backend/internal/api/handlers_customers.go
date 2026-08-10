@@ -132,6 +132,16 @@ func (d *deps) handleUpdateCustomer(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusOK, customer)
 }
 
+func (d *deps) handleListVehicles(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	vehicles, err := d.queries.ListVehicles(ctx)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, err)
+		return
+	}
+	respondJSON(w, http.StatusOK, vehicles)
+}
+
 func (d *deps) handleListVehiclesByCustomer(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 	id := idParam(r, "id")

@@ -1,11 +1,12 @@
 [Unit]
 Description=Le Mans remote demo Go API backend
-After=lemans-remote-demo-db.service
+After=lemans-demo-db.service
+Requires=lemans-demo-db.service
 
 [Container]
 Image=docker.io/library/lemans-bridge-dashboard-go:demo-go
-ContainerName=lemans-remote-demo-go
-Network=lemans-remote-demo-net
+ContainerName=lemans-demo-go
+Network=lemans-demo-net
 Environment=NODE_ENV=production
 Environment=LISTEN_ADDR=:8080
 Environment=DEMO_MODE=true

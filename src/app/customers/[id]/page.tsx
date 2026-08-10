@@ -1,5 +1,7 @@
 import { getDemoRole } from '@/lib/actor';
 import { getCustomer, listVehiclesByCustomer } from '@/lib/api';
+import { DataTable } from '@/components/ui';
+import type { Vehicle } from '@/lib/types';
 
 export default async function CustomerDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -30,28 +32,18 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
         </p>
       </div>
       <h2 className="text-lg font-semibold">Vehicles</h2>
-      <div className="bg-white rounded border border-slate-200">
-        <table className="w-full text-sm">
-          <thead className="bg-slate-50">
-            <tr>
-              <th className="text-left px-4 py-2">Plate</th>
-              <th className="text-left px-4 py-2">Make/Model</th>
-              <th className="text-left px-4 py-2">Year</th>
-              <th className="text-left px-4 py-2">Color</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {vehicles.map((v: any) => (
-              <tr key={v.id}>
-                <td className="px-4 py-2">{v.plate_no}</td>
-                <td className="px-4 py-2">{v.make_model}</td>
-                <td className="px-4 py-2">{v.year}</td>
-                <td className="px-4 py-2">{v.color}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <DataTable<Vehicle>
+        items={vehicles}
+        caption="Customer vehicles"
+        emptyTitle="No vehicles"
+        emptyDescription="This customer has no registered vehicles."
+        columns={[
+          { key: 'plate', header: 'Plate', render: (v) => v.plate_no },
+          { key: 'makeModel', header: 'Make/Model', render: (v) => v.make_model },
+          { key: 'year', header: 'Year', render: (v) => v.year || '—' },
+          { key: 'color', header: 'Color', render: (v) => v.color || '—' },
+        ]}
+      />
     </div>
   );
 }

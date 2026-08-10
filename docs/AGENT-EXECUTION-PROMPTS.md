@@ -129,9 +129,12 @@ git diff --check
 export PATH="/opt/podman/bin:$PATH"
 podman machine start
 ./scripts/build.sh demo
-./scripts/run-local.sh
+./scripts/build.sh prod
 ./scripts/verify-local.sh
+./scripts/run-local.sh
 ./scripts/verify-vertical-slice.sh
+
+# Manual spot checks at http://127.0.0.1:3000/lemans/demo/...
 
 # Stop only the project demo runtime after validation
 ./scripts/stop-local.sh

@@ -9,15 +9,15 @@
 
 ## 1. What changed (high-level)
 
-| Area | Before | After |
-| ---- | ------ | ----- |
-| Frontend framework | Next.js 14/15, React 18/19, Prisma, Better Auth | Next.js 16.3.0, React 19.2, no Prisma, no Better Auth |
-| Data layer | Next.js server actions + Prisma client | Go latest API (`backend/`) + typed client `src/lib/api.ts` |
-| Runtime | Single app container | PostgreSQL (latest Alpine) + Go API + Next.js web container |
-| Images | `lemans-bridge-dashboard:latest-alpine` / `lts-alpine` | `lemans-bridge-dashboard:{demo,prod}-web` + `lemans-bridge-dashboard-go:{demo,prod}-go` |
-| Migrations | `prisma migrate deploy` / `npx prisma db push` | Embedded `goose` migrations run automatically in Go container |
-| Auth | Better Auth + login | Demo-only role simulation via cookie/header |
-| Object storage | AWS SDK JS v3 in Next.js | AWS SDK Go v2 in Go API, presigned URLs served to frontend |
+| Area               | Before                                                 | After                                                                                   |
+| ------------------ | ------------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| Frontend framework | Next.js 14/15, React 18/19, Prisma, Better Auth        | Next.js 16.3.0, React 19.2, no Prisma, no Better Auth                                   |
+| Data layer         | Next.js server actions + Prisma client                 | Go latest API (`backend/`) + typed client `src/lib/api.ts`                              |
+| Runtime            | Single app container                                   | PostgreSQL (latest Alpine) + Go API + Next.js web container                             |
+| Images             | `lemans-bridge-dashboard:latest-alpine` / `lts-alpine` | `lemans-bridge-dashboard:{demo,prod}-web` + `lemans-bridge-dashboard-go:{demo,prod}-go` |
+| Migrations         | `prisma migrate deploy` / `npx prisma db push`         | Embedded `goose` migrations run automatically in Go container                           |
+| Auth               | Better Auth + login                                    | Demo-only role simulation via cookie/header                                             |
+| Object storage     | AWS SDK JS v3 in Next.js                               | AWS SDK Go v2 in Go API, presigned URLs served to frontend                              |
 
 ---
 
@@ -59,17 +59,20 @@ lemans-bridge-dashboard/
 ## 3. Technology choices with official guidance consulted
 
 ### Next.js 16 self-hosting
+
 - Official docs recommend `output: 'standalone'` for Docker/self-hosted deployments to produce a minimal runtime image.
 - Reverse proxy should handle public traffic; app binds to loopback/internal interfaces.
 - Source: https://nextjs.org/docs/app/getting-started/deploying, https://nextjs.org/docs/app/guides/self-hosting, https://nextjs.org/docs/pages/api-reference/config/next-config-js/output
 
 ### Go latest backend
+
 - Standard project layout (`cmd/`, `internal/`).
 - Chi router for lightweight HTTP routing; pgx/v5 for PostgreSQL; sqlc for type-safe SQL-first queries; goose for plain-SQL migrations.
 - Error wrapping with `%w`; structured JSON logging via `log/slog`.
 - Sources: https://github.com/pressly/goose, https://docs.sqlc.dev, https://pkg.go.dev/github.com/go-chi/chi/v5, https://github.com/jackc/pgx
 
 ### Podman Quadlet
+
 - Rootless user units live in `~/.config/containers/systemd/...`.
 - `.container`, `.network`, `.volume` files generate `.service` units via `systemctl --user daemon-reload`.
 - Containers can join multiple networks; no `--privileged`, `--net=host`, or published DB ports.
@@ -121,6 +124,7 @@ podman machine start
 ```
 
 **Verified results** (last run 2026-08-10):
+
 - `verify-local.sh`: format/lint/typecheck pass; `go vet`/`go test` pass.
 - `verify-vertical-slice.sh`: all routes return 200; DB has no published host ports; Go API health returns 200.
 - Routes checked: `/`, `/customers`, `/quotations`, `/job-orders`, `/job-orders/RA0003973`, `/job-costing/RA0003973`, `/purchasing`, `/expenses`, `/dcs`, `/invoices`.
@@ -197,4 +201,4 @@ The repository remote is `https://github.com/ItsAdventureTime/bridge-lemans.git`
 
 ---
 
-*End of handoff document.*
+_End of handoff document._

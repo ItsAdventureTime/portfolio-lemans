@@ -1,11 +1,12 @@
 [Unit]
 Description=Le Mans remote production Go API backend
-After=lemans-remote-prod-db.service
+After=lemans-prod-db.service
+Requires=lemans-prod-db.service
 
 [Container]
 Image=docker.io/library/lemans-bridge-dashboard-go:prod-go
-ContainerName=lemans-remote-prod-go
-Network=lemans-remote-prod-net
+ContainerName=lemans-prod-go
+Network=lemans-prod-net
 Environment=NODE_ENV=production
 Environment=LISTEN_ADDR=:8080
 Environment=DEMO_MODE=false

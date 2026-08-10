@@ -34,13 +34,7 @@ export async function apiPost(path: string, body: unknown, role?: string) {
   return apiFetch(path, { method: 'POST', body: JSON.stringify(body) }, role);
 }
 
-export function formatPeso(cents: number): string {
-  return `₱${(cents / 100).toFixed(2)}`;
-}
-
-export function pesoToCents(peso: number): number {
-  return Math.round(peso * 100);
-}
+export { formatPeso, formatPesoAmount, pesoToCents, centsToPeso } from './money';
 
 export async function listCustomers(role?: string) {
   return apiGet('/api/customers', role);
@@ -56,6 +50,10 @@ export async function createCustomerAndVehicle(input: unknown, role?: string) {
 
 export async function listVehiclesByCustomer(customerId: string, role?: string) {
   return apiGet(`/api/customers/${customerId}/vehicles`, role);
+}
+
+export async function listVehicles(role?: string) {
+  return apiGet('/api/vehicles', role);
 }
 
 export async function listQuotations(role?: string) {

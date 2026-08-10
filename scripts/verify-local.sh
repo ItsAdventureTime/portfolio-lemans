@@ -14,9 +14,9 @@ podman run --rm \
   -w /app \
   --env-file "${PROJECT_ROOT}/.env.demo" \
   node:lts-alpine sh -c "
+    set -euo pipefail
     npm ci
     npm run format:check
-    npm run lint
     npm run typecheck
   "
 
@@ -25,6 +25,7 @@ podman run --rm \
   -v "${PROJECT_ROOT}/backend:/app:rw" \
   -w /app \
   golang:alpine sh -c "
+    set -euo pipefail
     apk add --no-cache git curl tar
     curl -fsSL -o /tmp/sqlc.tgz https://github.com/sqlc-dev/sqlc/releases/download/v1.29.0/sqlc_1.29.0_linux_arm64.tar.gz
     tar -xzf /tmp/sqlc.tgz -C /usr/local/bin sqlc

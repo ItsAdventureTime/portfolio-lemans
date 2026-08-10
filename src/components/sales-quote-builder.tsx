@@ -2,6 +2,7 @@
 
 import React, { useState, useCallback, useMemo } from 'react';
 import { Trash2, Plus } from 'lucide-react';
+import { formatPesoAmount } from '@/lib/money';
 
 export type QuoteItemType = 'LABOR' | 'PARTS' | 'MISC';
 
@@ -39,10 +40,6 @@ function createId(): string {
   return typeof crypto !== 'undefined' && 'randomUUID' in crypto
     ? crypto.randomUUID()
     : `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-}
-
-function formatCurrency(amount: number): string {
-  return amount.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 export default function SalesQuoteBuilder({
@@ -226,7 +223,7 @@ export default function SalesQuoteBuilder({
                     </div>
                   </td>
                   <td className="px-4 py-3 text-right font-mono font-semibold text-slate-900">
-                    ₱{formatCurrency(net)}
+                    {formatPesoAmount(net)}
                   </td>
                   <td className="px-4 py-3 text-center">
                     <button
@@ -267,28 +264,28 @@ export default function SalesQuoteBuilder({
       <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2">
         <div className="flex justify-between text-sm">
           <span className="text-slate-600">Labor Subtotal</span>
-          <span className="font-mono font-semibold">₱{formatCurrency(summary.totalLabor)}</span>
+          <span className="font-mono font-semibold">{formatPesoAmount(summary.totalLabor)}</span>
         </div>
         <div className="flex justify-between text-sm">
           <span className="text-slate-600">Parts Subtotal</span>
-          <span className="font-mono font-semibold">₱{formatCurrency(summary.totalParts)}</span>
+          <span className="font-mono font-semibold">{formatPesoAmount(summary.totalParts)}</span>
         </div>
         {summary.totalMisc > 0 && (
           <div className="flex justify-between text-sm">
             <span className="text-slate-600">Misc Subtotal</span>
-            <span className="font-mono font-semibold">₱{formatCurrency(summary.totalMisc)}</span>
+            <span className="font-mono font-semibold">{formatPesoAmount(summary.totalMisc)}</span>
           </div>
         )}
         <div className="flex justify-between text-sm">
           <span className="text-slate-600">Total Discounts</span>
           <span className="font-mono font-semibold text-rose-600">
-            -₱{formatCurrency(summary.totalDiscounts)}
+            -{formatPesoAmount(summary.totalDiscounts)}
           </span>
         </div>
         <div className="flex justify-between items-center pt-2 border-t border-slate-200">
           <span className="text-base font-bold text-slate-900">Quote Grand Total</span>
-          <span className="text-lg font-bold font-mono text-[#d32f2f]">
-            ₱{formatCurrency(summary.grandTotal)}
+          <span className="text-lg font-bold font-mono text-brand-primary">
+            {formatPesoAmount(summary.grandTotal)}
           </span>
         </div>
       </div>

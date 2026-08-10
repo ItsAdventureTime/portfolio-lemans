@@ -1,16 +1,17 @@
 [Unit]
 Description=Le Mans remote production Next.js web application
-After=lemans-remote-prod-go.service
+After=lemans-prod-go.service
+Requires=lemans-prod-go.service
 
 [Container]
 Image=docker.io/library/lemans-bridge-dashboard:prod-web
-ContainerName=lemans-remote-prod-app
+ContainerName=lemans-prod-app
 Network=caddy.network
-Network=lemans-remote-prod-net
+Network=lemans-prod-net
 PublishPort=127.0.0.1:3003:3000
 Environment=NODE_ENV=production
 Environment=NEXT_PUBLIC_BASE_PATH=/lemans
-Environment=API_BASE_URL=http://lemans-remote-prod-go:8080
+Environment=API_BASE_URL=http://lemans-prod-go:8080
 EnvironmentFile=%h/.config/containers/systemd/bridge-ph/lemans/lemans.env
 
 [Service]

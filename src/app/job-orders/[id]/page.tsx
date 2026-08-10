@@ -7,7 +7,10 @@ import {
   changeJobOrderStatus,
   addJobOrderEvent,
 } from '@/lib/api';
+import { formatPeso } from '@/lib/money';
 import { hasPermission } from '@/lib/roles';
+import { DataTable, StatusBadge, FormField } from '@/components/ui';
+import type { JobOrderItem, JobOrderEvent } from '@/lib/types';
 import { notFound } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 
@@ -36,7 +39,7 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Job Order {jo.jo_no}</h1>
-        <span className="px-3 py-1 rounded bg-slate-100 text-sm font-medium">{jo.status}</span>
+        <StatusBadge status={jo.status} />
       </div>
 
       <div className="bg-white p-4 rounded border border-slate-200 text-sm space-y-2">
@@ -63,14 +66,17 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
               await assignTechnician(id, String(formData.get('technician')), await r);
               revalidatePath(`/job-orders/${id}`);
             }}
-            className="flex gap-2"
+            className="flex flex-wrap items-end gap-2"
           >
-            <input
+            <FormField
+              label="Technician"
               name="technician"
               placeholder="Technician name"
-              className="border rounded px-3 py-2 flex-1"
+              className="flex-1 min-w-[200px]"
             />
-            <button className="bg-brand-primary text-white px-4 py-2 rounded">Assign</button>
+            <button className="inline-flex items-center justify-center h-10 px-4 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-hover transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2">
+              Assign
+            </button>
           </form>
 
           <form
@@ -80,16 +86,27 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
               await changeJobOrderStatus(id, String(formData.get('nextStatus')), await r);
               revalidatePath(`/job-orders/${id}`);
             }}
-            className="flex gap-2"
+            className="flex flex-wrap items-end gap-2"
           >
-            <select name="nextStatus" className="border rounded px-3 py-2 flex-1">
-              {STATUS_OPTIONS.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-            <button className="bg-brand-primary text-white px-4 py-2 rounded">Change Status</button>
+            <div className="flex-1 min-w-[200px] space-y-1">
+              <label htmlFor="nextStatus" className="text-sm font-semibold text-slate-700">
+                Next status
+              </label>
+              <select
+                id="nextStatus"
+                name="nextStatus"
+                className="w-full px-3 py-2 rounded-lg border border-slate-300 text-base focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+              >
+                {STATUS_OPTIONS.map((s) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <button className="inline-flex items-center justify-center h-10 px-4 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-hover transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2">
+              Change Status
+            </button>
           </form>
 
           <form
@@ -106,53 +123,53 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
               );
               revalidatePath(`/job-orders/${id}`);
             }}
-            className="flex gap-2"
+            className="flex flex-wrap items-end gap-2"
           >
-            <input name="eventType" placeholder="Event type" className="border rounded px-3 py-2" />
-            <input
+            <FormField
+              label="Event type"
+              name="eventType"
+              placeholder="Event type"
+              className="w-40"
+            />
+            <FormField
+              label="Description"
               name="description"
               placeholder="Description"
-              className="border rounded px-3 py-2 flex-1"
+              className="flex-1 min-w-[200px]"
             />
-            <button className="bg-slate-700 text-white px-4 py-2 rounded">Add Event</button>
+            <button className="inline-flex items-center justify-center h-10 px-4 rounded-xl bg-slate-700 text-white text-sm font-semibold hover:bg-slate-600 transition-colors focus-visible:ring-2 focus-visible:ring-slate-700 focus-visible:ring-offset-2">
+              Add Event
+            </button>
           </form>
         </div>
       )}
 
       <h2 className="text-lg font-semibold">Items</h2>
-      <div className="bg-white rounded border border-slate-200">
-        <table className="w-full text-sm">
-          <thead className="bg-slate-50">
-            <tr>
-              <th className="text-left px-4 py-2">Type</th>
-              <th className="text-left px-4 py-2">Description</th>
-              <th className="text-left px-4 py-2">Qty</th>
-              <th className="text-left px-4 py-2">Net</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {items.map((it: any) => (
-              <tr key={it.id}>
-                <td className="px-4 py-2">{it.item_type}</td>
-                <td className="px-4 py-2">{it.description}</td>
-                <td className="px-4 py-2">{it.quantity}</td>
-                <td className="px-4 py-2">₱{(it.net_amount_cents / 100).toFixed(2)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      <DataTable<JobOrderItem>
+        items={items}
+        caption="Job order line items"
+        emptyTitle="No items"
+        emptyDescription="This job order has no line items."
+        columns={[
+          { key: 'type', header: 'Type', render: (it) => it.item_type },
+          { key: 'description', header: 'Description', render: (it) => it.description },
+          { key: 'qty', header: 'Qty', render: (it) => it.quantity },
+          { key: 'net', header: 'Net', render: (it) => formatPeso(it.net_amount_cents) },
+        ]}
+      />
 
       <h2 className="text-lg font-semibold">Timeline</h2>
-      <div className="bg-white rounded border border-slate-200 divide-y">
-        {events.map((e: any) => (
-          <div key={e.id} className="px-4 py-3 text-sm">
-            <p className="font-medium">{e.event_type}</p>
-            <p className="text-slate-500">{e.description}</p>
-            <p className="text-xs text-slate-400">{e.created_at}</p>
-          </div>
-        ))}
-      </div>
+      <DataTable<JobOrderEvent>
+        items={events}
+        caption="Job order timeline events"
+        emptyTitle="No events"
+        emptyDescription="No timeline events recorded for this job order."
+        columns={[
+          { key: 'type', header: 'Type', render: (e) => e.event_type },
+          { key: 'description', header: 'Description', render: (e) => e.description || '—' },
+          { key: 'createdAt', header: 'Created', render: (e) => e.created_at },
+        ]}
+      />
     </div>
   );
 }

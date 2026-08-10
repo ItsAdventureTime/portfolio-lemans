@@ -214,6 +214,8 @@ Every data-dependent page and component explicitly implements:
 - Target WCAG 2.2 AA; preserve the existing AAA contrast ambition for primary
   text where practical.
 - Keyboard navigation must be complete and focus must be visible and not hidden.
+  Add a consistent `:focus-visible` ring to links, buttons, inputs, selects,
+  textareas, tabs, role switchers, and modal actions.
 - Touch targets are at least 44×44 CSS pixels; desktop controls remain comfortably
   clickable.
 - Status is never conveyed by color alone.
@@ -221,6 +223,8 @@ Every data-dependent page and component explicitly implements:
 - Tables have meaningful headers; forms have labels, descriptions, and errors.
 - Use semantic headings, landmarks, live regions for async status, and text
   alternatives for meaningful images.
+- Keep `prefers-reduced-motion: reduce` behavior; disable nonessential
+  animations when the user prefers reduced motion.
 
 ## 6. Engineering rules for the implementation agent
 
@@ -271,20 +275,26 @@ same file, document the exact blocker and leave the user's work untouched.
 Run from the repository root:
 
 ```bash
+export PATH="/opt/podman/bin:$PATH"
 podman machine start
-./scripts/run-local.sh
+./scripts/build.sh demo
+./scripts/build.sh prod
 ./scripts/verify-local.sh
+./scripts/run-local.sh
 ./scripts/verify-vertical-slice.sh
 ./scripts/stop-local.sh
 ```
 
 The verification result must explicitly report:
 
-- build, formatting, lint, and type-check status;
+- build, formatting, lint, and type-check status (note: `next lint` is disabled
+  pending a working container invocation; the production build and
+  `tsc --noEmit` cover the same static checks);
 - unit/integration test status;
 - browser workflow status for each simulated role;
-- accessibility and reduced-motion checks;
-- database port exposure;
+- accessibility (visible focus, target sizing, reduced motion, ARIA live/error
+  regions) and reduced-motion checks;
+- database port exposure (must be zero published host ports);
 - remaining warnings and known limitations.
 
 Do not report “verification complete” if any check failed or was skipped.

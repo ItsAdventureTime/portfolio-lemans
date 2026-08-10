@@ -22,7 +22,7 @@ const navItems: {
   icon: React.ElementType;
   action: Parameters<typeof hasPermission>[1];
 }[] = [
-  { href: '/', label: 'Overview', icon: LayoutDashboard, action: 'viewAccounting' },
+  { href: '/', label: 'Overview', icon: LayoutDashboard, action: 'customerCreate' },
   { href: '/customers', label: 'Customers', icon: Users, action: 'customerCreate' },
   { href: '/quotations', label: 'Quotations', icon: FileText, action: 'salesQuotationCreate' },
   { href: '/job-orders', label: 'Job Orders', icon: Wrench, action: 'joChangeStatus' },
@@ -49,7 +49,7 @@ export default function Navbar({ role }: { role: ProjectRole }) {
               <li key={item.href}>
                 <Link
                   href={item.href}
-                  className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors ${
+                  className={`flex items-center gap-2 px-4 py-3 text-sm font-medium whitespace-nowrap border-b-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-inset ${
                     isActive
                       ? 'border-brand-primary text-white'
                       : 'border-transparent text-slate-300 hover:text-white hover:bg-slate-800'

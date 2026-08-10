@@ -3,12 +3,12 @@ set -euo pipefail
 
 export PATH="/opt/podman/bin:$PATH"
 
-APP_CONTAINER="lemans-remote-demo-app"
-GO_CONTAINER="lemans-remote-demo-go"
-DB_CONTAINER="lemans-remote-demo-db"
-DB_VOLUME="lemans-remote-demo-db-data"
-NETWORK_NAME="lemans-remote-demo-net"
-B2_BUCKET="lemans-remote-demo-attachments"
+APP_CONTAINER="lemans-demo-app"
+GO_CONTAINER="lemans-demo-go"
+DB_CONTAINER="lemans-demo-db"
+DB_VOLUME="lemans-demo-db-data"
+NETWORK_NAME="lemans-demo-net"
+B2_BUCKET="lemans-demo-attachments"
 
 echo "=== Resetting Le Mans remote demo to seeded state ==="
 
