@@ -139,5 +139,7 @@ container is attached only to the internal network.
 - **Database Backup**: Daily containerized `pg_dump` execution storing compressed SQL backups to Backblaze B2 `backups/db/` (production only).
 - **Object Storage Backup**: Backblaze B2 bucket versioning and lifecycle rules managed in Backblaze console; references preserved in PostgreSQL.
 - **Restore Protocol**: One-line container execution: `podman exec -i lemans-db psql -U postgres lemans_db < backup.sql`.
-- **Demo Reset**: Remote demo resets only on an explicit, operator-controlled
-  trigger, restoring DB to seeded state and clearing uploaded attachments.
+- **Demo Reset**: Local demo resets on demand. The public remote demo resets
+  every 30 minutes through a rootless user-level systemd timer, with a manual
+  operator trigger also available. Both restore the DB seed and clear uploaded
+  demo attachments; production never auto-resets.

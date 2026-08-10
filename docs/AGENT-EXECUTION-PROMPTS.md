@@ -93,9 +93,11 @@ Run:
   ./scripts/verify-vertical-slice.sh
 
 Exercise the UI through `Enter as an Admin`, then as Admin, General Manager, Sales Advisor, Service Advisor,
-Purchasing, and DCS. Verify role switching without login, deterministic reset,
-all major workflow transitions, exports, attachment states, keyboard focus,
-mobile target sizing, and prefers-reduced-motion behavior. Check the Go API
+Purchasing, and DCS. Verify role switching without login, deterministic local
+reset, and the public-demo requirement for an installed rootless user timer that
+resets fictional database/uploads every 30 minutes. Verify all major workflow
+transitions, exports, attachment states, keyboard focus, mobile target sizing,
+and prefers-reduced-motion behavior with Playwright media emulation. Check the Go API
 health endpoint at `/health` inside the internal Podman network.
 
 Stop and remove only the project-specific resources created by this run.

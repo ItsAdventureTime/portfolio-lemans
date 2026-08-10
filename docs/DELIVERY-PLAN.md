@@ -50,7 +50,7 @@
 │   - Demo: `/home/jk/.config/containers/systemd/bridge-ph/lemans-demo`                 │
 │   - Prod: `/home/jk/.config/containers/systemd/bridge-ph/lemans`                      │
 │ - Deploy via `scripts/deploy-remote-demo.sh` and `scripts/deploy-remote-prod.sh`        │
-│ - Remote demo reset only by explicit operator trigger; production daily backup to B2   │
+│ - Remote demo reset every 30 minutes plus manual trigger; production daily backup to B2 │
 └────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 

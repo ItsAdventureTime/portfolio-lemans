@@ -205,7 +205,9 @@ belong to the later production profile and must not be required by the demo.
   startup using `goose`. Do not run manual `goose` or `prisma` commands on the
   remote database.
 - Do not run destructive reset logic during ordinary deploys.
-- Provide an explicit, separately confirmed demo reset command.
+- Install and verify a rootless user-level reset service and timer that restore
+  the fictional seeded state every 30 minutes.
+- Provide an explicit manual demo reset command in addition to the timer.
 - Keep database and uploads inside the demo data boundary.
 - Keep demo data fictional and safe for public presentation.
 - Record schema version and seed version in the release manifest.
@@ -224,7 +226,8 @@ The deployment is not successful until all checks pass:
 - The simulated `Enter as an Admin` entry and Admin default work.
 - Role switching works for all six demo roles.
 - Database-backed workflows and attachments work.
-- Reset is not triggered by ordinary deployment.
+- Reset is not triggered by ordinary deployment; the verified user timer runs
+  at 30-minute intervals after deployment.
 - Logs identify the release commit and image digest.
 
 If Caddy configuration is changed, validate Caddy before reloading it and keep a
@@ -257,6 +260,9 @@ and the Next.js web container joins `caddy.network` directly.
   joins both `caddy.network` and `lemans-demo-net`.
 - Go migrations run automatically inside `lemans-demo-go.service`.
 - The `/admin/seed` endpoint is only available when `DEMO_MODE=true`.
+- The remote demo reset service/timer must invoke the tracked reset script every
+  30 minutes; this is a required deployment artifact, not an undocumented host
+  customization.
 - Temporary local env/release files must be removed on success and failure; the
   remote env file must be chmod `600`; release manifests must be written to
   `/home/jk/bridge-ph/lemans-demo/releases`. Verify these guarantees against
@@ -269,6 +275,7 @@ health checks are verified.
 ## 11. Official guidance
 
 - [Podman Quadlet rootless search paths and generator](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html)
+- [systemd timer unit configuration](https://man7.org/linux/man-pages/man5/systemd.timer.5.html)
 - [Caddy reverse proxy and path handling](https://caddyserver.com/docs/caddyfile/directives/reverse_proxy)
 - [Caddy `handle_path`](https://caddyserver.com/docs/caddyfile/directives/handle)
 - [Next.js 16 self-hosting](https://nextjs.org/docs/app/guides/self-hosting)

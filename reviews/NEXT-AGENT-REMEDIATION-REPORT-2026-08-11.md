@@ -144,16 +144,52 @@ Keep the current playbook authoritative, use current container and network names
 in active guides, and label historical result documents as historical rather
 than presenting old runtime names as current.
 
-### R8 — Local demo credential needs an explicit policy decision
+### R8 — No human demo credentials; internal database secret still needs policy
 
 **Severity:** WARN, demo-only
 **File:** `scripts/run-local.sh:41-54`
 
-The local demo uses a fixed `postgres_demo_pass`. This is not a production
-credential and is scoped to a disposable demo, but it conflicts with a literal
-“no hardcoded secrets” review rule. Either generate a per-run password and pass
-it to both containers, or explicitly document and test that this is a fictional,
-non-secret local fixture that never leaves the isolated demo network.
+The demo does not need human login credentials. Admin is a simulated actor and
+role switching is a walkthrough control. PostgreSQL still needs an internal
+database password, but that is infrastructure configuration, not a user account
+or demo login. The local script currently uses a fixed `postgres_demo_pass`.
+
+**Required fix:** Generate a per-run database password inside the local runtime
+script and pass the same value only to the DB and Go API containers. Do not
+display it, commit it, reuse it as an application login, or expose it outside
+the isolated Podman network. Remote deployment should continue generating a
+mode-`600` environment file on the host.
+
+**Acceptance criteria:** The demo opens through the simulated Admin entry with
+no credential prompt; database connectivity works; no user credential appears
+in UI, docs, logs, or Git; and the password changes on each fresh local run.
+
+### R9 — The required 30-minute remote reset timer is not tracked
+
+**Severity:** P1 / demo operations
+**Files:** `quadlet/remote-demo/`,
+`scripts/deploy-remote-demo.sh`, `quadlet/remote-demo/reset-demo.sh`
+
+The current repository contains a manual reset script, but no tracked remote
+demo `.service` or `.timer` unit and no deploy-script step that installs one.
+Several older documents describe a timer, while the authoritative playbook had
+recently been changed to explicit reset only. The clarified product requirement
+is automatic reset of fictional remote demo data every 30 minutes, while local
+demo reset remains on demand and production remains persistent.
+
+**Required fix:** Add tracked rootless user-level reset service/timer artifacts,
+install them from the remote demo deployment script, and verify them without
+performing a remote deployment. Use a monotonic 30-minute schedule such as
+`OnBootSec=30min` plus `OnUnitActiveSec=30min`; ensure the reset service is
+short-lived and does not use `RemainAfterExit=yes`, otherwise a repeating timer
+may not reactivate it. The job must reset only the demo DB/uploads, be
+idempotent, log its seed/release result, and fail safely without touching
+production units.
+
+**Acceptance criteria:** Quadlet/systemd generator verification sees the timer;
+the timer activates the reset service every 30 minutes; manual reset remains
+available; a reset restores deterministic seed data and removes demo uploads;
+production has no reset timer; and no database host port is published.
 
 ## Reduced-motion verification
 
@@ -173,9 +209,10 @@ The reviewer attempted a real browser/media check on 2026-08-11:
 The in-app browser exposes viewport control but no media-feature emulation. The
 system preference change was real and safely restored, but the selected browser
 surface did not consume it. Therefore the result is **WARN/SKIPPED for live
-media emulation**, not a product pass. The next agent must use a browser runner
-with explicit media emulation if available, or add a deterministic automated
-test proving reduced-motion changes computed animation and transition styles.
+media emulation**, not a product pass. The next agent should use Playwright's
+`page.emulateMedia({ reducedMotion: 'reduce' })` and assert both
+`matchMedia('(prefers-reduced-motion: reduce)').matches` and the computed
+animation/transition behavior on a motion-bearing component.
 
 ## Implementation sequence for the next agent
 
@@ -185,10 +222,11 @@ test proving reduced-motion changes computed animation and transition styles.
 4. Fix R3 form action result/error handling across all forms.
 5. Fix R4 touch targets and run a 390×844 audit.
 6. Fix R5 deploy cleanup and remote env permissions.
-7. Format the review prompt and rerun all checks.
-8. Reconcile active documentation; label historical evidence.
-9. Run the full Podman pipeline and browser checks.
-10. Only then use local `git` for status, diff, branch, commit, merge, and
+7. Implement and verify R9's tracked 30-minute remote reset timer.
+8. Format the review prompt and rerun all checks.
+9. Reconcile active documentation; label historical evidence.
+10. Run the full Podman pipeline and browser checks.
+11. Only then use local `git` for status, diff, branch, commit, merge, and
     deletion. If remote synchronization is authorized, use GitHub CLI (`gh`)
     over the repository's HTTPS remote; do not use SSH or SSH keys. Commit on a
     short-lived `codex/` branch, merge to `main`, delete the branch, and report
@@ -216,12 +254,16 @@ authorized by this report.
 - MDN [`prefers-reduced-motion`](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/%40media/prefers-reduced-motion): use `reduce` to remove, reduce, or replace non-essential motion.
 - W3C [WCAG 2.2](https://www.w3.org/TR/WCAG22/), especially Target Size, Focus Visible, and Focus Appearance.
 - Podman [Quadlet systemd unit documentation](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html): `Requires`/`After` dependencies translate into generated systemd units.
+- Playwright [`page.emulateMedia`](https://playwright.dev/docs/next/api/class-page): directly emulates `prefers-reduced-motion` with `reduce` or `no-preference`.
+- Playwright [projects and device emulation](https://playwright.dev/docs/test-projects): supports repeatable mobile and multi-browser verification.
+- systemd [`systemd.timer`](https://man7.org/linux/man-pages/man5/systemd.timer.5.html): `OnBootSec`/`OnUnitActiveSec` provide monotonic recurring timers; short-lived services are required for repeated activation.
 
 ## Definition of done
 
-The next agent must not claim completion until R1–R7 are fixed and independently
+The next agent must not claim completion until R1–R9 are fixed and independently
 verified; the splash is clearly simulated and contains no real auth boundary;
 role switching persists; form failures render actionable feedback; visible
 interactive targets meet the project’s 44×44 contract; reduced-motion behavior
 is proven with real media emulation or an equivalent deterministic browser test;
-`verify-local.sh` passes; and active documentation matches the code.
+`verify-local.sh` passes; the public demo resets fictional state every 30 minutes;
+production remains persistent; and active documentation matches the code.

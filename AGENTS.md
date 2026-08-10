@@ -27,7 +27,10 @@
 6. **Local Execution Standard**:
    - Use `podman run --rm` to create short-lived containers for builds/tests.
    - For local demo runtime, use `scripts/run-local.sh` which starts a PostgreSQL container, a Go API container, and a Next.js web container. Remove with `scripts/stop-local.sh` and reset to seeded state with `scripts/reset-local.sh`.
-   - Local demo database and uploaded files reset to seeded state on demand; production does not auto-reset.
+   - Local demo database and uploaded files reset to seeded state on demand.
+     The public remote demo must reset its fictional database and uploads every
+     30 minutes through a rootless user-level timer; production never
+     auto-resets.
    - The Go API container runs migrations on startup and serves the `/admin/seed` endpoint only when `DEMO_MODE=true`.
 7. **Remote Execution Standard**:
    - VPS demo and production deployments use rootless Podman Quadlet files (`.container`, `.network`, `.volume`).

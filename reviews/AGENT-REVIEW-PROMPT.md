@@ -15,6 +15,7 @@ Context and constraints:
 - Repository: https://github.com/ItsAdventureTime/bridge-lemans
 - Default branch: `main` only. There must be no other long-lived branches. Feature/review branches may exist briefly but must be merged and deleted immediately after review.
 - Demo-first: no real authentication. A login-like splash may offer `Enter as an Admin`; it enters the simulated Admin actor without passwords, sessions, login requirements, or authentication redirects. A visible role switcher must support Admin, General Manager, Sales Advisor, Service Advisor, Purchasing, and DCS.
+- Demo data is fictional and database-backed. Local reset is on demand; the public remote demo must reset its database and uploads every 30 minutes through a rootless user-level timer. Production never auto-resets.
 - Application base path: `/lemans/demo/`. The landing page and all internal links must use this prefix.
 - Containerized execution only: all builds, tests, migrations, and app execution run inside rootless Podman containers. No `docker compose`, no privileged containers, no host networking, no published database ports, no broad host mounts.
 - Image tags: demo uses `lemans-bridge-dashboard:demo-web` and `lemans-bridge-dashboard-go:demo-go`; production uses `lemans-bridge-dashboard:prod-web` and `lemans-bridge-dashboard-go:prod-go`.
@@ -39,12 +40,13 @@ Review process:
    - shared component usage (DataTable, FormField, StatusBadge) on list/form pages;
    - visible `:focus-visible` focus ring on keyboard navigation;
    - touch targets at least 44×44 CSS pixels on mobile emulation;
-   - real browser/media emulation confirms `prefers-reduced-motion: reduce` disables nonessential motion;
+   - Playwright media emulation (`page.emulateMedia({ reducedMotion: 'reduce' })`) confirms `prefers-reduced-motion: reduce` disables nonessential motion;
    - server-side validation and error feedback on forms.
 6. Inspect these files for the specific fixes expected by the last reviewer handoff:
    - scripts/run-local.sh — readiness probe must target `/lemans/demo` and report the canonical URL.
    - scripts/verify-local.sh — must fail fast on formatting, type-check, Go test, or build errors.
    - scripts/deploy-remote-demo.sh and scripts/deploy-remote-prod.sh — must create release dir before copy, clean temp env/release files, chmod 600 env files, and use correct Quadlet unit names.
+   - quadlet/remote-demo reset service/timer — must be tracked, installed, rootless, and scheduled every 30 minutes; production must have no reset timer.
    - quadlet/remote-demo/*.container and quadlet/remote-prod/*.container — container names must remain `lemans-demo-app/go/db` and `lemans-prod-app/go/db`; service unit names come from filenames; dependencies must use `Requires=`.
    - src/lib/types.ts — shared frontend types should exist and no new `any` types should be introduced.
    - src/app/globals.css — must include global `:focus-visible` ring and minimum touch-target sizing.

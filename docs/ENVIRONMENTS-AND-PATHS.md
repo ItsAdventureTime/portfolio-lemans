@@ -53,7 +53,7 @@ The current deployment target is remote-only for the demo:
 | **Podman Network**      | `lemans-demo-net`                                  | `lemans-prodlike-net`                              | `lemans-demo-net`                    | `lemans-prod-net`                    |
 | **Auth Secret**         | Not used in demo (production-only planning value)  | Production-only                                    | Not used in demo                     | Production-only                      |
 | **Backblaze B2 Bucket** | `lemans-demo-attachments`                          | `lemans-prodlike-attachments`                      | `lemans-remote-demo-attachments`     | `lemans-remote-prod-attachments`     |
-| **Reset Policy**        | Manual via `scripts/reset-local.sh`                | Manual only                                        | Explicit `RESET=true` only           | None (persistent)                    |
+| **Reset Policy**        | Manual via `scripts/reset-local.sh`                | Manual only                                        | Every 30 minutes plus manual trigger | None (persistent)                    |
 
 ## 3. Local Quick Reference
 
@@ -149,7 +149,9 @@ Values are injected at container runtime via `EnvironmentFile=` in Quadlet files
 - Production-like and remote environments use immutable images (no source bind mounts).
 - Local builds/tests run in disposable `podman run --rm` containers.
 - Quadlets place applications behind the upstream reverse proxy on loopback-only ports.
-- Remote demo resets only when explicitly requested with `RESET=true`.
+- Remote demo resets every 30 minutes through its rootless user timer; an
+  explicit manual reset remains available. `RESET=true` controls deployment
+  seeding/reset behavior and does not replace the scheduled timer.
 - Production persists data and runs daily backups to Backblaze B2.
 
 For full remote install, backup, restore, and rollback procedures, see `docs/REMOTE-OPERATIONS.md`.

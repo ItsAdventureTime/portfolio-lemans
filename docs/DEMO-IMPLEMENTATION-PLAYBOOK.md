@@ -169,6 +169,11 @@ freshly created records.
 - Include at least one record for every important empty, pending, approved,
   rejected, overdue, paid, and error state.
 - `scripts/reset-local.sh` must return the demo to the same known state.
+- The public remote demo must automatically restore its fictional seeded state
+  every 30 minutes, including removal of demo uploads. A manual reset command
+  must remain available for operators.
+- The reset job must run as a rootless user-level systemd timer, use the tracked
+  reset implementation, and never target production data or services.
 - Demo data must be fictional and safe to display in screenshots or screen shares.
 - Number generation must be collision-safe and deterministic enough for repeatable
   walkthroughs.
@@ -323,6 +328,9 @@ Review these sources before implementation and again before handoff:
 - [WCAG 2.2 changes](https://www.w3.org/WAI/standards-guidelines/wcag/new-in-22/)
 - [OWASP ASVS](https://github.com/OWASP/ASVS)
 - [MDN reduced-motion guidance](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/At-rules/%40media/prefers-reduced-motion)
+- [Playwright `page.emulateMedia`](https://playwright.dev/docs/next/api/class-page)
+- [Playwright projects and device emulation](https://playwright.dev/docs/test-projects)
+- [systemd timers](https://man7.org/linux/man-pages/man5/systemd.timer.5.html)
 - [MDN View Transition API](https://developer.mozilla.org/en-US/docs/Web/API/View_Transition_API)
 - [goose migrations](https://github.com/pressly/goose)
 - [Podman Quadlet](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html)

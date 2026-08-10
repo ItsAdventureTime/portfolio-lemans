@@ -70,7 +70,8 @@ This will:
 4. Generate and install a remote `.env` file.
 5. Start the DB, Go API, and web systemd services.
 6. Seed the database (demo only).
-7. Enable a 30-minute reset timer and a manual reset service.
+7. Install and enable the rootless user-level 30-minute reset timer and manual
+   reset service.
 
 ## Remote Production Deployment
 
@@ -86,8 +87,9 @@ Production follows the same flow but **does not seed the database** and enables 
 
 ## Demo Role Simulation
 
-The demo seed creates fictional data for six roles. The demo has no login page;
-use the **Role Switcher** in the UI to switch between Admin, General Manager,
+The demo seed creates fictional data for six roles. The demo has no real login
+or user credentials; its simulated entry action is `Enter as an Admin`. Use the
+**Role Switcher** in the UI to switch between Admin, General Manager,
 Sales Advisor, Service Advisor, Purchasing, and DCS. The active role is stored
 in a `lemans-demo-role` cookie and passed to the Go API via the `X-Demo-Role`
 header for server-side action validation.

@@ -78,7 +78,7 @@ Stop / reset:
 ## 4. Remote Deployment
 
 ```bash
-# Remote demo (explicit reset only; see the remote deployment playbook)
+# Remote demo (automatic 30-minute reset; manual reset also available)
 export REMOTE_HOST=vps.example.com
 export REMOTE_USER=jk
 export B2_ACCESS_KEY_ID=...
