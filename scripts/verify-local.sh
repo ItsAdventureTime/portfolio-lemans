@@ -13,7 +13,7 @@ podman run --rm \
   -v "${PROJECT_ROOT}:/app:rw" \
   -w /app \
   --env-file "${PROJECT_ROOT}/.env.demo" \
-  node:24-alpine sh -c "
+  node:lts-alpine sh -c "
     npm ci
     npm run format:check
     npm run lint
@@ -24,7 +24,7 @@ echo "=== Running Go checks ==="
 podman run --rm \
   -v "${PROJECT_ROOT}/backend:/app:rw" \
   -w /app \
-  golang:1.24-alpine sh -c "
+  golang:alpine sh -c "
     apk add --no-cache git curl tar
     curl -fsSL -o /tmp/sqlc.tgz https://github.com/sqlc-dev/sqlc/releases/download/v1.29.0/sqlc_1.29.0_linux_arm64.tar.gz
     tar -xzf /tmp/sqlc.tgz -C /usr/local/bin sqlc

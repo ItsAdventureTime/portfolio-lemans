@@ -126,7 +126,9 @@ git status --short --untracked-files=all
 git diff --check
 
 # Start and validate the demo
+export PATH="/opt/podman/bin:$PATH"
 podman machine start
+./scripts/build.sh demo
 ./scripts/run-local.sh
 ./scripts/verify-local.sh
 ./scripts/verify-vertical-slice.sh
@@ -134,6 +136,9 @@ podman machine start
 # Stop only the project demo runtime after validation
 ./scripts/stop-local.sh
 ```
+
+If a container build fails with `cannot allocate memory`, stop any running
+containers and restart the Podman machine before retrying the build.
 
 If a script reports success while an inner check failed, inspect the script and
 run the failing command independently. Do not accept a green wrapper as proof.
@@ -148,9 +153,10 @@ change set. Mark historical or superseded documents clearly.
 
 Inspect git status before staging and preserve unrelated user changes. Use local
 git for branches, staging, commits, and local history. Use the official GitHub
-CLI (`gh`) for GitHub operations, keep the remote URL on HTTPS, and do not use
-SSH or SSH keys. Run focused verification before commit and report the exact
-branch, commit, files included, and remote push result. Never stage unrelated
+CLI (`gh`) for GitHub operations, keep the remote URL on HTTPS
+(`https://github.com/ItsAdventureTime/bridge-lemans.git`), and do not use SSH or
+SSH keys. Run focused verification before commit and report the exact branch,
+commit, files included, and remote push result. Never stage unrelated
 dirty-worktree files just to create a clean-looking release.
 ```
 

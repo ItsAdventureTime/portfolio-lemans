@@ -15,21 +15,27 @@ This document specifies the containerized fullstack architecture for the **Le Ma
 
 ## 2. Industry Research Grounding & Best Practices
 
-Based on current 2026 containerization standards for Node.js/Next.js, Go, and Podman Quadlet:
+Based on current 2026 containerization standards (Next.js 16 self-hosting, Go latest backend patterns, Podman Quadlet rootless units, sqlc, and goose):
+
+- Next.js standalone output is the recommended self-hosting mode for Docker/Container deployments: https://nextjs.org/docs/pages/api-reference/config/next-config-js/output
+- Go backend best practice is SQL-first data access with sqlc + goose and HTTP routing with Chi: https://docs.sqlc.dev, https://github.com/pressly/goose, https://github.com/go-chi/chi
+- Podman Quadlet rootless user units live in `~/.config/containers/systemd/` and are managed via `systemctl --user`: https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html
+
+Specific project choices:
 
 1. **Next.js Standalone Optimization**:
-   - Next.js is configured with `output: 'standalone'` in `next.config.js` to preserve API routes, dynamic DB-backed pages, and client-side navigation.
+   - Next.js is configured with `output: 'standalone'` in `next.config.ts` to produce a minimal runtime image that still supports API routes and dynamic pages.
    - Multi-stage Dockerfile builds separate dependencies (`deps`), build (`builder`), and runtime (`runner`) stages.
    - Production images run under an unprivileged non-root user (`nextjs:nodejs`, UID/GID 1001).
    - Telemetry disabled (`NEXT_TELEMETRY_DISABLED=1`).
 2. **Go API Backend**:
    - All persistence, business logic, migrations, and S3 presigned URLs are owned by the Go API (`backend/`).
-   - Built with `golang:1.24-alpine`; runtime image based on `alpine:latest`.
-   - Chi router, sqlc-generated repository, `goose` migrations, structured logging via `slog`.
+   - Built with `golang:alpine` (latest Go on latest Alpine); runtime image based on `alpine:latest`.
+   - Chi router, sqlc-generated repository, `goose` migrations, structured logging via `log/slog`.
 3. **Container Image Runtime Policy**:
-   - **Web Base Image**: `node:24-alpine`.
-   - **Go API Base Images**: `golang:1.24-alpine` (build), `alpine:latest` (runtime).
-   - **Database Image**: `postgres:17-alpine`.
+   - **Web Base Image**: `node:lts-alpine` (tracks the Node.js Active LTS release).
+   - **Go API Base Image**: `golang:alpine` (latest stable Go on latest Alpine).
+   - **Database Image**: `postgres:alpine` (latest stable PostgreSQL on latest Alpine).
    - **Fallback**: lightest Debian-based image (`-slim`) only when dependency compatibility explicitly requires it.
 4. **Container Image Tagging Policy**:
    - **Demo Builds**: Web `lemans-bridge-dashboard:demo-web`, Go API `lemans-bridge-dashboard-go:demo-go`.
@@ -57,7 +63,7 @@ Based on current 2026 containerization standards for Node.js/Next.js, Go, and Po
 │  │                                                                                  │  │
 │  │   ┌───────────────────────────────────────────────────────────────────────────┐  │  │
 │  │   │ WEB CONTAINER (`lemans-app`)                                              │  │  │
-│  │   │ - Framework: Next.js 16 App Router (Node 24 Alpine Standalone)            │  │  │
+│  │   │ - Framework: Next.js 16 App Router (`node:lts-alpine` standalone)            │  │  │
 │  │   │ - Role simulation, API routes for attachments, server-side API client      │  │  │
 │  │   │ - Image Tag: demo (`demo-web`), prod (`prod-web`)                        │  │  │
 │  │   │ - Exposed Port: 127.0.0.1:3000 (Loopback Only)                            │  │  │
@@ -67,7 +73,7 @@ Based on current 2026 containerization standards for Node.js/Next.js, Go, and Po
 │  │                                         ▼                                        │  │
 │  │   ┌───────────────────────────────────────────────────────────────────────────┐  │  │
 │  │   │ GO API CONTAINER (`lemans-go`)                                            │  │  │
-│  │   │ - Go 1.24, Chi router, sqlc, goose migrations, slog logging              │  │  │
+│  │   │ - Latest Go (`golang:alpine`), Chi router, sqlc, goose, slog              │  │  │
 │  │   │ - Business logic, migrations, presigned B2 URLs                            │  │  │
 │  │   │ - Image Tag: demo (`demo-go`), prod (`prod-go`)                          │  │  │
 │  │   │ - Exposed Port: internal only                                              │  │  │
@@ -76,11 +82,11 @@ Based on current 2026 containerization standards for Node.js/Next.js, Go, and Po
 │  │                                         │ PostgreSQL (internal port 5432)        │  │
 │  │                                         ▼                                        │  │
 │  │   ┌───────────────────────────────────────────────────────────────────────────┐  │  │
-│  │   │ DATABASE CONTAINER (`lemans-db`)                                         │  │  │
-│  │   │ - Engine: PostgreSQL 17 Alpine                                            │  │  │
-│  │   │ - Image Tag: `postgres:17-alpine`                                         │  │  │
-│  │   │ - Volume: Named Volume (`lemans-db-data`)                                 │  │  │
-│  │   │ - Published Ports: NONE (0 Exposed Ports to Host)                        │  │  │
+   │  │   │ DATABASE CONTAINER (`lemans-db`)                                         │  │  │
+   │  │   │ - Engine: PostgreSQL (`postgres:alpine`)                                  │  │  │
+   │  │   │ - Image Tag: `postgres:alpine`                                            │  │  │
+   │  │   │ - Volume: Named Volume (`lemans-db-data`)                                 │  │  │
+   │  │   │ - Published Ports: NONE (0 Exposed Ports to Host)                        │  │  │
 │  │   └───────────────────────────────────────────────────────────────────────────┘  │  │
 │  │                                                                                  │  │
 │  └──────────────────────────────────────────────────────────────────────────────────┘  │

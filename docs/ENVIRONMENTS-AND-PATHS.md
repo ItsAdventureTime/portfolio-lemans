@@ -39,9 +39,9 @@ The current deployment target is remote-only for the demo:
 | **Podman Command**      | `podman machine start` + `podman run`              | `podman machine start` + `podman run`              | Systemd User Quadlet                   | Systemd User Quadlet                   |
 | **Web Image**           | `lemans-bridge-dashboard:demo-web`                 | `lemans-bridge-dashboard:prod-web`                 | `lemans-bridge-dashboard:demo-web`     | `lemans-bridge-dashboard:prod-web`     |
 | **Go API Image**        | `lemans-bridge-dashboard-go:demo-go`               | `lemans-bridge-dashboard-go:prod-go`               | `lemans-bridge-dashboard-go:demo-go`   | `lemans-bridge-dashboard-go:prod-go`   |
-| **Next.js Base Image**  | `node:24-alpine`                                   | `node:24-alpine`                                   | `node:24-alpine`                       | `node:24-alpine`                       |
-| **Go Base Image**       | `golang:1.24-alpine` / `alpine:latest`             | `golang:1.24-alpine` / `alpine:latest`             | `golang:1.24-alpine` / `alpine:latest` | `golang:1.24-alpine` / `alpine:latest` |
-| **Database Image**      | `postgres:17-alpine`                               | `postgres:17-alpine`                               | `postgres:17-alpine`                   | `postgres:17-alpine`                   |
+| **Next.js Base Image**  | `node:lts-alpine`                                  | `node:lts-alpine`                                  | `node:lts-alpine`                      | `node:lts-alpine`                      |
+| **Go Base Image**       | `golang:alpine` / `alpine:latest`                  | `golang:alpine` / `alpine:latest`                  | `golang:alpine` / `alpine:latest`      | `golang:alpine` / `alpine:latest`      |
+| **Database Image**      | `postgres:alpine`                                  | `postgres:alpine`                                  | `postgres:alpine`                      | `postgres:alpine`                      |
 | **Source Mounting**     | **Disposable `--rm` containers + named DB volume** | **Disposable `--rm` containers + named DB volume** | **Immutable Image** (No bind mounts)   | **Immutable Image** (No bind mounts)   |
 | **Web Port Binding**    | `127.0.0.1:3000`                                   | `127.0.0.1:3001` (build/verify only)               | `127.0.0.1:3002` (Behind Proxy)        | `127.0.0.1:3003` (Behind Proxy)        |
 | **Go API Port Binding** | NONE (internal net)                                | NONE (internal net)                                | NONE (internal net)                    | NONE (internal net)                    |
@@ -132,7 +132,15 @@ Values are injected at container runtime via `EnvironmentFile=` in Quadlet files
 | `scripts/deploy-remote-demo.sh`    | Deploy demo Quadlets to VPS and start services       |
 | `scripts/deploy-remote-prod.sh`    | Deploy production Quadlets to VPS and start services |
 
-## 8. Architecture Compliance
+## 8. Official Guidance
+
+- [Next.js 16 self-hosting](https://nextjs.org/docs/app/guides/self-hosting)
+- [Next.js `output: 'standalone'`](https://nextjs.org/docs/pages/api-reference/config/next-config-js/output)
+- [Podman Quadlet rootless units](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html)
+- [goose migrations](https://github.com/pressly/goose)
+- [sqlc documentation](https://docs.sqlc.dev)
+
+## 9. Architecture Compliance
 
 - All application execution runs inside rootless Podman containers.
 - `podman compose` / `docker compose` are **not used** anywhere.

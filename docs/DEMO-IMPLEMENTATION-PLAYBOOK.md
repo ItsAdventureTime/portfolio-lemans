@@ -305,12 +305,20 @@ Review these sources before implementation and again before handoff:
 - [goose migrations](https://github.com/pressly/goose)
 - [Podman Quadlet](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html)
 
-At the time of this playbook update, the repository baseline is Next.js 14,
-React 19, Tailwind 4, Next.js 16, Go 1.24, and PostgreSQL 17, while the official release guidance has
-moved to newer major versions. Review [Next.js 16](https://nextjs.org/blog/next-16)
-and [React 19.2](https://react.dev/blog/2025/10/01/react-19-2) before planning an
-upgrade. Treat an upgrade as a separate, compatibility-tested work item; never
-perform a blind dependency migration while implementing business workflows.
+At the time of this playbook update, the repository baseline is Next.js 16.3.0,
+React 19.2, Tailwind 4, Go latest (`golang:alpine`), and PostgreSQL latest
+(`postgres:alpine`). Review the current official guidance before planning any
+further upgrades:
+
+- [Next.js 16 self-hosting](https://nextjs.org/docs/app/guides/self-hosting)
+- [Next.js `output: 'standalone'`](https://nextjs.org/docs/pages/api-reference/config/next-config-js/output)
+- [React 19](https://react.dev)
+- [Go releases](https://go.dev/doc/devel/release)
+- [goose migrations](https://github.com/pressly/goose)
+- [sqlc documentation](https://docs.sqlc.dev)
+
+Treat a major version upgrade as a separate, compatibility-tested work item;
+never perform a blind dependency migration while implementing business workflows.
 
 Framework upgrades must be planned and tested; do not perform a blind major
 version upgrade while implementing the demo feature set. Production promotion

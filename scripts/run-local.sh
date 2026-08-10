@@ -41,9 +41,9 @@ podman run -d \
   -e POSTGRES_USER=postgres \
   -e POSTGRES_PASSWORD=postgres_demo_pass \
   -e POSTGRES_DB=lemans_demo_db \
-  -v "${VOLUME_NAME}:/var/lib/postgresql/data" \
+  -v "${VOLUME_NAME}:/var/lib/postgresql" \
   --restart=unless-stopped \
-  docker.io/library/postgres:17-alpine
+  docker.io/library/postgres:alpine
 
 wait_for_db "$DB_NAME"
 

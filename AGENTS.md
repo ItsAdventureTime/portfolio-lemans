@@ -19,7 +19,7 @@
    - **Demo Builds**: Web image `lemans-bridge-dashboard:demo-web`, Go API image `lemans-bridge-dashboard-go:demo-go`.
    - **Production Builds**: Web image `lemans-bridge-dashboard:prod-web`, Go API image `lemans-bridge-dashboard-go:prod-go`.
 5. **Container Runtime Standard**:
-   - Next.js web images use `node:24-alpine`; Go API images use `golang:1.24-alpine` build stage and `alpine:latest` runtime; PostgreSQL uses `postgres:17-alpine` unless dependency compatibility explicitly requires a Debian-based image.
+   - Next.js web images use `node:lts-alpine` (Node.js Active LTS on latest Alpine); Go API images use `golang:alpine` (latest Go on latest Alpine) build stage and `alpine:latest` runtime; PostgreSQL uses `postgres:alpine` (latest PostgreSQL on latest Alpine) unless dependency compatibility explicitly requires a Debian-based image.
    - Next.js runtime calls the Go API over the internal Podman network; the Go API owns migrations, business logic, persistence, and presigned attachment URLs.
    - Never use `podman compose` or `docker compose` for local builds, tests, or execution.
    - Always run local builds, linting, type-checking, and tests inside disposable `podman run --rm` containers (or a single combined container).

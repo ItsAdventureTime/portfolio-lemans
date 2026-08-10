@@ -1,8 +1,8 @@
 # Remote Demo Deployment Playbook
 
 - **Status**: Authoritative for the remote demo deployment profile
-- **Version**: 1.0.0
-- **Updated**: 2026-08-09
+- **Version**: 1.1.0
+- **Updated**: 2026-08-10
 - **Target URL**: `https://delegateops.business/lemans/demo`
 - **Remote user**: `jk`
 
@@ -253,7 +253,11 @@ health checks are verified.
 - [Podman Quadlet rootless search paths and generator](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html)
 - [Caddy reverse proxy and path handling](https://caddyserver.com/docs/caddyfile/directives/reverse_proxy)
 - [Caddy `handle_path`](https://caddyserver.com/docs/caddyfile/directives/handle)
+- [Next.js 16 self-hosting](https://nextjs.org/docs/app/guides/self-hosting)
+- [Next.js `output: 'standalone'`](https://nextjs.org/docs/pages/api-reference/config/next-config-js/output)
 - [Next.js `basePath`](https://nextjs.org/docs/pages/api-reference/config/next-config-js/basePath)
-- [Next.js self-hosting](https://nextjs.org/docs/app/guides/self-hosting)
 - [goose migrations](https://github.com/pressly/goose)
+- [goose SQL annotations](https://pressly.github.io/goose/documentation/annotations/)
+- [sqlc documentation](https://docs.sqlc.dev)
+- [Chi router](https://github.com/go-chi/chi)
 - [GitHub deployment environments and protection rules](https://docs.github.com/en/actions/reference/workflows-and-actions/deployments-and-environments)

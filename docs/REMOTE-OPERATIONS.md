@@ -168,5 +168,12 @@ If a user without permission manually navigates to a restricted URL (e.g. a `ROL
 - Do not commit secrets to source control.
 - Keep remote demo and production databases and buckets isolated.
 - DNS and reverse proxy configuration are managed by the existing Caddy quadlet; only Caddy binds public ports.
-- Use `node:24-alpine`, `golang:1.24-alpine`, and `postgres:17-alpine` for all images unless dependency compatibility explicitly requires a Debian-based image.
+- Use `node:lts-alpine`, `golang:alpine`, and `postgres:alpine` for all images unless dependency compatibility explicitly requires a Debian-based image.
 - All deployment containers and temporary build containers are `--rm` or explicitly removed.
+
+## Official Guidance
+
+- [Podman Quadlet rootless units](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html)
+- [Next.js 16 self-hosting](https://nextjs.org/docs/app/guides/self-hosting)
+- [goose migrations](https://github.com/pressly/goose)
+- [sqlc documentation](https://docs.sqlc.dev)

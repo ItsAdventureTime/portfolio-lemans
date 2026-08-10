@@ -54,13 +54,13 @@ Before initiating deployment operations, all 10 mandated pre-verification parame
 - **Web Image Tag**: `docker.io/library/lemans-bridge-dashboard:demo-web`
 - **Go API Image Tag**: `docker.io/library/lemans-bridge-dashboard-go:demo-go`
 - **Web Dockerfile**: `Dockerfile.web` (Next.js 16 standalone runtime)
-- **Go Dockerfile**: `Dockerfile.go` (Go 1.24 Alpine runtime)
-- **Web Base Image**: `node:24-alpine`
-- **Go Build Image**: `golang:1.24-alpine`
+- **Go Dockerfile**: `Dockerfile.go` (Go latest Alpine runtime)
+- **Web Base Image**: `node:lts-alpine`
+- **Go Build Image**: `golang:alpine`
 - **Go Runtime Image**: `alpine:latest`
-- **Database Image**: `postgres:17-alpine`
+- **Database Image**: `postgres:alpine`
 
-**Note**: Earlier iterations used `node:20-slim` and `latest-slim`. The current standard is `node:24-alpine`, `golang:1.24-alpine`, and `postgres:17-alpine` per `AGENTS.md` and `docs/ENVIRONMENTS-AND-PATHS.md`.
+**Note**: Earlier iterations used pinned version tags. The current standard is `node:lts-alpine`, `golang:alpine`, and `postgres:alpine` per the latest-stable-on-Alpine policy.
 
 ---
 
@@ -97,9 +97,9 @@ podman run -d \
   -e POSTGRES_USER=postgres \
   -e POSTGRES_PASSWORD=postgres_remote_demo_pass \
   -e POSTGRES_DB=lemans_remote_demo_db \
-  -v lemans-remote-demo-db-data:/var/lib/postgresql/data \
+  -v lemans-remote-demo-db-data:/var/lib/postgresql \
   --restart=unless-stopped \
-  docker.io/library/postgres:17-alpine
+  docker.io/library/postgres:alpine
 # Exit Code: 0
 
 # 3. Deploy remote-demo Go API container on the internal network only

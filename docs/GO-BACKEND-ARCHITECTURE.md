@@ -12,7 +12,7 @@ the Go API over an internal Podman bridge network.
 ```text
 backend/
 ├── cmd/api/main.go              # application bootstrap
-├── go.mod                       # Go 1.24 dependencies
+├── go.mod                       # Go latest dependencies
 ├── internal/
 │   ├── actor/                   # demo actor / X-Demo-Role parsing
 │   ├── api/                     # Chi router, HTTP handlers, routes
@@ -27,7 +27,7 @@ backend/
 
 ## Technology stack
 
-- **Language**: Go 1.24
+- **Language**: Go latest (`golang:alpine`)
 - **Router**: `github.com/go-chi/chi/v5` + `github.com/go-chi/cors`
 - **Database driver**: `github.com/jackc/pgx/v5` + `pgxpool`
 - **Migrations**: `github.com/pressly/goose/v3` with embedded migration files
@@ -62,9 +62,16 @@ Invalid or missing roles resolve to `ADMIN`.
 ## Key routes
 
 - `GET /health` – service readiness
-- `GET /api/seed` / `POST /api/seed` (DEMO_MODE only) – seed database
-- `/customers/*`, `/quotes/*`, `/job-orders/*`, `/purchasing/*`, `/expenses/*`,
-  `/dcs/*`, `/billing/*`, `/costing/*`, `/accounting/*`, `/attachments/*`
+- `POST /admin/seed` (DEMO_MODE only) – seed database
+- `/api/customers/*`, `/api/quotations/*`, `/api/job-orders/*`, `/api/purchase-requests/*`, `/api/opex-requests/*`,
+  `/api/supplier-invoices/*`, `/api/disbursements/*`, `/api/invoices/*`,
+  `/api/accounting/*`, `/api/dashboard`, `/attachments/*`
+
+## Job-order lookup
+
+`GET /api/job-orders/{idOrJoNo}` and its child routes accept either a UUID `id`
+or the human-readable `jo_no` (e.g. `RA0003973`). The handler resolves the
+parameter to a UUID internally.
 
 ## Attachment flow
 

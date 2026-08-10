@@ -34,7 +34,7 @@ Run Go checks
 
 ```bash
 cd backend
-podman run --rm -v "$(pwd):/app" -w /app golang:1.24-alpine sh -c "go mod tidy && go vet ./... && go test ./..."
+podman run --rm -v "$(pwd):/app" -w /app golang:alpine sh -c "go mod tidy && go vet ./... && go test ./..."
 ```
 
 Container logs

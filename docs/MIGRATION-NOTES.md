@@ -16,7 +16,7 @@
 
 ## Database
 
-- PostgreSQL 17 Alpine.
+- PostgreSQL `postgres:alpine` (latest stable on latest Alpine).
 - Migrations embedded with `goose` and run automatically when the Go API container starts.
 - Seeding is triggered by `POST /admin/seed` and only available when `DEMO_MODE=true`.
 
@@ -39,7 +39,7 @@
 - Add integration tests for the seed workflow inside a disposable Podman container.
 - Verify remote Quadlet deployment on the VPS after user authorizes it.
 - Update README with new quickstart.
-- Add `GO-BACKEND-ARCHITECTURE.md` and `MIGRATION-NOTES.md` to documentation index if one exists.
+- Review `docs/MIGRATION-HANDOFF.md` and update it as work progresses.
 
 ## Verification commands
 

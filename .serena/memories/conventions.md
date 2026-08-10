@@ -1,6 +1,6 @@
 Code conventions
 
-- Architecture: Next.js 16 frontend + Go 1.24 API backend + PostgreSQL 17. The Go API owns all persistence, migrations, and S3 presigned URLs. Next.js calls the Go API over the internal Podman network.
+- Architecture: Next.js 16 frontend + Go latest API backend (`golang:alpine`) + PostgreSQL latest (`postgres:alpine`). The Go API owns all persistence, migrations, and S3 presigned URLs. Next.js calls the Go API over the internal Podman network.
 - Server-only data access: no Prisma. The Next.js app uses typed Go API client in `src/lib/api.ts` (server-side only for route handlers and server actions).
 - Authorization: demo uses role simulation via `lemans-demo-role` cookie / `X-Demo-Role` header; production auth is future planning.
 - Forms: use server actions + `useActionState` calling the Go API; validate inputs before sending.
