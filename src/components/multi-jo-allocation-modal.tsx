@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { X, CheckCircle, AlertCircle } from 'lucide-react';
+import { formatPesoAmount } from '@/lib/money';
 
 export interface JobOrderOption {
   id: string;
@@ -24,9 +25,6 @@ interface MultiJoAllocationModalProps {
   initialAllocations?: AllocationLine[];
   onSave: (allocations: AllocationLine[]) => void;
 }
-
-const formatCurrency = (amount: number) =>
-  amount.toLocaleString('en-PH', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 export default function MultiJoAllocationModal({
   open,
@@ -72,7 +70,7 @@ export default function MultiJoAllocationModal({
             </h3>
             <p className="text-sm text-slate-500">
               Total invoice:{' '}
-              <span className="font-mono font-semibold">₱{formatCurrency(invoiceAmount)}</span>
+              <span className="font-mono font-semibold">{formatPesoAmount(invoiceAmount)}</span>
             </p>
           </div>
           <button
@@ -185,20 +183,20 @@ export default function MultiJoAllocationModal({
               <>
                 <AlertCircle className="h-5 w-5 text-rose-600" />
                 <span className="font-semibold">
-                  Over-allocated by ₱{formatCurrency(Math.abs(remaining))}
+                  Over-allocated by {formatPesoAmount(Math.abs(remaining))}
                 </span>
               </>
             ) : (
               <>
                 <AlertCircle className="h-5 w-5 text-amber-600" />
                 <span className="font-semibold">
-                  Remaining to allocate: ₱{formatCurrency(remaining)}
+                  Remaining to allocate: {formatPesoAmount(remaining)}
                 </span>
               </>
             )}
           </div>
           <div className="font-mono font-bold">
-            ₱{formatCurrency(allocatedTotal)} / ₱{formatCurrency(invoiceAmount)}
+            {formatPesoAmount(allocatedTotal)} / {formatPesoAmount(invoiceAmount)}
           </div>
         </div>
 
@@ -214,7 +212,7 @@ export default function MultiJoAllocationModal({
             type="button"
             onClick={handleSave}
             disabled={!isBalanced}
-            className="inline-flex items-center justify-center h-10 px-5 rounded-xl bg-[#d32f2f] text-white text-sm font-semibold hover:bg-[#b71c1c] disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center justify-center h-10 px-5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-hover disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Save Allocation
           </button>

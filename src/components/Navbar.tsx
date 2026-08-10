@@ -22,7 +22,7 @@ const navItems: {
   icon: React.ElementType;
   action: Parameters<typeof hasPermission>[1];
 }[] = [
-  { href: '/', label: 'Overview', icon: LayoutDashboard, action: 'viewAccounting' },
+  { href: '/', label: 'Overview', icon: LayoutDashboard, action: 'customerCreate' },
   { href: '/customers', label: 'Customers', icon: Users, action: 'customerCreate' },
   { href: '/quotations', label: 'Quotations', icon: FileText, action: 'salesQuotationCreate' },
   { href: '/job-orders', label: 'Job Orders', icon: Wrench, action: 'joChangeStatus' },

@@ -45,6 +45,7 @@ func NewRouter(pool *pgxpool.Pool, cfg config.Config, log *slog.Logger) http.Han
 		cr.Get("/{id}/vehicles", deps.handleListVehiclesByCustomer)
 		cr.Post("/{id}/vehicles", deps.handleCreateVehicle)
 	})
+	r.Get("/api/vehicles", deps.handleListVehicles)
 	r.Get("/api/vehicles/{id}", deps.handleGetVehicle)
 
 	r.Route("/api/quotations", func(qr chi.Router) {

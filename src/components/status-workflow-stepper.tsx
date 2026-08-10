@@ -4,7 +4,13 @@ import React from 'react';
 import { CheckIcon } from 'lucide-react';
 
 type WorkflowStatus =
-  'DRAFT' | 'APPROVED' | 'IN_PROGRESS' | 'PARTS_PENDING' | 'COMPLETED' | 'BILLED' | 'CLOSED';
+  | 'DRAFT'
+  | 'APPROVED'
+  | 'IN_PROGRESS'
+  | 'PARTS_PENDING'
+  | 'COMPLETED'
+  | 'BILLED'
+  | 'CLOSED';
 
 interface StatusWorkflowStepperProps {
   status: WorkflowStatus | string;
@@ -14,6 +20,7 @@ const STEPS: WorkflowStatus[] = [
   'DRAFT',
   'APPROVED',
   'IN_PROGRESS',
+  'PARTS_PENDING',
   'COMPLETED',
   'BILLED',
   'CLOSED',
@@ -23,7 +30,7 @@ const statusLabels: Record<WorkflowStatus, string> = {
   DRAFT: 'Draft',
   APPROVED: 'Approved',
   IN_PROGRESS: 'In Progress',
-  PARTS_PENDING: 'In Progress',
+  PARTS_PENDING: 'Parts Pending',
   COMPLETED: 'Completed',
   BILLED: 'Billed',
   CLOSED: 'Closed',
@@ -39,7 +46,7 @@ export default function StatusWorkflowStepper({ status }: StatusWorkflowStepperP
   const activeIndex = STEPS.indexOf(normalized);
 
   return (
-    <div className="w-full">
+    <div className="w-full" aria-label={`Job order status: ${statusLabels[normalized]}`}>
       <ol className="flex items-center w-full">
         {STEPS.map((step, idx) => {
           const isCompleted = idx < activeIndex;
@@ -58,7 +65,7 @@ export default function StatusWorkflowStepper({ status }: StatusWorkflowStepperP
                 <div
                   className={`flex items-center justify-center w-8 h-8 rounded-full border-2 text-xs font-bold z-10 transition-colors ${
                     isActive
-                      ? 'bg-[#d32f2f] border-[#d32f2f] text-white'
+                      ? 'bg-brand-primary border-brand-primary text-white'
                       : isCompleted
                         ? 'bg-emerald-500 border-emerald-500 text-white'
                         : 'bg-white border-slate-300 text-slate-400'
@@ -69,7 +76,7 @@ export default function StatusWorkflowStepper({ status }: StatusWorkflowStepperP
                 <span
                   className={`mt-2 text-xs font-semibold ${
                     isActive
-                      ? 'text-[#d32f2f]'
+                      ? 'text-brand-primary'
                       : isCompleted
                         ? 'text-emerald-700'
                         : 'text-slate-400'

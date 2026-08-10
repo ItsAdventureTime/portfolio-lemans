@@ -55,7 +55,7 @@ export default function CascadingCustomerVehicleSelector({
             <button
               type="button"
               onClick={onQuickAddCustomer}
-              className="inline-flex items-center text-xs font-semibold text-[#d32f2f] hover:text-[#b71c1c]"
+              className="inline-flex items-center text-xs font-semibold text-brand-primary hover:text-brand-hover"
             >
               <Plus className="h-3 w-3 mr-0.5" />
               Quick Add
@@ -86,7 +86,7 @@ export default function CascadingCustomerVehicleSelector({
               <button
                 type="button"
                 onClick={onQuickAddVehicle}
-                className="inline-flex items-center text-xs font-semibold text-[#d32f2f] hover:text-[#b71c1c]"
+                className="inline-flex items-center text-xs font-semibold text-brand-primary hover:text-brand-hover"
               >
                 <Plus className="h-3 w-3 mr-0.5" />
                 Quick Add

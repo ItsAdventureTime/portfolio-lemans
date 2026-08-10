@@ -11,6 +11,7 @@ APP_NAME="lemans-demo-app"
 DB_NAME="lemans-demo-db"
 GO_NAME="lemans-demo-go"
 PORT=3000
+BASE_PATH="/lemans/demo"
 
 echo "=== Le Mans Vertical Slice Verification ==="
 
@@ -31,9 +32,9 @@ check_url() {
   local status
   if [[ -n "$network" ]]; then
     status=$(podman run --rm --network "$network" curlimages/curl:latest \
-      -s -o /dev/null -w '%{http_code}' "$url" 2>/dev/null || true)
+      -sL -o /dev/null -w '%{http_code}' "$url" 2>/dev/null || true)
   else
-    status=$(curl -s -o /dev/null -w '%{http_code}' "$url" || true)
+    status=$(curl -sL -o /dev/null -w '%{http_code}' "$url" || true)
   fi
   status=${status:0:3}
   if [[ "${status}" != "${expected}" ]]; then
@@ -43,16 +44,16 @@ check_url() {
   echo "OK: ${url} -> ${status}"
 }
 
-check_url "http://127.0.0.1:${PORT}/" 200
-check_url "http://127.0.0.1:${PORT}/customers" 200
-check_url "http://127.0.0.1:${PORT}/quotations" 200
-check_url "http://127.0.0.1:${PORT}/job-orders" 200
-check_url "http://127.0.0.1:${PORT}/job-orders/RA0003973" 200
-check_url "http://127.0.0.1:${PORT}/job-costing/RA0003973" 200
-check_url "http://127.0.0.1:${PORT}/purchasing" 200
-check_url "http://127.0.0.1:${PORT}/expenses" 200
-check_url "http://127.0.0.1:${PORT}/dcs" 200
-check_url "http://127.0.0.1:${PORT}/invoices" 200
+check_url "http://127.0.0.1:${PORT}${BASE_PATH}" 200
+check_url "http://127.0.0.1:${PORT}${BASE_PATH}/customers" 200
+check_url "http://127.0.0.1:${PORT}${BASE_PATH}/quotations" 200
+check_url "http://127.0.0.1:${PORT}${BASE_PATH}/job-orders" 200
+check_url "http://127.0.0.1:${PORT}${BASE_PATH}/job-orders/RA0003973" 200
+check_url "http://127.0.0.1:${PORT}${BASE_PATH}/job-costing/RA0003973" 200
+check_url "http://127.0.0.1:${PORT}${BASE_PATH}/purchasing" 200
+check_url "http://127.0.0.1:${PORT}${BASE_PATH}/expenses" 200
+check_url "http://127.0.0.1:${PORT}${BASE_PATH}/dcs" 200
+check_url "http://127.0.0.1:${PORT}${BASE_PATH}/invoices" 200
 
 check_url "http://${GO_NAME}:8080/health" 200 "$NETWORK_NAME"
 

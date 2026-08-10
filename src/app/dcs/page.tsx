@@ -7,6 +7,7 @@ import {
   attachProofOfPayment,
   getProofDownloadUrl,
 } from '@/lib/api';
+import { formatPeso } from '@/lib/money';
 import { hasPermission } from '@/lib/roles';
 import { revalidatePath } from 'next/cache';
 
@@ -36,7 +37,7 @@ export default async function DcsPage() {
               <tr key={d.id}>
                 <td className="px-4 py-2">{d.disbursement_no}</td>
                 <td className="px-4 py-2">{d.opex_request_no || d.supplier_invoice_no || '—'}</td>
-                <td className="px-4 py-2">₱{(d.amount_cents / 100).toFixed(2)}</td>
+                <td className="px-4 py-2">{formatPeso(d.amount_cents)}</td>
                 <td className="px-4 py-2">{d.status}</td>
                 <td className="px-4 py-2">
                   <div className="flex flex-wrap gap-2">

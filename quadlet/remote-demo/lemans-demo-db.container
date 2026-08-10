@@ -3,12 +3,13 @@ Description=Le Mans remote demo PostgreSQL
 
 [Container]
 Image=docker.io/library/postgres:alpine
-ContainerName=lemans-remote-demo-db
-Network=lemans-remote-demo-net
+ContainerName=lemans-demo-db
+Network=lemans-demo-net
 Environment=POSTGRES_USER=postgres
 Environment=POSTGRES_PASSWORD_FILE=/run/secrets/db_password
-Environment=POSTGRES_DB=lemans_remote_demo_db
-Volume=lemans-remote-demo-db-data:/var/lib/postgresql
+Environment=POSTGRES_DB=lemans_demo_db
+Secret=db_password,type=mount,target=/run/secrets/db_password
+Volume=lemans-demo-db-data:/var/lib/postgresql
 
 [Service]
 Restart=always

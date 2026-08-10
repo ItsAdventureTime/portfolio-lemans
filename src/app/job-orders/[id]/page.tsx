@@ -7,6 +7,7 @@ import {
   changeJobOrderStatus,
   addJobOrderEvent,
 } from '@/lib/api';
+import { formatPeso } from '@/lib/money';
 import { hasPermission } from '@/lib/roles';
 import { notFound } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
@@ -136,7 +137,7 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
                 <td className="px-4 py-2">{it.item_type}</td>
                 <td className="px-4 py-2">{it.description}</td>
                 <td className="px-4 py-2">{it.quantity}</td>
-                <td className="px-4 py-2">₱{(it.net_amount_cents / 100).toFixed(2)}</td>
+                <td className="px-4 py-2">{formatPeso(it.net_amount_cents)}</td>
               </tr>
             ))}
           </tbody>

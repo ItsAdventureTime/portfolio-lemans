@@ -1,13 +1,15 @@
 import { getDemoRole } from '@/lib/actor';
 import { getJobCosting } from '@/lib/api';
+import { formatPeso } from '@/lib/money';
 import { hasPermission } from '@/lib/roles';
+import AccessDenied from '@/components/AccessDenied';
 import { notFound } from 'next/navigation';
 
 export default async function JobCostingPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const role = await getDemoRole();
   if (!hasPermission(role, 'viewJobCosting')) {
-    return <div className="p-6 text-red-600">Access restricted.</div>;
+    return <AccessDenied role={role} requiredCapability="viewJobCosting" />;
   }
   const data = await getJobCosting(id, role);
   if (!data.jobOrder) return notFound();
@@ -39,7 +41,7 @@ function CostCard({ label, cents }: { label: string; cents: number }) {
   return (
     <div className="bg-white p-4 rounded border border-slate-200">
       <p className="text-sm text-slate-500">{label}</p>
-      <p className="text-xl font-semibold">₱{(cents / 100).toFixed(2)}</p>
+      <p className="text-xl font-semibold">{formatPeso(cents)}</p>
     </div>
   );
 }

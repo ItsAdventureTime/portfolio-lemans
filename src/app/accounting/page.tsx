@@ -1,12 +1,13 @@
 import { getDemoRole } from '@/lib/actor';
 import { getAccountingSummary } from '@/lib/api';
+import { formatPeso } from '@/lib/money';
 import { hasPermission } from '@/lib/roles';
-import { formatPeso } from '@/lib/api';
+import AccessDenied from '@/components/AccessDenied';
 
 export default async function AccountingPage() {
   const role = await getDemoRole();
   if (!hasPermission(role, 'viewAccounting')) {
-    return <div className="p-6 text-red-600">Access restricted.</div>;
+    return <AccessDenied role={role} requiredCapability="viewAccounting" />;
   }
   const data = await getAccountingSummary(role);
 

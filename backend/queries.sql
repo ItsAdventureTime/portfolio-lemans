@@ -24,6 +24,11 @@ SET name = $2, tin = $3, address = $4, phone = $5, email = $6, updated_at = now(
 WHERE id = $1
 RETURNING id, customer_no, name, tin, address, phone, email, created_at, updated_at;
 
+-- name: ListVehicles :many
+SELECT id, customer_id, plate_no, vin_chassis, engine_no, make_model, year, color, odometer, created_at, updated_at
+FROM vehicles
+ORDER BY created_at;
+
 -- name: ListVehiclesByCustomer :many
 SELECT id, customer_id, plate_no, vin_chassis, engine_no, make_model, year, color, odometer, created_at, updated_at
 FROM vehicles

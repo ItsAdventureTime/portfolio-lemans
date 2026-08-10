@@ -2,7 +2,7 @@
 Description=Le Mans remote production internal network
 
 [Network]
-NetworkName=lemans-remote-prod-net
+NetworkName=lemans-prod-net
 Driver=bridge
 
 [Install]

@@ -2206,6 +2206,44 @@ func (q *Queries) ListSupplierInvoices(ctx context.Context) ([]ListSupplierInvoi
 	return items, nil
 }
 
+const listVehicles = `-- name: ListVehicles :many
+SELECT id, customer_id, plate_no, vin_chassis, engine_no, make_model, year, color, odometer, created_at, updated_at
+FROM vehicles
+ORDER BY created_at
+`
+
+func (q *Queries) ListVehicles(ctx context.Context) ([]Vehicle, error) {
+	rows, err := q.db.Query(ctx, listVehicles)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Vehicle
+	for rows.Next() {
+		var i Vehicle
+		if err := rows.Scan(
+			&i.ID,
+			&i.CustomerID,
+			&i.PlateNo,
+			&i.VinChassis,
+			&i.EngineNo,
+			&i.MakeModel,
+			&i.Year,
+			&i.Color,
+			&i.Odometer,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listVehiclesByCustomer = `-- name: ListVehiclesByCustomer :many
 SELECT id, customer_id, plate_no, vin_chassis, engine_no, make_model, year, color, odometer, created_at, updated_at
 FROM vehicles

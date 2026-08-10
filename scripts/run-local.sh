@@ -74,10 +74,10 @@ podman run -d \
   -p "127.0.0.1:${PORT}:3000" \
   --env-file "${PROJECT_ROOT}/.env.demo" \
   -e API_BASE_URL="http://${GO_NAME}:8080" \
-  -e NEXT_PUBLIC_BASE_PATH="" \
   lemans-bridge-dashboard:demo-web
 
 wait_for_http "http://127.0.0.1:${PORT}/" ""
 
-echo "=== Local demo running at http://127.0.0.1:${PORT}/ ==="
+BASE_PATH="/lemans/demo"
+echo "=== Local demo running at http://127.0.0.1:${PORT}${BASE_PATH}/ ==="
 echo "Run ./scripts/reset-local.sh to reset to seeded state."

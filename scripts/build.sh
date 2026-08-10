@@ -22,7 +22,7 @@ fi
 
 echo "=== Building Le Mans ${MODE} images ==="
 
-BASE_PATH=""
+BASE_PATH="/lemans/demo"
 if [[ "$MODE" == "prod" ]]; then
   BASE_PATH="/lemans"
 fi

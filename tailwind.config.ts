@@ -10,9 +10,9 @@ const config: Config = {
     extend: {
       colors: {
         brand: {
-          primary: '#D32F2F',
-          hover: '#B71C1C',
-          light: '#FFEBEE',
+          primary: '#d32f2f',
+          hover: '#b71c1c',
+          light: '#ffebee',
         },
         slate: {
           950: '#020617',
