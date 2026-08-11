@@ -92,13 +92,17 @@ Run:
   ./scripts/verify-local.sh
   ./scripts/verify-vertical-slice.sh
 
-Exercise the UI through `Enter as an Admin`, then as Admin, General Manager, Sales Advisor, Service Advisor,
-Purchasing, and DCS. Verify role switching without login, deterministic local
-reset, and the public-demo requirement for an installed rootless user timer that
-resets fictional database/uploads every 30 minutes. Verify all major workflow
-transitions, exports, attachment states, keyboard focus, mobile target sizing,
-and prefers-reduced-motion behavior with Playwright media emulation. Check the Go API
-health endpoint at `/health` inside the internal Podman network.
+Run the E2E suite:
+  npx playwright test
+
+Then exercise the UI through `Enter as an Admin`, and as Admin, General Manager,
+Sales Advisor, Service Advisor, Purchasing, and DCS. Verify role switching without
+login, deterministic local reset, and the public-demo requirement for an installed
+rootless user timer that resets fictional database/uploads every 30 minutes.
+Verify all major workflow transitions, exports, attachment states, keyboard focus,
+mobile target sizing, and prefers-reduced-motion behavior with Playwright media
+emulation. Check the Go API health endpoint at `/health` inside the internal Podman
+network.
 
 Stop and remove only the project-specific resources created by this run.
 Report every pass, failure, warning, skipped check, exposed port, and remaining
@@ -110,13 +114,14 @@ limitation. A partial check is not a pass.
 ```text
 Prepare the implementation handoff for the next agent.
 
-Summarize the final architecture, demo actor/role model, completed requirements,
-files changed, seed/reset behavior, verification commands and exact results,
-official web guidance consulted, and unresolved risks.
+Report the exact commit SHA, branch, files changed, verification commands and
+exact results (including Playwright E2E project-by-project results), and any
+unresolved blockers. Clearly separate implemented, partially implemented, and
+not implemented items. Link to the authoritative documents and never repeat
+historical credentials or claim production readiness for the no-auth demo.
 
-Clearly separate implemented, partially implemented, and not implemented items.
-Link to the authoritative documents and never repeat historical credentials or
-claim production readiness for the no-auth demo.
+If no blockers remain, create or update `reviews/HANDOFF-<YYYY-MM-DD>.md` and
+record the copy-paste prompt a future agent can use to resume verification.
 ```
 
 ## 6. Repository commands
@@ -138,6 +143,9 @@ podman machine start
 ./scripts/verify-vertical-slice.sh
 
 # Manual spot checks at http://127.0.0.1:3000/lemans/demo/...
+
+# Browser / E2E checks (requires local stack running)
+npx playwright test
 
 # Stop only the project demo runtime after validation
 ./scripts/stop-local.sh

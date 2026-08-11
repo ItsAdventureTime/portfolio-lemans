@@ -1,6 +1,90 @@
 # Remote Demo Deployment & Operational Results
 
-> **Historical validation notice (2026-08-09):** This report captures an older
+> **Historical validation notice (2026-08-11):** This report now includes both the
+> older 2026-08-07 authentication-based deployment evidence (§1–§8) and the
+> 2026-08-11 no-auth demo remediation run (§9). Current demo behavior, container
+> names, and network names are defined by [`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md)
+> and the tracked Quadlets in `quadlet/remote-demo/`.
+
+- **Project**: Le Mans Operations & Job Cost Management System (`lemans-bridge-dashboard`)
+- **Environment**: Remote Demo (`lemans-demo-app` on `127.0.0.1:3002`)
+- **Date**: 2026-08-11
+- **Operator**: Lead Agent / Remediation Agent
+- **Execution Mode**: Rootless Podman Container Stack (`podman-machine-default`, arm64/amd64 target)
+- **Status**: **LOCAL VERIFICATION + E2E PASS; REMOTE DEPLOY NOT YET EXERCISED**
+
+---
+
+## 9. 2026-08-11 remediation verification
+
+This section records the local verification run after the R1–R9 remediation
+committed at `71e7578`.
+
+### 9.1 Images built
+
+| Image  | Tag                                  | Result |
+| ------ | ------------------------------------ | ------ |
+| Web    | `lemans-bridge-dashboard:demo-web`   | ✅     |
+| Web    | `lemans-bridge-dashboard:prod-web`   | ✅     |
+| Go API | `lemans-bridge-dashboard-go:demo-go` | ✅     |
+| Go API | `lemans-bridge-dashboard-go:prod-go` | ✅     |
+
+### 9.2 Local verification results
+
+| Check                  | Command                              | Result                                 |
+| ---------------------- | ------------------------------------ | -------------------------------------- |
+| Format / typecheck     | `./scripts/verify-local.sh`          | ✅ pass                                |
+| Go generate/build/test | `./scripts/verify-local.sh`          | ✅ pass                                |
+| Vertical slice health  | `./scripts/verify-vertical-slice.sh` | ✅ all routes 200, DB port unpublished |
+| Playwright E2E         | `npx playwright test`                | ✅ 21/21 passed                        |
+
+### 9.3 E2E coverage
+
+Project matrix: `chromium`, `mobile`, `reduced-motion`.
+
+| Spec                                                             | chromium | mobile | reduced-motion |
+| ---------------------------------------------------------------- | -------- | ------ | -------------- |
+| splash entry and role switching persist across routes            | ✅       | ✅     | ✅             |
+| role switching renders accessible error on failure               | ✅       | ✅     | ✅             |
+| customer form validation shows field errors and preserves values | ✅       | ✅     | ✅             |
+| mobile touch targets are at least 44x44 CSS pixels               | ✅       | ✅     | ✅             |
+| reduced-motion media emulation disables non-essential motion     | ✅       | ✅     | ✅             |
+| focus-visible rings are visible with keyboard navigation         | ✅       | ✅     | ✅             |
+| deterministic local reset restores seed data                     | ✅       | ✅     | ✅             |
+
+### 9.4 Remediation items addressed
+
+- **R1** `/api/set-role` API route is basePath-safe via `src/lib/api-url.ts`.
+- **R2** `DemoSplash` + `/api/enter-demo` provide simulated Admin entry.
+- **R3** `FormError` + `form-result.ts` give field-level and form-level error feedback.
+- **R4** Touch-target contract enforced via `min-h-11 min-w-11` and CSS fixes.
+- **R5** Deploy script uses `trap cleanup_temp EXIT` and mode-600 remote env.
+- **R6** `verify-local.sh` passes; Playwright artifacts ignored in `.gitignore`.
+- **R7** `docs/REMOTE-OPERATIONS.md` reconciled to current container/network names.
+- **R8** `scripts/run-local.sh` generates a per-run DB password.
+- **R9** Tracked `lemans-demo-reset.container` + `.timer` installed by `deploy-remote-demo.sh`.
+
+### 9.5 Remote deployment status
+
+The tracked Quadlet units (`lemans-demo.container`, `lemans-demo-go.container`,
+`lemans-demo-db.container`, `lemans-demo.network`, `lemans-demo-reset.container`,
+`lemans-demo-reset.timer`) and the deploy script are ready. The remote host has
+not been modified since this was a local verification run. The next authorized
+operator should run:
+
+```bash
+export REMOTE_HOST=vps.example.com
+export REMOTE_USER=jk
+export B2_ACCESS_KEY_ID=...
+export B2_SECRET_ACCESS_KEY=...
+./scripts/deploy-remote-demo.sh
+```
+
+---
+
+# Remote Demo Deployment & Operational Results (historical 2026-08-07)
+
+> **Historical validation notice:** This section captures the older
 > authentication-based remote demo. It is retained for infrastructure evidence
 > only, not as current runtime or naming guidance. Current demo behavior and
 > names are defined by [`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md):
