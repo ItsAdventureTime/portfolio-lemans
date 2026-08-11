@@ -245,7 +245,9 @@ Every data-dependent page and component explicitly implements:
 - Read this document before changing code.
 - Inspect existing code and preserve unrelated user changes.
 - Use `apply_patch` for edits; do not rewrite entire files unnecessarily.
-- Keep all builds, tests, migrations, and app execution inside rootless Podman.
+- Keep any required local validation builds, tests, migrations, and app
+  execution inside disposable rootless Podman. Remote deployment builds and
+  runs on the VPS; it does not use the workstation as a deployment target.
 - Do not use Compose, privileged containers, host networking, broad mounts, or
   published database ports.
 - Do not perform remote deployment, SSH, DNS, backup, or production changes
@@ -286,7 +288,10 @@ same file, document the exact blocker and leave the user's work untouched.
 
 ## 8. Required verification
 
-Run from the repository root:
+When local validation is explicitly required, run from the repository root.
+Remote deployment uses the remote-only procedure in
+[`REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`](./REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md):
+the workstation packages source and the VPS builds and smoke-tests images.
 
 ```bash
 export PATH="/opt/podman/bin:$PATH"
@@ -333,6 +338,8 @@ Review these sources before implementation and again before handoff:
 - [MDN View Transition API](https://developer.mozilla.org/en-US/docs/Web/API/View_Transition_API)
 - [goose migrations](https://github.com/pressly/goose)
 - [Podman Quadlet](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html)
+- [Podman Quadlet basic usage](https://docs.podman.io/en/latest/markdown/podman-quadlet-basic-usage.7.html)
+- [Podman build units](https://docs.podman.io/en/latest/markdown/podman-build.unit.5.html)
 
 At the time of this playbook update, the repository baseline is Next.js 16.3.0,
 React 19.2, Tailwind CSS 3.4, Go latest (`golang:alpine`), and PostgreSQL latest

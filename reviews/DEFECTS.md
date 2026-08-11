@@ -1,5 +1,11 @@
 # Defect Log & Retest Assessment
 
+> **Historical defect record (2026-08-12):** This log preserves the original
+> 2026-08-07 findings and retest claims. It is not current runtime or remote
+> deployment proof. Current status is maintained by
+> [`docs/DOCUMENTATION-INDEX.md`](../docs/DOCUMENTATION-INDEX.md) and
+> [`docs/CURRENT-STATE.md`](../docs/CURRENT-STATE.md).
+
 - **Project**: Le Mans Operations & Job Cost Management System (`lemans-bridge-dashboard`)
 - **Client**: LeMans Service Plus OPC
 - **Auditor**: Independent Lead Architecture & Security Reviewer

@@ -6,8 +6,8 @@
 
 | Environment       | Quadlet Path                                         | Web Port         | Go API Container | DB Volume             | Web Image                          | Go Image                             |
 | ----------------- | ---------------------------------------------------- | ---------------- | ---------------- | --------------------- | ---------------------------------- | ------------------------------------ |
-| Remote demo       | `~/.config/containers/systemd/bridge-ph/lemans-demo` | `127.0.0.1:3002` | `lemans-demo-go` | `lemans-demo-db-data` | `lemans-bridge-dashboard:demo-web` | `lemans-bridge-dashboard-go:demo-go` |
-| Remote production | `~/.config/containers/systemd/bridge-ph/lemans`      | `127.0.0.1:3003` | `lemans-prod-go` | `lemans-prod-db-data` | `lemans-bridge-dashboard:prod-web` | `lemans-bridge-dashboard-go:prod-go` |
+| Remote demo       | `~/.config/containers/systemd/bridge-ph/lemans-demo` | `127.0.0.1:3002` | `lemans-demo-go` | `lemans-demo-db-data` | `localhost/lemans-bridge-dashboard:demo-web-<release>` | `localhost/lemans-bridge-dashboard-go:demo-go-<release>` |
+| Remote production | `~/.config/containers/systemd/bridge-ph/lemans`      | `127.0.0.1:3003` | `lemans-prod-go` | `lemans-prod-db-data` | `localhost/lemans-bridge-dashboard:prod-web-<release>` | `localhost/lemans-bridge-dashboard-go:prod-go-<release>` |
 
 ## Caddy Integration
 

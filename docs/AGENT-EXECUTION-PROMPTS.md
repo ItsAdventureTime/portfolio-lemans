@@ -88,7 +88,9 @@ line numbers, reproduction steps, and a recommended fix. Do not edit files.
 ## 4. Verification prompt
 
 ```text
-Verify the Le Mans demo from a clean, disposable rootless Podman runtime.
+If local verification is explicitly required, verify the Le Mans demo from a
+clean, disposable rootless Podman runtime. Remote deployment does not use this
+local runtime; it builds and smoke-tests on the VPS.
 
 Run:
   podman machine start

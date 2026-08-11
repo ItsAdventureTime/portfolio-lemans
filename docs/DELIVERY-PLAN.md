@@ -26,7 +26,9 @@ implementation that is currently in source control:
 
 ## 2. Current verification gates
 
-Run from the repository root:
+When local validation is explicitly required, run from the repository root.
+Remote deployment does not execute this local workflow; it builds and smoke-tests
+on the VPS:
 
 ```bash
 export PATH="/opt/podman/bin:$PATH"

@@ -1,5 +1,11 @@
 # Phase 4 Independent Architecture & Operational Audit Review
 
+> **Historical review notice (2026-08-12):** This report records the 2026-08-07
+> pre-migration review and its authentication-based runtime. It is not current
+> deployment or acceptance evidence. Use [`docs/CURRENT-STATE.md`](../docs/CURRENT-STATE.md)
+> and [`docs/REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`](../docs/REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md)
+> for current rules; the remote VPS has not been modified by this review.
+
 - **Project**: Le Mans Operations & Job Cost Management System (`lemans-bridge-dashboard`)
 - **Client**: LeMans Service Plus OPC
 - **Auditor**: Independent Lead Architecture & Security Reviewer
@@ -71,11 +77,11 @@ $ ./scripts/verify-vertical-slice.sh
 
 ## 3. Conclusion & Deployment Next Steps
 
-Phase 4 retesting and UI/UX standardization are complete with zero remaining release-blocking defects. Proceed to Phase 5 remote-demo deployment following [`docs/REMOTE-OPERATIONS.md`](file:///Users/jk.deguzman/dev/lemans-bridge-dashboard/docs/REMOTE-OPERATIONS.md).
+Phase 4 retesting and UI/UX standardization are complete with zero remaining release-blocking defects. Proceed to Phase 5 remote-demo deployment following [`docs/REMOTE-OPERATIONS.md`](../docs/REMOTE-OPERATIONS.md).
 
 Documentation updated:
 
-- [`docs/DESIGN-SYSTEM.md`](file:///Users/jk.deguzman/dev/lemans-bridge-dashboard/docs/DESIGN-SYSTEM.md)
-- [`docs/REMOTE-OPERATIONS.md`](file:///Users/jk.deguzman/dev/lemans-bridge-dashboard/docs/REMOTE-OPERATIONS.md)
-- [`docs/PHASE-4-HANDOFF.md`](file:///Users/jk.deguzman/dev/lemans-bridge-dashboard/docs/PHASE-4-HANDOFF.md)
-- [`reviews/DEFECTS.md`](file:///Users/jk.deguzman/dev/lemans-bridge-dashboard/reviews/DEFECTS.md)
+- [`docs/DESIGN-SYSTEM.md`](../docs/DESIGN-SYSTEM.md)
+- [`docs/REMOTE-OPERATIONS.md`](../docs/REMOTE-OPERATIONS.md)
+- [`docs/PHASE-4-HANDOFF.md`](../docs/PHASE-4-HANDOFF.md)
+- [`reviews/DEFECTS.md`](./DEFECTS.md)

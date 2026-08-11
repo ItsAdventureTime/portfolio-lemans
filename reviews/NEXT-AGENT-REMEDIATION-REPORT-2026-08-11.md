@@ -1,5 +1,11 @@
 # Next-Agent Remediation Report — Le Mans Demo
 
+> **Historical remediation notice (2026-08-12):** This report describes the
+> 2026-08-11 pre-deployment checkpoint. Its old commit, branch workflow, local
+> runtime results, and deployment assumptions are retained for traceability.
+> Follow the current documentation index and remote-only deployment playbook
+> for present-day instructions.
+
 **Date:** 2026-08-11
 **Repository:** `https://github.com/ItsAdventureTime/bridge-lemans`
 **Branch reviewed:** `main`

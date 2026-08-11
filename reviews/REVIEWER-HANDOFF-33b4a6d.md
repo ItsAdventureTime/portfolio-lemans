@@ -1,5 +1,13 @@
 # Reviewer / Evaluator Agent Handoff — Le Mans Demo Refactor & Hardening
 
+> **Historical handoff notice (2026-08-12):** This report describes the
+> `33b4a6d` review checkpoint and is retained for findings history. Current
+> implementation, branch, validation, and deployment rules are defined by
+> [`docs/DOCUMENTATION-INDEX.md`](../docs/DOCUMENTATION-INDEX.md),
+> [`AGENTS.md`](../AGENTS.md), and the current remote deployment playbook.
+> The repository is now `main`-only; remote deployment builds on the VPS from
+> a committed source archive and does not transfer locally built images.
+
 > **Commit under review:** `33b4a6d` — `feat(demo): UX overhaul, shared UI components, and deployment hardening`
 >
 > **Repository:** `lemans-bridge-dashboard`  
