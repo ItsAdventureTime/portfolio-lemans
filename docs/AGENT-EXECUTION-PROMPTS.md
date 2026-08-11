@@ -194,7 +194,9 @@ deployment. The workstation packages the clean committed source only; it does
 not locally build, compile, or execute the application for deployment. Local
 Podman is an optional disposable validation exception and must use `--rm`.
 
-Use ./scripts/deploy-remote-demo.sh as the single deployment entry point. The
+Use ./scripts/sync-remote-demo.sh followed by the printed VPS-side activation
+command as the preferred deployment flow. ./scripts/deploy-remote-demo.sh
+remains the automated one-command entry point. The
 rootless Quadlets must install under:
   /home/jk/.config/containers/systemd/bridge-ph/lemans-demo
 
@@ -205,8 +207,8 @@ under:
 The target URL is:
   https://delegateops.business/lemans/demo
 
-Follow docs/REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md. Transfer the source archive and
-runtime configuration, build both release-tagged web and Go API images on the
+Follow docs/REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md. Transfer the committed source
+tree (not a source archive), build both release-tagged web and Go API images on the
 VPS, and use disposable `podman run --rm` image smoke checks there. Attach the
 web container directly to the Caddy and internal networks, attach the Go API
 only to the internal network, keep the DB internal with no published port, use

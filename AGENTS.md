@@ -101,15 +101,18 @@ started with `podman machine start` only when disposable build, compile, test, o
 verification work needs it; use `podman run --rm` and clean up temporary runtime
 resources afterward.
 
-The remote demo is deployed through the single orchestrator
-`./scripts/deploy-remote-demo.sh` and rootless Quadlets. The workstation only
-archives and transfers the clean committed source with `rsync` over SSH; do not
-use `scp`. The VPS builds release-tagged images with rootless `podman build` and smoke-tests them with disposable
-`podman run --rm` containers. On macOS, run
+The remote demo is deployed through rootless Quadlets. The preferred workflow is
+two-stage: run `./scripts/sync-remote-demo.sh` on macOS, then log in to the VPS
+and run the printed `scripts/activate-remote-demo.sh` command. The sync step
+uses `rsync` over SSH; do not use `scp`. It transfers a temporary tree created
+from the clean committed source and never transfers a `.tar` archive. The VPS
+activation script builds release-tagged images with rootless `podman build` and
+smoke-tests them with disposable `podman run --rm` containers. The original
+`./scripts/deploy-remote-demo.sh` remains available as an automated wrapper that
+performs both stages over one SSH control connection. On macOS, run
 `scripts/configure-remote-demo.sh` once to store remote settings and B2
 credentials in the login Keychain; later deployments need no exported variables.
-The deployer reuses one SSH connection for its `rsync` transfers and remote
-commands. The authoritative remote
+The authoritative remote
 locations are:
 
 - Quadlets: `/home/jk/.config/containers/systemd/bridge-ph/lemans-demo`

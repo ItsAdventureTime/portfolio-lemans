@@ -18,9 +18,9 @@ The demo is deployed remotely only. There is no persistent local deployment
 target.
 
 The workstation does not deploy, build, compile, or execute the application as
-part of remote deployment. It packages the committed source with `git archive`
-and transfers the archive and runtime configuration with `rsync` over SSH.
-Do not use `scp` for deployment transfers. Local
+part of remote deployment. It creates a temporary tree from the committed
+source and transfers that tree with resumable `rsync` over SSH. No `.tar` archive
+is transferred or retained. Do not use `scp` for deployment transfers. Local
 Podman-based verification is an optional, separate activity; if it is needed,
 it must use disposable `podman run --rm` containers and leave no project
 containers, volumes, or images running afterward.
@@ -67,7 +67,7 @@ remote host.
 
 Each deployment creates a release directory below
 `/home/jk/bridge-ph/lemans-demo/releases/<release-id>` and builds images from
-the transferred committed source archive. The remote rootless image store keeps
+the transferred committed source tree. The remote rootless image store keeps
 release-specific tags such as:
 
 ```text
@@ -77,9 +77,9 @@ localhost/lemans-bridge-dashboard-go:demo-go-<release-id>
 
 The Quadlets are rewritten to those exact local tags, so deployment does not
 depend on a registry or on a local `podman save`/`podman load` pipeline. The
-database volume is retained across application releases. The source archive is
-removed from the release directory after a successful activation; the manifest
-and release images remain available for rollback and audit.
+database volume is retained across application releases. The synced source tree,
+manifest, and release images remain available for rollback and audit. There is
+no remote source archive to clean up.
 
 ## 3. Required topology
 
@@ -180,7 +180,7 @@ static-site and application mounts. The operator should provide the
 configuration if the network name, site-block structure, or TLS ownership is
 unclear.
 
-## 5. Single-command deployment contract
+## 5. Deployment commands
 
 On macOS, the operator runs one interactive setup command once to save the
 remote settings and B2 credentials in the login Keychain:
@@ -189,27 +189,41 @@ remote settings and B2 credentials in the login Keychain:
 ./scripts/configure-remote-demo.sh
 ```
 
-After that, the operator needs one repository command per deployment:
+For the simplest automated deployment, the operator needs one repository
+command per deployment:
 
 ```bash
 ./scripts/deploy-remote-demo.sh
 ```
+
+The preferred operator-controlled workflow separates transfer from activation:
+
+```bash
+./scripts/sync-remote-demo.sh
+ssh jk@<vps-host>
+cd /home/jk/bridge-ph/lemans-demo/releases/<release-id>/source
+./scripts/activate-remote-demo.sh --release-id <release-id> --release-commit <commit>
+```
+
+The sync command validates the clean committed worktree, uses `rsync --partial`
+to transfer only the committed source tree, and prints the exact activation
+command. The activation command runs entirely on the VPS and prompts for B2
+credentials only when they were not provided by the automated wrapper. SSH key
+authentication can remove the remaining password prompt; never put an SSH
+password in a script.
 
 Environment variables remain supported and take precedence for non-macOS and
 automated environments. The deployment script may accept `REMOTE_USER`, but it
 defaults to `jk`. It must:
 
 1. Require a clean committed `main` worktree and collect the source commit.
-2. Create a release archive locally; do not invoke local image builds or app
-   execution.
-3. Transfer the archive and mode-0600 runtime environment file to the VPS with
-   resumable `rsync` over SSH.
-   Reuse a temporary SSH control socket so password-based access authenticates
-   once for all transfer and remote-command connections.
+2. Create a temporary committed source tree locally; do not invoke local image
+   builds or app execution and do not create a transfer archive.
+3. Transfer the source tree with resumable `rsync --partial --delete` over SSH.
 4. Build both release-tagged images on the VPS with rootless `podman build`.
 5. Run disposable `podman run --rm` image smoke checks on the VPS.
-6. Install the tracked Quadlets, scripts, release manifest, and environment
-   file under the required remote paths.
+6. Install the tracked Quadlets, scripts, and release manifest under the required
+   remote paths.
 7. Install native timer units in `~/.config/systemd/user`, reload the user
    manager, and confirm every required unit is loaded before starting the
    selected profile.
@@ -319,7 +333,8 @@ build or execute the application locally. The Next.js web container references
 `caddy.network` directly, which joins it to the `caddy` Podman network defined
 by that Quadlet.
 
-- The script packages the committed source locally, then builds both
+- The sync script stages the committed source in a temporary local directory;
+  the activation script then builds both
   `localhost/lemans-bridge-dashboard:demo-web-<release-id>` and
   `localhost/lemans-bridge-dashboard-go:demo-go-<release-id>` on the remote host.
 - Remote image checks use disposable `podman run --rm` containers. No local

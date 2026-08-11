@@ -40,9 +40,9 @@ export PATH="/opt/podman/bin:$PATH"
 `run-local.sh` invocation recreates migrations and seed data. The database never
 publishes port 5432 to the host.
 
-Remote deployment is separate: the workstation packages a clean committed
-source archive, the VPS builds and smoke-tests release images with rootless
-Podman, and the existing Quadlets under
+Remote deployment is separate: the workstation stages a clean committed source
+tree and syncs it with rsync, the VPS builds and smoke-tests release images with
+rootless Podman, and the existing Quadlets under
 `/home/jk/.config/containers/systemd/bridge-ph/lemans-demo` activate those
 images. Remote operations require explicit authorization.
 

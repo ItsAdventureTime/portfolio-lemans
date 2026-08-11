@@ -121,13 +121,11 @@ the active Quadlet directory and release directories.
 
 This will:
 
-1. Archive the clean committed source locally; it does not build or execute
-   the application on the workstation.
-2. Transfer the source archive and mode-0600 runtime environment to the VPS
-   with resumable `rsync` over SSH; do not use `scp`.
-   The SSH control socket is reused for the transfer and remote commands, so a
-   password-based connection prompts once per deployment instead of once per
-   command.
+1. Stage the clean committed source in a temporary local directory; it does not
+   build or execute the application on the workstation and creates no transfer
+   archive.
+2. Transfer the source tree with resumable `rsync --partial --delete` over SSH;
+   do not use `scp`. The temporary tree is removed when the sync command exits.
 3. Build release-tagged web and Go API images on the VPS with rootless Podman.
 4. Run disposable `podman run --rm` image smoke checks on the VPS.
 5. Sync release-specific Quadlets and scripts to
@@ -140,7 +138,12 @@ This will:
    reset timer.
 9. Confirm the configured public HTTPS URL returns `200 OK`. This makes a
    missing or prefix-stripping Caddy route a deployment failure rather than a
-   false success.
+false success.
+
+For an operator-controlled deployment, run `./scripts/sync-remote-demo.sh`, log
+in to the VPS, and run the activation command printed by the script. The
+existing `./scripts/deploy-remote-demo.sh` wrapper performs both stages over one
+SSH control connection.
 
 The Caddy Quadlet must already have created its `caddy` Podman network. Le Mans
 containers continue to reference `caddy.network` by filename. The tracked

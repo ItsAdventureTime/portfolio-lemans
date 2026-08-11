@@ -30,7 +30,7 @@ The current deployment target is remote-only for the demo:
 - Remote demo data/config/database boundary is
   `/home/jk/bridge-ph/lemans-demo`.
 - Public URL is `https://delegateops.business/lemans/demo`.
-- The single-command deployment contract is defined in
+- The two-stage deployment workflow and automated wrapper are defined in
   [`REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`](./REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md).
 
 ## Environment matrix
@@ -149,9 +149,13 @@ deployment no longer creates external `.env` files.
 | `scripts/reset-local.sh`           | Reset local DB volume to empty / seeded state         |
 | `scripts/verify-local.sh`          | Run format/lint/type-check/tests in `--rm` container  |
 | `scripts/verify-vertical-slice.sh` | Full local verification incl. HTTP health checks      |
-| `scripts/deploy-remote-profile.sh` | Package source; build/smoke-test/activate on VPS      |
-| `scripts/deploy-remote-demo.sh`    | Demo wrapper for the remote-only profile deploy       |
-| `scripts/deploy-remote-prod.sh`    | Production wrapper for the remote-only profile deploy |
+| `scripts/deploy-remote-profile.sh` | Sync source and optionally activate on the VPS        |
+| `scripts/sync-remote-demo.sh`      | Demo source sync; prints the VPS activation command   |
+| `scripts/sync-remote-prod.sh`      | Production source sync; prints the activation command |
+| `scripts/activate-remote-demo.sh`  | VPS-side demo build, activation, and verification     |
+| `scripts/activate-remote-prod.sh`  | VPS-side production build, activation, and verification |
+| `scripts/deploy-remote-demo.sh`    | Automated demo sync + activation wrapper              |
+| `scripts/deploy-remote-prod.sh`    | Automated production sync + activation wrapper        |
 | `scripts/configure-remote-*.sh`    | One-time macOS Keychain setup for remote profiles     |
 
 ## 8. Official Guidance
