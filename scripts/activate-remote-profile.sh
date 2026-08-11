@@ -160,6 +160,11 @@ if [[ -f "$GO_UNIT_FILE" ]]; then
     DB_PASSWORD="${BASH_REMATCH[1]}"
   fi
 fi
+if [[ -z "$DB_PASSWORD" ]] && podman secret inspect db_password >/dev/null 2>&1; then
+  echo "Error: db_password already exists but no prior DATABASE_URL is available." >&2
+  echo "Restore the previous Go API Quadlet or rotate the database password deliberately." >&2
+  exit 1
+fi
 DB_PASSWORD="${DB_PASSWORD:-$(openssl rand -hex 16)}"
 
 if ! podman secret inspect db_password >/dev/null 2>&1; then
