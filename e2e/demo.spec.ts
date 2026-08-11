@@ -159,6 +159,35 @@ test('seeded local data is available', async ({ page }) => {
   await expect(page.getByText('No customers yet')).not.toBeVisible();
 });
 
+test('Admin can download deterministic accounting exports', async ({ page }, testInfo) => {
+  await enterAsAdmin(page);
+  await page.goto(`${BASE}/accounting`);
+  await expect(page.getByRole('heading', { name: 'Accounting exports' })).toBeVisible();
+
+  const csvLink = page.getByRole('link', { name: 'Download Excel-compatible CSV' });
+  const jsonLink = page.getByRole('link', { name: 'Download JSON' });
+  await expect(csvLink).toHaveAttribute('href', /\/api\/accounting\/export\/csv$/);
+  await expect(jsonLink).toHaveAttribute('href', /\/api\/accounting\/export\/json$/);
+
+  // Chromium's mobile-device emulation does not surface attachment downloads as
+  // Playwright download events. It still verifies the same browser-facing route.
+  if (testInfo.project.name === 'mobile') {
+    const response = await page.request.get((await csvLink.getAttribute('href'))!);
+    expect(response.status()).toBe(200);
+    expect(response.headers()['content-disposition']).toContain('lemans-accounting-export.csv');
+    expect(Array.from((await response.body()).subarray(0, 3))).toEqual([0xef, 0xbb, 0xbf]);
+    return;
+  }
+
+  const csvDownload = page.waitForEvent('download');
+  await csvLink.click();
+  expect((await csvDownload).suggestedFilename()).toBe('lemans-accounting-export.csv');
+
+  const jsonDownload = page.waitForEvent('download');
+  await jsonLink.click();
+  expect((await jsonDownload).suggestedFilename()).toBe('lemans-accounting-export.json');
+});
+
 async function enterAsAdmin(page: Page) {
   await page.goto(`${BASE}/`);
   await page.getByRole('main').getByRole('button', { name: 'Enter as an Admin' }).click();

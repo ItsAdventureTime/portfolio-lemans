@@ -36,6 +36,7 @@ export PATH="/opt/podman/bin:$PATH"
 ./scripts/verify-local.sh
 ./scripts/run-local.sh
 ./scripts/verify-vertical-slice.sh
+./scripts/verify-e2e.sh
 ./scripts/stop-local.sh
 ```
 
@@ -48,7 +49,7 @@ The exact result must be recorded in the handoff or release evidence.
 These are known and intentional, not delivery failures:
 
 1. B2 upload/download requires valid runtime credentials.
-2. Search, richer contacts, exports, and deeper reporting remain future scope.
+2. Search, richer contacts, and deeper reporting remain future scope.
 3. The role switcher is a demo policy simulation, not authentication or a
    production security boundary.
 4. Local runtime is disposable; remote deployment requires explicit user
@@ -62,7 +63,7 @@ with runtime-only controls for:
 - real authentication and revocable sessions;
 - secrets, backups, retention, and audit controls;
 - production B2 storage and attachment lifecycle;
-- reporting, accounting exports, and external integrations;
+- deeper reporting and external integrations;
 - staged migrations and deployment rollback.
 
 The future authentication decision is recorded in

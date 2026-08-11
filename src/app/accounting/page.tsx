@@ -4,6 +4,7 @@ import { formatPeso } from '@/lib/money';
 import { hasPermission } from '@/lib/roles';
 import { DataTable, StatusBadge } from '@/components/ui';
 import AccessDenied from '@/components/AccessDenied';
+import { getApiUrl } from '@/lib/api-url';
 import type { Customer, Invoice } from '@/lib/types';
 
 export default async function AccountingPage() {
@@ -16,6 +17,28 @@ export default async function AccountingPage() {
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-semibold">Accounting Summary</h1>
+
+      <section className="bg-white rounded border border-slate-200 p-4 flex flex-wrap items-center gap-3">
+        <div className="mr-auto">
+          <h2 className="text-lg font-semibold">Accounting exports</h2>
+          <p className="text-sm text-slate-600">
+            Download deterministic customer, vendor, billing, expense, collection, and payment
+            records.
+          </p>
+        </div>
+        <a
+          href={getApiUrl('/api/accounting/export/csv')}
+          className="inline-flex min-h-11 items-center rounded-md bg-brand-primary px-4 font-medium text-white hover:bg-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+        >
+          Download Excel-compatible CSV
+        </a>
+        <a
+          href={getApiUrl('/api/accounting/export/json')}
+          className="inline-flex min-h-11 items-center rounded-md border border-slate-300 px-4 font-medium text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+        >
+          Download JSON
+        </a>
+      </section>
 
       <section className="bg-white rounded border border-slate-200 p-4">
         <h2 className="text-lg font-semibold mb-3">Customers</h2>

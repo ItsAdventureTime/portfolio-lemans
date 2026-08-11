@@ -25,6 +25,10 @@ Enterprise operational and job costing platform built for **Le Mans Service Plus
 - **Workflow integrity**: The Go API validates quotation lines and uses database
   transactions for quotation creation and quote-to-job-order conversion, so
   failed workflow writes do not persist partial records.
+- **Accounting exports**: Admins can download deterministic, formula-safe,
+  Excel-compatible CSV or JSON interchange files for customers, vendors,
+  bills, expenses, invoices, collections, and payments. They are not direct
+  QuickBooks-import schemas.
 
 ---
 
@@ -42,6 +46,7 @@ podman machine start
 # 3. Verify the stack
 ./scripts/verify-local.sh
 ./scripts/verify-vertical-slice.sh
+./scripts/verify-e2e.sh
 
 # 4. Stop the local demo
 ./scripts/stop-local.sh
@@ -74,6 +79,9 @@ Stop / reset:
 
 # Full verification incl. HTTP health checks on running local demo
 ./scripts/verify-vertical-slice.sh
+
+# Browser verification in a disposable Playwright container
+./scripts/verify-e2e.sh
 ```
 
 ---

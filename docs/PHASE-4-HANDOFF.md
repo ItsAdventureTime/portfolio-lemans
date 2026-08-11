@@ -88,7 +88,10 @@ The following interface standardization work has been completed and is now part 
 2. **Secret management**: replace `.env` files and Quadlet `{{ ... }}` placeholders with a production secrets manager.
 3. **Remote deployment**: use `scripts/deploy-remote-demo.sh` / `scripts/deploy-remote-prod.sh` to install Quadlets on the VPS.
 4. **Backup automation**: the production daily backup timer is installed by `deploy-remote-prod.sh`; verify it in `docs/REMOTE-OPERATIONS.md`.
-5. **QBO/CSV export**: implement export in `/accounting`.
+5. **CSV/JSON export**: completed after this historical handoff. The current
+   implementation is the Admin-only generic interchange export in
+   `/accounting`, not a direct QBO-import schema; see `CURRENT-STATE.md` for
+   its verification status.
 6. **Full OPEX/PR form creation**: wire create forms to the existing Server Actions.
 7. **End-to-end tests**: add Playwright tests for GM → approve → DCS pay flow.
 

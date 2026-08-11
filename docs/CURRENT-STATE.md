@@ -32,6 +32,7 @@ export PATH="/opt/podman/bin:$PATH"
 ./scripts/run-local.sh
 ./scripts/verify-local.sh
 ./scripts/verify-vertical-slice.sh
+./scripts/verify-e2e.sh
 ./scripts/stop-local.sh
 ```
 
@@ -60,7 +61,11 @@ The current UI and API support the primary walkthrough path:
    configured.
 7. Complete a job order, create a VAT-inclusive service invoice, and record
    customer payments.
-8. View the Admin-only accounting summary.
+8. View the Admin-only accounting summary and download deterministic,
+   Excel-compatible CSV or JSON accounting exports for customers, vendors,
+   bills, expenses, invoices, collections, and payments.
+
+The exports are stable interchange files, not direct QuickBooks-import schemas.
 
 Quotation creation validates every line and commits the quotation, items, and
 totals in one transaction. Conversion atomically claims the approved quotation,
@@ -74,7 +79,7 @@ cryptographically random suffix to avoid count-based collisions.
   seed data does not include real uploads.
 - The demo role switcher demonstrates policy behavior but does not authenticate
   users or protect public data.
-- Search, richer customer contacts, exports, and production authentication are
+- Search, richer customer contacts, deeper reporting, and production authentication are
   future scope unless the current playbook is updated with an implementation and
   verification requirement.
 - Remote deployment is intentionally not part of local verification and requires

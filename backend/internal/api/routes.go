@@ -17,7 +17,6 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-
 func NewRouter(pool *pgxpool.Pool, cfg config.Config, log *slog.Logger) http.Handler {
 	queries := repository.New(pool)
 	r := chi.NewRouter()
@@ -106,6 +105,7 @@ func NewRouter(pool *pgxpool.Pool, cfg config.Config, log *slog.Logger) http.Han
 	})
 
 	r.Get("/api/accounting/summary", deps.handleAccountingSummary)
+	r.Get("/api/accounting/exports/{format}", deps.handleAccountingExport)
 	r.Get("/api/dashboard", deps.handleDashboard)
 
 	if cfg.DemoMode {

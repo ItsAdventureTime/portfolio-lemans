@@ -66,6 +66,10 @@ Invalid or missing roles resolve to `ADMIN`.
 - `/api/customers/*`, `/api/quotations/*`, `/api/job-orders/*`, `/api/purchase-requests/*`, `/api/opex-requests/*`,
   `/api/supplier-invoices/*`, `/api/disbursements/*`, `/api/invoices/*`,
   `/api/accounting/*`, `/api/dashboard`, `/attachments/*`
+- `GET /api/accounting/exports/{csv|json}` – Admin-only deterministic export
+  containing customers, derived vendors, bills, expenses, invoices,
+  collections, and payments. The Next.js `/api/accounting/export/{format}`
+  route proxies the browser download without exposing the internal Go API.
 
 ## Job-order lookup
 

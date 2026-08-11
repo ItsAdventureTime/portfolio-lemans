@@ -63,13 +63,14 @@ export PATH="/opt/podman/bin:$PATH"
 ./scripts/verify-local.sh
 ./scripts/run-local.sh
 ./scripts/verify-vertical-slice.sh
+./scripts/verify-e2e.sh
 ./scripts/stop-local.sh
 ```
 
-Browser validation is a separate explicit step: run the Playwright suite in a
-disposable Playwright container attached to `lemans-demo-net`, then run
-`./scripts/stop-local.sh`. Record exact pass/fail counts. The standard
-`verify-local.sh` script covers static frontend and Go checks only.
+`verify-e2e.sh` runs the Playwright suite in a disposable Playwright container
+attached to `lemans-demo-net`. Record its exact pass/fail counts before running
+`./scripts/stop-local.sh`. The standard `verify-local.sh` script covers static
+frontend and Go checks only.
 
 ## Official guidance checked 2026-08-12
 

@@ -147,6 +147,7 @@ podman machine start
 ./scripts/verify-local.sh
 ./scripts/run-local.sh
 ./scripts/verify-vertical-slice.sh
+./scripts/verify-e2e.sh
 
 # Manual spot checks at http://127.0.0.1:3000/lemans/demo/...
 
