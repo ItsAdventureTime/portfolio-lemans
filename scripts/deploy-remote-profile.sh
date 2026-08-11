@@ -59,8 +59,10 @@ if [[ "$(uname -s)" == Darwin ]] && command -v security >/dev/null 2>&1; then
   REMOTE_USER="${REMOTE_USER:-$(keychain_value remote-user)}"
   PUBLIC_URL="${PUBLIC_URL:-$(keychain_value public-url)}"
   CADDY_NETWORK_NAME="${CADDY_NETWORK_NAME:-$(keychain_value caddy-network-name)}"
-  B2_ACCESS_KEY_ID="${B2_ACCESS_KEY_ID:-$(keychain_value b2-access-key-id)}"
-  B2_SECRET_ACCESS_KEY="${B2_SECRET_ACCESS_KEY:-$(keychain_value b2-secret-access-key)}"
+  if [[ "$SYNC_ONLY" != true ]]; then
+    B2_ACCESS_KEY_ID="${B2_ACCESS_KEY_ID:-$(keychain_value b2-access-key-id)}"
+    B2_SECRET_ACCESS_KEY="${B2_SECRET_ACCESS_KEY:-$(keychain_value b2-secret-access-key)}"
+  fi
 fi
 REMOTE_USER="${REMOTE_USER:-jk}"
 REMOTE_HOST="${REMOTE_HOST:-}"
