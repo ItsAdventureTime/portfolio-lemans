@@ -60,8 +60,10 @@ podman machine start
 # Stop the local demo
 ./scripts/stop-local.sh
 
-# Deploy only when you have explicit authorization
-REMOTE_HOST=<server-host> ./scripts/deploy-remote-demo.sh
+# Deploy only when you have explicit authorization. REMOTE_HOST is the SSH host;
+# PUBLIC_URL is the browser-facing URL.
+REMOTE_HOST=<vps-host-or-ip> PUBLIC_URL=https://delegateops.business/lemans/demo \
+  ./scripts/deploy-remote-demo.sh
 
 # Open the remote demo
 open https://delegateops.business/lemans/demo
@@ -99,7 +101,8 @@ Stop / reset:
 
 ```bash
 # Remote demo (automatic 30-minute reset; manual reset also available)
-export REMOTE_HOST=vps.example.com
+export REMOTE_HOST=<vps-host-or-ip>
+export PUBLIC_URL=https://delegateops.business/lemans/demo
 export REMOTE_USER=jk
 export B2_ACCESS_KEY_ID=...
 export B2_SECRET_ACCESS_KEY=...

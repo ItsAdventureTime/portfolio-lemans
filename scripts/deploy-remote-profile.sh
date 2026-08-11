@@ -66,6 +66,20 @@ if [[ -z "$REMOTE_HOST" ]]; then
   exit 1
 fi
 
+DEFAULT_PUBLIC_URL="https://${REMOTE_HOST}${BASE_PATH}"
+if [[ "$PROFILE" == "demo" ]]; then
+  DEFAULT_PUBLIC_URL="https://delegateops.business${BASE_PATH}"
+fi
+PUBLIC_URL="${PUBLIC_URL:-$DEFAULT_PUBLIC_URL}"
+if [[ "$PUBLIC_URL" != https://* ]]; then
+  echo "Error: PUBLIC_URL must start with https://" >&2
+  exit 1
+fi
+if [[ "$PUBLIC_URL" != *"${BASE_PATH}" && "$PUBLIC_URL" != *"${BASE_PATH}/" ]]; then
+  echo "Error: PUBLIC_URL must include the ${BASE_PATH} base path." >&2
+  exit 1
+fi
+
 for tool in git ssh scp tar install sed openssl; do
   if ! command -v "$tool" >/dev/null 2>&1; then
     echo "Error: required local tool not found: $tool" >&2
@@ -103,8 +117,6 @@ REMOTE="${REMOTE_USER}@${REMOTE_HOST}"
 WEB_IMAGE="localhost/lemans-bridge-dashboard:${WEB_SOURCE_TAG}-${RELEASE_ID}"
 GO_IMAGE="localhost/lemans-bridge-dashboard-go:${GO_SOURCE_TAG}-${RELEASE_ID}"
 DB_PASSWORD="$(generate_password)"
-PUBLIC_URL="https://${REMOTE_HOST}${BASE_PATH}"
-
 cleanup_local() {
   rm -f "$SOURCE_ARCHIVE" "$ENV_FILE"
 }
@@ -174,7 +186,7 @@ WEB_ID="$(podman image inspect "$WEB_IMAGE" --format '{{.Id}}')"
 GO_ID="$(podman image inspect "$GO_IMAGE" --format '{{.Id}}')"
 
 echo "[4/5] Installing release-specific Quadlets and runtime config..."
-for file in "$QUADLET_SOURCE_DIR"/*.container "$QUADLET_SOURCE_DIR"/*.network "$QUADLET_SOURCE_DIR"/*.volume "$QUADLET_SOURCE_DIR"/*.timer; do
+for file in "$QUADLET_SOURCE_DIR"/*.container "$QUADLET_SOURCE_DIR"/*.network "$QUADLET_SOURCE_DIR"/*.volume; do
   [[ -f "$file" ]] || continue
   install -m 0644 "$file" "$QUADLET_PATH/$(basename "$file")"
 done
@@ -183,6 +195,12 @@ for file in "$QUADLET_SOURCE_DIR"/*.service "$QUADLET_SOURCE_DIR"/*.sh; do
   mode=0644
   [[ "$file" == *.sh ]] && mode=0755
   install -m "$mode" "$file" "$QUADLET_PATH/$(basename "$file")"
+done
+systemd_user_dir="$HOME/.config/systemd/user"
+install -d -m 0755 "$systemd_user_dir"
+for file in "$QUADLET_SOURCE_DIR"/*.timer; do
+  [[ -f "$file" ]] || continue
+  install -m 0644 "$file" "$systemd_user_dir/$(basename "$file")"
 done
 
 sed -i \
@@ -203,7 +221,7 @@ cat > "$RELEASE_DIR/${RELEASE_ID}.json" <<EOF
 }
 EOF
 
-echo "[5/5] Quadlet generator validation complete"
+echo "[5/5] Installed Quadlets, native timer units, and runtime configuration."
 REMOTE_BUILD
 
 # The secret is created separately so it never appears in a command-line
@@ -229,9 +247,18 @@ if [[ "$DEMO_MODE" == "true" ]]; then
 elif [[ -n "$BACKUP_TIMER" ]]; then
   profile_units=(lemans-backup.service lemans-backup.timer)
 fi
-systemd-analyze --user --generators=true verify \
-  "$DB_SERVICE" "$GO_SERVICE" "$WEB_SERVICE" "${profile_units[@]}"
 systemctl --user daemon-reload
+
+expected_units=("$DB_SERVICE" "$GO_SERVICE" "$WEB_SERVICE" "${profile_units[@]}")
+for unit in "${expected_units[@]}"; do
+  load_state="$(systemctl --user show "$unit" --property=LoadState --value 2>/dev/null || true)"
+  if [[ "$load_state" != "loaded" ]]; then
+    echo "Error: required unit did not load: $unit (LoadState=${load_state:-not-found})" >&2
+    exit 1
+  fi
+done
+
+echo "All required Quadlet and timer units are loaded."
 
 systemctl --user start "$DB_SERVICE"
 for i in {1..60}; do

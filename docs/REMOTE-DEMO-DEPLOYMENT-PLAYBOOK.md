@@ -170,7 +170,8 @@ name, site-block structure, or TLS ownership is unclear.
 The operator should need one repository command:
 
 ```bash
-REMOTE_HOST=<server-host> ./scripts/deploy-remote-demo.sh
+REMOTE_HOST=<vps-host-or-ip> PUBLIC_URL=https://delegateops.business/lemans/demo \
+  ./scripts/deploy-remote-demo.sh
 ```
 
 The script may accept `REMOTE_USER`, but it defaults to `jk`. It must:
@@ -183,8 +184,9 @@ The script may accept `REMOTE_USER`, but it defaults to `jk`. It must:
 5. Run disposable `podman run --rm` image smoke checks on the VPS.
 6. Install the tracked Quadlets, scripts, release manifest, and environment
    file under the required remote paths.
-7. Validate generated units with `systemd-analyze --user --generators=true
-verify`, reload the user manager, and start only the selected profile.
+7. Install native timer units in `~/.config/systemd/user`, reload the user
+   manager, and confirm every required unit is loaded before starting the
+   selected profile.
 8. Seed the demo database on first install or with `RESET=true`; production
    never seeds or resets. Migrations run in the Go API container.
 9. Check the internal Go health endpoint and loopback web endpoint on the VPS.
@@ -240,8 +242,8 @@ belong to the later production profile and must not be required by the demo.
 
 The deployment is not successful until all checks pass:
 
-- Quadlet generator dry-run succeeds for the isolated unit directory.
-- `systemd-analyze --user --generators=true verify` succeeds for generated units.
+- Quadlet services and native timer units are loaded after
+  `systemctl --user daemon-reload`.
 - Database has no published host port.
 - App is reachable on `caddy.network` and only loopback health ports, if any,
   are published.

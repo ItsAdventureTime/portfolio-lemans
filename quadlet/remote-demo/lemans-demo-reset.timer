@@ -2,6 +2,7 @@
 Description=Le Mans remote demo reset timer
 
 [Timer]
+Unit=lemans-demo-reset.service
 OnBootSec=30min
 OnUnitActiveSec=30min
 Persistent=true

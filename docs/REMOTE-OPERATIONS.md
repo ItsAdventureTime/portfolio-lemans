@@ -54,8 +54,10 @@ B2_BUCKET_NAME=lemans-demo-attachments
 ## Remote Demo Deployment
 
 ```bash
-# From the project root on macOS
-export REMOTE_HOST=vps.example.com
+# From the project root on macOS. REMOTE_HOST is the SSH host or IP; PUBLIC_URL
+# is the URL opened by users.
+export REMOTE_HOST=<vps-host-or-ip>
+export PUBLIC_URL=https://delegateops.business/lemans/demo
 export REMOTE_USER=jk
 export B2_ACCESS_KEY_ID=<your-b2-key-id>
 export B2_SECRET_ACCESS_KEY=<your-b2-key-secret>
@@ -71,14 +73,18 @@ This will:
 4. Run disposable `podman run --rm` image smoke checks on the VPS.
 5. Sync release-specific Quadlets and scripts to
    `~/.config/containers/systemd/bridge-ph/lemans-demo`.
-6. Start the DB, Go API, and web systemd services.
-7. Seed the database (demo only) and start the rootless user-level 30-minute
+6. Install native timer units in `~/.config/systemd/user`, reload the user
+   manager, and confirm every required unit is loaded before activation.
+7. Start the DB, Go API, and web systemd services.
+8. Seed the database (demo only) and start the rootless user-level 30-minute
    reset timer.
 
 ## Remote Production Deployment
 
 ```bash
-export REMOTE_HOST=vps.example.com
+export REMOTE_HOST=<vps-host-or-ip>
+# Set PUBLIC_URL to the production HTTPS URL when it differs from REMOTE_HOST.
+export PUBLIC_URL=https://<production-public-host>/lemans
 export REMOTE_USER=jk
 export B2_ACCESS_KEY_ID=<your-b2-key-id>
 export B2_SECRET_ACCESS_KEY=<your-b2-key-secret>

@@ -2,6 +2,7 @@
 Description=Run Le Mans production database backup daily
 
 [Timer]
+Unit=lemans-backup.service
 OnCalendar=daily
 Persistent=true
 
