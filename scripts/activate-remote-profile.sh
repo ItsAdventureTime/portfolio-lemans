@@ -293,6 +293,9 @@ if [[ "$(loginctl show-user "$(id -un)" -p Linger --value 2>/dev/null || true)" 
   exit 1
 fi
 
+if ! systemctl --user is-active --quiet caddy.service; then
+  run_unit start caddy.service
+fi
 if ! podman network exists "$CADDY_NETWORK_NAME"; then
   echo "Error: required shared Caddy network does not exist: $CADDY_NETWORK_NAME" >&2
   exit 1
