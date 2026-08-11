@@ -1,7 +1,7 @@
 # Remote Demo Deployment Playbook
 
 - **Status**: Authoritative for the remote demo deployment profile
-- **Version**: 1.2.0
+- **Version**: 1.3.0
 - **Updated**: 2026-08-12
 - **Target URL**: `https://delegateops.business/lemans/demo`
 - **Remote user**: `jk`
