@@ -1,6 +1,6 @@
 # Remote Operations Guide
 
-> **Current authority:** Follow [`REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`](./REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md) for the remote demo. This guide was reconciled for the current no-auth demo profile on 2026-08-12. Stale references to `lemans-remote-*` container/network names were replaced with the current `lemans-demo-*` and `lemans-prod-*` naming used by the tracked Quadlets. Remote operations remain authorization-gated and have not been exercised in this workspace.
+> **Use this guide with the [remote demo deployment playbook](./REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md).** Remote operations require explicit authorization and have not been exercised from this workspace. The current Quadlets use `lemans-demo-*` and `lemans-prod-*` container and network names.
 
 ## Environments
 

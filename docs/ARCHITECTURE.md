@@ -1,13 +1,8 @@
-# Le Mans Operations & Job Cost Management System - Architecture Specification
+# Architecture
 
-## 1. Executive Summary & Strategy
+## Overview
 
-This document specifies the containerized fullstack architecture for the **Le
-Mans Operations & Job Cost Management System**. All proposed solutions comply
-strictly with the project's **Rootless Podman Containerization Mandate**. The
-workstation is not a deployment target: remote deployment packages committed
-source only, while the Linux VPS builds images and runs the Quadlet systemd
-deployment.
+This document describes the containerized architecture for the **Le Mans Operations & Job Cost Management System**. The workstation packages committed source; the Linux VPS builds images and runs the Quadlet systemd deployment.
 
 > **Demo profile override (2026-08-09):** The demo build is intentionally
 > authentication-free. It starts with a simulated `Enter as an Admin` splash,
@@ -19,7 +14,7 @@ deployment.
 
 ---
 
-## 2. Industry Research Grounding & Best Practices
+## Research and technical choices
 
 Based on current 2026 containerization standards (Next.js 16 self-hosting, Go latest backend patterns, Podman Quadlet rootless units, sqlc, and goose):
 
@@ -59,7 +54,7 @@ Specific project choices:
 
 ---
 
-## 3. Recommended Architecture: Next.js 16 + Go API + PostgreSQL Container
+## Architecture: Next.js 16, Go API, and PostgreSQL
 
 ### Component Diagram
 
@@ -112,7 +107,7 @@ container is attached only to the internal network.
 
 ---
 
-## 4. Security, Observability, & Failure Recovery
+## Security, observability, and recovery
 
 ### Security Baseline
 

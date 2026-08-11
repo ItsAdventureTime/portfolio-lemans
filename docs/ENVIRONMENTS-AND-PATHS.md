@@ -1,8 +1,8 @@
-# Environment Matrix & Remote Quadlet Path Specifications
+# Environments and paths
 
-## 1. Overview & Single Repository Mandate
+## Repository and environment model
 
-All application logic, container build files, database schemas, and Quadlet definitions reside in a **single unified source repository**. Environment isolation is strictly maintained through environment files, container naming, database volume identifiers, network namespaces, and distinct Quadlet systemd unit configurations.
+The repository holds the application, container build files, database schemas, and Quadlet definitions. Environment files, container names, database volumes, networks, and Quadlet units keep each environment separate.
 
 - **Remote GitHub Repository**: `https://github.com/ItsAdventureTime/bridge-lemans`
 - **Transport Protocol**: HTTPS (`https://github.com/ItsAdventureTime/bridge-lemans.git`) authenticated by default (SSH deprecated)
@@ -33,7 +33,7 @@ The current deployment target is remote-only for the demo:
 - The single-command deployment contract is defined in
   [`REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`](./REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md).
 
-## 2. Four Isolated Target Environments
+## Environment matrix
 
 | Environment Parameter   | 1. `local-demo`                                    | 2. `local-prodlike`                                | 3. `remote-demo`                     | 4. `remote-production`               |
 | ----------------------- | -------------------------------------------------- | -------------------------------------------------- | ------------------------------------ | ------------------------------------ |
@@ -57,7 +57,7 @@ The current deployment target is remote-only for the demo:
 | **Backblaze B2 Bucket** | `lemans-demo-attachments`                          | `lemans-prodlike-attachments`                      | `lemans-demo-attachments`            | `lemans-prod-attachments`            |
 | **Reset Policy**        | Manual via `scripts/reset-local.sh`                | Manual only                                        | Every 30 minutes plus manual trigger | None (persistent)                    |
 
-## 3. Local Quick Reference
+## Run local validation
 
 ```bash
 export PATH="/opt/podman/bin:$PATH"
@@ -80,7 +80,7 @@ podman machine start
 ./scripts/verify-vertical-slice.sh
 ```
 
-## 4. Remote Directory & Systemd Quadlet Paths
+## Remote directories and Quadlet paths
 
 ### Remote Demo Environment
 

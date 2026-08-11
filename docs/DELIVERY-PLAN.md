@@ -1,14 +1,13 @@
-# Le Mans Operations & Job Cost Management System — Delivery Plan
+# Delivery plan
 
 - **Updated**: 2026-08-12
 - **Current delivery authority**: [`CURRENT-STATE.md`](./CURRENT-STATE.md)
 - **Demo acceptance authority**: [`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md)
 - **Branch policy**: `main` only
 
-## 1. Delivered baseline
+## Delivered work
 
-The repository has moved from the former Prisma/Next.js monolith to the
-implementation that is currently in source control:
+The current source replaces the former Prisma/Next.js monolith with:
 
 - Next.js 16.3 App Router frontend with build-time `/lemans/demo` and `/lemans`
   base paths.
@@ -24,7 +23,7 @@ implementation that is currently in source control:
 - Rootless remote-demo Quadlets and reset-timer artifacts prepared in source,
   but remote deployment remains authorization-gated and unexercised here.
 
-## 2. Current verification gates
+## Verify the current build
 
 When local validation is explicitly required, run from the repository root.
 Remote deployment does not execute this local workflow; it builds and smoke-tests
@@ -44,9 +43,9 @@ The browser gate runs the Playwright projects (Chromium, mobile, and
 reduced-motion) in a disposable Playwright container on `lemans-demo-net`.
 The exact result must be recorded in the handoff or release evidence.
 
-## 3. Remaining demo boundaries
+## Demo boundaries
 
-These are known and intentional, not delivery failures:
+These limits are intentional:
 
 1. B2 upload/download requires valid runtime credentials.
 2. Search, richer contacts, and deeper reporting remain future scope.
@@ -55,7 +54,7 @@ These are known and intentional, not delivery failures:
 4. Local runtime is disposable; remote deployment requires explicit user
    authorization and live Caddy/network context.
 
-## 4. Future production profile
+## Future production profile
 
 Production promotion must come from the validated demo source and image lineage,
 with runtime-only controls for:
@@ -69,7 +68,7 @@ with runtime-only controls for:
 The future authentication decision is recorded in
 [`adr/0003-authentication-and-session-strategy.md`](./adr/0003-authentication-and-session-strategy.md).
 
-## 5. Documentation and Git hygiene
+## Documentation and Git
 
 Keep all work on `main`. Update the affected current guides and verification
 evidence with each source change. Historical phase reports remain dated evidence

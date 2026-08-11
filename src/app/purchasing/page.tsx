@@ -56,7 +56,7 @@ export default async function PurchasingPage() {
     };
 
     if (Object.keys(fieldErrors).length > 0) {
-      return errorResult('Please correct the highlighted fields.', fieldErrors, values);
+      return errorResult('Review the highlighted fields and try again.', fieldErrors, values);
     }
 
     try {
@@ -79,7 +79,9 @@ export default async function PurchasingPage() {
         return errorResult(err.message, undefined, values);
       }
       return errorResult(
-        err instanceof Error ? err.message : 'Network error while creating purchase request',
+        err instanceof Error
+          ? err.message
+          : "We couldn't create the purchase request. Check your connection and try again.",
         undefined,
         values
       );
@@ -110,7 +112,7 @@ export default async function PurchasingPage() {
           }));
       }
     } catch {
-      return errorResult('Allocation data is invalid. Please try again.');
+      return errorResult('The allocation data is invalid. Review it and try again.');
     }
 
     const fieldErrors: Record<string, string> = {};
@@ -135,7 +137,7 @@ export default async function PurchasingPage() {
     };
 
     if (Object.keys(fieldErrors).length > 0) {
-      return errorResult('Please correct the highlighted fields.', fieldErrors, values);
+      return errorResult('Review the highlighted fields and try again.', fieldErrors, values);
     }
 
     try {
@@ -155,7 +157,9 @@ export default async function PurchasingPage() {
         return errorResult(err.message, undefined, values);
       }
       return errorResult(
-        err instanceof Error ? err.message : 'Network error while creating supplier invoice',
+        err instanceof Error
+          ? err.message
+          : "We couldn't create the supplier invoice. Check your connection and try again.",
         undefined,
         values
       );

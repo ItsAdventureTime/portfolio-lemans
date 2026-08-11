@@ -8,9 +8,9 @@
 - **Current evidence**: Local image/runtime verification is complete; remote
   deployment has not been exercised and remains authorization-gated.
 
-This playbook defines the preferred deployment model for the demo. It supersedes
-older remote-demo instructions that describe local long-running deployments,
-login credentials, host-based standalone-output sync, or a sleeping Caddy bridge.
+This playbook defines the remote-only deployment model for the demo. It replaces
+older instructions for persistent local deployments, login credentials,
+host-based standalone-output sync, or a sleeping Caddy bridge.
 
 ## 1. Deployment policy
 
@@ -32,7 +32,7 @@ need a Podman machine.
 The remote demo is a rootless Podman Quadlet deployment managed by the `jk`
 user's systemd user manager.
 
-## 2. Canonical remote locations
+## 2. Remote locations
 
 | Purpose                                   | Required location                                           |
 | ----------------------------------------- | ----------------------------------------------------------- |
@@ -182,7 +182,7 @@ The script may accept `REMOTE_USER`, but it defaults to `jk`. It must:
 4. Build both release-tagged images on the VPS with rootless `podman build`.
 5. Run disposable `podman run --rm` image smoke checks on the VPS.
 6. Install the tracked Quadlets, scripts, release manifest, and environment
-   file under the canonical remote paths.
+   file under the required remote paths.
 7. Validate generated units with `systemd-analyze --user --generators=true
 verify`, reload the user manager, and start only the selected profile.
 8. Seed the demo database on first install or with `RESET=true`; production
@@ -206,7 +206,7 @@ The demo profile remains free of real authentication:
 - Fictional seeded data only.
 - Reset is explicit and operator-controlled by default.
 
-The remote demo configuration must include the public canonical URL and runtime
+The remote demo configuration must include the public URL and runtime
 profile, for example:
 
 ```text

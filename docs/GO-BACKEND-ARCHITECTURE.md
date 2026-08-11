@@ -1,11 +1,10 @@
-# Go Backend Architecture
+# Go API architecture
 
 ## Overview
 
-The Le Mans system uses a Go API backend (`backend/`) as the single source of
-truth for persistence, business logic, migrations, and object-storage presigned
-URLs. The Next.js 16 frontend (`src/`) is a thin presentation layer that calls
-the Go API over an internal Podman bridge network.
+The Go API in `backend/` owns persistence, business rules, migrations, and
+presigned object-storage URLs. The Next.js 16 frontend in `src/` presents the
+data and calls the API over the internal Podman network.
 
 ## Project layout
 
@@ -27,7 +26,7 @@ backend/
 
 ## Technology stack
 
-- **Language**: Go latest (`golang:alpine`)
+- **Language**: Go 1.26 (`golang:alpine`)
 - **Router**: `github.com/go-chi/chi/v5` + `github.com/go-chi/cors`
 - **Database driver**: `github.com/jackc/pgx/v5` + `pgxpool`
 - **Migrations**: `github.com/pressly/goose/v3` with embedded migration files

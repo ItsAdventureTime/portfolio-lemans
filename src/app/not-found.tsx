@@ -10,14 +10,16 @@ export default function NotFound() {
         </div>
         <div className="space-y-2">
           <h1 className="text-2xl font-bold text-slate-900">Page not found</h1>
-          <p className="text-slate-600">The requested page does not exist or has been moved.</p>
+          <p className="text-slate-600">
+            This page is unavailable. It may have moved or no longer be available.
+          </p>
         </div>
         <Link
           href="/lemans/demo"
           className="inline-flex items-center justify-center h-12 px-5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-hover transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Return to Overview
+          Return to overview
         </Link>
       </div>
     </div>

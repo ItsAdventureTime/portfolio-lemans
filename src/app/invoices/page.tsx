@@ -32,7 +32,9 @@ export default async function InvoicesPage() {
         return errorResult(err.message, { joId: err.message }, { joId });
       }
       return errorResult(
-        err instanceof Error ? err.message : 'Network error while creating invoice',
+        err instanceof Error
+          ? err.message
+          : "We couldn't create the invoice. Check your connection and try again.",
         { joId: 'Could not create invoice' },
         { joId }
       );

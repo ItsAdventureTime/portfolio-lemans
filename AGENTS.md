@@ -7,6 +7,15 @@
 - **Client**: LeMans Service Plus OPC
 - **Domain**: Auto Service Center Operations, Job Costing, Procurement, Billing, and Reporting
 
+## Writing and proofreading
+
+Use US English for active app copy, documentation, guides, and commit messages.
+Write in a professional, conversational, plain-language style. Prefer active
+voice, short sentences, and specific actions. Remove filler, hype, generic
+assurances, and unexplained jargon. Preserve required technical identifiers,
+commands, status values, and legal text. Follow
+[`docs/WRITING-STYLE.md`](docs/WRITING-STYLE.md) before publishing text.
+
 ## Architectural Mandates
 
 1. **Single Source Repository**: Single unified repository structure. No separate source code copies for demo and production.

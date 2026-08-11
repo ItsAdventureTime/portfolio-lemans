@@ -24,7 +24,7 @@ wait_for_db() {
     fi
     sleep 1
   done
-  echo "Database failed to become ready"
+  echo "Database did not become ready."
   return 1
 }
 
@@ -44,12 +44,12 @@ wait_for_http() {
       status=$(curl -s -o /dev/null -w '%{http_code}' "$url" 2> /dev/null || true)
     fi
     if [[ "$status" == "200" ]]; then
-      echo "HTTP ready: $url"
+      echo "HTTP endpoint is ready: $url"
       return 0
     fi
     sleep 1
   done
-  echo "HTTP failed to become ready: $url"
+  echo "HTTP endpoint did not become ready: $url"
   return 1
 }
 

@@ -64,7 +64,7 @@ export default async function QuotationsPage() {
     const values = { customerId, vehicleId, advisor };
 
     if (Object.keys(fieldErrors).length > 0) {
-      return errorResult('Please correct the highlighted fields.', fieldErrors, values);
+      return errorResult('Review the highlighted fields and try again.', fieldErrors, values);
     }
 
     try {
@@ -74,7 +74,9 @@ export default async function QuotationsPage() {
         return errorResult(err.message, undefined, values);
       }
       return errorResult(
-        err instanceof Error ? err.message : 'Network error while creating quotation',
+        err instanceof Error
+          ? err.message
+          : "We couldn't create the quotation. Check your connection and try again.",
         undefined,
         values
       );

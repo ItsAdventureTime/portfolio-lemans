@@ -25,10 +25,8 @@ export default function Error({
           <AlertTriangle className="w-7 h-7 text-rose-600" aria-hidden="true" />
         </div>
         <div className="space-y-2">
-          <h1 className="text-2xl font-bold text-slate-900">Something went wrong</h1>
-          <p className="text-slate-600">
-            {error.message || 'An unexpected error occurred while loading this page.'}
-          </p>
+          <h1 className="text-2xl font-bold text-slate-900">We couldn&apos;t load this page</h1>
+          <p className="text-slate-600">{error.message || 'Try again in a moment.'}</p>
         </div>
         <button
           type="button"

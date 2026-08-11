@@ -1,19 +1,17 @@
-# Le Mans Demo Implementation Playbook
+# Demo implementation guide
 
 - **Status**: Authoritative for demo-build work
 - **Version**: 1.0.0
 - **Updated**: 2026-08-11
 - **Audience**: Coding agents, implementation agents, reviewers, and operators
 
-This document converts the repository audit into an executable specification.
-For demo work, it takes precedence over older phase-completion matrices,
-historical credentials, and production-authentication documents. Those documents
-remain useful as historical context or future production guidance, but they must
-not override this playbook.
+Use this guide for demo work. It takes precedence over older phase-completion
+matrices, historical credentials, and production-authentication documents.
+Those documents provide historical or future-production context only.
 
 ## 1. Demo mission and boundary
 
-The demo is the canonical actively developed build. New features, removals,
+The demo is the actively developed build. New features, removals,
 workflow improvements, data-model changes, and visual improvements are made and
 validated here first. When the demo is accepted, production is promoted from the
 same validated source and image lineage with production-only runtime
@@ -47,7 +45,7 @@ the demo's no-auth walkthrough behavior.
 The production build must never be promoted from an unverified or partially
 implemented demo state.
 
-### 1.1 Canonical demo actor
+### 1.1 Default demo actor
 
 Use one shared demo actor abstraction throughout the UI, route handlers, and API:
 

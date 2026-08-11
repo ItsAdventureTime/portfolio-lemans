@@ -30,7 +30,7 @@ export default async function ExpensesPage() {
     const values = { category, description, amount: Number.isNaN(amount) ? '' : amount, notes };
 
     if (Object.keys(fieldErrors).length > 0) {
-      return errorResult('Please correct the highlighted fields.', fieldErrors, values);
+      return errorResult('Review the highlighted fields and try again.', fieldErrors, values);
     }
 
     try {
@@ -48,7 +48,9 @@ export default async function ExpensesPage() {
         return errorResult(err.message, undefined, values);
       }
       return errorResult(
-        err instanceof Error ? err.message : 'Network error while submitting OPEX',
+        err instanceof Error
+          ? err.message
+          : "We couldn't submit the OPEX request. Check your connection and try again.",
         undefined,
         values
       );

@@ -26,9 +26,11 @@ export default function GlobalError({
             <AlertOctagon className="w-7 h-7 text-rose-600" aria-hidden="true" />
           </div>
           <div className="space-y-2">
-            <h1 className="text-2xl font-bold text-slate-900">Application error</h1>
+            <h1 className="text-2xl font-bold text-slate-900">
+              We couldn&apos;t load the application
+            </h1>
             <p className="text-slate-600">
-              {error.message || 'A critical error occurred. Please try reloading the application.'}
+              {error.message || 'Reload the application and try again.'}
             </p>
           </div>
           <button

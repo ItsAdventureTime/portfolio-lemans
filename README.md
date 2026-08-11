@@ -6,55 +6,64 @@
 [![Go](https://img.shields.io/badge/Go-latest%20Alpine-00ADD8)](https://go.dev)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Alpine-blue)](https://www.postgresql.org)
 
-Enterprise operational and job costing platform built for **Le Mans Service Plus OPC** (Angeles City, Pampanga).
+Operations and job-costing platform for **Le Mans Service Plus OPC** in Angeles
+City, Pampanga.
 
 ---
 
-## 1. Core Architecture
+## How the app is built
 
-- **Single Source Repository**: [`ItsAdventureTime/bridge-lemans`](https://github.com/ItsAdventureTime/bridge-lemans)
-- **Release model**: The demo is the canonical actively developed build. Production is promoted from the validated demo source/image lineage with production runtime configuration enabled.
-- **Documentation and Git synchronization**: Every change updates affected guides and verification evidence. Work stays on `main`; GitHub remote inspection, synchronization, and branch administration use the official `gh` CLI over HTTPS (`https://github.com/ItsAdventureTime/bridge-lemans.git`). See [`docs/DOCUMENTATION-INDEX.md`](./docs/DOCUMENTATION-INDEX.md).
-- **Single Source of Truth**: One Job Order (`JO` / `RA`) governs estimations, procurement allocations, OPEX requests, customer billing, and net job profitability.
-- **Containerized Execution**: 100% rootless Podman execution (`podman machine start` on macOS Apple Silicon; Linux rootless for VPS).
-- **No Compose**: `podman compose` / `docker compose` are not used. Local execution uses `podman run --rm` via helper scripts.
-- **Demo entry**: No real authentication. The demo opens at a simulated splash with `Enter as an Admin`, then enters the dashboard as Admin with visible role simulation. Production authentication remains a future deployment profile (see ADR-0003).
-- **Deployment**: No persistent local deployment. The remote demo is deployed by `./scripts/deploy-remote-demo.sh` as rootless Quadlets at `https://delegateops.business/lemans/demo`.
-- **Attachments**: Backblaze B2 S3-compatible object storage for inspection photos, receipts, and supporting documents (see ADR-0004).
-- **Backend**: Go latest API (`backend/`, `golang:alpine`) owns persistence, migrations (`goose`), business logic, and presigned B2 URLs. Next.js frontend calls the Go API over the internal Podman network.
-- **Workflow integrity**: The Go API validates quotation lines and uses database
-  transactions for quotation creation and quote-to-job-order conversion, so
-  failed workflow writes do not persist partial records.
-- **Accounting exports**: Admins can download deterministic, formula-safe,
-  Excel-compatible CSV or JSON interchange files for customers, vendors,
-  bills, expenses, invoices, collections, and payments. They are not direct
-  QuickBooks-import schemas.
+- **Repository**: [`ItsAdventureTime/bridge-lemans`](https://github.com/ItsAdventureTime/bridge-lemans)
+  contains the demo and production source.
+- **Release path**: Validate the demo source and image lineage before you
+  promote it with production runtime settings.
+- **Git and docs**: Keep work on `main`. Use `gh` over HTTPS for GitHub
+  operations, and update the affected guides with each change. See
+  [`docs/DOCUMENTATION-INDEX.md`](./docs/DOCUMENTATION-INDEX.md).
+- **Business record**: A Job Order (`JO` / `RA`) connects estimates,
+  procurement, OPEX, billing, and job profitability.
+- **Runtime**: Use rootless Podman for every build, test, migration, and app
+  process. The project does not use Compose.
+- **Demo access**: The splash screen opens the demo as Admin and includes a
+  visible role switcher. It does not authenticate users.
+- **Deployment**: There is no persistent local deployment. When authorized,
+  deploy the remote demo with `./scripts/deploy-remote-demo.sh` to
+  `https://delegateops.business/lemans/demo`.
+- **Attachments**: Backblaze B2 stores inspection photos, receipts, and other
+  supporting files. See ADR-0004.
+- **Backend**: The Go API owns persistence, Goose migrations, business rules,
+  and presigned B2 URLs. The Next.js frontend reaches it over the internal
+  Podman network.
+- **Workflow safety**: Quote creation and quote-to-job-order conversion run in
+  database transactions, so a failed write does not leave partial records.
+- **Accounting exports**: Admins can download deterministic, formula-safe CSV
+  or JSON interchange files. They are not direct QuickBooks import files.
 
 ---
 
-## 2. Optional Local Validation and Remote Demo Deployment
+## Run a local validation
 
 ```bash
-# Optional validation only: remote deployment does not use the local Podman VM.
+# Use the local Podman VM only for validation. Remote deployment builds on the VPS.
 export PATH="/opt/podman/bin:$PATH"
 podman machine start
 
-# 2. Build images and start the local demo stack only when validation is needed
+# Build images and start the local demo
 ./scripts/build.sh demo
 ./scripts/run-local.sh
 
-# 3. Verify the stack
+# Verify the stack
 ./scripts/verify-local.sh
 ./scripts/verify-vertical-slice.sh
 ./scripts/verify-e2e.sh
 
-# 4. Stop the local demo
+# Stop the local demo
 ./scripts/stop-local.sh
 
-# 5. Package source, build on the VPS, and activate Quadlets when authorized
+# Deploy only when you have explicit authorization
 REMOTE_HOST=<server-host> ./scripts/deploy-remote-demo.sh
 
-# 6. Open the remote demo
+# Open the remote demo
 open https://delegateops.business/lemans/demo
 ```
 
@@ -67,17 +76,17 @@ Stop / reset:
 
 ---
 
-## 3. Optional Local Build & Verify
+## Build and verify
 
 ```bash
-# Optional local validation images; remote deployment builds on the VPS.
+# Local images support validation. Remote deployment builds on the VPS.
 ./scripts/build.sh demo   # demo-web + demo-go
 ./scripts/build.sh prod   # prod-web + prod-go
 
 # Run static analysis and tests inside disposable containers
 ./scripts/verify-local.sh
 
-# Full verification incl. HTTP health checks on running local demo
+# Check the running demo over HTTP
 ./scripts/verify-vertical-slice.sh
 
 # Browser verification in a disposable Playwright container
@@ -86,7 +95,7 @@ Stop / reset:
 
 ---
 
-## 4. Remote Deployment
+## Deploy remotely
 
 ```bash
 # Remote demo (automatic 30-minute reset; manual reset also available)
@@ -104,10 +113,11 @@ See [`docs/REMOTE-OPERATIONS.md`](./docs/REMOTE-OPERATIONS.md) for full details.
 
 ---
 
-## 5. Primary Documentation Index
+## Read the docs
 
 - [`docs/CURRENT-STATE.md`](./docs/CURRENT-STATE.md): Implementation-backed current runtime, workflow, and documentation authority
 - [`docs/DOCUMENTATION-INDEX.md`](./docs/DOCUMENTATION-INDEX.md): Documentation status map, authority order, synchronization, and verification contract
+- [`docs/WRITING-STYLE.md`](./docs/WRITING-STYLE.md): US-English writing, tone, and proofreading standard
 - [`AGENTS.md`](./AGENTS.md): Agent Operating Guidelines & Sandbox Policy
 - [`docs/DEMO-IMPLEMENTATION-PLAYBOOK.md`](./docs/DEMO-IMPLEMENTATION-PLAYBOOK.md): Authoritative Demo Specification, Workflow, UI/UX, and Verification Contract
 - [`docs/AGENT-EXECUTION-PROMPTS.md`](./docs/AGENT-EXECUTION-PROMPTS.md): Copy-Paste Prompts and Commands for Coding, Review, and Handoff Agents

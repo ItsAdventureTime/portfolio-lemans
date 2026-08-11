@@ -1,13 +1,13 @@
-# Current Repository State
+# Current repository state
 
 - **Updated**: 2026-08-12 (implementation audit)
 - **Authority**: Current implementation and the demo rules in
   [`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md)
 - **Documentation index**: [`DOCUMENTATION-INDEX.md`](./DOCUMENTATION-INDEX.md)
 
-This is the implementation-backed guide to the repository. Historical phase
-reports remain useful evidence of earlier work, but they are not current runtime
-documentation unless they explicitly say so.
+Use this guide for the current app, workflow, and validation process. Historical
+material in `to-review-and-delete/` is preserved for review, not for day-to-day
+implementation or operations.
 
 ## Runtime architecture
 
@@ -21,7 +21,7 @@ documentation unless they explicitly say so.
   enters as Admin, and uses the `lemans-demo-role` cookie plus `X-Demo-Role`
   header for role simulation. This is not a security boundary.
 
-## Demo entrypoints
+## Run the demo locally
 
 The demo base path is `/lemans/demo`; the production profile uses `/lemans`.
 The optional local validation workflow is:
@@ -46,9 +46,9 @@ Podman, and the existing Quadlets under
 `/home/jk/.config/containers/systemd/bridge-ph/lemans-demo` activate those
 images. Remote operations require explicit authorization.
 
-## Implemented demo workflow
+## What you can do in the demo
 
-The current UI and API support the primary walkthrough path:
+Use the demo to follow this workflow:
 
 1. Create a customer and vehicle.
 2. Create, approve, and convert a quotation.
@@ -67,25 +67,25 @@ The current UI and API support the primary walkthrough path:
 
 The exports are stable interchange files, not direct QuickBooks-import schemas.
 
-Quotation creation validates every line and commits the quotation, items, and
-totals in one transaction. Conversion atomically claims the approved quotation,
-creates its job order, copies its items, records its event, and marks the quote
-converted. Human-readable quote and job-order identifiers include a
-cryptographically random suffix to avoid count-based collisions.
+The API validates every quotation line and saves the quotation, items, and
+totals in one transaction. Conversion claims the approved quotation, creates a
+job order, copies its items, records the event, and marks the quotation as
+converted in the same transaction. Quote and job-order numbers include a
+cryptographically random suffix to avoid collisions.
 
-## Known boundaries
+## What this demo does not include
 
 - B2 upload/download actions require valid runtime B2 credentials; local demo
   seed data does not include real uploads.
 - The demo role switcher demonstrates policy behavior but does not authenticate
   users or protect public data.
-- Search, richer customer contacts, deeper reporting, and production authentication are
-  future scope unless the current playbook is updated with an implementation and
-  verification requirement.
+- Search, richer customer contacts, deeper reporting, and production
+  authentication remain future work until the playbook adds implementation and
+  verification requirements.
 - Remote deployment is intentionally not part of local verification and requires
   explicit user authorization.
 
-## Documentation maintenance
+## Keep the documentation current
 
 - Current runtime, build, and verification claims belong here, the README,
   `AGENTS.md`, the demo playbook, and the remote deployment playbook.
@@ -96,7 +96,7 @@ cryptographically random suffix to avoid count-based collisions.
 - Do not document removed Prisma/Better Auth files, `/login` redirects,
   `docker-compose` workflows, or `Dockerfile.prod` as current implementation.
 
-## Git synchronization policy
+## Git policy
 
 - Work remains on `main`; do not create or switch to feature branches.
 - GitHub remote inspection, synchronization, and branch administration use the

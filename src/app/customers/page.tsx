@@ -46,7 +46,7 @@ export default async function CustomersPage() {
     };
 
     if (Object.keys(fieldErrors).length > 0) {
-      return errorResult('Please correct the highlighted fields.', fieldErrors, values);
+      return errorResult('Review the highlighted fields and try again.', fieldErrors, values);
     }
 
     try {
@@ -62,7 +62,9 @@ export default async function CustomersPage() {
         return errorResult(err.message, undefined, values);
       }
       return errorResult(
-        err instanceof Error ? err.message : 'Network error while saving customer',
+        err instanceof Error
+          ? err.message
+          : "We couldn't save the customer. Check your connection and try again.",
         undefined,
         values
       );

@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { getApiUrl } from '@/lib/api-url';
 import { Landmark } from 'lucide-react';
 
+const DEMO_ENTRY_ERROR = "We couldn't open the demo. Please try again.";
+
 export default function DemoSplash() {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
@@ -19,11 +21,11 @@ export default function DemoSplash() {
         credentials: 'same-origin',
       });
       if (!res.ok) {
-        throw new Error('Failed to enter demo');
+        throw new Error(DEMO_ENTRY_ERROR);
       }
       router.push('/');
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to enter demo');
+      setError(err instanceof Error ? err.message : DEMO_ENTRY_ERROR);
       setBusy(false);
     }
   }
@@ -41,7 +43,7 @@ export default function DemoSplash() {
           <p className="text-slate-600">Job Cost Management System — interactive demo</p>
         </div>
         <div className="rounded-lg bg-amber-50 border border-amber-200 p-4 text-left text-sm text-amber-800">
-          <p className="font-semibold mb-1">Demo theatre only</p>
+          <p className="font-semibold mb-1">Demo environment</p>
           <p>
             This is a fictional walkthrough environment. There are no passwords, no accounts, and no
             real authentication. Entering starts a simulated Admin actor.

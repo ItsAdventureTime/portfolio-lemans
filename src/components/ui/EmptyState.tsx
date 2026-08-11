@@ -7,8 +7,8 @@ interface EmptyStateProps {
 }
 
 export default function EmptyState({
-  title = 'No data yet',
-  description = 'There is nothing to display here at the moment.',
+  title = 'Nothing to show yet',
+  description = 'There is nothing to display here yet.',
   action,
 }: EmptyStateProps) {
   return (

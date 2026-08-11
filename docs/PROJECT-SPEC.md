@@ -1,6 +1,6 @@
-# Le Mans Operations & Job Cost Management System - Product & Functional Specification
+# Product requirements
 
-## 1. Document Control
+## Document control
 
 - **Document Title**: Product and Requirements Specification
 - **Client Name**: Le Mans Service Plus OPC
@@ -18,16 +18,16 @@
 
 ---
 
-## 2. Project Purpose & Integrated Specification Basis
+## Project purpose and specification sources
 
-The Le Mans Operations & Job Cost Management System is a specialized enterprise operational and financial management platform for **Le Mans Service Plus OPC**, an auto service center located in Angeles City, Pampanga.
+The Le Mans Operations & Job Cost Management System supports operations and job costing for **Le Mans Service Plus OPC**, an auto service center in Angeles City, Pampanga.
 
 ### Integrated Specification Foundation
 
-This product specification synthesizes two mutually compensating handoff documents:
+This specification combines two handoff documents:
 
 1. **Primary Operational SRS (`_intake/originals/LeMans_SRS_Developer_Handoff_v1.md`)**: Defines the auto service domain, roles, job order operational lifecycle, DCS disbursement, billing, and admin/accounting boundary.
-2. **Complementary Workflow Specification (`_intake/originals/Construction-ERP-Lite-Developer-Handoff-v1.md`)**: Compensates the primary SRS by supplying robust enterprise workflow patterns, including:
+2. **Complementary Workflow Specification (`_intake/originals/Construction-ERP-Lite-Developer-Handoff-v1.md`)**: Adds workflow patterns for:
    - QBO (QuickBooks Online) export-ready data structures (Customers, Vendors, Bills, Expenses, Invoices, Collections, Payments);
    - General Manager approval matrix and DCS payment stages;
    - Progress billing calculations and retention/variation order tracking primitives;
@@ -151,7 +151,7 @@ The platform includes server-side rendering for official printable receipts and 
 - **AC-ACCT-001**: Non-admin roles accessing `/accounting` must receive an
   authorization warning and no accounting data. The current demo renders an
   `AccessDenied` state in place; a future authenticated production profile may
-  redirect to its canonical dashboard.
+  redirect to that role's default dashboard.
 
 ### Non-Functional Security Requirements
 

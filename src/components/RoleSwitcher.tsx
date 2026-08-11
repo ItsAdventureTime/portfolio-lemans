@@ -4,6 +4,8 @@ import { useState } from 'react';
 import { ROLE_ORDER, ROLES, ProjectRole } from '@/lib/roles';
 import { getApiUrl } from '@/lib/api-url';
 
+const ROLE_SWITCH_ERROR = "We couldn't switch roles. Please try again.";
+
 export default function RoleSwitcher({ currentRole }: { currentRole: ProjectRole }) {
   const [optimisticRole, setOptimisticRole] = useState<ProjectRole | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -19,16 +21,16 @@ export default function RoleSwitcher({ currentRole }: { currentRole: ProjectRole
         credentials: 'same-origin',
         body: JSON.stringify({ role }),
       });
-      const data = (await res.json().catch(() => ({ error: 'Role switch failed' }))) as {
+      const data = (await res.json().catch(() => ({ error: ROLE_SWITCH_ERROR }))) as {
         error?: string;
         role?: string;
       };
       if (!res.ok || data.role !== role) {
-        throw new Error(data.error || 'Role switch failed');
+        throw new Error(data.error || ROLE_SWITCH_ERROR);
       }
     } catch (err) {
       setOptimisticRole(null);
-      setError(err instanceof Error ? err.message : 'Role switch failed');
+      setError(err instanceof Error ? err.message : ROLE_SWITCH_ERROR);
     }
   }
 

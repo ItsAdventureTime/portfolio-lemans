@@ -1,4 +1,4 @@
-# Agent Execution Prompts
+# Agent prompts
 
 - **Status**: Current operational prompt set
 - **Updated**: 2026-08-12

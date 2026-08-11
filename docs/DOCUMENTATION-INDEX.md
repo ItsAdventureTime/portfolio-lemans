@@ -1,14 +1,13 @@
-# Documentation Index & Maintenance Contract
+# Documentation index
 
 - **Updated**: 2026-08-12 (active-doc and archive audit)
 - **Repository branch policy**: `main` only; no feature or review branches
 - **Repository**: [`ItsAdventureTime/bridge-lemans`](https://github.com/ItsAdventureTime/bridge-lemans)
 
-This index prevents historical implementation records from being mistaken for
-current runtime instructions. When documents disagree, use the authority order
-below.
+Use this index to find the current guidance. If two documents disagree, follow
+the authority order below.
 
-## Current authority
+## Current sources of truth
 
 1. [`AGENTS.md`](../AGENTS.md) — repository safety, container, deployment, and
    sandbox rules.
@@ -24,8 +23,10 @@ below.
    [`ENVIRONMENTS-AND-PATHS.md`](./ENVIRONMENTS-AND-PATHS.md), and the ADRs —
    architecture and future-profile decisions.
 6. [`README.md`](../README.md) — quickstart and navigation index.
+7. [`WRITING-STYLE.md`](./WRITING-STYLE.md) — US-English voice, tone, and
+   proofreading standard for active content.
 
-## Document status map
+## Document status
 
 | Document group                                                                                                                    | Status                                  | How to use it                                                                                                      |
 | --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
@@ -33,13 +34,14 @@ below.
 | `ARCHITECTURE.md`, `GO-BACKEND-ARCHITECTURE.md`, `ENVIRONMENTS-AND-PATHS.md`, `DESIGN-SYSTEM.md`, `PROJECT-SPEC.md`, and the ADRs | Current contract/specification          | Use for design, domain, and architecture constraints; confirm runtime facts against `CURRENT-STATE.md`.            |
 | `REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`, `REMOTE-OPERATIONS.md`                                                                      | Current but remote-only                 | Do not execute without explicit authorization and required host/Caddy context.                                     |
 | `AGENT-EXECUTION-PROMPTS.md`                                                                                                      | Current operational prompts             | Keep commands synchronized with scripts and the current demo boundary.                                             |
+| `WRITING-STYLE.md`                                                                                                                | Current editorial standard              | Apply to active app copy, documentation, guides, and commit messages.                                              |
 | `DELIVERY-PLAN.md`                                                                                                                | Current roadmap                         | Use for active delivery boundaries; current claims must link back to `CURRENT-STATE.md`.                           |
 | `to-review-and-delete/historical-docs/`, `to-review-and-delete/historical-reviews/`                                               | Review candidates / historical evidence | Preserve only for user review; never use as current proof, operating instructions, or implementation authority.    |
 | `adr/0001*`, `adr/0002*`, `adr/0004*`                                                                                             | Current architecture decisions          | Apply to the current source unless superseded in the document.                                                     |
 | `adr/0003*`                                                                                                                       | Future production design                | Do not add its authentication/session requirements to the demo profile.                                            |
 | `references/` and `_intake/originals/`                                                                                            | Source reference / archival material    | Preserve provenance; use only to interpret original business intent, never as current implementation instructions. |
 
-## Synchronization contract
+## Keep documentation in sync
 
 Every source, schema, seed, container, script, UX, deployment, or workflow
 change must update the affected current guides and verification evidence in the
@@ -51,7 +53,7 @@ repository inspection, synchronization, and branch administration over HTTPS.
 Do not create new branches. Never delete `main`; review branch protection before
 deleting any other remote branch.
 
-## Verification contract
+## Verify changes
 
 When local validation is explicitly needed, run project execution inside
 rootless Podman. Remote deployment does not invoke this local workflow:
