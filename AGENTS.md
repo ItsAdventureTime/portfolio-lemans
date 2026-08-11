@@ -82,8 +82,8 @@ resources afterward.
 
 The remote demo is deployed through the single orchestrator
 `./scripts/deploy-remote-demo.sh` and rootless Quadlets. The workstation only
-archives and transfers the clean committed source; the VPS builds release-tagged
-images with rootless `podman build` and smoke-tests them with disposable
+archives and transfers the clean committed source with `rsync` over SSH; do not
+use `scp`. The VPS builds release-tagged images with rootless `podman build` and smoke-tests them with disposable
 `podman run --rm` containers. The authoritative remote
 locations are:
 

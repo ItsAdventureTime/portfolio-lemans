@@ -80,7 +80,7 @@ if [[ "$PUBLIC_URL" != *"${BASE_PATH}" && "$PUBLIC_URL" != *"${BASE_PATH}/" ]]; 
   exit 1
 fi
 
-for tool in git ssh scp tar install sed openssl; do
+for tool in git ssh rsync tar install sed openssl; do
   if ! command -v "$tool" >/dev/null 2>&1; then
     echo "Error: required local tool not found: $tool" >&2
     exit 1
@@ -141,13 +141,15 @@ chmod 600 "$ENV_FILE"
 echo "=== Remote-only ${PROFILE_LABEL} deployment ==="
 echo "Host: ${REMOTE}"
 echo "Release: ${RELEASE_ID}"
-echo "Local actions: source archive + secure transfer only"
+echo "Local actions: source archive + resumable rsync transfer only"
 
 # Values are intentionally expanded locally into the remote command.
 # shellcheck disable=SC2029
-ssh "$REMOTE" "mkdir -p '$RELEASE_DIR' '$QUADLET_PATH'"
-scp "$SOURCE_ARCHIVE" "$REMOTE:${RELEASE_DIR}/source.tar.gz"
-scp "$ENV_FILE" "$REMOTE:${RELEASE_DIR}/${ENV_NAME}"
+ssh "$REMOTE" "command -v rsync >/dev/null 2>&1 || { echo 'Error: rsync is required on the remote host.' >&2; exit 1; }; mkdir -p '$RELEASE_DIR' '$QUADLET_PATH'"
+rsync -a --partial --progress -e ssh \
+  "$SOURCE_ARCHIVE" "$REMOTE:${RELEASE_DIR}/source.tar.gz"
+rsync -a --partial --progress -e ssh \
+  "$ENV_FILE" "$REMOTE:${RELEASE_DIR}/${ENV_NAME}"
 
 # Values are intentionally expanded locally into the remote environment.
 # shellcheck disable=SC2029

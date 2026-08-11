@@ -19,7 +19,8 @@ target.
 
 The workstation does not deploy, build, compile, or execute the application as
 part of remote deployment. It packages the committed source with `git archive`
-and transfers the archive and runtime configuration over SSH/SCP. Local
+and transfers the archive and runtime configuration with `rsync` over SSH.
+Do not use `scp` for deployment transfers. Local
 Podman-based verification is an optional, separate activity; if it is needed,
 it must use disposable `podman run --rm` containers and leave no project
 containers, volumes, or images running afterward.
@@ -179,7 +180,8 @@ The script may accept `REMOTE_USER`, but it defaults to `jk`. It must:
 1. Require a clean committed `main` worktree and collect the source commit.
 2. Create a release archive locally; do not invoke local image builds or app
    execution.
-3. Transfer the archive and mode-0600 runtime environment file to the VPS.
+3. Transfer the archive and mode-0600 runtime environment file to the VPS with
+   resumable `rsync` over SSH.
 4. Build both release-tagged images on the VPS with rootless `podman build`.
 5. Run disposable `podman run --rm` image smoke checks on the VPS.
 6. Install the tracked Quadlets, scripts, release manifest, and environment

@@ -68,7 +68,8 @@ This will:
 
 1. Archive the clean committed source locally; it does not build or execute
    the application on the workstation.
-2. Transfer the source archive and mode-0600 runtime environment to the VPS.
+2. Transfer the source archive and mode-0600 runtime environment to the VPS
+   with resumable `rsync` over SSH; do not use `scp`.
 3. Build release-tagged web and Go API images on the VPS with rootless Podman.
 4. Run disposable `podman run --rm` image smoke checks on the VPS.
 5. Sync release-specific Quadlets and scripts to
