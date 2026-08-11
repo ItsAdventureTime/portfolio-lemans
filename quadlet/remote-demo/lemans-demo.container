@@ -7,7 +7,7 @@ Requires=lemans-demo-go.service
 Image=docker.io/library/lemans-bridge-dashboard:demo-web
 ContainerName=lemans-demo-app
 Network=caddy.network
-Network=lemans-demo-net
+Network=lemans-demo.network
 PublishPort=127.0.0.1:3002:3000
 Environment=NODE_ENV=production
 Environment=NEXT_PUBLIC_BASE_PATH=/lemans/demo

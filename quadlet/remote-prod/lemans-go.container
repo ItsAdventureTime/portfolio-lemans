@@ -6,7 +6,7 @@ Requires=lemans-prod-db.service
 [Container]
 Image=docker.io/library/lemans-bridge-dashboard-go:prod-go
 ContainerName=lemans-prod-go
-Network=lemans-prod-net
+Network=lemans.network
 Environment=NODE_ENV=production
 Environment=LISTEN_ADDR=:8080
 Environment=DEMO_MODE=false

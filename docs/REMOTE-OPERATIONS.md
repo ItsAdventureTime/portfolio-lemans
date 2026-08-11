@@ -76,9 +76,15 @@ This will:
    `~/.config/containers/systemd/bridge-ph/lemans-demo`.
 6. Install native timer units in `~/.config/systemd/user`, reload the user
    manager, and confirm every required unit is loaded before activation.
-7. Start the DB, Go API, and web systemd services.
+7. Create the managed internal network and database volume, then start the DB,
+   Go API, and web systemd services.
 8. Seed the database (demo only) and start the rootless user-level 30-minute
    reset timer.
+
+The existing `caddy.network` must already be available. Containers refer to the
+tracked `.network` and `.volume` files so Quadlet creates the internal network
+and database volume before PostgreSQL starts. If a service fails, the deployment
+script prints its complete status and current-boot journal.
 
 ## Remote Production Deployment
 

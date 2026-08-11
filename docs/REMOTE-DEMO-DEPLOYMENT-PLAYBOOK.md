@@ -115,6 +115,11 @@ Recommended units:
 - The Go API container runs migrations on startup and serves the
   `/admin/seed` endpoint only when `DEMO_MODE=true`.
 
+Each container must reference tracked resources by their Quadlet filenames,
+such as `Network=lemans-demo.network` and
+`Volume=lemans-demo.volume:/var/lib/postgresql`. This lets Quadlet generate the
+network and volume dependencies before the database starts.
+
 Unit names are generated from the Quadlet filename (e.g., `lemans-demo.container`
 becomes `lemans-demo.service`). Container names (`lemans-demo-app`,
 `lemans-demo-go`, `lemans-demo-db`) remain separate and are used for
@@ -195,6 +200,11 @@ The script may accept `REMOTE_USER`, but it defaults to `jk`. It must:
 10. Print the release commit, image IDs, service status, URL, and rollback
     command.
 
+If a managed service fails to start or pass its health check, the script prints
+that unit's complete status and current-boot journal before it exits. The first
+Podman error in that output is the diagnostic to use; a `podman run` exit code
+of `125` means Podman could not start the container.
+
 The script must not silently deploy to production, reset the database, overwrite
 the Caddyfile, or modify unrelated systemd units. Remote deployment remains an
 explicitly authorized operation.
@@ -246,6 +256,8 @@ The deployment is not successful until all checks pass:
 
 - Quadlet services and native timer units are loaded after
   `systemctl --user daemon-reload`.
+- The managed internal network and database volume start before PostgreSQL.
+- The existing `caddy.network` is present before the web container starts.
 - Database has no published host port.
 - App is reachable on `caddy.network` and only loopback health ports, if any,
   are published.

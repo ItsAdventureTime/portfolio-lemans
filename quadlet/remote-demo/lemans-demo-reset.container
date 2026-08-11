@@ -4,7 +4,7 @@ Description=Le Mans remote demo reset job
 [Container]
 Image=docker.io/library/lemans-bridge-dashboard-go:demo-go
 ContainerName=lemans-demo-reset
-Network=lemans-demo-net
+Network=lemans-demo.network
 Environment=DEMO_MODE=true
 Environment=LISTEN_ADDR=:8080
 Environment=PGHOST=lemans-demo-db

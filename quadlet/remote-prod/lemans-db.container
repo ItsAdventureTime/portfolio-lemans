@@ -4,12 +4,12 @@ Description=Le Mans remote production PostgreSQL
 [Container]
 Image=docker.io/library/postgres:alpine
 ContainerName=lemans-prod-db
-Network=lemans-prod-net
+Network=lemans.network
 Environment=POSTGRES_USER=postgres
 Environment=POSTGRES_PASSWORD_FILE=/run/secrets/db_password
 Environment=POSTGRES_DB=lemans_prod_db
 Secret=db_password,type=mount,target=/run/secrets/db_password
-Volume=lemans-prod-db-data:/var/lib/postgresql
+Volume=lemans.volume:/var/lib/postgresql
 
 [Service]
 Restart=always

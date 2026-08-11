@@ -27,6 +27,8 @@ GO_SOURCE_TAG="demo-go"
 WEB_SERVICE="lemans-demo.service"
 GO_SERVICE="lemans-demo-go.service"
 DB_SERVICE="lemans-demo-db.service"
+NETWORK_SERVICE="lemans-demo-network.service"
+VOLUME_SERVICE="lemans-demo-volume.service"
 BACKUP_TIMER=""
 DB_CONTAINER="lemans-demo-db"
 GO_CONTAINER="lemans-demo-go"
@@ -47,6 +49,8 @@ if [[ "$PROFILE" == "prod" ]]; then
   WEB_SERVICE="lemans.service"
   GO_SERVICE="lemans-go.service"
   DB_SERVICE="lemans-db.service"
+  NETWORK_SERVICE="lemans-network.service"
+  VOLUME_SERVICE="lemans-volume.service"
   BACKUP_TIMER="lemans-backup.timer"
   DB_CONTAINER="lemans-prod-db"
   GO_CONTAINER="lemans-prod-go"
@@ -233,7 +237,7 @@ printf '%s' "$DB_PASSWORD" | ssh "$REMOTE" "podman secret create --replace db_pa
 # Values are intentionally expanded locally into the remote environment.
 # shellcheck disable=SC2029
 ssh "$REMOTE" \
-  "PROFILE='$PROFILE' RELEASE_ID='$RELEASE_ID' RELEASE_DIR='$RELEASE_DIR' QUADLET_PATH='$QUADLET_PATH' BASE_PATH='$BASE_PATH' WEB_SERVICE='$WEB_SERVICE' GO_SERVICE='$GO_SERVICE' DB_SERVICE='$DB_SERVICE' BACKUP_TIMER='$BACKUP_TIMER' DB_CONTAINER='$DB_CONTAINER' GO_CONTAINER='$GO_CONTAINER' APP_CONTAINER='$APP_CONTAINER' APP_PORT='$APP_PORT' DB_NAME='$DB_NAME' RESET_FLAG='$RESET_FLAG' DEMO_MODE='$DEMO_MODE_VALUE' bash -s" <<'REMOTE_ACTIVATE'
+  "PROFILE='$PROFILE' RELEASE_ID='$RELEASE_ID' RELEASE_DIR='$RELEASE_DIR' QUADLET_PATH='$QUADLET_PATH' BASE_PATH='$BASE_PATH' WEB_SERVICE='$WEB_SERVICE' GO_SERVICE='$GO_SERVICE' DB_SERVICE='$DB_SERVICE' NETWORK_SERVICE='$NETWORK_SERVICE' VOLUME_SERVICE='$VOLUME_SERVICE' BACKUP_TIMER='$BACKUP_TIMER' DB_CONTAINER='$DB_CONTAINER' GO_CONTAINER='$GO_CONTAINER' APP_CONTAINER='$APP_CONTAINER' APP_PORT='$APP_PORT' DB_NAME='$DB_NAME' RESET_FLAG='$RESET_FLAG' DEMO_MODE='$DEMO_MODE_VALUE' bash -s" <<'REMOTE_ACTIVATE'
 set -euo pipefail
 export PATH="/opt/podman/bin:$PATH"
 
@@ -251,7 +255,7 @@ elif [[ -n "$BACKUP_TIMER" ]]; then
 fi
 systemctl --user daemon-reload
 
-expected_units=("$DB_SERVICE" "$GO_SERVICE" "$WEB_SERVICE" "${profile_units[@]}")
+expected_units=("$NETWORK_SERVICE" "$VOLUME_SERVICE" "$DB_SERVICE" "$GO_SERVICE" "$WEB_SERVICE" "${profile_units[@]}")
 for unit in "${expected_units[@]}"; do
   load_state="$(systemctl --user show "$unit" --property=LoadState --value 2>/dev/null || true)"
   if [[ "$load_state" != "loaded" ]]; then
@@ -260,46 +264,87 @@ for unit in "${expected_units[@]}"; do
   fi
 done
 
-echo "All required Quadlet and timer units are loaded."
+echo "All required Quadlet, volume, network, and timer units are loaded."
 
-systemctl --user start "$DB_SERVICE"
+report_unit_failure() {
+  local unit="$1"
+  echo "--- $unit status ---" >&2
+  systemctl --user status "$unit" --no-pager --full || true
+  echo "--- $unit journal (current boot) ---" >&2
+  journalctl --user -u "$unit" -b -n 200 --no-pager || true
+}
+
+run_unit() {
+  local action="$1"
+  local unit="$2"
+  if ! systemctl --user "$action" "$unit"; then
+    echo "Error: could not $action $unit." >&2
+    report_unit_failure "$unit"
+    exit 1
+  fi
+}
+
+if ! podman network exists caddy.network; then
+  echo "Error: required shared Caddy network does not exist: caddy.network" >&2
+  exit 1
+fi
+
+run_unit start "$NETWORK_SERVICE"
+run_unit start "$VOLUME_SERVICE"
+run_unit start "$DB_SERVICE"
 for i in {1..60}; do
   if podman exec "$DB_CONTAINER" pg_isready -U postgres >/dev/null 2>&1; then break; fi
   sleep 1
 done
-podman exec "$DB_CONTAINER" pg_isready -U postgres >/dev/null 2>&1
+if ! podman exec "$DB_CONTAINER" pg_isready -U postgres >/dev/null 2>&1; then
+  echo "Error: $DB_SERVICE did not become ready." >&2
+  report_unit_failure "$DB_SERVICE"
+  exit 1
+fi
 
-systemctl --user restart "$GO_SERVICE"
+run_unit restart "$GO_SERVICE"
 for i in {1..60}; do
   status="$(podman exec "$GO_CONTAINER" curl -s -o /dev/null -w '%{http_code}' \
     http://127.0.0.1:8080/health || true)"
   [[ "$status" == "200" ]] && break
   sleep 1
 done
-[[ "$(podman exec "$GO_CONTAINER" curl -s -o /dev/null -w '%{http_code}' \
-  http://127.0.0.1:8080/health || true)" == "200" ]]
+if [[ "$(podman exec "$GO_CONTAINER" curl -s -o /dev/null -w '%{http_code}' \
+  http://127.0.0.1:8080/health || true)" != "200" ]]; then
+  echo "Error: $GO_SERVICE health check failed." >&2
+  report_unit_failure "$GO_SERVICE"
+  exit 1
+fi
 
 if [[ "$DEMO_MODE" == "true" ]]; then
   count="$(podman exec "$DB_CONTAINER" psql -U postgres -d "$DB_NAME" -tAc 'SELECT count(*) FROM customers' | tr -d ' ' || echo 0)"
   if [[ "$RESET_FLAG" == "true" || "$count" == "0" ]]; then
-    podman exec "$GO_CONTAINER" curl -fsS -X POST \
+    if ! podman exec "$GO_CONTAINER" curl -fsS -X POST \
       http://127.0.0.1:8080/admin/seed \
-      -H 'Content-Type: application/json' -d '{}'
+      -H 'Content-Type: application/json' -d '{}'; then
+      echo "Error: demo seed request failed." >&2
+      report_unit_failure "$GO_SERVICE"
+      exit 1
+    fi
   fi
-  systemctl --user start lemans-demo-reset.timer
+  run_unit start lemans-demo-reset.timer
 fi
 
 if [[ -n "$BACKUP_TIMER" ]]; then
-  systemctl --user start "$BACKUP_TIMER"
+  run_unit start "$BACKUP_TIMER"
 fi
 
-systemctl --user restart "$WEB_SERVICE"
+run_unit restart "$WEB_SERVICE"
 for i in {1..60}; do
   status="$(curl -sL -o /dev/null -w '%{http_code}' "http://127.0.0.1:${APP_PORT}${BASE_PATH}" || true)"
   [[ "$status" == "200" ]] && break
   sleep 1
 done
-[[ "$(curl -sL -o /dev/null -w '%{http_code}' "http://127.0.0.1:${APP_PORT}${BASE_PATH}" || true)" == "200" ]]
+if [[ "$(curl -sL -o /dev/null -w '%{http_code}' "http://127.0.0.1:${APP_PORT}${BASE_PATH}" || true)" != "200" ]]; then
+  echo "Error: $WEB_SERVICE health check failed." >&2
+  report_unit_failure "$WEB_SERVICE"
+  exit 1
+fi
 
 echo "Release ${RELEASE_ID} active at ${BASE_PATH}"
 echo "Web: $(podman inspect "$APP_CONTAINER" --format '{{.ImageName}}')"

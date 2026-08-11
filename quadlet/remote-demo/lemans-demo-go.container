@@ -6,7 +6,7 @@ Requires=lemans-demo-db.service
 [Container]
 Image=docker.io/library/lemans-bridge-dashboard-go:demo-go
 ContainerName=lemans-demo-go
-Network=lemans-demo-net
+Network=lemans-demo.network
 Environment=NODE_ENV=production
 Environment=LISTEN_ADDR=:8080
 Environment=DEMO_MODE=true
