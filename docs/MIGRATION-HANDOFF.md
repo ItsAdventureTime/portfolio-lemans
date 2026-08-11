@@ -77,7 +77,7 @@ lemans-bridge-dashboard/
 
 - Official docs recommend `output: 'standalone'` for Docker/self-hosted deployments to produce a minimal runtime image.
 - Reverse proxy should handle public traffic; app binds to loopback/internal interfaces.
-- Source: https://nextjs.org/docs/app/getting-started/deploying, https://nextjs.org/docs/app/guides/self-hosting, https://nextjs.org/docs/pages/api-reference/config/next-config-js/output
+- Source: https://nextjs.org/docs/app/getting-started/deploying, https://nextjs.org/docs/app/guides/self-hosting, https://nextjs.org/docs/app/api-reference/config/next-config-js/output
 
 ### Go latest backend
 

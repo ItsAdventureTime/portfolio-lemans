@@ -52,7 +52,8 @@ deleting any other remote branch.
 
 ## Verification contract
 
-Run project execution inside rootless Podman:
+When local validation is explicitly needed, run project execution inside
+rootless Podman. Remote deployment does not invoke this local workflow:
 
 ```bash
 export PATH="/opt/podman/bin:$PATH"

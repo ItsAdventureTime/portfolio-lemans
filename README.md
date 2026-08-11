@@ -25,14 +25,14 @@ Enterprise operational and job costing platform built for **Le Mans Service Plus
 
 ---
 
-## 2. Local Validation and Remote Demo Deployment
+## 2. Optional Local Validation and Remote Demo Deployment
 
 ```bash
-# 1. Ensure the local Podman machine is running (already-running is acceptable)
+# Optional validation only: remote deployment does not use the local Podman VM.
 export PATH="/opt/podman/bin:$PATH"
 podman machine start
 
-# 2. Build images and start the local demo stack (DB + Go API + web)
+# 2. Build images and start the local demo stack only when validation is needed
 ./scripts/build.sh demo
 ./scripts/run-local.sh
 
@@ -43,7 +43,7 @@ podman machine start
 # 4. Stop the local demo
 ./scripts/stop-local.sh
 
-# 5. Deploy the remote demo with one command when remote access is authorized
+# 5. Package source, build on the VPS, and activate Quadlets when authorized
 REMOTE_HOST=<server-host> ./scripts/deploy-remote-demo.sh
 
 # 6. Open the remote demo
@@ -59,10 +59,10 @@ Stop / reset:
 
 ---
 
-## 3. Build & Verify
+## 3. Optional Local Build & Verify
 
 ```bash
-# Build local images
+# Optional local validation images; remote deployment builds on the VPS.
 ./scripts/build.sh demo   # demo-web + demo-go
 ./scripts/build.sh prod   # prod-web + prod-go
 

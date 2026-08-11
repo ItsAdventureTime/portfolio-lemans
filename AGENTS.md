@@ -22,10 +22,14 @@
    - Next.js web images use `node:lts-alpine` (Node.js Active LTS on latest Alpine); Go API images use `golang:alpine` (latest Go on latest Alpine) build stage and `alpine:latest` runtime; PostgreSQL uses `postgres:alpine` (latest PostgreSQL on latest Alpine) unless dependency compatibility explicitly requires a Debian-based image.
    - Next.js runtime calls the Go API over the internal Podman network; the Go API owns migrations, business logic, persistence, and presigned attachment URLs.
    - Never use `podman compose` or `docker compose` for local builds, tests, or execution.
-   - Always run local builds, linting, type-checking, and tests inside disposable `podman run --rm` containers (or a single combined container).
+   - Local builds, linting, type-checking, and tests are validation-only
+     exceptions and must run inside disposable `podman run --rm` containers (or
+     a single combined container). Remote deployment must not build, compile,
+     or execute the application locally.
    - Do not leave transient containers or images running; remove them immediately with `--rm` or targeted cleanup.
 6. **Local Execution Standard**:
-   - Use `podman run --rm` to create short-lived containers for builds/tests.
+   - Use `podman run --rm` to create short-lived containers for any required
+     local validation builds/tests; destroy them after validation.
    - For local demo runtime, use `scripts/run-local.sh` which starts a PostgreSQL container, a Go API container, and a Next.js web container. Remove with `scripts/stop-local.sh` and reset to seeded state with `scripts/reset-local.sh`.
    - Local demo database and uploaded files reset to seeded state on demand.
      The public remote demo must reset its fictional database and uploads every
@@ -68,7 +72,10 @@ verification work needs it; use `podman run --rm` and clean up temporary runtime
 resources afterward.
 
 The remote demo is deployed through the single orchestrator
-`./scripts/deploy-remote-demo.sh` and rootless Quadlets. The authoritative remote
+`./scripts/deploy-remote-demo.sh` and rootless Quadlets. The workstation only
+archives and transfers the clean committed source; the VPS builds release-tagged
+images with rootless `podman build` and smoke-tests them with disposable
+`podman run --rm` containers. The authoritative remote
 locations are:
 
 - Quadlets: `/home/jk/.config/containers/systemd/bridge-ph/lemans-demo`

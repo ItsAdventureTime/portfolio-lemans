@@ -340,7 +340,7 @@ React 19.2, Tailwind CSS 3.4, Go latest (`golang:alpine`), and PostgreSQL latest
 further upgrades:
 
 - [Next.js 16 self-hosting](https://nextjs.org/docs/app/guides/self-hosting)
-- [Next.js `output: 'standalone'`](https://nextjs.org/docs/pages/api-reference/config/next-config-js/output)
+- [Next.js `output: 'standalone'`](https://nextjs.org/docs/app/api-reference/config/next-config-js/output)
 - [React 19](https://react.dev)
 - [Go releases](https://go.dev/doc/devel/release)
 - [goose migrations](https://github.com/pressly/goose)

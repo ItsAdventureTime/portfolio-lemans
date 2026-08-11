@@ -23,8 +23,8 @@ the demo.
 The current deployment target is remote-only for the demo:
 
 - No persistent `local-demo` deployment is maintained.
-- Disposable local Podman execution remains permitted for build, compile, and
-  verification tasks.
+- Disposable local Podman execution is an optional validation exception only;
+  remote deployment never builds, compiles, or runs the app locally.
 - Remote Quadlets install under
   `/home/jk/.config/containers/systemd/bridge-ph/lemans-demo`.
 - Remote demo data/config/database boundary is
@@ -37,11 +37,11 @@ The current deployment target is remote-only for the demo:
 
 | Environment Parameter   | 1. `local-demo`                                    | 2. `local-prodlike`                                | 3. `remote-demo`                     | 4. `remote-production`               |
 | ----------------------- | -------------------------------------------------- | -------------------------------------------------- | ------------------------------------ | ------------------------------------ |
-| **Status**              | **Verified (200 OK)**                              | **Verified (200 OK)**                              | **Verified (200 OK)**                | **Prepared (Quadlets)**              |
+| **Status**              | **Verified (200 OK)**                              | **Verified (200 OK)**                              | **Prepared (authorization-gated)**    | **Prepared (Quadlets)**              |
 | **Target Host**         | macOS (Apple Silicon arm64)                        | macOS (Apple Silicon arm64)                        | Remote Linux Server                  | Remote Linux Server                  |
 | **Podman Command**      | `podman machine start` + `podman run`              | `podman machine start` + `podman run`              | Systemd User Quadlet                 | Systemd User Quadlet                 |
-| **Web Image**           | `lemans-bridge-dashboard:demo-web`                 | `lemans-bridge-dashboard:prod-web`                 | `lemans-bridge-dashboard:demo-web`   | `lemans-bridge-dashboard:prod-web`   |
-| **Go API Image**        | `lemans-bridge-dashboard-go:demo-go`               | `lemans-bridge-dashboard-go:prod-go`               | `lemans-bridge-dashboard-go:demo-go` | `lemans-bridge-dashboard-go:prod-go` |
+| **Web Image**           | `lemans-bridge-dashboard:demo-web`                 | `lemans-bridge-dashboard:prod-web`                 | `localhost/...:demo-web-<release>`    | `localhost/...:prod-web-<release>`   |
+| **Go API Image**        | `lemans-bridge-dashboard-go:demo-go`               | `lemans-bridge-dashboard-go:prod-go`               | `localhost/...:demo-go-<release>`    | `localhost/...:prod-go-<release>`    |
 | **Next.js Base Image**  | `node:lts-alpine`                                  | `node:lts-alpine`                                  | `node:lts-alpine`                    | `node:lts-alpine`                    |
 | **Go Base Image**       | `golang:alpine` / `alpine:latest`                  | `golang:alpine` / `alpine:latest`                  | `golang:alpine` / `alpine:latest`    | `golang:alpine` / `alpine:latest`    |
 | **Database Image**      | `postgres:alpine`                                  | `postgres:alpine`                                  | `postgres:alpine`                    | `postgres:alpine`                    |
@@ -54,7 +54,7 @@ The current deployment target is remote-only for the demo:
 | **DB Volume Name**      | `lemans-demo-db-data`                              | `lemans-prodlike-db-data`                          | `lemans-demo-db-data`                | `lemans-prod-db-data`                |
 | **Podman Network**      | `lemans-demo-net`                                  | `lemans-prodlike-net`                              | `lemans-demo-net`                    | `lemans-prod-net`                    |
 | **Auth Secret**         | Not used in demo (production-only planning value)  | Production-only                                    | Not used in demo                     | Production-only                      |
-| **Backblaze B2 Bucket** | `lemans-demo-attachments`                          | `lemans-prodlike-attachments`                      | `lemans-remote-demo-attachments`     | `lemans-remote-prod-attachments`     |
+| **Backblaze B2 Bucket** | `lemans-demo-attachments`                          | `lemans-prodlike-attachments`                      | `lemans-demo-attachments`            | `lemans-prod-attachments`            |
 | **Reset Policy**        | Manual via `scripts/reset-local.sh`                | Manual only                                        | Every 30 minutes plus manual trigger | None (persistent)                    |
 
 ## 3. Local Quick Reference
@@ -72,7 +72,7 @@ podman machine start
 # Reset local demo to seeded state
 ./scripts/reset-local.sh
 
-# Build images
+# Optional local validation build (not used by remote deployment)
 ./scripts/build.sh demo   # demo-web + demo-go
 ./scripts/build.sh prod   # prod-web + prod-go
 
@@ -86,7 +86,7 @@ podman machine start
 
 - **Remote Demo Application Build Path**: `/home/jk/bridge-ph/lemans-demo`
 - **Remote Demo Systemd Quadlet Path**: `~/.config/containers/systemd/bridge-ph/lemans-demo`
-- **Remote Demo Backblaze Bucket**: `lemans-remote-demo-attachments`
+- **Remote Demo Backblaze Bucket**: `lemans-demo-attachments`
 - **Reset Service**: `~/.config/systemd/user/lemans-demo-reset.service`
 - **Reset Timer**: `~/.config/systemd/user/lemans-demo-reset.timer`
 
@@ -94,7 +94,7 @@ podman machine start
 
 - **Remote Production Application Build Path**: `/home/jk/bridge-ph/lemans`
 - **Remote Production Systemd Quadlet Path**: `~/.config/containers/systemd/bridge-ph/lemans`
-- **Remote Production Backblaze Bucket**: `lemans-remote-prod-attachments`
+- **Remote Production Backblaze Bucket**: `lemans-prod-attachments`
 - **Backup Service**: `~/.config/systemd/user/lemans-backup.service`
 - **Backup Timer**: `~/.config/systemd/user/lemans-backup.timer`
 
@@ -125,21 +125,24 @@ Values are injected at container runtime via `EnvironmentFile=` in Quadlet files
 
 | Script                             | Purpose                                              |
 | ---------------------------------- | ---------------------------------------------------- |
-| `scripts/build.sh`                 | Build local demo/prod image                          |
+| `scripts/build.sh`                 | Optional local validation image build                |
 | `scripts/build-multiarch.sh`       | Build and push multi-arch images to registry         |
 | `scripts/run-local.sh`             | Start local DB + Go API + web with `--rm` containers |
 | `scripts/stop-local.sh`            | Stop local DB + Go API + web                         |
 | `scripts/reset-local.sh`           | Reset local DB volume to empty / seeded state        |
 | `scripts/verify-local.sh`          | Run format/lint/type-check/tests in `--rm` container |
 | `scripts/verify-vertical-slice.sh` | Full local verification incl. HTTP health checks     |
-| `scripts/deploy-remote-demo.sh`    | Deploy demo Quadlets to VPS and start services       |
-| `scripts/deploy-remote-prod.sh`    | Deploy production Quadlets to VPS and start services |
+| `scripts/deploy-remote-profile.sh` | Package source; build/smoke-test/activate on VPS     |
+| `scripts/deploy-remote-demo.sh`    | Demo wrapper for the remote-only profile deploy      |
+| `scripts/deploy-remote-prod.sh`    | Production wrapper for the remote-only profile deploy|
 
 ## 8. Official Guidance
 
 - [Next.js 16 self-hosting](https://nextjs.org/docs/app/guides/self-hosting)
-- [Next.js `output: 'standalone'`](https://nextjs.org/docs/pages/api-reference/config/next-config-js/output)
+- [Next.js `output: 'standalone'`](https://nextjs.org/docs/app/api-reference/config/next-config-js/output)
 - [Podman Quadlet rootless units](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html)
+- [Podman Quadlet basic usage](https://docs.podman.io/en/latest/markdown/podman-quadlet-basic-usage.7.html)
+- [systemd `loginctl` linger](https://www.freedesktop.org/software/systemd/man/252/loginctl.html)
 - [goose migrations](https://github.com/pressly/goose)
 - [sqlc documentation](https://docs.sqlc.dev)
 

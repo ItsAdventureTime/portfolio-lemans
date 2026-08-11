@@ -59,6 +59,8 @@ cleanup_containers() {
   local containers
   containers=$(podman ps -aq --filter "name=${pattern}" 2> /dev/null || true)
   if [[ -n "$containers" ]]; then
+    # podman receives the newline-delimited container IDs as separate args.
+    # shellcheck disable=SC2086
     podman rm -f $containers 2> /dev/null || true
   fi
 }

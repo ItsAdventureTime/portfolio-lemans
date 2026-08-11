@@ -2,7 +2,12 @@
 
 ## 1. Executive Summary & Strategy
 
-This document specifies the containerized fullstack architecture for the **Le Mans Operations & Job Cost Management System**. All proposed solutions comply strictly with the project's **Rootless Podman Containerization Mandate** (local Apple Silicon macOS development via `podman machine start` + remote Linux Quadlet systemd deployment).
+This document specifies the containerized fullstack architecture for the **Le
+Mans Operations & Job Cost Management System**. All proposed solutions comply
+strictly with the project's **Rootless Podman Containerization Mandate**. The
+workstation is not a deployment target: remote deployment packages committed
+source only, while the Linux VPS builds images and runs the Quadlet systemd
+deployment.
 
 > **Demo profile override (2026-08-09):** The demo build is intentionally
 > authentication-free. It starts with a simulated `Enter as an Admin` splash,
@@ -18,7 +23,7 @@ This document specifies the containerized fullstack architecture for the **Le Ma
 
 Based on current 2026 containerization standards (Next.js 16 self-hosting, Go latest backend patterns, Podman Quadlet rootless units, sqlc, and goose):
 
-- Next.js standalone output is the recommended self-hosting mode for Docker/Container deployments: https://nextjs.org/docs/pages/api-reference/config/next-config-js/output
+- Next.js standalone output is the recommended self-hosting mode for Docker/Container deployments: https://nextjs.org/docs/app/api-reference/config/next-config-js/output
 - Go backend best practice is SQL-first data access with sqlc + goose and HTTP routing with Chi: https://docs.sqlc.dev, https://github.com/pressly/goose, https://github.com/go-chi/chi
 - Podman Quadlet rootless user units live in `~/.config/containers/systemd/` and are managed via `systemctl --user`: https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html
 
@@ -43,10 +48,12 @@ Specific project choices:
    - **Production Builds**: Web `lemans-bridge-dashboard:prod-web`, Go API `lemans-bridge-dashboard-go:prod-go`.
 5. **No Compose Mandate**:
    - `podman compose` / `docker compose` are not used.
-   - Local builds, linting, testing, and execution use `podman run --rm` helper scripts or rootless Quadlet systemd units.
+   - Optional local validation uses `podman run --rm` helper scripts; remote
+     deployment performs builds and execution on the VPS.
 6. **Declarative Podman Quadlet Systemd Management**:
    - Production containers are managed declaratively using Quadlet files (`.container`, `.volume`, `.network`) placed in user systemd paths (`~/.config/containers/systemd/`).
-   - Systemd user lingering enabled (`loginctl enable-linger <user>`) to keep services active across reboots.
+   - Systemd user lingering is a remote operator prerequisite
+     (`loginctl enable-linger <user>`) to keep services active across reboots.
    - Observability via structured JSON logging to `stdout`/`stderr` collected by systemd journal (`journalctl --user -u <service>`) and `podman logs`.
 
 ---

@@ -64,14 +64,16 @@ export B2_SECRET_ACCESS_KEY=<your-b2-key-secret>
 
 This will:
 
-1. Build the web and Go API images locally inside rootless containers.
-2. Transfer the images to the remote host.
-3. Sync Quadlets to `~/.config/containers/systemd/bridge-ph/lemans-demo`.
-4. Generate and install a remote `.env` file.
-5. Start the DB, Go API, and web systemd services.
-6. Seed the database (demo only).
-7. Install and enable the rootless user-level 30-minute reset timer and manual
-   reset service.
+1. Archive the clean committed source locally; it does not build or execute
+   the application on the workstation.
+2. Transfer the source archive and mode-0600 runtime environment to the VPS.
+3. Build release-tagged web and Go API images on the VPS with rootless Podman.
+4. Run disposable `podman run --rm` image smoke checks on the VPS.
+5. Sync release-specific Quadlets and scripts to
+   `~/.config/containers/systemd/bridge-ph/lemans-demo`.
+6. Start the DB, Go API, and web systemd services.
+7. Seed the database (demo only) and start the rootless user-level 30-minute
+   reset timer.
 
 ## Remote Production Deployment
 
@@ -83,7 +85,8 @@ export B2_SECRET_ACCESS_KEY=<your-b2-key-secret>
 ./scripts/deploy-remote-prod.sh
 ```
 
-Production follows the same flow but **does not seed the database** and enables a **daily B2 backup timer** instead of a reset timer.
+Production follows the same remote-build flow but **does not seed the database**
+and starts a **daily B2 backup timer** instead of a reset timer.
 
 ## Demo Role Simulation
 
@@ -144,16 +147,16 @@ The script dumps `lemans_prod_db` with `pg_dump`, gzips it, and uploads it to `s
 
 ## Rollback Procedure
 
-1. Re-tag the previous known-good digest on the registry:
+1. Select the previous release manifest under the environment's `releases/`
+   directory and identify its release-specific local image tags:
    ```bash
-   podman pull lemans-bridge-dashboard:lts-alpine-previous
-   podman tag lemans-bridge-dashboard:prod-web-previous lemans-bridge-dashboard:prod-web
-   podman tag lemans-bridge-dashboard-go:prod-go-previous lemans-bridge-dashboard-go:prod-go
+   cat /home/jk/bridge-ph/lemans/releases/<previous-release>/<previous-release>.json
    ```
-2. Restart the production service:
+2. Update only the selected Quadlet image references to those `localhost/...`
+   tags, then reload and restart the affected user services:
    ```bash
    systemctl --user daemon-reload
-   systemctl --user restart lemans-prod-app
+   systemctl --user restart lemans.service lemans-go.service
    ```
 3. Verify `http://127.0.0.1:3003/lemans` returns `200 OK`.
 
@@ -164,7 +167,7 @@ ports:
 
 ```bash
 curl -sL -o /dev/null -w '%{http_code}' http://127.0.0.1:3002/lemans/demo
-curl -s http://lemans-demo-go:8080/health
+podman exec lemans-demo-go curl -s http://127.0.0.1:8080/health
 ```
 
 ## Role-Based Navigation & 403 Access Restricted
@@ -184,6 +187,8 @@ If a user without permission manually navigates to a restricted URL (e.g. a `ROL
 ## Official Guidance
 
 - [Podman Quadlet rootless units](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html)
+- [Podman Quadlet basic usage](https://docs.podman.io/en/latest/markdown/podman-quadlet-basic-usage.7.html)
+- [systemd `loginctl` linger](https://www.freedesktop.org/software/systemd/man/252/loginctl.html)
 - [Next.js 16 self-hosting](https://nextjs.org/docs/app/guides/self-hosting)
 - [goose migrations](https://github.com/pressly/goose)
 - [sqlc documentation](https://docs.sqlc.dev)

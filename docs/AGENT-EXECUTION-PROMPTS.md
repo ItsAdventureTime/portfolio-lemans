@@ -186,9 +186,9 @@ dirty-worktree files just to create a clean-looking release.
 
 ```text
 Deploy only the remote demo profile. Do not maintain or start a persistent local
-deployment. Local Podman is allowed only for disposable builds, compilation,
-tests, and verification using podman run --rm; start podman machine only if it
-is not running.
+deployment. The workstation packages the clean committed source only; it does
+not locally build, compile, or execute the application for deployment. Local
+Podman is an optional disposable validation exception and must use `--rm`.
 
 Use ./scripts/deploy-remote-demo.sh as the single deployment entry point. The
 rootless Quadlets must install under:
@@ -201,12 +201,13 @@ under:
 The target URL is:
   https://delegateops.business/lemans/demo
 
-Follow docs/REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md. Build and transfer both the
-web and Go API images, attach the web container directly to the Caddy and
-internal networks, attach the Go API only to the internal network, keep the DB
-internal with no published port, use safe migrations, and verify the subpath,
-assets, API routes, Go API health, no-auth Admin default, role switching, and
-web health checks.
+Follow docs/REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md. Transfer the source archive and
+runtime configuration, build both release-tagged web and Go API images on the
+VPS, and use disposable `podman run --rm` image smoke checks there. Attach the
+web container directly to the Caddy and internal networks, attach the Go API
+only to the internal network, keep the DB internal with no published port, use
+safe migrations, and verify the subpath, assets, API routes, Go API health,
+no-auth Admin default, role switching, and web health checks.
 
 Do not modify the shared Caddyfile or perform remote deployment until the user
 has explicitly authorized it and any required Caddy container/network context is

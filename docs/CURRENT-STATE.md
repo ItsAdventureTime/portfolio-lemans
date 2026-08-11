@@ -24,7 +24,7 @@ documentation unless they explicitly say so.
 ## Demo entrypoints
 
 The demo base path is `/lemans/demo`; the production profile uses `/lemans`.
-The current local workflow is:
+The optional local validation workflow is:
 
 ```bash
 export PATH="/opt/podman/bin:$PATH"
@@ -38,6 +38,12 @@ export PATH="/opt/podman/bin:$PATH"
 `./scripts/reset-local.sh` removes the demo database volume; the next
 `run-local.sh` invocation recreates migrations and seed data. The database never
 publishes port 5432 to the host.
+
+Remote deployment is separate: the workstation packages a clean committed
+source archive, the VPS builds and smoke-tests release images with rootless
+Podman, and the existing Quadlets under
+`/home/jk/.config/containers/systemd/bridge-ph/lemans-demo` activate those
+images. Remote operations require explicit authorization.
 
 ## Implemented demo workflow
 

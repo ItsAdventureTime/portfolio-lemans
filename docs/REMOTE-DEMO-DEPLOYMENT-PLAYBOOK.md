@@ -1,7 +1,7 @@
 # Remote Demo Deployment Playbook
 
 - **Status**: Authoritative for the remote demo deployment profile
-- **Version**: 1.1.0
+- **Version**: 1.2.0
 - **Updated**: 2026-08-12
 - **Target URL**: `https://delegateops.business/lemans/demo`
 - **Remote user**: `jk`
@@ -17,17 +17,17 @@ login credentials, host-based standalone-output sync, or a sleeping Caddy bridge
 The demo is deployed remotely only. There is no persistent local deployment
 target.
 
-Local Podman is permitted only for disposable compilation, image builds, static
-checks, migrations used by tests, and verification. If Podman is not running,
-the agent may run:
+The workstation does not deploy, build, compile, or execute the application as
+part of remote deployment. It packages the committed source with `git archive`
+and transfers the archive and runtime configuration over SSH/SCP. Local
+Podman-based verification is an optional, separate activity; if it is needed,
+it must use disposable `podman run --rm` containers and leave no project
+containers, volumes, or images running afterward.
 
-```bash
-podman machine start
-```
-
-All local execution must use disposable `podman run --rm` containers or the
-repository's equivalent helper scripts. The agent must not leave a local app or
-database running after validation.
+The VPS is the build and execution environment. It uses rootless `podman build`
+for the web and Go images, `podman run --rm` for image smoke checks, and the
+existing rootless Quadlets for the persistent runtime. A Linux VPS does not
+need a Podman machine.
 
 The remote demo is a rootless Podman Quadlet deployment managed by the `jk`
 user's systemd user manager.
@@ -61,6 +61,24 @@ Secrets must not be committed or placed in public repository files. Prefer
 Podman secrets or a rootless systemd credential mechanism. Any environment file
 containing secrets must be owned by `jk`, mode `0600`, and stored only on the
 remote host.
+
+### Remote builder contract
+
+Each deployment creates a release directory below
+`/home/jk/bridge-ph/lemans-demo/releases/<release-id>` and builds images from
+the transferred committed source archive. The remote rootless image store keeps
+release-specific tags such as:
+
+```text
+localhost/lemans-bridge-dashboard:demo-web-<release-id>
+localhost/lemans-bridge-dashboard-go:demo-go-<release-id>
+```
+
+The Quadlets are rewritten to those exact local tags, so deployment does not
+depend on a registry or on a local `podman save`/`podman load` pipeline. The
+database volume is retained across application releases. The source archive is
+removed from the release directory after a successful activation; the manifest
+and release images remain available for rollback and audit.
 
 ## 3. Required topology
 
@@ -137,6 +155,12 @@ Do not use `handle_path` or strip the prefix unless the application is purposely
 built and tested for that arrangement. Stripping the prefix can create the
 Next.js subfolder problem for links and assets.
 
+Do not replace this image with a static HTML export. The demo uses server
+actions, dynamic server rendering, and a private Go API, so `Dockerfile.web`
+uses Next.js `output: 'standalone'` and runs `server.js` in the remote web
+container. The standalone image is the appropriate static-asset optimization;
+the application itself remains a server runtime.
+
 The Caddy container/network definitions and Caddyfile must be reviewed before
 the first deployment. The operator should provide them if the existing network
 name, site-block structure, or TLS ownership is unclear.
@@ -151,27 +175,25 @@ REMOTE_HOST=<server-host> ./scripts/deploy-remote-demo.sh
 
 The script may accept `REMOTE_USER`, but it defaults to `jk`. It must:
 
-1. Check required local tools and SSH/HTTPS registry access without exposing
-   secrets.
-2. Start the local Podman machine only if needed.
-3. Build both immutable demo images (`lemans-bridge-dashboard:demo-web` and
-   `lemans-bridge-dashboard-go:demo-go`) using disposable rootless Podman.
-4. Record the image digest and source commit in a release manifest.
-5. Transfer both images and the Quadlet units to the remote paths.
-6. Install or update the rootless Quadlets under the canonical Quadlet path.
-7. Create the remote release directory (`/home/jk/bridge-ph/lemans-demo/releases`)
-   before copying the release manifest, reload the user's systemd manager, start
-   only the demo units using their generated unit names
-   (`lemans-demo-db.service`, `lemans-demo-go.service`, `lemans-demo.service`),
-   and verify generated units with `systemd-analyze --user --generators=true verify`.
-8. Seed the database on first install or when an explicit reset flag is
-   provided. Migrations run automatically inside the Go API container.
-9. Check the public URL and internal Go API / web health endpoints.
-10. Print the release commit, image digest, service status, URL, and rollback
+1. Require a clean committed `main` worktree and collect the source commit.
+2. Create a release archive locally; do not invoke local image builds or app
+   execution.
+3. Transfer the archive and mode-0600 runtime environment file to the VPS.
+4. Build both release-tagged images on the VPS with rootless `podman build`.
+5. Run disposable `podman run --rm` image smoke checks on the VPS.
+6. Install the tracked Quadlets, scripts, release manifest, and environment
+   file under the canonical remote paths.
+7. Validate generated units with `systemd-analyze --user --generators=true
+   verify`, reload the user manager, and start only the selected profile.
+8. Seed the demo database on first install or with `RESET=true`; production
+   never seeds or resets. Migrations run in the Go API container.
+9. Check the internal Go health endpoint and loopback web endpoint on the VPS.
+10. Print the release commit, image IDs, service status, URL, and rollback
     command.
 
 The script must not silently deploy to production, reset the database, overwrite
-the Caddyfile, or modify unrelated systemd units.
+the Caddyfile, or modify unrelated systemd units. Remote deployment remains an
+explicitly authorized operation.
 
 ## 6. Demo runtime configuration
 
@@ -253,11 +275,15 @@ schema changes.
 
 ## 10. Current implementation notes
 
-The deployment script now builds and transfers both immutable demo images,
-and the Next.js web container joins `caddy.network` directly.
+The deployment script now builds release-tagged images on the VPS; it does not
+build or execute the application locally. The Next.js web container joins
+`caddy.network` directly.
 
-- The script builds both `lemans-bridge-dashboard:demo-web` and
-  `lemans-bridge-dashboard-go:demo-go` images and transfers them to the remote host.
+- The script packages the committed source locally, then builds both
+  `localhost/lemans-bridge-dashboard:demo-web-<release-id>` and
+  `localhost/lemans-bridge-dashboard-go:demo-go-<release-id>` on the remote host.
+- Remote image checks use disposable `podman run --rm` containers. No local
+  deployment, local build, local compile, or local runtime is required.
 - The Go API container is attached only to `lemans-demo-net`; the web container
   joins both `caddy.network` and `lemans-demo-net`.
 - Go migrations run automatically inside `lemans-demo-go.service`.
@@ -270,6 +296,9 @@ and the Next.js web container joins `caddy.network` directly.
   `/home/jk/bridge-ph/lemans-demo/releases`. Verify these guarantees against
   both success and failure paths; see
   [`NEXT-AGENT-REMEDIATION-REPORT-2026-08-11.md`](../reviews/NEXT-AGENT-REMEDIATION-REPORT-2026-08-11.md).
+- Rootless user services require a user manager that remains available after
+  logout; verify `loginctl enable-linger jk` on the VPS as an operator
+  prerequisite. Do not change that remote setting without explicit approval.
 
 Do not claim the target URL is operational until the Caddy context and remote
 health checks are verified.
@@ -277,12 +306,15 @@ health checks are verified.
 ## 11. Official guidance
 
 - [Podman Quadlet rootless search paths and generator](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html)
+- [Podman Quadlet basic usage and verification](https://docs.podman.io/en/latest/markdown/podman-quadlet-basic-usage.7.html)
+- [Podman build units](https://docs.podman.io/en/latest/markdown/podman-build.unit.5.html)
+- [systemd `loginctl` linger](https://www.freedesktop.org/software/systemd/man/252/loginctl.html)
 - [systemd timer unit configuration](https://man7.org/linux/man-pages/man5/systemd.timer.5.html)
 - [Caddy reverse proxy and path handling](https://caddyserver.com/docs/caddyfile/directives/reverse_proxy)
 - [Caddy `handle_path`](https://caddyserver.com/docs/caddyfile/directives/handle)
 - [Next.js 16 self-hosting](https://nextjs.org/docs/app/guides/self-hosting)
-- [Next.js `output: 'standalone'`](https://nextjs.org/docs/pages/api-reference/config/next-config-js/output)
-- [Next.js `basePath`](https://nextjs.org/docs/pages/api-reference/config/next-config-js/basePath)
+- [Next.js `output: 'standalone'`](https://nextjs.org/docs/app/api-reference/config/next-config-js/output)
+- [Next.js `basePath`](https://nextjs.org/docs/app/api-reference/config/next-config-js/basePath)
 - [goose migrations](https://github.com/pressly/goose)
 - [goose SQL annotations](https://pressly.github.io/goose/documentation/annotations/)
 - [sqlc documentation](https://docs.sqlc.dev)
