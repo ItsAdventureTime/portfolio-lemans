@@ -48,6 +48,9 @@ change must update the affected current guides and verification evidence in the
 same change set. Move conflicting historical material to
 `to-review-and-delete/` rather than leaving it beside active guidance.
 
+Before closing a change, confirm that the active documentation matches the
+implementation and that local `main` and GitHub `main` point to the same commit.
+
 The repository remains on `main`. Use the official GitHub CLI for remote
 repository inspection, synchronization, and branch administration over HTTPS.
 Do not create new branches. Never delete `main`; review branch protection before

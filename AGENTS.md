@@ -16,6 +16,18 @@ assurances, and unexplained jargon. Preserve required technical identifiers,
 commands, status values, and legal text. Follow
 [`docs/WRITING-STYLE.md`](docs/WRITING-STYLE.md) before publishing text.
 
+## Documentation and synchronization
+
+Treat documentation as part of every change. Before completion, update the
+affected active documentation and guides so they match the implemented code,
+configuration, scripts, deployment behavior, and verification results. Keep
+historical material separate from current operating guidance.
+
+Commit the complete, validated change locally. Use `gh` for GitHub
+authentication and remote operations, then confirm that local `main` and remote
+`main` point to the same commit. Do not report work as complete while required
+documentation or repository synchronization is outstanding.
+
 ## Architectural Mandates
 
 1. **Single Source Repository**: Single unified repository structure. No separate source code copies for demo and production.
