@@ -1,6 +1,6 @@
 # Current Repository State
 
-- **Updated**: 2026-08-12
+- **Updated**: 2026-08-12 (implementation audit)
 - **Authority**: Current implementation and the demo rules in
   [`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md)
 - **Documentation index**: [`DOCUMENTATION-INDEX.md`](./DOCUMENTATION-INDEX.md)
@@ -61,6 +61,12 @@ The current UI and API support the primary walkthrough path:
 7. Complete a job order, create a VAT-inclusive service invoice, and record
    customer payments.
 8. View the Admin-only accounting summary.
+
+Quotation creation validates every line and commits the quotation, items, and
+totals in one transaction. Conversion atomically claims the approved quotation,
+creates its job order, copies its items, records its event, and marks the quote
+converted. Human-readable quote and job-order identifiers include a
+cryptographically random suffix to avoid count-based collisions.
 
 ## Known boundaries
 

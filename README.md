@@ -22,6 +22,9 @@ Enterprise operational and job costing platform built for **Le Mans Service Plus
 - **Deployment**: No persistent local deployment. The remote demo is deployed by `./scripts/deploy-remote-demo.sh` as rootless Quadlets at `https://delegateops.business/lemans/demo`.
 - **Attachments**: Backblaze B2 S3-compatible object storage for inspection photos, receipts, and supporting documents (see ADR-0004).
 - **Backend**: Go latest API (`backend/`, `golang:alpine`) owns persistence, migrations (`goose`), business logic, and presigned B2 URLs. Next.js frontend calls the Go API over the internal Podman network.
+- **Workflow integrity**: The Go API validates quotation lines and uses database
+  transactions for quotation creation and quote-to-job-order conversion, so
+  failed workflow writes do not persist partial records.
 
 ---
 

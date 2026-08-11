@@ -73,6 +73,19 @@ Invalid or missing roles resolve to `ADMIN`.
 or the human-readable `jo_no` (e.g. `RA0003973`). The handler resolves the
 parameter to a UUID internally.
 
+## Financial and workflow integrity
+
+- Persisted money uses `int64` cents; frontend decimal input is converted before
+  it reaches the Go API.
+- Quotation line data is validated server-side. Creating a quote and converting
+  an approved quote to a job order are transactional, so a failed item or event
+  write cannot leave partial records.
+- Conversion claims the source quote only while it is `APPROVED`; concurrent or
+  repeated conversion attempts receive a validation error instead of creating a
+  second job order.
+- Document identifiers use a time label plus a cryptographically random suffix,
+  rather than a count-based sequence that can collide under concurrent requests.
+
 ## Attachment flow
 
 1. Frontend requests a presigned upload URL from `GET /attachments/presign-upload?objectName=...`

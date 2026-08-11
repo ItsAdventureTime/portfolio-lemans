@@ -44,9 +44,8 @@ run_go() {
       curl -fsSL -o /tmp/sqlc.tgz "https://github.com/sqlc-dev/sqlc/releases/download/v1.29.0/sqlc_1.29.0_linux_${sqlc_arch}.tar.gz"
       tar -xzf /tmp/sqlc.tgz -C /usr/local/bin sqlc
       sqlc generate
-      go mod tidy
-      go build ./cmd/api
-      go test ./...
+      go build -mod=readonly ./cmd/api
+      go test -mod=readonly ./...
     ' || fail=1
 }
 

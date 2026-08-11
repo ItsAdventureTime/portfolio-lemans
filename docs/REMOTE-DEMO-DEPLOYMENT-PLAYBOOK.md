@@ -184,7 +184,7 @@ The script may accept `REMOTE_USER`, but it defaults to `jk`. It must:
 6. Install the tracked Quadlets, scripts, release manifest, and environment
    file under the canonical remote paths.
 7. Validate generated units with `systemd-analyze --user --generators=true
-   verify`, reload the user manager, and start only the selected profile.
+verify`, reload the user manager, and start only the selected profile.
 8. Seed the demo database on first install or with `RESET=true`; production
    never seeds or resets. Migrations run in the Go API container.
 9. Check the internal Go health endpoint and loopback web endpoint on the VPS.

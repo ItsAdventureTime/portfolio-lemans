@@ -37,10 +37,10 @@ The current deployment target is remote-only for the demo:
 
 | Environment Parameter   | 1. `local-demo`                                    | 2. `local-prodlike`                                | 3. `remote-demo`                     | 4. `remote-production`               |
 | ----------------------- | -------------------------------------------------- | -------------------------------------------------- | ------------------------------------ | ------------------------------------ |
-| **Status**              | **Verified (200 OK)**                              | **Verified (200 OK)**                              | **Prepared (authorization-gated)**    | **Prepared (Quadlets)**              |
+| **Status**              | **Verified (200 OK)**                              | **Verified (200 OK)**                              | **Prepared (authorization-gated)**   | **Prepared (Quadlets)**              |
 | **Target Host**         | macOS (Apple Silicon arm64)                        | macOS (Apple Silicon arm64)                        | Remote Linux Server                  | Remote Linux Server                  |
 | **Podman Command**      | `podman machine start` + `podman run`              | `podman machine start` + `podman run`              | Systemd User Quadlet                 | Systemd User Quadlet                 |
-| **Web Image**           | `lemans-bridge-dashboard:demo-web`                 | `lemans-bridge-dashboard:prod-web`                 | `localhost/...:demo-web-<release>`    | `localhost/...:prod-web-<release>`   |
+| **Web Image**           | `lemans-bridge-dashboard:demo-web`                 | `lemans-bridge-dashboard:prod-web`                 | `localhost/...:demo-web-<release>`   | `localhost/...:prod-web-<release>`   |
 | **Go API Image**        | `lemans-bridge-dashboard-go:demo-go`               | `lemans-bridge-dashboard-go:prod-go`               | `localhost/...:demo-go-<release>`    | `localhost/...:prod-go-<release>`    |
 | **Next.js Base Image**  | `node:lts-alpine`                                  | `node:lts-alpine`                                  | `node:lts-alpine`                    | `node:lts-alpine`                    |
 | **Go Base Image**       | `golang:alpine` / `alpine:latest`                  | `golang:alpine` / `alpine:latest`                  | `golang:alpine` / `alpine:latest`    | `golang:alpine` / `alpine:latest`    |
@@ -123,18 +123,18 @@ Values are injected at container runtime via `EnvironmentFile=` in Quadlet files
 
 ## 7. Deployment Scripts
 
-| Script                             | Purpose                                              |
-| ---------------------------------- | ---------------------------------------------------- |
-| `scripts/build.sh`                 | Optional local validation image build                |
-| `scripts/build-multiarch.sh`       | Build and push multi-arch images to registry         |
-| `scripts/run-local.sh`             | Start local DB + Go API + web with `--rm` containers |
-| `scripts/stop-local.sh`            | Stop local DB + Go API + web                         |
-| `scripts/reset-local.sh`           | Reset local DB volume to empty / seeded state        |
-| `scripts/verify-local.sh`          | Run format/lint/type-check/tests in `--rm` container |
-| `scripts/verify-vertical-slice.sh` | Full local verification incl. HTTP health checks     |
-| `scripts/deploy-remote-profile.sh` | Package source; build/smoke-test/activate on VPS     |
-| `scripts/deploy-remote-demo.sh`    | Demo wrapper for the remote-only profile deploy      |
-| `scripts/deploy-remote-prod.sh`    | Production wrapper for the remote-only profile deploy|
+| Script                             | Purpose                                               |
+| ---------------------------------- | ----------------------------------------------------- |
+| `scripts/build.sh`                 | Optional local validation image build                 |
+| `scripts/build-multiarch.sh`       | Build and push multi-arch images to registry          |
+| `scripts/run-local.sh`             | Start local DB + Go API + web with `--rm` containers  |
+| `scripts/stop-local.sh`            | Stop local DB + Go API + web                          |
+| `scripts/reset-local.sh`           | Reset local DB volume to empty / seeded state         |
+| `scripts/verify-local.sh`          | Run format/lint/type-check/tests in `--rm` container  |
+| `scripts/verify-vertical-slice.sh` | Full local verification incl. HTTP health checks      |
+| `scripts/deploy-remote-profile.sh` | Package source; build/smoke-test/activate on VPS      |
+| `scripts/deploy-remote-demo.sh`    | Demo wrapper for the remote-only profile deploy       |
+| `scripts/deploy-remote-prod.sh`    | Production wrapper for the remote-only profile deploy |
 
 ## 8. Official Guidance
 

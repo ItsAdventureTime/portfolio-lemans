@@ -2,7 +2,7 @@
 
 - **Status**: Approved
 - **Deciders**: Lead Agent, Project Architect
-- **Date**: 2026-08-07
+- **Date**: 2026-08-12
 
 ## Context
 
@@ -18,16 +18,19 @@ Attachments must be durable, accessible to authorized users only, and must not r
 
 We use **Backblaze B2 Cloud Storage via its S3-Compatible API** as the object store for all file attachments.
 
-1. **SDK**: AWS SDK for JavaScript v3 (`@aws-sdk/client-s3`, `@aws-sdk/s3-request-presigner`).
+1. **SDK**: AWS SDK for Go v2 in the Go API (`backend/internal/b2`).
    - Backblaze B2 exposes an S3-compatible endpoint per bucket/region.
-2. **Access Model**: Server-side uploads with presigned GET URLs.
-   - Files are uploaded by Next.js Server Actions using the S3 `PutObjectCommand`.
-   - Downloads are served via short-lived presigned `GetObjectCommand` URLs generated on demand.
-   - No direct browser upload path is used, keeping S3 credentials on the server.
+2. **Access Model**: The Go API creates presigned upload and download URLs.
+   - The frontend uploads directly to B2 with a short-lived presigned PUT URL;
+     B2 credentials remain only in the Go API container.
+   - The Go API registers attachment metadata after upload and returns
+     short-lived presigned GET URLs for downloads.
 3. **Object Keys**: `attachments/<entity>/<entityId>/<uuid>-<filename>`.
    - Examples: `attachments/job-order/RA0003973/<uuid>-engine-photo.jpg`, `attachments/dcs-payment/<id>/<uuid>-receipt.jpg`.
-4. **Metadata**: File records are stored in PostgreSQL via a new `Attachment` table.
-   - Columns: `id`, `entityType`, `entityId`, `fileName`, `contentType`, `size`, `storageKey`, `uploadedById`, `createdAt`.
+4. **Metadata**: File records are stored in PostgreSQL via the `attachments`
+   table, including `id`, `entity_type`, `entity_id`, `file_name`,
+   `content_type`, `size_bytes`, `storage_key`, `created_by_role`, and
+   `created_at`.
 5. **Environment Variables** (injected via Podman container env, never committed):
    - `B2_ENDPOINT`
    - `B2_REGION`
@@ -37,7 +40,8 @@ We use **Backblaze B2 Cloud Storage via its S3-Compatible API** as the object st
 6. **Security & Lifecycle**:
    - Bucket is private; presigned URLs expire in 15 minutes.
    - Object keys are non-guessable UUID-based.
-   - File access is gated by role/ownership checks in the Server Action that generates the presigned URL.
+   - File access is gated by the Go API's centralized demo actor and policy
+     checks before it creates presigned URLs.
    - Lifecycle/versioning rules are managed in Backblaze; application code records references only.
 
 ## Consequences
