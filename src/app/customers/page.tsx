@@ -1,41 +1,75 @@
 import { getDemoRole } from '@/lib/actor';
-import { listCustomers, createCustomerAndVehicle } from '@/lib/api';
+import { listCustomers, createCustomerAndVehicle, ApiError } from '@/lib/api';
 import { hasPermission } from '@/lib/roles';
 import { revalidatePath } from 'next/cache';
 import PageHeader from '@/components/PageHeader';
 import CustomerForm from './CustomerForm';
 import CustomerList from './CustomerList';
+import { errorResult, FormResult, okResult } from '@/lib/form-result';
 
 export default async function CustomersPage() {
   const role = await getDemoRole();
   const customers = await listCustomers(role);
   const canCreate = hasPermission(role, 'customerCreate');
 
-  async function createFormAction(formData: FormData) {
+  async function createFormAction(_prev: FormResult, formData: FormData): Promise<FormResult> {
     'use server';
-    const currentRole = (await import('@/lib/actor')).getDemoRole();
+    const currentRole = await (await import('@/lib/actor')).getDemoRole();
     const customer = {
-      customerNo: String(formData.get('customerNo')),
-      name: String(formData.get('name')),
-      tin: String(formData.get('tin')),
-      address: String(formData.get('address')),
-      phone: String(formData.get('phone')),
-      email: String(formData.get('email')),
+      customerNo: String(formData.get('customerNo') ?? '').trim(),
+      name: String(formData.get('name') ?? '').trim(),
+      tin: String(formData.get('tin') ?? '').trim(),
+      address: String(formData.get('address') ?? '').trim(),
+      phone: String(formData.get('phone') ?? '').trim(),
+      email: String(formData.get('email') ?? '').trim(),
     };
     const vehicle = {
-      plateNo: String(formData.get('plateNo')),
-      makeModel: String(formData.get('makeModel')),
-      vinChassis: String(formData.get('vinChassis')),
-      engineNo: String(formData.get('engineNo')),
-      year: String(formData.get('year')),
-      color: String(formData.get('color')),
+      plateNo: String(formData.get('plateNo') ?? '').trim(),
+      makeModel: String(formData.get('makeModel') ?? '').trim(),
+      vinChassis: String(formData.get('vinChassis') ?? '').trim(),
+      engineNo: String(formData.get('engineNo') ?? '').trim(),
+      year: String(formData.get('year') ?? '').trim(),
+      color: String(formData.get('color') ?? '').trim(),
       odometer: Number(formData.get('odometer')),
     };
-    if (!customer.customerNo || !customer.name || !vehicle.plateNo || !vehicle.makeModel) {
-      throw new Error('Customer No, Name, Plate No, and Make/Model are required');
+
+    const fieldErrors: Record<string, string> = {};
+    if (!customer.customerNo) fieldErrors.customerNo = 'Customer No is required';
+    if (!customer.name) fieldErrors.name = 'Name is required';
+    if (!vehicle.plateNo) fieldErrors.plateNo = 'Plate No is required';
+    if (!vehicle.makeModel) fieldErrors.makeModel = 'Make/Model is required';
+
+    const values: Record<string, string | number | undefined> = {
+      ...customer,
+      ...vehicle,
+      odometer: Number.isNaN(vehicle.odometer) ? undefined : vehicle.odometer,
+    };
+
+    if (Object.keys(fieldErrors).length > 0) {
+      return errorResult('Please correct the highlighted fields.', fieldErrors, values);
     }
-    await createCustomerAndVehicle({ customer, vehicle }, await currentRole);
+
+    try {
+      await createCustomerAndVehicle({ customer, vehicle }, await currentRole);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        if (err.status === 409) {
+          const message = err.message.includes('customer')
+            ? 'Customer number already exists.'
+            : 'Plate number already exists.';
+          return errorResult(message, undefined, values);
+        }
+        return errorResult(err.message, undefined, values);
+      }
+      return errorResult(
+        err instanceof Error ? err.message : 'Network error while saving customer',
+        undefined,
+        values
+      );
+    }
+
     revalidatePath('/customers');
+    return okResult('Customer and vehicle added.');
   }
 
   return (

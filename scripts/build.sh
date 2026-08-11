@@ -28,7 +28,7 @@ if [[ "$MODE" == "prod" ]]; then
 fi
 
 podman build -f Dockerfile.web -t "lemans-bridge-dashboard:${WEB_TAG}" --build-arg NEXT_PUBLIC_BASE_PATH="${BASE_PATH}" .
-podman build -f Dockerfile.go -t "lemans-bridge-dashboard-go:${GO_TAG}" backend/
+podman build -f Dockerfile.go -t "lemans-bridge-dashboard-go:${GO_TAG}" .
 
 echo "=== Build complete ==="
 echo "Web image: lemans-bridge-dashboard:${WEB_TAG}"

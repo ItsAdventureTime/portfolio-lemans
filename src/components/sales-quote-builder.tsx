@@ -165,7 +165,7 @@ export default function SalesQuoteBuilder({
                       onChange={(e) =>
                         updateRow(item.id, { itemType: e.target.value as QuoteItemType })
                       }
-                      className="w-full px-2 py-2 rounded-lg border border-slate-300 text-sm"
+                      className="min-h-11 w-full px-2 py-2 rounded-lg border border-slate-300 text-sm"
                     >
                       {itemTypeOptions.map((opt) => (
                         <option key={opt.value} value={opt.value}>
@@ -179,7 +179,7 @@ export default function SalesQuoteBuilder({
                       value={item.description}
                       onChange={(e) => updateRow(item.id, { description: e.target.value })}
                       placeholder="Item description"
-                      className="w-full px-2 py-2 rounded-lg border border-slate-300 text-sm"
+                      className="min-h-11 w-full px-2 py-2 rounded-lg border border-slate-300 text-sm"
                     />
                   </td>
                   <td className="px-4 py-3">
@@ -189,7 +189,7 @@ export default function SalesQuoteBuilder({
                       step="0.01"
                       value={item.quantity}
                       onChange={(e) => updateRow(item.id, { quantity: Number(e.target.value) })}
-                      className="w-20 px-2 py-2 rounded-lg border border-slate-300 text-sm text-right"
+                      className="min-h-11 w-20 px-2 py-2 rounded-lg border border-slate-300 text-sm text-right"
                     />
                   </td>
                   <td className="px-4 py-3">
@@ -203,7 +203,7 @@ export default function SalesQuoteBuilder({
                         step="0.01"
                         value={item.unitPrice}
                         onChange={(e) => updateRow(item.id, { unitPrice: Number(e.target.value) })}
-                        className="w-28 pl-6 pr-2 py-2 rounded-lg border border-slate-300 text-sm text-right"
+                        className="min-h-11 w-28 pl-6 pr-2 py-2 rounded-lg border border-slate-300 text-sm text-right"
                       />
                     </div>
                   </td>
@@ -218,7 +218,7 @@ export default function SalesQuoteBuilder({
                         step="0.01"
                         value={item.discount}
                         onChange={(e) => updateRow(item.id, { discount: Number(e.target.value) })}
-                        className="w-24 pl-6 pr-2 py-2 rounded-lg border border-slate-300 text-sm text-right"
+                        className="min-h-11 w-24 pl-6 pr-2 py-2 rounded-lg border border-slate-300 text-sm text-right"
                       />
                     </div>
                   </td>
@@ -229,7 +229,7 @@ export default function SalesQuoteBuilder({
                     <button
                       type="button"
                       onClick={() => removeRow(item.id)}
-                      className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                      className="inline-flex items-center justify-center h-11 w-11 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
                       aria-label="Remove row"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -246,7 +246,7 @@ export default function SalesQuoteBuilder({
         <button
           type="button"
           onClick={() => addRow('LABOR')}
-          className="inline-flex items-center justify-center h-9 px-4 rounded-xl bg-slate-100 text-slate-700 text-sm font-semibold hover:bg-slate-200 transition-colors whitespace-nowrap"
+          className="inline-flex items-center justify-center h-12 px-4 rounded-xl bg-slate-100 text-slate-700 text-sm font-semibold hover:bg-slate-200 transition-colors whitespace-nowrap"
         >
           <Plus className="h-4 w-4 mr-1.5" />
           Add Labor Row
@@ -254,7 +254,7 @@ export default function SalesQuoteBuilder({
         <button
           type="button"
           onClick={() => addRow('PARTS')}
-          className="inline-flex items-center justify-center h-9 px-4 rounded-xl bg-slate-100 text-slate-700 text-sm font-semibold hover:bg-slate-200 transition-colors whitespace-nowrap"
+          className="inline-flex items-center justify-center h-12 px-4 rounded-xl bg-slate-100 text-slate-700 text-sm font-semibold hover:bg-slate-200 transition-colors whitespace-nowrap"
         >
           <Plus className="h-4 w-4 mr-1.5" />
           Add Parts Row

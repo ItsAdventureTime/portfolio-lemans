@@ -55,9 +55,16 @@ textarea:focus-visible,
 button,
 a,
 select,
+input,
 input[type='file']::file-selector-button {
   min-height: 44px;
   min-width: 44px;
+}
+
+select {
+  /* iPhone/WebKit collapses the intrinsic select height, so force it. */
+  min-height: 44px;
+  height: 44px;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -22,7 +22,7 @@ export default function CustomerList({ customers }: CustomerListProps) {
           render: (c) => (
             <Link
               href={`/customers/${c.id}`}
-              className="text-brand-primary hover:underline focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 rounded"
+              className="inline-flex items-center min-h-11 text-brand-primary hover:underline focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 rounded px-1 -mx-1"
             >
               {c.customer_no}
             </Link>

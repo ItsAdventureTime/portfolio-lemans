@@ -22,7 +22,7 @@ export default function JobOrderList({ jobOrders }: JobOrderListProps) {
           render: (jo) => (
             <Link
               href={`/job-orders/${jo.jo_no}`}
-              className="text-brand-primary hover:underline focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 rounded"
+              className="inline-flex items-center min-h-11 text-brand-primary hover:underline focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 rounded px-1 -mx-1"
             >
               {jo.jo_no}
             </Link>

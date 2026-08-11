@@ -14,7 +14,8 @@ reviews
 tsconfig.tsbuildinfo
 coverage
 *.log
-quadlet
+quadlet/**
+!quadlet/remote-demo/reset-demo.sh
 scripts
 sqlc.yaml
 Dockerfile*

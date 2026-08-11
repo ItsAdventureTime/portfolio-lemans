@@ -4,6 +4,8 @@ import {
   listSupplierInvoices,
   createPurchaseRequest,
   createSupplierInvoice,
+  listJobOrders,
+  ApiError,
 } from '@/lib/api';
 import { hasPermission } from '@/lib/roles';
 import { revalidatePath } from 'next/cache';
@@ -14,75 +16,132 @@ import PurchaseRequestForm from './PurchaseRequestForm';
 import PurchaseList from './PurchaseList';
 import SupplierInvoiceForm from './SupplierInvoiceForm';
 import SupplierInvoiceList from './SupplierInvoiceList';
+import { errorResult, FormResult, okResult } from '@/lib/form-result';
 
 export default async function PurchasingPage() {
   const role = await getDemoRole();
-  const [purchaseRequests, supplierInvoices, jobOrders] = await Promise.all([
+  const [purchaseRequests, supplierInvoices] = await Promise.all([
     listPurchaseRequests(role),
     listSupplierInvoices(role),
-    listJobOrdersForPurchasing(role),
   ]);
+  const jobOrders = await listJobOrdersForPurchasing(role);
   const canCreatePR = hasPermission(role, 'prCreate');
   const canCreateSI = hasPermission(role, 'supplierInvoiceCreate');
 
-  async function createPRAction(formData: FormData) {
+  async function createPRAction(_prev: FormResult, formData: FormData): Promise<FormResult> {
     'use server';
-    const r = (await import('@/lib/actor')).getDemoRole();
-    const supplier = String(formData.get('supplier')).trim();
-    const description = String(formData.get('description')).trim();
+    const r = await (await import('@/lib/actor')).getDemoRole();
+    const supplier = String(formData.get('supplier') ?? '').trim();
+    const description = String(formData.get('description') ?? '').trim();
     const quantity = Number(formData.get('quantity'));
     const unitCost = Number(formData.get('unitCost'));
-    if (
-      !supplier ||
-      !description ||
-      Number.isNaN(quantity) ||
-      quantity <= 0 ||
-      Number.isNaN(unitCost) ||
-      unitCost <= 0
-    ) {
-      throw new Error(
-        'Supplier, description, positive quantity, and positive unit cost are required'
+    const notes = String(formData.get('notes') ?? '').trim();
+
+    const fieldErrors: Record<string, string> = {};
+    if (!supplier) fieldErrors.supplier = 'Supplier is required';
+    if (!description) fieldErrors.description = 'Description is required';
+    if (Number.isNaN(quantity) || quantity <= 0) {
+      fieldErrors.quantity = 'Enter a positive quantity';
+    }
+    if (Number.isNaN(unitCost) || unitCost <= 0) {
+      fieldErrors.unitCost = 'Enter a positive unit cost';
+    }
+
+    const values = {
+      supplier,
+      description,
+      quantity: Number.isNaN(quantity) ? '' : quantity,
+      unitCost: Number.isNaN(unitCost) ? '' : unitCost,
+      notes,
+    };
+
+    if (Object.keys(fieldErrors).length > 0) {
+      return errorResult('Please correct the highlighted fields.', fieldErrors, values);
+    }
+
+    try {
+      await createPurchaseRequest(
+        {
+          supplier,
+          notes,
+          items: [
+            {
+              description,
+              quantity,
+              unitCostCents: Math.round(unitCost * 100),
+            },
+          ],
+        },
+        await r
+      );
+    } catch (err) {
+      if (err instanceof ApiError) {
+        return errorResult(err.message, undefined, values);
+      }
+      return errorResult(
+        err instanceof Error ? err.message : 'Network error while creating purchase request',
+        undefined,
+        values
       );
     }
-    const items = [
-      {
-        description,
-        quantity,
-        unitCostCents: Math.round(unitCost * 100),
-      },
-    ];
-    await createPurchaseRequest(
-      {
-        supplier,
-        notes: String(formData.get('notes')),
-        items,
-      },
-      await r
-    );
+
     revalidatePath('/purchasing');
+    return okResult('Purchase request created.');
   }
 
-  async function createSIAction(formData: FormData) {
+  async function createSIAction(_prev: FormResult, formData: FormData): Promise<FormResult> {
     'use server';
-    const r = (await import('@/lib/actor')).getDemoRole();
-    const supplier = String(formData.get('supplier')).trim();
-    const totalAmountCents = Number(formData.get('totalAmountCents'));
-    const invoiceDate = String(formData.get('invoiceDate'));
-    if (!supplier || Number.isNaN(totalAmountCents) || totalAmountCents <= 0 || !invoiceDate) {
-      throw new Error('Supplier, positive total amount, and invoice date are required');
+    const r = await (await import('@/lib/actor')).getDemoRole();
+    const supplier = String(formData.get('supplier') ?? '').trim();
+    const totalAmount = Number(formData.get('totalAmount'));
+    const invoiceDate = String(formData.get('invoiceDate') ?? '').trim();
+    const dueDate = String(formData.get('dueDate') ?? '').trim();
+    const notes = String(formData.get('notes') ?? '').trim();
+
+    const fieldErrors: Record<string, string> = {};
+    if (!supplier) fieldErrors.supplier = 'Supplier is required';
+    if (Number.isNaN(totalAmount) || totalAmount <= 0) {
+      fieldErrors.totalAmount = 'Enter a positive total amount';
     }
-    await createSupplierInvoice(
-      {
-        supplier,
-        totalAmountCents,
-        invoiceDate,
-        dueDate: String(formData.get('dueDate')),
-        notes: String(formData.get('notes')),
-      },
-      await r
-    );
+    if (!invoiceDate) fieldErrors.invoiceDate = 'Invoice date is required';
+
+    const values = {
+      supplier,
+      totalAmount: Number.isNaN(totalAmount) ? '' : totalAmount,
+      invoiceDate,
+      dueDate,
+      notes,
+    };
+
+    if (Object.keys(fieldErrors).length > 0) {
+      return errorResult('Please correct the highlighted fields.', fieldErrors, values);
+    }
+
+    try {
+      await createSupplierInvoice(
+        {
+          supplier,
+          totalAmountCents: Math.round(totalAmount * 100),
+          invoiceDate,
+          dueDate,
+          notes,
+        },
+        await r
+      );
+    } catch (err) {
+      if (err instanceof ApiError) {
+        return errorResult(err.message, undefined, values);
+      }
+      return errorResult(
+        err instanceof Error ? err.message : 'Network error while creating supplier invoice',
+        undefined,
+        values
+      );
+    }
+
     revalidatePath('/purchasing');
     revalidatePath('/dcs');
+    return okResult('Supplier invoice created.');
   }
 
   return (
@@ -110,7 +169,6 @@ export default async function PurchasingPage() {
 }
 
 async function listJobOrdersForPurchasing(role: string) {
-  const { listJobOrders } = await import('@/lib/api');
   const jos: JobOrder[] = await listJobOrders(role);
   return jos.map((jo) => ({
     id: jo.id,

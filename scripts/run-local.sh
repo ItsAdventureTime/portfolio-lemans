@@ -14,6 +14,8 @@ GO_NAME="lemans-demo-go"
 APP_NAME="lemans-demo-app"
 PORT=3000
 
+DB_PASSWORD="$(generate_password)"
+
 cleanup_local() {
   echo "Cleaning up local resources..."
   podman rm -f "$APP_NAME" "$GO_NAME" "$DB_NAME" 2>/dev/null || true
@@ -31,6 +33,7 @@ create_local_resources() {
 echo "=== Le Mans Local Run ==="
 
 podman rm -f "$APP_NAME" "$GO_NAME" "$DB_NAME" 2>/dev/null || true
+podman volume rm "$VOLUME_NAME" 2>/dev/null || true
 
 create_local_resources
 
@@ -39,7 +42,7 @@ podman run -d \
   --name "$DB_NAME" \
   --network "$NETWORK_NAME" \
   -e POSTGRES_USER=postgres \
-  -e POSTGRES_PASSWORD=postgres_demo_pass \
+  -e POSTGRES_PASSWORD="$DB_PASSWORD" \
   -e POSTGRES_DB=lemans_demo_db \
   -v "${VOLUME_NAME}:/var/lib/postgresql" \
   --restart=unless-stopped \
@@ -51,7 +54,7 @@ podman run -d \
   --replace \
   --name "$GO_NAME" \
   --network "$NETWORK_NAME" \
-  -e DATABASE_URL="postgresql://postgres:postgres_demo_pass@${DB_NAME}:5432/lemans_demo_db" \
+  -e DATABASE_URL="postgresql://postgres:${DB_PASSWORD}@${DB_NAME}:5432/lemans_demo_db" \
   -e DEMO_MODE=true \
   -e LISTEN_ADDR=:8080 \
   --restart=unless-stopped \

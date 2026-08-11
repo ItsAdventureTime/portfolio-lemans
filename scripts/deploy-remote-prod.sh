@@ -42,6 +42,39 @@ RELEASE_TIME="$(date -u +%Y%m%d-%H%M%S)"
 RELEASE_ID="${RELEASE_TIME}-${RELEASE_COMMIT:0:8}"
 RELEASE_DIR="${REMOTE_PATH}/releases"
 
+ENV_FILE="${PROJECT_ROOT}/.lemans-prod.env.tmp"
+RELEASE_FILE="${PROJECT_ROOT}/.lemans-prod-release.json.tmp"
+
+cleanup_temp() {
+  rm -f "$ENV_FILE" "$RELEASE_FILE"
+}
+trap cleanup_temp EXIT
+
+cat > "$ENV_FILE" <<EOF
+DATABASE_URL=postgresql://postgres:${DB_PASSWORD}@${DB_CONTAINER}:5432/lemans_prod_db
+B2_ENDPOINT=https://s3.us-west-004.backblazeb2.com
+B2_REGION=us-west-004
+B2_ACCESS_KEY_ID=${B2_ACCESS_KEY_ID}
+B2_SECRET_ACCESS_KEY=${B2_SECRET_ACCESS_KEY}
+B2_BUCKET_NAME=lemans-prod-attachments
+DEMO_MODE=false
+API_BASE_URL=http://${GO_CONTAINER}:8080
+EOF
+
+chmod 600 "$ENV_FILE" "$RELEASE_FILE"
+
+cat > "$RELEASE_FILE" <<EOF
+{
+  "release_id": "${RELEASE_ID}",
+  "commit": "${RELEASE_COMMIT}",
+  "time": "${RELEASE_TIME}",
+  "web_image_digest": "",
+  "go_image_digest": ""
+}
+EOF
+
+ssh "${REMOTE_USER}@${REMOTE_HOST}" "mkdir -p ${RELEASE_DIR} ${QUADLET_PATH}"
+
 echo "=== Deploying remote production to ${REMOTE_HOST} ==="
 
 echo "[1/5] Verifying local images..."
@@ -57,11 +90,19 @@ fi
 WEB_DIGEST="$(podman image inspect "$WEB_IMAGE" --format '{{.Digest}}' 2>/dev/null || echo 'unknown')"
 GO_DIGEST="$(podman image inspect "$GO_IMAGE" --format '{{.Digest}}' 2>/dev/null || echo 'unknown')"
 
+sed -i.bak "s/\"web_image_digest\": \"\"/\"web_image_digest\": \"${WEB_DIGEST}\"/" "$RELEASE_FILE"
+sed -i.bak "s/\"go_image_digest\": \"\"/\"go_image_digest\": \"${GO_DIGEST}\"/" "$RELEASE_FILE"
+rm -f "${RELEASE_FILE}.bak"
+
 echo "[2/5] Building local images (if needed)..."
 ./scripts/build.sh prod
 
 WEB_DIGEST="$(podman image inspect "$WEB_IMAGE" --format '{{.Digest}}' 2>/dev/null || echo 'unknown')"
 GO_DIGEST="$(podman image inspect "$GO_IMAGE" --format '{{.Digest}}' 2>/dev/null || echo 'unknown')"
+
+sed -i.bak "s/\"web_image_digest\": \"[^\"]*\"/\"web_image_digest\": \"${WEB_DIGEST}\"/" "$RELEASE_FILE"
+sed -i.bak "s/\"go_image_digest\": \"[^\"]*\"/\"go_image_digest\": \"${GO_DIGEST}\"/" "$RELEASE_FILE"
+rm -f "${RELEASE_FILE}.bak"
 
 echo "[3/5] Transferring images to remote..."
 podman save "$WEB_IMAGE" | ssh "${REMOTE_USER}@${REMOTE_HOST}" "podman load"
@@ -70,40 +111,19 @@ podman save "$GO_IMAGE" | ssh "${REMOTE_USER}@${REMOTE_HOST}" "podman load"
 echo "[4/5] Syncing Quadlets to remote..."
 rsync -avz --delete "${PROJECT_ROOT}/quadlet/remote-prod/" "${REMOTE_USER}@${REMOTE_HOST}:${QUADLET_PATH}/"
 
-echo "[5/5] Creating remote environment, secret, and release manifest..."
-ENV_FILE="${PROJECT_ROOT}/.lemans-prod.env.tmp"
-cat > "$ENV_FILE" <<EOF
-DATABASE_URL=postgresql://postgres:${DB_PASSWORD}@${DB_CONTAINER}:5432/lemans_prod_db
-B2_ENDPOINT=https://s3.us-west-004.backblazeb2.com
-B2_REGION=us-west-004
-B2_ACCESS_KEY_ID=${B2_ACCESS_KEY_ID}
-B2_SECRET_ACCESS_KEY=${B2_SECRET_ACCESS_KEY}
-B2_BUCKET_NAME=lemans-prod-attachments
-DEMO_MODE=false
-API_BASE_URL=http://${GO_CONTAINER}:8080
-EOF
-
-RELEASE_FILE="${PROJECT_ROOT}/.lemans-prod-release.json.tmp"
-cat > "$RELEASE_FILE" <<EOF
-{
-  "release_id": "${RELEASE_ID}",
-  "commit": "${RELEASE_COMMIT}",
-  "time": "${RELEASE_TIME}",
-  "web_image_digest": "${WEB_DIGEST}",
-  "go_image_digest": "${GO_DIGEST}"
-}
-EOF
-
-ssh "${REMOTE_USER}@${REMOTE_HOST}" "mkdir -p ${RELEASE_DIR}"
+echo "[5/5] Uploading environment, secret, and release manifest..."
 scp "$ENV_FILE" "${REMOTE_USER}@${REMOTE_HOST}:${QUADLET_PATH}/lemans.env"
 scp "$RELEASE_FILE" "${REMOTE_USER}@${REMOTE_HOST}:${RELEASE_DIR}/${RELEASE_ID}.json"
-rm -f "$ENV_FILE" "$RELEASE_FILE"
+
+cleanup_temp
+trap - EXIT
 
 ssh "${REMOTE_USER}@${REMOTE_HOST}" <<'REMOTE_SCRIPT'
   set -euo pipefail
   export PATH="/opt/podman/bin:$PATH"
 
   chmod 600 ${QUADLET_PATH}/lemans.env
+  ls -l ${QUADLET_PATH}/lemans.env
 
   if ! podman secret exists db_password; then
     printf '%s' '${DB_PASSWORD}' | podman secret create db_password -

@@ -1,10 +1,17 @@
 import Link from 'next/link';
 import { getDemoRole } from '@/lib/actor';
+import { isDemoEntered } from '@/lib/demo-entry.server';
 import { getDashboard } from '@/lib/api';
 import { formatPeso } from '@/lib/money';
 import { StatusBadge } from '@/components/ui';
+import DemoSplash from '@/components/DemoSplash';
 
 export default async function DashboardOverview() {
+  const entered = await isDemoEntered();
+  if (!entered) {
+    return <DemoSplash />;
+  }
+
   const role = await getDemoRole();
   const data = await getDashboard(role);
 
@@ -43,7 +50,7 @@ export default async function DashboardOverview() {
               <Link
                 key={jo.id}
                 href={`/job-orders/${jo.jo_no}`}
-                className="flex items-center justify-between px-4 py-3 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-inset"
+                className="flex items-center justify-between px-4 py-3 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-inset min-h-11"
               >
                 <div>
                   <p className="font-medium text-slate-900">{jo.jo_no}</p>

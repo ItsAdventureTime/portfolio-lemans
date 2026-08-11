@@ -41,7 +41,7 @@ export default function QuotationList({ quotes, role }: QuotationListProps) {
           render: (q) => (
             <Link
               href={`/quotations/${q.id}`}
-              className="text-brand-primary hover:underline focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 rounded"
+              className="inline-flex items-center min-h-11 text-brand-primary hover:underline focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 rounded px-1 -mx-1"
             >
               {q.quote_no}
             </Link>
@@ -65,7 +65,7 @@ export default function QuotationList({ quotes, role }: QuotationListProps) {
                   <button
                     onClick={() => run(() => approveQuotation(q.id, role))}
                     disabled={isPending}
-                    className="inline-flex items-center h-8 px-3 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-semibold hover:bg-emerald-100 transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
+                    className="inline-flex items-center h-11 px-3 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-semibold hover:bg-emerald-100 transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
                   >
                     {isPending ? (
                       <Loader2 className="h-3 w-3 animate-spin" />
@@ -77,7 +77,7 @@ export default function QuotationList({ quotes, role }: QuotationListProps) {
                   <button
                     onClick={() => run(() => rejectQuotation(q.id, role))}
                     disabled={isPending}
-                    className="inline-flex items-center h-8 px-3 rounded-lg bg-rose-50 text-rose-700 text-xs font-semibold hover:bg-rose-100 transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-rose-600 focus-visible:ring-offset-2"
+                    className="inline-flex items-center h-11 px-3 rounded-lg bg-rose-50 text-rose-700 text-xs font-semibold hover:bg-rose-100 transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-rose-600 focus-visible:ring-offset-2"
                   >
                     {isPending ? (
                       <Loader2 className="h-3 w-3 animate-spin" />
@@ -92,7 +92,7 @@ export default function QuotationList({ quotes, role }: QuotationListProps) {
                 <button
                   onClick={() => run(() => convertQuotation(q.id, role))}
                   disabled={isPending}
-                  className="inline-flex items-center h-8 px-3 rounded-lg bg-brand-primary text-white text-xs font-semibold hover:bg-brand-hover transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+                  className="inline-flex items-center h-11 px-3 rounded-lg bg-brand-primary text-white text-xs font-semibold hover:bg-brand-hover transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
                 >
                   {isPending ? (
                     <Loader2 className="h-3 w-3 animate-spin" />

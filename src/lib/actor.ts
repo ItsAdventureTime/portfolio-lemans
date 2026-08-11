@@ -1,6 +1,8 @@
 import { cookies } from 'next/headers';
 import { parseRole, ProjectRole } from './roles';
 
+export type { ProjectRole } from './roles';
+
 const COOKIE_NAME = 'lemans-demo-role';
 
 export async function getDemoRole(): Promise<ProjectRole> {
@@ -10,7 +12,8 @@ export async function getDemoRole(): Promise<ProjectRole> {
 
 export async function setDemoRole(role: ProjectRole) {
   const jar = await cookies();
-  jar.set(COOKIE_NAME, role, {
+  const valid = parseRole(role);
+  jar.set(COOKIE_NAME, valid, {
     path: '/',
     maxAge: 60 * 60 * 24 * 30,
     sameSite: 'lax',

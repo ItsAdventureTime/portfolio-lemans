@@ -55,7 +55,7 @@ export default async function DcsPage() {
                       revalidatePath('/dcs');
                     }}
                   >
-                    <button className="inline-flex items-center h-8 px-3 rounded-lg bg-brand-primary text-white text-xs font-semibold hover:bg-brand-hover transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2">
+                    <button className="inline-flex items-center h-11 px-3 rounded-lg bg-brand-primary text-white text-xs font-semibold hover:bg-brand-hover transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2">
                       Approve
                     </button>
                   </form>
@@ -110,10 +110,10 @@ export default async function DcsPage() {
                         id={`proof-${d.id}`}
                         name="proof"
                         type="file"
-                        className="text-xs w-40 file:mr-2 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-xs file:font-semibold focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+                        className="min-h-11 text-xs w-40 file:mr-2 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-xs file:font-semibold focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
                       />
                     </div>
-                    <button className="inline-flex items-center h-8 px-3 rounded-lg bg-brand-primary text-white text-xs font-semibold hover:bg-brand-hover transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2">
+                    <button className="inline-flex items-center h-11 px-3 rounded-lg bg-brand-primary text-white text-xs font-semibold hover:bg-brand-hover transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2">
                       Pay
                     </button>
                   </form>
@@ -129,7 +129,7 @@ export default async function DcsPage() {
                       }
                     }}
                   >
-                    <button className="inline-flex items-center h-8 px-3 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-slate-200 transition-colors focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2">
+                    <button className="inline-flex items-center h-11 px-3 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold hover:bg-slate-200 transition-colors focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2">
                       Proof
                     </button>
                   </form>

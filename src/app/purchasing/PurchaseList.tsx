@@ -47,7 +47,7 @@ export default function PurchaseList({ purchaseRequests, role }: PurchaseListPro
               <button
                 onClick={() => handleApprove(pr.id)}
                 disabled={isPending}
-                className="inline-flex items-center h-8 px-3 rounded-lg bg-brand-primary text-white text-xs font-semibold hover:bg-brand-hover transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+                className="inline-flex items-center h-11 px-3 rounded-lg bg-brand-primary text-white text-xs font-semibold hover:bg-brand-hover transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
               >
                 {isPending ? (
                   <Loader2 className="h-3 w-3 animate-spin" />

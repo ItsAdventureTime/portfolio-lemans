@@ -55,7 +55,7 @@ export default function CascadingCustomerVehicleSelector({
             <button
               type="button"
               onClick={onQuickAddCustomer}
-              className="inline-flex items-center text-xs font-semibold text-brand-primary hover:text-brand-hover focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 rounded"
+              className="inline-flex items-center justify-center min-h-11 min-w-11 text-xs font-semibold text-brand-primary hover:text-brand-hover focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 rounded px-2"
             >
               <Plus className="h-3 w-3 mr-0.5" />
               Quick Add
@@ -87,7 +87,7 @@ export default function CascadingCustomerVehicleSelector({
               <button
                 type="button"
                 onClick={onQuickAddVehicle}
-                className="inline-flex items-center text-xs font-semibold text-brand-primary hover:text-brand-hover focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 rounded"
+                className="inline-flex items-center justify-center min-h-11 min-w-11 text-xs font-semibold text-brand-primary hover:text-brand-hover focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 rounded px-2"
               >
                 <Plus className="h-3 w-3 mr-0.5" />
                 Quick Add
@@ -138,7 +138,7 @@ export function QuickAddModal({ title, open, onClose, children }: QuickAddModalP
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+            className="inline-flex items-center justify-center h-11 w-11 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
             aria-label="Close"
           >
             <X className="h-4 w-4" />

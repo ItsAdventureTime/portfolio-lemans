@@ -74,7 +74,7 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
               placeholder="Technician name"
               className="flex-1 min-w-[200px]"
             />
-            <button className="inline-flex items-center justify-center h-10 px-4 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-hover transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2">
+            <button className="inline-flex items-center justify-center h-12 px-4 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-hover transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2">
               Assign
             </button>
           </form>
@@ -104,7 +104,7 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
                 ))}
               </select>
             </div>
-            <button className="inline-flex items-center justify-center h-10 px-4 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-hover transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2">
+            <button className="inline-flex items-center justify-center h-12 px-4 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-hover transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2">
               Change Status
             </button>
           </form>
@@ -137,7 +137,7 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
               placeholder="Description"
               className="flex-1 min-w-[200px]"
             />
-            <button className="inline-flex items-center justify-center h-10 px-4 rounded-xl bg-slate-700 text-white text-sm font-semibold hover:bg-slate-600 transition-colors focus-visible:ring-2 focus-visible:ring-slate-700 focus-visible:ring-offset-2">
+            <button className="inline-flex items-center justify-center h-12 px-4 rounded-xl bg-slate-700 text-white text-sm font-semibold hover:bg-slate-600 transition-colors focus-visible:ring-2 focus-visible:ring-slate-700 focus-visible:ring-offset-2">
               Add Event
             </button>
           </form>

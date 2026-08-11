@@ -76,7 +76,7 @@ export default function MultiJoAllocationModal({
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+            className="inline-flex items-center justify-center h-11 w-11 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
             aria-label="Close"
           >
             <X className="h-4 w-4" />
@@ -106,7 +106,7 @@ export default function MultiJoAllocationModal({
                     <select
                       value={line.joId}
                       onChange={(e) => updateLine(idx, { joId: e.target.value })}
-                      className="w-full px-2 py-2 rounded-lg border border-slate-300 text-sm"
+                      className="min-h-11 w-full px-2 py-2 rounded-lg border border-slate-300 text-sm"
                     >
                       <option value="">Select Job Order</option>
                       {jobOrders.map((jo) => (
@@ -121,7 +121,7 @@ export default function MultiJoAllocationModal({
                       value={line.description}
                       onChange={(e) => updateLine(idx, { description: e.target.value })}
                       placeholder="Allocation note"
-                      className="w-full px-2 py-2 rounded-lg border border-slate-300 text-sm"
+                      className="min-h-11 w-full px-2 py-2 rounded-lg border border-slate-300 text-sm"
                     />
                   </td>
                   <td className="px-4 py-3">
@@ -135,7 +135,7 @@ export default function MultiJoAllocationModal({
                         step="0.01"
                         value={line.amount}
                         onChange={(e) => updateLine(idx, { amount: Number(e.target.value) })}
-                        className="w-28 pl-6 pr-2 py-2 rounded-lg border border-slate-300 text-sm text-right"
+                        className="min-h-11 w-28 pl-6 pr-2 py-2 rounded-lg border border-slate-300 text-sm text-right"
                       />
                     </div>
                   </td>
@@ -144,7 +144,7 @@ export default function MultiJoAllocationModal({
                       type="button"
                       onClick={() => removeLine(idx)}
                       disabled={lines.length === 1}
-                      className="inline-flex items-center justify-center h-8 w-8 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors disabled:opacity-30"
+                      className="inline-flex items-center justify-center h-11 w-11 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors disabled:opacity-30"
                       aria-label="Remove allocation"
                     >
                       <X className="h-4 w-4" />
@@ -159,7 +159,7 @@ export default function MultiJoAllocationModal({
         <button
           type="button"
           onClick={addLine}
-          className="inline-flex items-center justify-center h-9 px-4 rounded-xl bg-slate-100 text-slate-700 text-sm font-semibold hover:bg-slate-200 transition-colors whitespace-nowrap"
+          className="inline-flex items-center justify-center h-12 px-4 rounded-xl bg-slate-100 text-slate-700 text-sm font-semibold hover:bg-slate-200 transition-colors whitespace-nowrap"
         >
           + Add Allocation Line
         </button>
@@ -204,7 +204,7 @@ export default function MultiJoAllocationModal({
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex items-center justify-center h-10 px-5 rounded-xl border border-slate-300 text-slate-700 text-sm font-semibold hover:bg-slate-50"
+            className="inline-flex items-center justify-center h-12 px-5 rounded-xl border border-slate-300 text-slate-700 text-sm font-semibold hover:bg-slate-50"
           >
             Cancel
           </button>
@@ -212,7 +212,7 @@ export default function MultiJoAllocationModal({
             type="button"
             onClick={handleSave}
             disabled={!isBalanced}
-            className="inline-flex items-center justify-center h-10 px-5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-hover disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center justify-center h-12 px-5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-hover disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Save Allocation
           </button>
