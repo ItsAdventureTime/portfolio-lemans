@@ -44,7 +44,7 @@ user's systemd user manager.
 | Remote Go API service                     | `lemans-demo-go.service`                                    |
 | Remote database service                   | `lemans-demo-db.service`                                    |
 | Internal app/database network             | `lemans-demo-net`                                           |
-| Caddy-shared network                      | `caddy.network`                                             |
+| Caddy Quadlet reference / Podman network  | `caddy.network` / `caddy`                                   |
 
 The path under `/home/jk/bridge-ph/lemans-demo` must be subdivided and permission
 controlled, for example:
@@ -89,9 +89,9 @@ Use the smallest isolated topology that satisfies the application:
 Internet
    │ HTTPS
    ▼
-Caddy on caddy.network
+Caddy on the `caddy` Podman network (`caddy.network` Quadlet reference)
    │
-   ├── lemans-demo-app on caddy.network + lemans-demo-net
+   ├── lemans-demo-app on caddy + lemans-demo-net
    │   │                                  │
    │   │                                  ├── lemans-demo-go
    │   │                                  │   on lemans-demo-net only
@@ -109,7 +109,8 @@ Recommended units:
 - `lemans-demo-go.container` attached only to `lemans-demo-net`.
   Its unit name is `lemans-demo-go.service` and it should
   `After=lemans-demo-db.service` (and ideally `Requires=lemans-demo-db.service`).
-- `lemans-demo.container` attached to both `caddy.network` and
+- `lemans-demo.container` attached to both the `caddy.network` Quadlet
+  reference (the `caddy` Podman network) and
   `lemans-demo-net`. Its unit name is `lemans-demo.service` and it should
   `After=lemans-demo-go.service` (and ideally `Requires=lemans-demo-go.service`).
 - The Go API container runs migrations on startup and serves the
@@ -168,8 +169,13 @@ container. The standalone image is the appropriate static-asset optimization;
 the application itself remains a server runtime.
 
 The Caddy container/network definitions and Caddyfile must be reviewed before
-the first deployment. The operator should provide them if the existing network
-name, site-block structure, or TLS ownership is unclear.
+the first deployment. For the supplied Caddy configuration, `caddy.network`
+sets `NetworkName=caddy`; therefore the deployment must check the `caddy`
+Podman network while Le Mans Quadlets continue to use `Network=caddy.network`.
+The `delegateops.business` site must include a `handle /lemans/demo/*` reverse
+proxy block before its static-site fallback and must preserve the base-path
+prefix. The operator should provide the configuration if the network name,
+site-block structure, or TLS ownership is unclear.
 
 ## 5. Single-command deployment contract
 
@@ -257,10 +263,11 @@ The deployment is not successful until all checks pass:
 - Quadlet services and native timer units are loaded after
   `systemctl --user daemon-reload`.
 - The managed internal network and database volume start before PostgreSQL.
-- The existing `caddy.network` is present before the web container starts.
+- The shared `caddy` Podman network, created by `caddy.network`, is present
+  before the web container starts.
 - Database has no published host port.
-- App is reachable on `caddy.network` and only loopback health ports, if any,
-  are published.
+- App is reachable on the shared `caddy` Podman network and only loopback
+  health ports, if any, are published.
 - `https://delegateops.business/lemans/demo` returns a healthy response.
 - Static assets load beneath `/lemans/demo`.
 - The simulated `Enter as an Admin` entry and Admin default work.
@@ -292,8 +299,9 @@ schema changes.
 ## 10. Current implementation notes
 
 The deployment script now builds release-tagged images on the VPS; it does not
-build or execute the application locally. The Next.js web container joins
-`caddy.network` directly.
+build or execute the application locally. The Next.js web container references
+`caddy.network` directly, which joins it to the `caddy` Podman network defined
+by that Quadlet.
 
 - The script packages the committed source locally, then builds both
   `localhost/lemans-bridge-dashboard:demo-web-<release-id>` and
@@ -301,7 +309,8 @@ build or execute the application locally. The Next.js web container joins
 - Remote image checks use disposable `podman run --rm` containers. No local
   deployment, local build, local compile, or local runtime is required.
 - The Go API container is attached only to `lemans-demo-net`; the web container
-  joins both `caddy.network` and `lemans-demo-net`.
+  references `caddy.network` (actual network: `caddy`) and
+  `lemans-demo.network` (actual network: `lemans-demo-net`).
 - Go migrations run automatically inside `lemans-demo-go.service`.
 - The `/admin/seed` endpoint is only available when `DEMO_MODE=true`.
 - The remote demo reset service/timer must invoke the tracked reset script every

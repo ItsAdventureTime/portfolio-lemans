@@ -11,26 +11,50 @@
 
 ## Caddy Integration
 
-An existing rootless Caddy quadlet already handles public HTTP/HTTPS traffic. Each Le Mans environment attaches the Next.js web container to both the internal app network and `caddy.network`. The Go API container is attached only to the internal app network and is not reachable from Caddy.
+An existing rootless Caddy Quadlet already handles public HTTP/HTTPS traffic. Its
+file is named `caddy.network`, while its `[Network] NetworkName=caddy` creates
+the actual Podman network named `caddy`. Each Le Mans web container retains
+`Network=caddy.network` so Quadlet creates the correct service dependency. The
+deployment check uses the actual Podman network name, `caddy`. The Go API
+container is attached only to the internal app network and is not reachable from
+Caddy.
 
 - Remote demo web container networks: `caddy.network` + `lemans-demo-net`
 - Remote production web container networks: `caddy.network` + `lemans-prod-net`
 
-The web container is reachable by Caddy via its container name on the shared `caddy.network`. The web port (`127.0.0.1:3002/3003`) is only published for direct loopback health checks.
+The web container is reachable by Caddy via its container name on the shared
+`caddy` Podman network. The web port (`127.0.0.1:3002/3003`) is only published
+for direct loopback health checks.
 
-### Example Caddyfile snippet
+### `delegateops.business` demo route
 
 ```caddy
-lemans-demo.example.com {
-    reverse_proxy lemans-demo-app:3000
-}
+delegateops.business {
+    @lemans_demo_root path /lemans/demo
+    redir @lemans_demo_root /lemans/demo/ 308
 
-lemans.example.com {
-    reverse_proxy lemans-prod-app:3000
+    # Place this handle block before the static-site fallback. Do not use
+    # handle_path: Next.js was built with /lemans/demo as its base path.
+    handle /lemans/demo/* {
+        header {
+            >Cache-Control "public, max-age=0, must-revalidate"
+        }
+
+        reverse_proxy lemans-demo-app:3000
+    }
 }
 ```
 
-Replace `example.com` hostnames with the actual DNS records. Because the bridge containers join `caddy.network`, Caddy can resolve the app container names directly.
+Add this block to the supplied `delegateops.business` site before its final
+unmatched `handle` fallback. Validate the Caddyfile before reloading Caddy.
+Because the bridge containers join the `caddy` Podman network through the
+`caddy.network` Quadlet reference, Caddy can resolve `lemans-demo-app` directly.
+
+```bash
+# Run on the VPS after saving the Caddyfile and before reloading it.
+podman exec caddy caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+podman exec caddy caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile
+```
 
 ## Required Secrets
 
@@ -80,11 +104,16 @@ This will:
    Go API, and web systemd services.
 8. Seed the database (demo only) and start the rootless user-level 30-minute
    reset timer.
+9. Confirm the configured public HTTPS URL returns `200 OK`. This makes a
+   missing or prefix-stripping Caddy route a deployment failure rather than a
+   false success.
 
-The existing `caddy.network` must already be available. Containers refer to the
-tracked `.network` and `.volume` files so Quadlet creates the internal network
-and database volume before PostgreSQL starts. If a service fails, the deployment
-script prints its complete status and current-boot journal.
+The Caddy Quadlet must already have created its `caddy` Podman network. Le Mans
+containers continue to reference `caddy.network` by filename. The tracked
+`.network` and `.volume` files create the internal network and database volume
+before PostgreSQL starts. If a service fails, the deployment script prints its
+complete status and current-boot journal. Set `CADDY_NETWORK_NAME` only when the
+shared Caddy Quadlet uses a different `NetworkName`.
 
 ## Remote Production Deployment
 

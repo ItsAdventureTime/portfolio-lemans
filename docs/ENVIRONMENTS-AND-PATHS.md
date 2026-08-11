@@ -100,12 +100,17 @@ podman machine start
 
 ## 5. Caddy Reverse Proxy Integration
 
-The existing rootless Caddy quadlet already exposes the public HTTP/HTTPS ports. Each Le Mans environment attaches the Next.js web container to both the internal app network (`lemans-*-net`) and `caddy.network`, allowing Caddy to reverse-proxy to the web container by container name without exposing the web port publicly. The Go API container is attached only to the internal network.
+The existing rootless Caddy Quadlet already exposes the public HTTP/HTTPS ports.
+Its `caddy.network` file sets `NetworkName=caddy`. Each Le Mans environment
+therefore retains `Network=caddy.network` in its Quadlet while joining the
+actual `caddy` Podman network, allowing Caddy to reverse-proxy to the web
+container by container name without exposing the web port publicly. The Go API
+container is attached only to the internal network.
 
-| Environment       | Web Container Networks              | Go Container Networks | DB Container Networks |
-| ----------------- | ----------------------------------- | --------------------- | --------------------- |
-| Remote Demo       | `caddy.network` + `lemans-demo-net` | `lemans-demo-net`     | `lemans-demo-net`     |
-| Remote Production | `caddy.network` + `lemans-prod-net` | `lemans-prod-net`     | `lemans-prod-net`     |
+| Environment       | Web Container Networks      | Go Container Networks | DB Container Networks |
+| ----------------- | --------------------------- | --------------------- | --------------------- |
+| Remote Demo       | `caddy` + `lemans-demo-net` | `lemans-demo-net`     | `lemans-demo-net`     |
+| Remote Production | `caddy` + `lemans-prod-net` | `lemans-prod-net`     | `lemans-prod-net`     |
 
 ## 6. Required Secrets / Environment Variables
 

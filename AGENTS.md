@@ -59,10 +59,15 @@ documentation or repository synchronization is outstanding.
    - The Go API container runs migrations on startup and serves the `/admin/seed` endpoint only when `DEMO_MODE=true`.
 7. **Remote Execution Standard**:
    - VPS demo and production deployments use rootless Podman Quadlet files (`.container`, `.network`, `.volume`).
-   - Join the existing Caddy reverse-proxy network (`caddy.network`) with a single bridge container per environment.
-   - Internal app↔database traffic stays on a dedicated internal network (`lemans-demo-net` or `lemans-prod-net`).
-   - Database ports are never published to host interfaces.
-   - The Go API container is attached only to the internal network; the Next.js web container is attached to both the Caddy network and the internal network.
+
+- Join the existing Caddy reverse-proxy network through its `caddy.network`
+  Quadlet reference. The supplied Caddy Quadlet sets `NetworkName=caddy`; use
+  `caddy` for direct Podman network checks and retain `Network=caddy.network`
+  in application Quadlets.
+  - Internal app↔database traffic stays on a dedicated internal network (`lemans-demo-net` or `lemans-prod-net`).
+  - Database ports are never published to host interfaces.
+  - The Go API container is attached only to the internal network; the Next.js web container is attached to both the Caddy network and the internal network.
+
 8. **Git & GitHub Operations Standard**: - **Local Commits**: Local commits and local branch operations MUST use local `git` command. - **Remote Commits & Operations**: Remote commits, pushes, and GitHub repository operations MUST use GitHub official CLI (`gh` command). - **Transport Protocol**: Remote repository access MUST use HTTPS (`https://...`), not SSH. Authentication is assumed default via `gh auth setup-git` credential helper. - **Branch Policy**: Keep the worktree and remote on `main`; do not create feature/review branches. Never delete `main`; inspect protection and unique commits before deleting another branch.
 
 ## Demo Build Authority

@@ -29,6 +29,7 @@ GO_SERVICE="lemans-demo-go.service"
 DB_SERVICE="lemans-demo-db.service"
 NETWORK_SERVICE="lemans-demo-network.service"
 VOLUME_SERVICE="lemans-demo-volume.service"
+CADDY_NETWORK_NAME="${CADDY_NETWORK_NAME:-caddy}"
 BACKUP_TIMER=""
 DB_CONTAINER="lemans-demo-db"
 GO_CONTAINER="lemans-demo-go"
@@ -81,6 +82,10 @@ if [[ "$PUBLIC_URL" != https://* ]]; then
 fi
 if [[ "$PUBLIC_URL" != *"${BASE_PATH}" && "$PUBLIC_URL" != *"${BASE_PATH}/" ]]; then
   echo "Error: PUBLIC_URL must include the ${BASE_PATH} base path." >&2
+  exit 1
+fi
+if [[ ! "$CADDY_NETWORK_NAME" =~ ^[A-Za-z0-9][A-Za-z0-9_.-]*$ ]]; then
+  echo "Error: CADDY_NETWORK_NAME must be a valid Podman network name." >&2
   exit 1
 fi
 
@@ -237,7 +242,7 @@ printf '%s' "$DB_PASSWORD" | ssh "$REMOTE" "podman secret create --replace db_pa
 # Values are intentionally expanded locally into the remote environment.
 # shellcheck disable=SC2029
 ssh "$REMOTE" \
-  "PROFILE='$PROFILE' RELEASE_ID='$RELEASE_ID' RELEASE_DIR='$RELEASE_DIR' QUADLET_PATH='$QUADLET_PATH' BASE_PATH='$BASE_PATH' WEB_SERVICE='$WEB_SERVICE' GO_SERVICE='$GO_SERVICE' DB_SERVICE='$DB_SERVICE' NETWORK_SERVICE='$NETWORK_SERVICE' VOLUME_SERVICE='$VOLUME_SERVICE' BACKUP_TIMER='$BACKUP_TIMER' DB_CONTAINER='$DB_CONTAINER' GO_CONTAINER='$GO_CONTAINER' APP_CONTAINER='$APP_CONTAINER' APP_PORT='$APP_PORT' DB_NAME='$DB_NAME' RESET_FLAG='$RESET_FLAG' DEMO_MODE='$DEMO_MODE_VALUE' bash -s" <<'REMOTE_ACTIVATE'
+  "PROFILE='$PROFILE' RELEASE_ID='$RELEASE_ID' RELEASE_DIR='$RELEASE_DIR' QUADLET_PATH='$QUADLET_PATH' BASE_PATH='$BASE_PATH' PUBLIC_URL='$PUBLIC_URL' WEB_SERVICE='$WEB_SERVICE' GO_SERVICE='$GO_SERVICE' DB_SERVICE='$DB_SERVICE' NETWORK_SERVICE='$NETWORK_SERVICE' VOLUME_SERVICE='$VOLUME_SERVICE' CADDY_NETWORK_NAME='$CADDY_NETWORK_NAME' BACKUP_TIMER='$BACKUP_TIMER' DB_CONTAINER='$DB_CONTAINER' GO_CONTAINER='$GO_CONTAINER' APP_CONTAINER='$APP_CONTAINER' APP_PORT='$APP_PORT' DB_NAME='$DB_NAME' RESET_FLAG='$RESET_FLAG' DEMO_MODE='$DEMO_MODE_VALUE' bash -s" <<'REMOTE_ACTIVATE'
 set -euo pipefail
 export PATH="/opt/podman/bin:$PATH"
 
@@ -284,8 +289,9 @@ run_unit() {
   fi
 }
 
-if ! podman network exists caddy.network; then
-  echo "Error: required shared Caddy network does not exist: caddy.network" >&2
+if ! podman network exists "$CADDY_NETWORK_NAME"; then
+  echo "Error: required shared Caddy network does not exist: $CADDY_NETWORK_NAME" >&2
+  echo "The Caddy Quadlet reference is caddy.network; its NetworkName must match this value." >&2
   exit 1
 fi
 
@@ -343,6 +349,13 @@ done
 if [[ "$(curl -sL -o /dev/null -w '%{http_code}' "http://127.0.0.1:${APP_PORT}${BASE_PATH}" || true)" != "200" ]]; then
   echo "Error: $WEB_SERVICE health check failed." >&2
   report_unit_failure "$WEB_SERVICE"
+  exit 1
+fi
+
+public_status="$(curl -sSL --max-time 30 -o /dev/null -w '%{http_code}' "$PUBLIC_URL" || true)"
+if [[ "$public_status" != "200" ]]; then
+  echo "Error: public URL check failed for $PUBLIC_URL (HTTP ${public_status:-unavailable})." >&2
+  echo "Confirm Caddy has a handle block for $BASE_PATH that preserves the prefix and proxies to $APP_CONTAINER:3000." >&2
   exit 1
 fi
 

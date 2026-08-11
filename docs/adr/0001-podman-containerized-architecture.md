@@ -31,7 +31,9 @@ We decide to mandate rootless Podman as the **exclusive runtime and tooling envi
    profile-specific internal user networks (`lemans-demo-net` or
    `lemans-prod-net`) without exposed host ports.
 7. **Loopback Application Binding**: Exposed application HTTP ports bind to `127.0.0.1`.
-8. **Caddy Bridge Pattern**: Each VPS environment joins the existing `caddy.network` via a single bridge container for reverse proxy access.
+8. **Caddy Bridge Pattern**: Each VPS environment references the existing
+   `caddy.network` Quadlet to join its `caddy` Podman network for reverse proxy
+   access.
 
 ## Consequences
 

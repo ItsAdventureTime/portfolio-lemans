@@ -100,7 +100,8 @@ Specific project choices:
 ### Remote Caddy Pattern
 
 For VPS demo and production, the Next.js web container joins both the public
-`caddy.network` (shared with the existing rootless Caddy reverse proxy) and the
+`caddy.network` Quadlet reference (which joins the `caddy` Podman network shared
+with the existing rootless Caddy reverse proxy) and the
 internal app network, allowing Caddy to route traffic to the web container by
 name without publishing the web port to the public interface. The Go API
 container is attached only to the internal network.
