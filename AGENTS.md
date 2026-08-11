@@ -94,7 +94,10 @@ deployment and provides any required Caddy context.
 - **Remote Production Container**: `lemans-prod-app` listening on `127.0.0.1:3003` behind Caddy (`200 OK`).
 - **Quadlet Service Names**: Demo units are `lemans-demo.service`, `lemans-demo-go.service`, `lemans-demo-db.service`; production units are `lemans.service`, `lemans-go.service`, `lemans-db.service`. Container names remain `lemans-demo-app`/`lemans-demo-go`/`lemans-demo-db` and `lemans-prod-app`/`lemans-prod-go`/`lemans-prod-db` respectively.
 - **Database Isolation**: PostgreSQL containers run on internal bridge networks with 0 published host database ports.
-- **Empirical Validation Documented**: [`docs/PHASE-2-RESULTS.md`](docs/PHASE-2-RESULTS.md), [`docs/PHASE-3-HANDOFF.md`](docs/PHASE-3-HANDOFF.md), and [`docs/REMOTE-DEMO-RESULTS.md`](docs/REMOTE-DEMO-RESULTS.md).
+- **Historical Validation Evidence**: Prior phase and remote-result reports are
+  retained under [`to-review-and-delete/historical-docs/`](to-review-and-delete/historical-docs/)
+  for user review only. Current validation authority is `CURRENT-STATE.md` and
+  the demo playbook.
 
 ## Strict Sandbox Restrictions
 

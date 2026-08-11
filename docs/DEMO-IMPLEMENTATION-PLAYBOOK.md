@@ -49,7 +49,7 @@ implemented demo state.
 
 ### 1.1 Canonical demo actor
 
-Use one shared demo actor abstraction throughout the UI and server actions:
+Use one shared demo actor abstraction throughout the UI, route handlers, and API:
 
 | Role              | Display name         | Primary demonstration focus                           |
 | ----------------- | -------------------- | ----------------------------------------------------- |
@@ -318,7 +318,8 @@ The verification result must explicitly report:
 Do not report “verification complete” if any check failed or was skipped.
 
 The current remediation baseline and unresolved findings are tracked in
-[`reviews/NEXT-AGENT-REMEDIATION-REPORT-2026-08-11.md`](../reviews/NEXT-AGENT-REMEDIATION-REPORT-2026-08-11.md).
+the current verification scripts and `CURRENT-STATE.md`; prior remediation
+reports are review candidates under `to-review-and-delete/`.
 
 ## 9. Official guidance used
 

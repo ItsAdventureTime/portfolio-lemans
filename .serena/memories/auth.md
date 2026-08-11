@@ -1,17 +1,7 @@
-Authentication: Better Auth + PostgreSQL database sessions
+# Demo role policy
 
-See docs/adr/0003-authentication-and-session-strategy.md.
-
-- Sessions are opaque tokens stored in PostgreSQL; revocation is immediate.
-- Roles: ROLE-SALES, ROLE-SVC, ROLE-PURCH, ROLE-GM, ROLE-DCS, ROLE-ADMIN.
-- Permission matrix lives in `src/lib/roles.ts`.
-- `src/lib/auth.ts` exports Better Auth configuration.
-- `src/lib/auth-client.ts` exports the type-safe React client.
-- `src/middleware.ts` does coarse cookie/redirect checks only.
-- Real authorization happens in Server Components / Server Actions / Route Handlers via `auth.api.getSession()` or a project `verifySession()` DAL.
-- Acceptance criteria to enforce: AC-DCS-001 (DCS cannot approve), AC-ACCT-001 (admin-only /accounting).
-
-Environment variables
-
-- BETTER_AUTH_SECRET — signing secret
-- BETTER_AUTH_URL — canonical app URL per environment
+- The demo intentionally has no real login, passwords, sessions, redirects, or `requireSession` checks.
+- Splash entry sets the simulated Admin actor; visible switcher supports Admin, General Manager, Sales Advisor, Service Advisor, Purchasing, and DCS.
+- Browser cookie `lemans-demo-role` and API `X-Demo-Role` flow through centralized actor/policy helpers. Demo role checks are walkthrough behavior, not a public-data security boundary.
+- Every role-sensitive mutation still validates input and uses centralized policy. Admin-only accounting/export access uses `policy.ViewAccounting`.
+- Production authentication is a future runtime/profile concern; do not import older Better Auth/Prisma assumptions into the demo.

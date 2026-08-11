@@ -89,9 +89,10 @@ cryptographically random suffix to avoid count-based collisions.
 
 - Current runtime, build, and verification claims belong here, the README,
   `AGENTS.md`, the demo playbook, and the remote deployment playbook.
-- `PHASE-*`, old review, and migration-result files are historical records.
-  They must carry a historical notice when their commands, routes, dependency
-  versions, or completion claims no longer describe this source tree.
+- `to-review-and-delete/` contains historical phase, migration, review, and
+  superseded UX material awaiting user review. It is not implementation
+  authority and must not be used for commands, routes, versions, or completion
+  claims.
 - Do not document removed Prisma/Better Auth files, `/login` redirects,
   `docker-compose` workflows, or `Dockerfile.prod` as current implementation.
 

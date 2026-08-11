@@ -1,63 +1,13 @@
-Common project commands (run inside rootless Podman containers)
+# Current commands
 
-Start local demo
+Run from repository root with `export PATH="/opt/podman/bin:$PATH"`.
 
-```bash
-export PATH="/opt/podman/bin:$PATH"
-podman machine start
-./scripts/run-local.sh
-open http://127.0.0.1:3000
-```
+- Build demo images: `./scripts/build.sh demo`
+- Static/build/Go validation in disposable containers: `./scripts/verify-local.sh`
+- Start local demo: `./scripts/run-local.sh`
+- HTTP/topology verification: `./scripts/verify-vertical-slice.sh`
+- Browser verification in disposable Playwright container: `./scripts/verify-e2e.sh`
+- Stop demo runtime after validation: `./scripts/stop-local.sh`
+- Reset only disposable demo data: `./scripts/reset-local.sh`
 
-Stop local demo
-
-```bash
-./scripts/stop-local.sh
-```
-
-Reset local demo to seeded state
-
-```bash
-./scripts/stop-local.sh
-./scripts/reset-local.sh
-./scripts/run-local.sh
-```
-
-Run verification
-
-```bash
-./scripts/verify-local.sh
-./scripts/verify-vertical-slice.sh
-```
-
-Run Go checks
-
-```bash
-cd backend
-podman run --rm -v "$(pwd):/app" -w /app golang:alpine sh -c "go mod tidy && go vet ./... && go test ./..."
-```
-
-Container logs
-
-```bash
-podman logs -f lemans-demo-app
-podman logs -f lemans-demo-go
-journalctl --user -u lemans-demo-app
-journalctl --user -u lemans-demo-go
-```
-
-Local Git & Remote GitHub CLI (gh)
-
-```bash
-# Local commits & branch status
-git status
-git log --oneline -10
-git commit -m "commit message"
-
-# Remote commits & repository operations via gh CLI (HTTPS default auth)
-gh auth status
-gh auth setup-git
-gh repo view
-gh pr status
-gh pr create
-```
+Do not run `go mod tidy` as a verification workaround; verification uses `-mod=readonly`. Do not use Compose. Remote deploy/backup/restore requires explicit authorization.

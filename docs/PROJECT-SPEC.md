@@ -26,8 +26,8 @@ The Le Mans Operations & Job Cost Management System is a specialized enterprise 
 
 This product specification synthesizes two mutually compensating handoff documents:
 
-1. **Primary Operational SRS (`LeMans_SRS_Developer_Handoff_v1.md`)**: Defines the auto service domain, roles, job order operational lifecycle, DCS disbursement, billing, and admin/accounting boundary.
-2. **Complementary Workflow Specification (`Construction-ERP-Lite-Developer-Handoff-v1.md`)**: Compensates the primary SRS by supplying robust enterprise workflow patterns, including:
+1. **Primary Operational SRS (`_intake/originals/LeMans_SRS_Developer_Handoff_v1.md`)**: Defines the auto service domain, roles, job order operational lifecycle, DCS disbursement, billing, and admin/accounting boundary.
+2. **Complementary Workflow Specification (`_intake/originals/Construction-ERP-Lite-Developer-Handoff-v1.md`)**: Compensates the primary SRS by supplying robust enterprise workflow patterns, including:
    - QBO (QuickBooks Online) export-ready data structures (Customers, Vendors, Bills, Expenses, Invoices, Collections, Payments);
    - General Manager approval matrix and DCS payment stages;
    - Progress billing calculations and retention/variation order tracking primitives;
@@ -155,7 +155,7 @@ The platform includes server-side rendering for official printable receipts and 
 
 ### Non-Functional Security Requirements
 
-- **NF-AUTH-001**: The demo’s server actions, route handlers, and Go API
+- **NF-AUTH-001**: The demo’s route handlers, client flows, and Go API
   mutations must verify role authorization. A future production profile must
   additionally verify authentication on every protected request.
 - **NF-AUTH-002**: DCS role must never be able to invoke GM-only actions; UI hiding is not sufficient (defense-in-depth).

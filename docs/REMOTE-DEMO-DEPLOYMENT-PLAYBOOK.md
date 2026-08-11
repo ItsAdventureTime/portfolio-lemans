@@ -137,7 +137,7 @@ Recommended approach:
 1. Build the demo with `basePath: '/lemans/demo'`.
 2. Configure Caddy to preserve the `/lemans/demo` prefix when proxying.
 3. Proxy both the exact path and all descendants to the app container.
-4. Verify navigation, static assets, API routes, Server Actions, redirects,
+4. Verify navigation, static assets, API routes, browser flows, redirects,
    cookies, and error pages under the subpath.
 
 Illustrative Caddy shape, subject to validation against the live Caddyfile:
@@ -226,7 +226,7 @@ belong to the later production profile and must not be required by the demo.
 ## 7. Migration, reset, and data policy
 
 - Migrations are embedded in the Go API binary and run automatically on
-  startup using `goose`. Do not run manual `goose` or `prisma` commands on the
+  startup using `goose`. Do not run manual migration commands on the
   remote database.
 - Do not run destructive reset logic during ordinary deploys.
 - Install and verify a rootless user-level reset service and timer that restore
@@ -295,7 +295,7 @@ build or execute the application locally. The Next.js web container joins
   remote env file must be chmod `600`; release manifests must be written to
   `/home/jk/bridge-ph/lemans-demo/releases`. Verify these guarantees against
   both success and failure paths; see
-  [`NEXT-AGENT-REMEDIATION-REPORT-2026-08-11.md`](../reviews/NEXT-AGENT-REMEDIATION-REPORT-2026-08-11.md).
+  the current validation records in `CURRENT-STATE.md` and this playbook.
 - Rootless user services require a user manager that remains available after
   logout; verify `loginctl enable-linger jk` on the VPS as an operator
   prerequisite. Do not change that remote setting without explicit approval.

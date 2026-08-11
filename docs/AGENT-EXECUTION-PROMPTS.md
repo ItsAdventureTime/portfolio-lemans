@@ -126,8 +126,9 @@ unresolved blockers. Clearly separate implemented, partially implemented, and
 not implemented items. Link to the authoritative documents and never repeat
 historical credentials or claim production readiness for the no-auth demo.
 
-If no blockers remain, create or update `reviews/HANDOFF-<YYYY-MM-DD>.md` and
-record the copy-paste prompt a future agent can use to resume verification.
+If no blockers remain, report the exact commit, verification results, and any
+unresolved boundaries in the final response. Do not create a historical handoff
+unless the user explicitly requests one.
 ```
 
 ## 6. Repository commands

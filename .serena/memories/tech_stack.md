@@ -1,29 +1,8 @@
-Language / runtime
+# Technology stack
 
-- TypeScript 5.5.4
-- Node.js 20 Alpine (demo image tag: latest-alpine; prod: lts-alpine)
-- Next.js 14.2.8 App Router, `output: 'standalone'`
-- React 18.3.1
-
-Data & auth
-
-- PostgreSQL 16 Alpine
-- Prisma 5.19.0 + @prisma/client
-- Better Auth (database sessions, official Prisma adapter) — see `mem:auth`
-
-Storage
-
-- Backblaze B2 via S3-compatible API
-- AWS SDK for JavaScript v3: @aws-sdk/client-s3, @aws-sdk/s3-request-presigner
-
-Styling
-
-- Tailwind CSS 3.4.10
-- lucide-react icons
-- clsx + tailwind-merge for class utilities
-
-Build / test
-
-- npm scripts: dev, build, start, test, db:push, db:seed
-- ts-node for test runner and seed
-- Tests run inside rootless Podman containers only.
+- Frontend: Next.js 16.3 App Router, React 19.2, TypeScript strict mode, Tailwind.
+- Backend: Go 1.26, chi router, pgx/pgxpool, Goose migrations, sqlc-generated PostgreSQL queries, `log/slog`.
+- Containers: `node:lts-alpine` web image; `golang:alpine` build + `alpine:latest` API runtime; `postgres:alpine` database; all rootless Podman.
+- Attachments: Backblaze B2 through AWS SDK for Go v2 S3-compatible presigned URLs.
+- Tests: Go unit tests; Playwright Chromium desktop, iPhone-sized Chromium touch emulation, and reduced-motion profiles.
+- Accounting exports: Go generates deterministic, formula-safe Excel-compatible CSV and JSON interchange data; Next route handler proxies downloads. Files are not direct QuickBooks-import schemas.

@@ -12,7 +12,10 @@ This design system synthesizes evidence and directives from core sources:
 
 1. **Client Brand Identity**: Official logo for **LeMans Service Plus OPC** (`references/branding/logo.jpg`), featuring a racing-inspired shield badge with LeMans Racing Red (`#d32f2f`), Crisp White (`#ffffff`), and Dark Slate (`#0f172a`).
 2. **UI Architecture Inspiration**: ColdTrace Operations Dashboard (`references/design-inspiration/coldtrace-ui-mockup.webp`), featuring a modern light interface, elevated cards, subtle borders, high-visibility metric displays, and data-dense tables.
-3. **UI Context Prompt Directives**: Enterprise UI blueprint (`llm_ui_context_prompt_framework.md` & `llm-interface-design-context-prompt.md`), enforcing low visual token entropy, semantic primitive abstractions, strict 4-state visual contracts, and cross-platform alignment for web, iOS (SwiftUI), and Android (Jetpack Compose).
+3. **UI Context Prompt Directives**: Enterprise UI blueprints in
+   `references/prompts/`, enforcing low visual token entropy, semantic
+   primitive abstractions, strict 4-state visual contracts, and cross-platform
+   alignment for web, iOS (SwiftUI), and Android (Jetpack Compose).
 4. **2026 Modern UX & WCAG 2.2 Standards**:
    - **Zero Wasted Space**: Fluid full-bleed layouts (`max-w-[1920px]` container grids) replacing cramped centered frames.
    - **High-Readability Typography**: 16px baseline body text and high-contrast typography designed for users wearing glasses or viewing under shop lighting.

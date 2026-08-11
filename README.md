@@ -116,16 +116,9 @@ See [`docs/REMOTE-OPERATIONS.md`](./docs/REMOTE-OPERATIONS.md) for full details.
 - [`docs/DESIGN-SYSTEM.md`](./docs/DESIGN-SYSTEM.md): Enterprise UI/UX Specification & Token System
 - [`docs/ARCHITECTURE.md`](./docs/ARCHITECTURE.md): Containerized Architecture & Web Grounding
 - [`docs/GO-BACKEND-ARCHITECTURE.md`](./docs/GO-BACKEND-ARCHITECTURE.md): Go API Backend Architecture
-- [`docs/MIGRATION-NOTES.md`](./docs/MIGRATION-NOTES.md): Migration Notes (Prisma → Go API)
-- [`docs/MIGRATION-HANDOFF.md`](./docs/MIGRATION-HANDOFF.md): Handoff Document for the Next Agent / Reviewer
 - [`docs/ENVIRONMENTS-AND-PATHS.md`](./docs/ENVIRONMENTS-AND-PATHS.md): Environment Matrix & Remote Quadlet Paths
 - [`docs/REMOTE-OPERATIONS.md`](./docs/REMOTE-OPERATIONS.md): Remote Deploy, Backup, Restore, Rollback
 - [`docs/DELIVERY-PLAN.md`](./docs/DELIVERY-PLAN.md): Project Roadmap & Phase Specifications
-- [`docs/PHASE-2-RESULTS.md`](./docs/PHASE-2-RESULTS.md): Empirical Phase 2 Validation Log
-- [`docs/PHASE-3-HANDOFF.md`](./docs/PHASE-3-HANDOFF.md): Architecture Readiness & Phase 3 Scope
-- [`docs/PHASE-3-IMPLEMENTATION.md`](./docs/PHASE-3-IMPLEMENTATION.md): Phase 3 Build Plan & Verification Strategy
-- [`docs/PHASE-4-HANDOFF.md`](./docs/PHASE-4-HANDOFF.md): Phase 4 Completion & Next Steps
-- [`docs/UI-UX-OVERHAUL-SPECIFICATION.md`](./docs/UI-UX-OVERHAUL-SPECIFICATION.md): UI/UX Overhaul & Readability Blueprint
-- [`docs/UX-AND-DEMO-DATA-OVERHAUL-SPEC.md`](./docs/UX-AND-DEMO-DATA-OVERHAUL-SPEC.md): UX Workflow & Realistic Demo Seeding Specification
 - [`docs/adr/0003-authentication-and-session-strategy.md`](./docs/adr/0003-authentication-and-session-strategy.md): Auth Architecture Decision
 - [`docs/adr/0004-attachment-storage-strategy.md`](./docs/adr/0004-attachment-storage-strategy.md): Backblaze B2 Attachment Decision
+- [`to-review-and-delete/README.md`](./to-review-and-delete/README.md): Archived documentation candidates; not implementation authority

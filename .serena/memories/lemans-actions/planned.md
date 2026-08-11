@@ -1,1 +1,0 @@
-Server actions added/updated: createPurchaseRequest in purchasing.ts, createOpexRequest already existed. Need to add createCustomerAndVehicle and createSalesQuotation in new file or job-orders.ts. Need permission keys: customerCreate, salesQuotationCreate. Add to roles.ts.

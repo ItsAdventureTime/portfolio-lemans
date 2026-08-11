@@ -17,7 +17,7 @@ The current source uses Next.js 16 App Router (`output: 'standalone'`) as the
 web frontend, a Go 1.26 API for persistence and business logic, and PostgreSQL
 on rootless Podman:
 
-1. **Web frontend**: Next.js Server Components and Server Actions provide the
+1. **Web frontend**: Next.js Server Components and route handlers provide the
    demo UI and form feedback; standalone output produces the minimal runtime
    image.
 2. **API boundary**: Go owns migrations, SQL transactions, role-policy checks,

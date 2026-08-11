@@ -1,6 +1,6 @@
 # Documentation Index & Maintenance Contract
 
-- **Updated**: 2026-08-12 (audit reconciled)
+- **Updated**: 2026-08-12 (active-doc and archive audit)
 - **Repository branch policy**: `main` only; no feature or review branches
 - **Repository**: [`ItsAdventureTime/bridge-lemans`](https://github.com/ItsAdventureTime/bridge-lemans)
 
@@ -27,25 +27,24 @@ below.
 
 ## Document status map
 
-| Document group                                                                                                                                                                              | Status                               | How to use it                                                                                                                       |
-| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `CURRENT-STATE.md`, `DEMO-IMPLEMENTATION-PLAYBOOK.md`, `README.md`                                                                                                                          | Current                              | Use for implementation and verification decisions.                                                                                  |
-| `ARCHITECTURE.md`, `GO-BACKEND-ARCHITECTURE.md`, `ENVIRONMENTS-AND-PATHS.md`, `DESIGN-SYSTEM.md`, `PROJECT-SPEC.md`, `UX-AND-DEMO-DATA-OVERHAUL-SPEC.md`, `UI-UX-OVERHAUL-SPECIFICATION.md` | Current contract/specification       | Use for design, domain, and architecture constraints; confirm runtime facts against `CURRENT-STATE.md`.                             |
-| `REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`, `REMOTE-OPERATIONS.md`                                                                                                                                | Current but remote-only              | Do not execute without explicit authorization and required host/Caddy context.                                                      |
-| `AGENT-EXECUTION-PROMPTS.md`                                                                                                                                                                | Current operational prompts          | Keep commands synchronized with scripts and the current demo boundary.                                                              |
-| `DELIVERY-PLAN.md`, `MIGRATION-NOTES.md`, `MIGRATION-HANDOFF.md`                                                                                                                            | Current record / historical sections | Use for roadmap and migration context; current claims must link back to `CURRENT-STATE.md`.                                         |
-| `PHASE-2-*`, `PHASE-3-*`, `PHASE-4-*`, `REMOTE-DEMO-RESULTS.md`                                                                                                                             | Historical evidence                  | Preserve as dated records; do not use old commands, credentials, routes, or auth results as current proof.                          |
-| `reviews/*`                                                                                                                                                                                 | Historical review records            | Use for findings context only; current branch, deployment, and verification policy comes from this index and the current playbooks. |
-| `adr/0001*`, `adr/0002*`, `adr/0004*`                                                                                                                                                       | Current architecture decisions       | Apply to the current source unless superseded in the document.                                                                      |
-| `adr/0003*`                                                                                                                                                                                 | Future production design             | Do not add its authentication/session requirements to the demo profile.                                                             |
-| Root handoffs, `references/`, and `_intake/originals/`                                                                                                                                      | Source reference / archival material | Preserve provenance; use only to interpret original business intent, never as current implementation instructions.                  |
+| Document group                                                                                                                    | Status                                  | How to use it                                                                                                      |
+| --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `CURRENT-STATE.md`, `DEMO-IMPLEMENTATION-PLAYBOOK.md`, `README.md`                                                                | Current                                 | Use for implementation and verification decisions.                                                                 |
+| `ARCHITECTURE.md`, `GO-BACKEND-ARCHITECTURE.md`, `ENVIRONMENTS-AND-PATHS.md`, `DESIGN-SYSTEM.md`, `PROJECT-SPEC.md`, and the ADRs | Current contract/specification          | Use for design, domain, and architecture constraints; confirm runtime facts against `CURRENT-STATE.md`.            |
+| `REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`, `REMOTE-OPERATIONS.md`                                                                      | Current but remote-only                 | Do not execute without explicit authorization and required host/Caddy context.                                     |
+| `AGENT-EXECUTION-PROMPTS.md`                                                                                                      | Current operational prompts             | Keep commands synchronized with scripts and the current demo boundary.                                             |
+| `DELIVERY-PLAN.md`                                                                                                                | Current roadmap                         | Use for active delivery boundaries; current claims must link back to `CURRENT-STATE.md`.                           |
+| `to-review-and-delete/historical-docs/`, `to-review-and-delete/historical-reviews/`                                               | Review candidates / historical evidence | Preserve only for user review; never use as current proof, operating instructions, or implementation authority.    |
+| `adr/0001*`, `adr/0002*`, `adr/0004*`                                                                                             | Current architecture decisions          | Apply to the current source unless superseded in the document.                                                     |
+| `adr/0003*`                                                                                                                       | Future production design                | Do not add its authentication/session requirements to the demo profile.                                            |
+| `references/` and `_intake/originals/`                                                                                            | Source reference / archival material    | Preserve provenance; use only to interpret original business intent, never as current implementation instructions. |
 
 ## Synchronization contract
 
 Every source, schema, seed, container, script, UX, deployment, or workflow
 change must update the affected current guides and verification evidence in the
-same change set. Historical reports should receive a dated notice when their
-commands or results no longer describe the repository.
+same change set. Move conflicting historical material to
+`to-review-and-delete/` rather than leaving it beside active guidance.
 
 The repository remains on `main`. Use the official GitHub CLI for remote
 repository inspection, synchronization, and branch administration over HTTPS.
