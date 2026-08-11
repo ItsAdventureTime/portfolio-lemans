@@ -107,6 +107,14 @@ actual `caddy` Podman network, allowing Caddy to reverse-proxy to the web
 container by container name without exposing the web port publicly. The Go API
 container is attached only to the internal network.
 
+The demo route is tracked in
+[`caddy/lemans-demo.handlers.Caddyfile`](../caddy/lemans-demo.handlers.Caddyfile).
+An authorized demo deployment imports it before the DelegateOps static
+fallback, formats and validates the complete Caddyfile, and gracefully reloads
+the rootless Caddy container only when the route or import changes. The shared
+`caddy.container` remains on the shared edge network; it does not join an
+environment's internal network.
+
 | Environment       | Web Container Networks      | Go Container Networks | DB Container Networks |
 | ----------------- | --------------------------- | --------------------- | --------------------- |
 | Remote Demo       | `caddy` + `lemans-demo-net` | `lemans-demo-net`     | `lemans-demo-net`     |
@@ -148,6 +156,8 @@ Values are injected at container runtime via `EnvironmentFile=` in Quadlet files
 - [Next.js `output: 'standalone'`](https://nextjs.org/docs/app/api-reference/config/next-config-js/output)
 - [Podman Quadlet rootless units](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html)
 - [Podman Quadlet basic usage](https://docs.podman.io/en/latest/markdown/podman-quadlet-basic-usage.7.html)
+- [Caddy command line (`fmt`, `validate`, and `reload`)](https://caddyserver.com/docs/command-line)
+- [Caddy zero-downtime config reloads](https://caddyserver.com/docs/getting-started)
 - [systemd `loginctl` linger](https://www.freedesktop.org/software/systemd/man/252/loginctl.html)
 - [goose migrations](https://github.com/pressly/goose)
 - [sqlc documentation](https://docs.sqlc.dev)

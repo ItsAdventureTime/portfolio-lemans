@@ -28,6 +28,14 @@ for direct loopback health checks.
 
 ### `delegateops.business` demo route
 
+The tracked route fragment is
+[`caddy/lemans-demo.handlers.Caddyfile`](../caddy/lemans-demo.handlers.Caddyfile).
+The remote demo deploy installs it into the existing Caddy configuration
+directory, adds its import immediately before the DelegateOps static fallback,
+formats both Caddyfile inputs, validates the complete configuration, and then
+performs a graceful Caddy reload. Existing Caddy mounts and unrelated app
+routes remain untouched.
+
 ```caddy
 delegateops.business {
     @lemans_demo_root path /lemans/demo
@@ -45,13 +53,22 @@ delegateops.business {
 }
 ```
 
-Add this block to the supplied `delegateops.business` site before its final
-unmatched `handle` fallback. Validate the Caddyfile before reloading Caddy.
-Because the bridge containers join the `caddy` Podman network through the
-`caddy.network` Quadlet reference, Caddy can resolve `lemans-demo-app` directly.
+The deployment script adds this block to the supplied `delegateops.business`
+site before its final unmatched `handle` fallback. Do not add the demo internal
+network to `caddy.container`: the existing `Network=caddy.network` is the
+correct shared edge attachment, and the web container is the only Le Mans
+container that joins it. Because the bridge containers join the `caddy` Podman
+network through the `caddy.network` Quadlet reference, Caddy can resolve
+`lemans-demo-app` directly.
 
 ```bash
-# Run on the VPS after saving the Caddyfile and before reloading it.
+# Manual validation/reload path when the tracked fragment and import already exist.
+# If either is missing, rerun ./scripts/deploy-remote-demo.sh so the script can
+# install the fragment and create a release backup before reloading.
+formatted_caddyfile="$(mktemp)"
+podman exec caddy caddy fmt /etc/caddy/Caddyfile > "$formatted_caddyfile"
+install -m 0644 "$formatted_caddyfile" /home/jk/caddy/conf/Caddyfile
+rm -f "$formatted_caddyfile"
 podman exec caddy caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
 podman exec caddy caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile
 ```
@@ -131,7 +148,9 @@ containers continue to reference `caddy.network` by filename. The tracked
 `.network` and `.volume` files create the internal network and database volume
 before PostgreSQL starts. If a service fails, the deployment script prints its
 complete status and current-boot journal. Set `CADDY_NETWORK_NAME` only when the
-shared Caddy Quadlet uses a different `NetworkName`.
+shared Caddy Quadlet uses a different `NetworkName`. `REMOTE_PATH` and
+`QUADLET_PATH` remain optional profile-specific overrides; when omitted, the
+script selects the correct demo or production defaults.
 
 ## Remote Production Deployment
 
@@ -257,5 +276,7 @@ If a user without permission manually navigates to a restricted URL (e.g. a `ROL
 - [Podman Quadlet basic usage](https://docs.podman.io/en/latest/markdown/podman-quadlet-basic-usage.7.html)
 - [systemd `loginctl` linger](https://www.freedesktop.org/software/systemd/man/252/loginctl.html)
 - [Next.js 16 self-hosting](https://nextjs.org/docs/app/guides/self-hosting)
+- [Caddy command line (`fmt`, `validate`, and `reload`)](https://caddyserver.com/docs/command-line)
+- [Caddy graceful reload guidance](https://caddyserver.com/docs/getting-started)
 - [goose migrations](https://github.com/pressly/goose)
 - [sqlc documentation](https://docs.sqlc.dev)

@@ -147,14 +147,15 @@ Recommended approach:
 4. Verify navigation, static assets, API routes, browser flows, redirects,
    cookies, and error pages under the subpath.
 
-Illustrative Caddy shape, subject to validation against the live Caddyfile:
+The tracked `caddy/lemans-demo.handlers.Caddyfile` is imported inside the
+`delegateops.business` site before its static fallback:
 
 ```caddy
-delegateops.business {
-    @lemans_demo path /lemans/demo /lemans/demo/*
-    handle @lemans_demo {
-        reverse_proxy lemans-demo-app:3000
-    }
+@lemans_demo_root path /lemans/demo
+redir @lemans_demo_root /lemans/demo/ 308
+
+handle /lemans/demo/* {
+    reverse_proxy lemans-demo-app:3000
 }
 ```
 
@@ -170,12 +171,14 @@ the application itself remains a server runtime.
 
 The Caddy container/network definitions and Caddyfile must be reviewed before
 the first deployment. For the supplied Caddy configuration, `caddy.network`
-sets `NetworkName=caddy`; therefore the deployment must check the `caddy`
-Podman network while Le Mans Quadlets continue to use `Network=caddy.network`.
-The `delegateops.business` site must include a `handle /lemans/demo/*` reverse
-proxy block before its static-site fallback and must preserve the base-path
-prefix. The operator should provide the configuration if the network name,
-site-block structure, or TLS ownership is unclear.
+sets `NetworkName=caddy`; therefore the deployment checks the `caddy` Podman
+network while Le Mans Quadlets continue to use `Network=caddy.network`. The
+authorized demo deployment installs the tracked fragment, inserts one import
+before the static fallback, formats and validates the complete configuration,
+and gracefully reloads the running Caddy container. It preserves the existing
+static-site and application mounts. The operator should provide the
+configuration if the network name, site-block structure, or TLS ownership is
+unclear.
 
 ## 5. Single-command deployment contract
 
@@ -221,9 +224,11 @@ that unit's complete status and current-boot journal before it exits. The first
 Podman error in that output is the diagnostic to use; a `podman run` exit code
 of `125` means Podman could not start the container.
 
-The script must not silently deploy to production, reset the database, overwrite
-the Caddyfile, or modify unrelated systemd units. Remote deployment remains an
-explicitly authorized operation.
+The script must not silently deploy to production, reset the database, or modify
+unrelated Caddy routes or systemd units. For the demo profile, it may manage the
+tracked route fragment and its single import in the supplied Caddyfile. It keeps
+a release backup, formats and validates the complete configuration, and uses a
+graceful reload. Remote deployment remains an explicitly authorized operation.
 
 ## 6. Demo runtime configuration
 
@@ -287,9 +292,10 @@ The deployment is not successful until all checks pass:
   at 30-minute intervals after deployment.
 - Logs identify the release commit and image digest.
 
-If Caddy configuration is changed, validate Caddy before reloading it and keep a
-known-good rollback copy. Do not reload the shared proxy during an exploratory
-deployment without explicit approval.
+If the tracked demo route changes Caddy configuration, the deployment validates
+the complete Caddyfile before a graceful reload and keeps a release-specific
+rollback copy. Do not reload the shared proxy during an exploratory deployment
+without explicit approval.
 
 ## 9. Rollback contract
 

@@ -17,8 +17,10 @@ fi
 
 REMOTE_USER="${REMOTE_USER:-}"
 REMOTE_HOST="${REMOTE_HOST:-}"
-REMOTE_ROOT="${REMOTE_PATH:-/home/jk/bridge-ph/lemans-demo}"
-QUADLET_PATH="${QUADLET_PATH:-/home/jk/.config/containers/systemd/bridge-ph/lemans-demo}"
+REMOTE_PATH_OVERRIDE="${REMOTE_PATH:-}"
+QUADLET_PATH_OVERRIDE="${QUADLET_PATH:-}"
+REMOTE_ROOT=""
+QUADLET_PATH=""
 BASE_PATH="/lemans/demo"
 APP_PORT=3002
 PROFILE_LABEL="remote demo"
@@ -30,6 +32,12 @@ DB_SERVICE="lemans-demo-db.service"
 NETWORK_SERVICE="lemans-demo-network.service"
 VOLUME_SERVICE="lemans-demo-volume.service"
 CADDY_NETWORK_NAME="${CADDY_NETWORK_NAME:-}"
+CADDY_SERVICE="caddy.service"
+CADDY_CONTAINER="caddy"
+CADDY_CONFIG_FILE="${CADDY_CONFIG_FILE:-/home/jk/caddy/conf/Caddyfile}"
+CADDY_ROUTE_SOURCE="caddy/lemans-demo.handlers.Caddyfile"
+CADDY_ROUTE_TARGET_NAME="lemans-demo.handlers.Caddyfile"
+CADDY_ROUTE_IMPORT="/etc/caddy/lemans-demo.handlers.Caddyfile"
 BACKUP_TIMER=""
 DB_CONTAINER="lemans-demo-db"
 GO_CONTAINER="lemans-demo-go"
@@ -40,8 +48,8 @@ QUADLET_SOURCE_DIR="quadlet/remote-demo"
 RESET_FLAG="${RESET:-false}"
 
 if [[ "$PROFILE" == "prod" ]]; then
-  REMOTE_ROOT="${REMOTE_ROOT:-/home/jk/bridge-ph/lemans}"
-  QUADLET_PATH="${QUADLET_PATH:-/home/jk/.config/containers/systemd/bridge-ph/lemans}"
+  REMOTE_ROOT="${REMOTE_PATH_OVERRIDE:-/home/jk/bridge-ph/lemans}"
+  QUADLET_PATH="${QUADLET_PATH_OVERRIDE:-/home/jk/.config/containers/systemd/bridge-ph/lemans}"
   BASE_PATH="/lemans"
   APP_PORT=3003
   PROFILE_LABEL="remote production"
@@ -59,6 +67,12 @@ if [[ "$PROFILE" == "prod" ]]; then
   DB_NAME="lemans_prod_db"
   ENV_NAME="lemans.env"
   QUADLET_SOURCE_DIR="quadlet/remote-prod"
+  CADDY_ROUTE_SOURCE=""
+  CADDY_ROUTE_TARGET_NAME=""
+  CADDY_ROUTE_IMPORT=""
+else
+  REMOTE_ROOT="${REMOTE_PATH_OVERRIDE:-/home/jk/bridge-ph/lemans-demo}"
+  QUADLET_PATH="${QUADLET_PATH_OVERRIDE:-/home/jk/.config/containers/systemd/bridge-ph/lemans-demo}"
 fi
 
 KEYCHAIN_SERVICE_PREFIX="lemans-bridge-dashboard/${PROFILE}"
@@ -107,6 +121,10 @@ if [[ ! "$CADDY_NETWORK_NAME" =~ ^[A-Za-z0-9][A-Za-z0-9_.-]*$ ]]; then
   echo "Error: CADDY_NETWORK_NAME must be a valid Podman network name." >&2
   exit 1
 fi
+if [[ ! "$CADDY_CONFIG_FILE" =~ ^/[A-Za-z0-9._/-]+$ ]]; then
+  echo "Error: CADDY_CONFIG_FILE must be an absolute path without shell-special characters." >&2
+  exit 1
+fi
 
 for tool in git ssh rsync tar install sed openssl mktemp; do
   if ! command -v "$tool" >/dev/null 2>&1; then
@@ -142,6 +160,10 @@ RELEASE_DIR="${REMOTE_ROOT}/releases/${RELEASE_ID}"
 SOURCE_ARCHIVE="${PROJECT_ROOT}/.${PROFILE}-source-${RELEASE_ID}.tar.gz"
 ENV_FILE="${PROJECT_ROOT}/.${PROFILE}-env-${RELEASE_ID}.tmp"
 REMOTE="${REMOTE_USER}@${REMOTE_HOST}"
+CADDY_ROUTE_SOURCE_REMOTE=""
+if [[ -n "$CADDY_ROUTE_SOURCE" ]]; then
+  CADDY_ROUTE_SOURCE_REMOTE="${RELEASE_DIR}/source/${CADDY_ROUTE_SOURCE}"
+fi
 SSH_CONTROL_DIR="$(mktemp -d "${TMPDIR:-/tmp}/lemans-deploy-ssh.XXXXXX")"
 SSH_CONTROL_PATH="${SSH_CONTROL_DIR}/m"
 SSH_OPTIONS=(
@@ -276,7 +298,7 @@ printf '%s' "$DB_PASSWORD" | ssh "${SSH_OPTIONS[@]}" "$REMOTE" "podman secret cr
 # Values are intentionally expanded locally into the remote environment.
 # shellcheck disable=SC2029
 ssh_remote \
-  "PROFILE='$PROFILE' RELEASE_ID='$RELEASE_ID' RELEASE_DIR='$RELEASE_DIR' QUADLET_PATH='$QUADLET_PATH' BASE_PATH='$BASE_PATH' PUBLIC_URL='$PUBLIC_URL' WEB_SERVICE='$WEB_SERVICE' GO_SERVICE='$GO_SERVICE' DB_SERVICE='$DB_SERVICE' NETWORK_SERVICE='$NETWORK_SERVICE' VOLUME_SERVICE='$VOLUME_SERVICE' CADDY_NETWORK_NAME='$CADDY_NETWORK_NAME' BACKUP_TIMER='$BACKUP_TIMER' DB_CONTAINER='$DB_CONTAINER' GO_CONTAINER='$GO_CONTAINER' APP_CONTAINER='$APP_CONTAINER' APP_PORT='$APP_PORT' DB_NAME='$DB_NAME' RESET_FLAG='$RESET_FLAG' DEMO_MODE='$DEMO_MODE_VALUE' bash -s" <<'REMOTE_ACTIVATE'
+  "PROFILE='$PROFILE' RELEASE_ID='$RELEASE_ID' RELEASE_DIR='$RELEASE_DIR' QUADLET_PATH='$QUADLET_PATH' BASE_PATH='$BASE_PATH' PUBLIC_URL='$PUBLIC_URL' WEB_SERVICE='$WEB_SERVICE' GO_SERVICE='$GO_SERVICE' DB_SERVICE='$DB_SERVICE' NETWORK_SERVICE='$NETWORK_SERVICE' VOLUME_SERVICE='$VOLUME_SERVICE' CADDY_NETWORK_NAME='$CADDY_NETWORK_NAME' CADDY_SERVICE='$CADDY_SERVICE' CADDY_CONTAINER='$CADDY_CONTAINER' CADDY_CONFIG_FILE='$CADDY_CONFIG_FILE' CADDY_ROUTE_SOURCE='$CADDY_ROUTE_SOURCE_REMOTE' CADDY_ROUTE_TARGET_NAME='$CADDY_ROUTE_TARGET_NAME' CADDY_ROUTE_IMPORT='$CADDY_ROUTE_IMPORT' BACKUP_TIMER='$BACKUP_TIMER' DB_CONTAINER='$DB_CONTAINER' GO_CONTAINER='$GO_CONTAINER' APP_CONTAINER='$APP_CONTAINER' APP_PORT='$APP_PORT' DB_NAME='$DB_NAME' RESET_FLAG='$RESET_FLAG' DEMO_MODE='$DEMO_MODE_VALUE' bash -s" <<'REMOTE_ACTIVATE'
 set -euo pipefail
 export PATH="/opt/podman/bin:$PATH"
 
@@ -320,6 +342,115 @@ run_unit() {
     echo "Error: could not $action $unit." >&2
     report_unit_failure "$unit"
     exit 1
+  fi
+}
+
+ensure_caddy_route() {
+  [[ -n "$CADDY_ROUTE_SOURCE" ]] || return 0
+
+  if [[ ! -f "$CADDY_ROUTE_SOURCE" ]]; then
+    echo "Error: tracked Caddy route source is missing: $CADDY_ROUTE_SOURCE" >&2
+    exit 1
+  fi
+  if ! systemctl --user is-active --quiet "$CADDY_SERVICE"; then
+    run_unit start "$CADDY_SERVICE"
+  fi
+
+  caddy_config_dir="${CADDY_CONFIG_FILE%/*}"
+  caddy_route_file="${caddy_config_dir}/${CADDY_ROUTE_TARGET_NAME}"
+  caddy_import_line="import ${CADDY_ROUTE_IMPORT}"
+  caddy_config_backup="${CADDY_CONFIG_FILE}.bak.${RELEASE_ID}"
+  caddy_route_backup="${caddy_route_file}.bak.${RELEASE_ID}"
+  caddy_temp="$(mktemp)"
+  caddy_route_temp="$(mktemp)"
+  caddy_route_had_backup=false
+  caddy_changed=false
+
+  install -m 0644 "$CADDY_CONFIG_FILE" "$caddy_config_backup"
+  if [[ -f "$caddy_route_file" ]]; then
+    install -m 0644 "$caddy_route_file" "$caddy_route_backup"
+    caddy_route_had_backup=true
+  fi
+  if [[ ! -f "$caddy_route_file" ]] || ! cmp -s "$CADDY_ROUTE_SOURCE" "$caddy_route_file"; then
+    caddy_changed=true
+  fi
+  install -m 0644 "$CADDY_ROUTE_SOURCE" "$caddy_route_file"
+
+  if ! grep -Fq "$caddy_import_line" "$CADDY_CONFIG_FILE"; then
+    if ! awk -v import_line="$caddy_import_line" '
+      !inserted && $0 ~ /^[[:space:]]*# DelegateOps static-site fallback[[:space:]]*$/ {
+        print "\t" import_line
+        inserted=1
+      }
+      { print }
+      END { if (!inserted) exit 7 }
+    ' "$CADDY_CONFIG_FILE" > "$caddy_temp"; then
+      echo "Error: could not find the DelegateOps fallback marker in $CADDY_CONFIG_FILE." >&2
+      rm -f "$caddy_temp" "$caddy_route_temp"
+      exit 1
+    fi
+    install -m 0644 "$caddy_temp" "$CADDY_CONFIG_FILE"
+    caddy_changed=true
+  fi
+
+  if ! podman exec "$CADDY_CONTAINER" caddy fmt "/etc/caddy/${CADDY_ROUTE_TARGET_NAME}" > "$caddy_route_temp"; then
+    echo "Error: Caddy could not format ${CADDY_ROUTE_TARGET_NAME}." >&2
+    install -m 0644 "$caddy_config_backup" "$CADDY_CONFIG_FILE"
+    if [[ "$caddy_route_had_backup" == true ]]; then
+      install -m 0644 "$caddy_route_backup" "$caddy_route_file"
+    else
+      rm -f "$caddy_route_file"
+    fi
+    rm -f "$caddy_temp" "$caddy_route_temp"
+    exit 1
+  fi
+  install -m 0644 "$caddy_route_temp" "$caddy_route_file"
+
+  caddy_formatted="$(mktemp)"
+  if ! podman exec "$CADDY_CONTAINER" caddy fmt /etc/caddy/Caddyfile > "$caddy_formatted"; then
+    echo "Error: Caddy could not format Caddyfile." >&2
+    install -m 0644 "$caddy_config_backup" "$CADDY_CONFIG_FILE"
+    if [[ "$caddy_route_had_backup" == true ]]; then
+      install -m 0644 "$caddy_route_backup" "$caddy_route_file"
+    else
+      rm -f "$caddy_route_file"
+    fi
+    rm -f "$caddy_temp" "$caddy_route_temp" "$caddy_formatted"
+    exit 1
+  fi
+  if ! cmp -s "$caddy_formatted" "$CADDY_CONFIG_FILE"; then
+    install -m 0644 "$caddy_formatted" "$CADDY_CONFIG_FILE"
+    caddy_changed=true
+  fi
+  rm -f "$caddy_temp" "$caddy_route_temp" "$caddy_formatted"
+
+  if ! podman exec "$CADDY_CONTAINER" caddy validate \
+    --config /etc/caddy/Caddyfile --adapter caddyfile; then
+    echo "Error: Caddyfile validation failed; restoring the previous configuration." >&2
+    install -m 0644 "$caddy_config_backup" "$CADDY_CONFIG_FILE"
+    if [[ "$caddy_route_had_backup" == true ]]; then
+      install -m 0644 "$caddy_route_backup" "$caddy_route_file"
+    else
+      rm -f "$caddy_route_file"
+    fi
+    exit 1
+  fi
+
+  if [[ "$caddy_changed" == true ]]; then
+    if ! podman exec "$CADDY_CONTAINER" caddy reload \
+      --config /etc/caddy/Caddyfile --adapter caddyfile; then
+      echo "Error: Caddy graceful reload failed; the prior configuration remains active." >&2
+      install -m 0644 "$caddy_config_backup" "$CADDY_CONFIG_FILE"
+      if [[ "$caddy_route_had_backup" == true ]]; then
+        install -m 0644 "$caddy_route_backup" "$caddy_route_file"
+      else
+        rm -f "$caddy_route_file"
+      fi
+      exit 1
+    fi
+    echo "Caddy configuration validated and gracefully reloaded."
+  else
+    echo "Caddy configuration validated; no reload was needed."
   fi
 }
 
@@ -374,6 +505,7 @@ if [[ -n "$BACKUP_TIMER" ]]; then
   run_unit start "$BACKUP_TIMER"
 fi
 
+ensure_caddy_route
 run_unit restart "$WEB_SERVICE"
 for i in {1..60}; do
   status="$(curl -sL -o /dev/null -w '%{http_code}' "http://127.0.0.1:${APP_PORT}${BASE_PATH}" || true)"

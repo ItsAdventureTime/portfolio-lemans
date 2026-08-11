@@ -7,3 +7,4 @@
 - On macOS, `scripts/configure-remote-{demo,prod}.sh` stores remote settings and B2 credentials in the login Keychain; routine deploys load them automatically. Environment variables override Keychain values for automation and non-macOS use.
 - Use a per-deployment temporary OpenSSH control socket to reuse one authenticated connection for rsync and remote commands. Password authentication should prompt once per deployment; SSH keys remove that remaining prompt.
 - The repository source of truth is `AGENTS.md` and the remote deployment playbook.
+- Authorized demo deployments install the tracked `caddy/lemans-demo.handlers.Caddyfile` fragment into the existing Caddy config directory, add its single import before the DelegateOps static fallback, format and validate the complete Caddyfile, then gracefully reload the running rootless Caddy container. The shared `caddy.container` remains attached only to the shared `caddy` network; do not add the demo internal network.

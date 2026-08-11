@@ -1,0 +1,13 @@
+# Le Mans remote demo route.
+# This file is imported inside delegateops.business before its static fallback.
+
+@lemans_demo_root path /lemans/demo
+redir @lemans_demo_root /lemans/demo/ 308
+
+handle /lemans/demo/* {
+	header {
+		>Cache-Control "public, max-age=0, must-revalidate"
+	}
+
+	reverse_proxy lemans-demo-app:3000
+}

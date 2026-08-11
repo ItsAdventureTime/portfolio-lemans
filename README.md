@@ -106,7 +106,9 @@ On macOS, run `./scripts/configure-remote-demo.sh` once before the first demo
 deployment. It stores the remote settings and B2 credentials in the login
 Keychain, so later `./scripts/deploy-remote-demo.sh` runs need no exported
 deployment variables. The environment-variable form below remains available for
-non-macOS and automated environments.
+non-macOS and automated environments. The demo deployment also installs the
+tracked `/lemans/demo` Caddy route, validates and formats the complete
+Caddyfile, and gracefully reloads rootless Caddy when that route changes.
 
 ```bash
 # Remote demo (automatic 30-minute reset; manual reset also available)
