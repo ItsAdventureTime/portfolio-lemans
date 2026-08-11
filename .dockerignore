@@ -1,6 +1,9 @@
 .next
 node_modules
 .git
+.freebuff
+.codex
+.agents
 .env*.local
 .env.demo
 .env.prodlike
@@ -19,4 +22,3 @@ quadlet/**
 scripts
 sqlc.yaml
 Dockerfile*
-

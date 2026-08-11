@@ -1,44 +1,46 @@
 # ADR 0003: Authentication & Session Strategy
 
-- **Status**: Approved
+- **Status**: Future production design; not implemented in the demo
 - **Deciders**: Lead Agent, Project Architect
-- **Date**: 2026-08-07
+- **Date**: 2026-08-12
+
+> **Demo boundary:** The current demo intentionally has no login, password,
+> session, or authentication redirect. It uses the simulated actor described in
+> [`../DEMO-IMPLEMENTATION-PLAYBOOK.md`](../DEMO-IMPLEMENTATION-PLAYBOOK.md)
+> and enforces role policy in the Go API for walkthrough safety. This ADR must
+> not be used to add authentication to the demo profile.
 
 ## Context
 
-The Le Mans Operations & Job Cost Management System requires role-based access control (RBAC) for Sales, Service Delivery, Purchasing, General Manager, DCS, and Admin roles. Critical acceptance criteria AC-DCS-001 (DCS cannot approve) and AC-ACCT-001 (admin-only accounting) require server-side authorization. The Phase 2 vertical slice used hardcoded UI personas without real authentication.
+Production will eventually require authenticated RBAC for Sales, Service,
+Purchasing, General Manager, DCS, and Admin roles. Critical rules such as
+“DCS cannot approve” and Admin-only accounting must remain enforced by the
+backend, not only by navigation or hidden buttons.
 
-## Decision
+## Decision for the future production profile
 
-We adopt **Better Auth** as the production authentication and session framework for the Next.js 14 App Router application, backed by the existing **PostgreSQL** database via the official Prisma adapter.
+Evaluate Better Auth or an equivalent maintained session framework at the
+Next.js boundary, backed by PostgreSQL and integrated with the Go API policy
+boundary. Adoption requires a separate compatibility-tested implementation
+plan; the current repository has no Prisma or Better Auth dependency.
 
-1. **Library Choice**: `better-auth` (latest stable).
-   - Database-session model (sessions stored in PostgreSQL) gives immediate revocation.
-   - First-class Prisma adapter and generated schema/migration path.
-   - Role/organization primitives available as plugins.
-   - TypeScript-first API that fits the existing stack.
-2. **Session Model**: Database sessions only.
-   - Session token is opaque and stored in a `session` table.
-   - Every `auth.api.getSession()` call resolves against PostgreSQL.
-3. **Role Model**: Use Better Auth's built-in `admin()` plugin plus a custom project-specific role field.
-   - Roles: `ROLE-SALES`, `ROLE-SVC`, `ROLE-PURCH`, `ROLE-GM`, `ROLE-DCS`, `ROLE-ADMIN`.
-   - Permissions are enforced in a custom `src/lib/auth.ts` helper matrix.
-4. **Integration Pattern**:
-   - `src/lib/auth.ts` exports the Better Auth configuration.
-   - `src/lib/auth-client.ts` exports the type-safe React client.
-   - `src/middleware.ts` performs coarse cookie existence checks (optimistic redirects only).
-   - Server Components, Server Actions, and Route Handlers call `auth.api.getSession()` or a project `verifySession()` DAL for real authorization.
-5. **Security Baseline**:
-   - HttpOnly, Secure, SameSite cookies.
-   - Defense-in-depth: middleware for UX redirect, DAL/Server Action for enforcement.
-   - Server Actions are treated as public HTTP endpoints and explicitly check roles.
+Required properties:
+
+1. Opaque, revocable sessions stored in a durable production database.
+2. HttpOnly, Secure, SameSite cookies with an environment-specific canonical
+   URL.
+3. Server-side authorization in the Go API for every mutation and protected
+   read; UI checks remain usability aids only.
+4. Explicit migration, logout, secret rotation, backup, and rollback procedures.
+5. No change to the demo’s splash, Admin default, or visible role simulation.
 
 ## Consequences
 
-- **Positive**: Real, auditable sessions; immediate revocation; type-safe auth client; role plugins available; aligns with 2026 Next.js best practices.
-- **Negative**: Adds a dependency and generated schema surface; requires session DB round-trips; middleware cannot perform full DB checks at the edge (acceptable per ADR-0001 containerized Node runtime).
+- Production gains auditable identity and revocable sessions.
+- The production profile will add operational and schema complexity.
+- The Go policy matrix remains the source of truth for business authorization.
 
 ## Compliance
 
-- No changes to framework (Next.js), database (PostgreSQL), or containerization model.
-- Does not introduce host networking, privileged containers, or remote access.
+The current demo uses `lemans-demo-role` and `X-Demo-Role` only for simulation.
+It is not suitable for real customer data or public production access.

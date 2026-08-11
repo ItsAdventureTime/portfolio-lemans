@@ -59,6 +59,10 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
           )
         )}
       </div>
+
+      <p className="border-t border-slate-300 pt-4 text-center text-xs font-semibold tracking-wide text-slate-600">
+        THIS IS NOT AN OFFICIAL RECEIPT. NOT VALID FOR CLAIMING INPUT TAX
+      </p>
     </div>
   );
 }

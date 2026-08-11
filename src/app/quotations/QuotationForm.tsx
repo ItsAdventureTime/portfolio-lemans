@@ -17,6 +17,12 @@ interface QuotationFormProps {
 
 export default function QuotationForm({ customers, vehicles, action }: QuotationFormProps) {
   const [builderValue, setBuilderValue] = useState<SalesQuoteBuilderValue | null>(null);
+  const [customerId, setCustomerId] = useState<string>(
+    (action as unknown as { values?: { customerId?: string } }).values?.customerId ?? ''
+  );
+  const [vehicleId, setVehicleId] = useState<string>(
+    (action as unknown as { values?: { vehicleId?: string } }).values?.vehicleId ?? ''
+  );
   const [result, submitAction, isPending] = useActionState(action, {
     success: false,
     message: '',
@@ -26,6 +32,9 @@ export default function QuotationForm({ customers, vehicles, action }: Quotation
 
   const values = result?.values ?? {};
   const fieldErrors = result?.fieldErrors ?? {};
+  const selectedCustomerId =
+    (typeof values.customerId === 'string' && values.customerId) || customerId;
+  const selectedVehicleId = (typeof values.vehicleId === 'string' && values.vehicleId) || vehicleId;
 
   return (
     <form
@@ -35,11 +44,19 @@ export default function QuotationForm({ customers, vehicles, action }: Quotation
     >
       <FormError message={result?.message} fieldErrors={fieldErrors} />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input type="hidden" name="customerId" value={selectedCustomerId} />
+        <input type="hidden" name="vehicleId" value={selectedVehicleId} />
         <CascadingCustomerVehicleSelector
           customers={customers}
           vehicles={vehicles}
           customerName="customerId"
           vehicleName="vehicleId"
+          selectedCustomerId={selectedCustomerId}
+          selectedVehicleId={selectedVehicleId}
+          onChange={(customerId, vehicleId) => {
+            setCustomerId(customerId);
+            setVehicleId(vehicleId);
+          }}
         />
         <FormField
           label="Advisor"
@@ -53,7 +70,7 @@ export default function QuotationForm({ customers, vehicles, action }: Quotation
 
       <div className="space-y-1">
         <label className="text-sm font-semibold text-slate-700">Quote Items</label>
-        <SalesQuoteBuilder onChange={setBuilderValue} />
+        <SalesQuoteBuilder name="__quote_builder_items" onChange={setBuilderValue} />
       </div>
 
       {builderValue && (

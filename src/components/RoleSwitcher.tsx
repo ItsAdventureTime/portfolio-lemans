@@ -1,20 +1,17 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { ROLE_ORDER, ROLES, ProjectRole } from '@/lib/roles';
 import { getApiUrl } from '@/lib/api-url';
 
 export default function RoleSwitcher({ currentRole }: { currentRole: ProjectRole }) {
-  const [displayRole, setDisplayRole] = useState<ProjectRole>(currentRole);
+  const [optimisticRole, setOptimisticRole] = useState<ProjectRole | null>(null);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    setDisplayRole(currentRole);
-  }, [currentRole]);
+  const displayRole = optimisticRole ?? currentRole;
 
   async function switchRole(role: ProjectRole) {
     setError(null);
-    setDisplayRole(role);
+    setOptimisticRole(role);
     try {
       const res = await fetch(getApiUrl('/api/set-role'), {
         method: 'POST',
@@ -22,12 +19,15 @@ export default function RoleSwitcher({ currentRole }: { currentRole: ProjectRole
         credentials: 'same-origin',
         body: JSON.stringify({ role }),
       });
-      const data = await res.json().catch(() => ({ error: 'Role switch failed' }));
-      if (!res.ok) {
+      const data = (await res.json().catch(() => ({ error: 'Role switch failed' }))) as {
+        error?: string;
+        role?: string;
+      };
+      if (!res.ok || data.role !== role) {
         throw new Error(data.error || 'Role switch failed');
       }
     } catch (err) {
-      setDisplayRole(currentRole);
+      setOptimisticRole(null);
       setError(err instanceof Error ? err.message : 'Role switch failed');
     }
   }

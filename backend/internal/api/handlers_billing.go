@@ -29,7 +29,11 @@ func (d *deps) handleGetInvoice(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusNotFound, err)
 		return
 	}
-	payments, _ := d.queries.ListPaymentsByInvoice(ctx, id)
+	payments, err := d.queries.ListPaymentsByInvoice(ctx, id)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, err)
+		return
+	}
 	respondJSON(w, http.StatusOK, map[string]any{
 		"invoice":  inv,
 		"payments": payments,
@@ -44,19 +48,46 @@ func (d *deps) handleCreateInvoiceFromJO(w http.ResponseWriter, r *http.Request)
 	var req struct {
 		Notes string `json:"notes"`
 	}
-	_ = decodeJSON(r, &req)
-	ctx := r.Context()
-	joID := idParam(r, "joId")
-	jo, err := d.queries.GetJobOrder(ctx, joID)
-	if err != nil {
-		respondError(w, http.StatusNotFound, err)
+	if err := decodeJSON(r, &req); err != nil {
+		respondError(w, http.StatusBadRequest, err)
 		return
 	}
-	if jo.Status != repository.JoStatusCOMPLETED {
+	ctx := r.Context()
+	jobOrderRef := idParam(r, "joId")
+	joID := jobOrderRef
+	var joStatus repository.JoStatus
+	var customerID string
+	var actualLaborCostCents, actualPartsCostCents int64
+	jo, err := d.queries.GetJobOrder(ctx, jobOrderRef)
+	if err != nil {
+		byNo, noErr := d.queries.GetJobOrderByNo(ctx, jobOrderRef)
+		if noErr != nil {
+			respondError(w, http.StatusNotFound, noErr)
+			return
+		}
+		joID = byNo.ID
+		joStatus = byNo.Status
+		customerID = byNo.CustomerID
+		actualLaborCostCents = byNo.ActualLaborCostCents
+		actualPartsCostCents = byNo.ActualPartsCostCents
+	} else {
+		joStatus = jo.Status
+		customerID = jo.CustomerID
+		actualLaborCostCents = jo.ActualLaborCostCents
+		actualPartsCostCents = jo.ActualPartsCostCents
+	}
+	if joStatus != repository.JoStatusCOMPLETED {
 		respondError(w, http.StatusBadRequest, fmt.Errorf("job order must be completed"))
 		return
 	}
-	items, err := d.queries.ListJobOrderItems(ctx, joID)
+	tx, err := d.pool.Begin(ctx)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer tx.Rollback(ctx)
+	queries := d.queries.WithTx(tx)
+	items, err := queries.ListJobOrderItems(ctx, joID)
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, err)
 		return
@@ -67,11 +98,11 @@ func (d *deps) handleCreateInvoiceFromJO(w http.ResponseWriter, r *http.Request)
 	}
 	vat := mathx.VatFromSubtotal(subtotal)
 	total := subtotal + vat
-	invoiceNo := fmt.Sprintf("INV-%d-%s", time.Now().Year(), fmt.Sprintf("%03d", countPlaceholder(ctx, d.queries)))
-	inv, err := d.queries.CreateServiceInvoice(ctx, repository.CreateServiceInvoiceParams{
+	invoiceNo := fmt.Sprintf("INV-%d-%d", time.Now().Year(), time.Now().UnixNano())
+	inv, err := queries.CreateServiceInvoice(ctx, repository.CreateServiceInvoiceParams{
 		InvoiceNo:      invoiceNo,
 		JoID:           &joID,
-		CustomerID:     jo.CustomerID,
+		CustomerID:     customerID,
 		SubtotalCents:  subtotal,
 		VatAmountCents: vat,
 		TotalCents:     total,
@@ -81,11 +112,18 @@ func (d *deps) handleCreateInvoiceFromJO(w http.ResponseWriter, r *http.Request)
 		respondError(w, http.StatusInternalServerError, err)
 		return
 	}
-	_, _ = d.queries.UpdateJobOrderBilled(ctx, repository.UpdateJobOrderBilledParams{
+	if _, err := queries.UpdateJobOrderBilled(ctx, repository.UpdateJobOrderBilledParams{
 		ID:                joID,
 		BilledAmountCents: total,
-		NetProfitCents:    total - jo.ActualLaborCostCents - jo.ActualPartsCostCents,
-	})
+		NetProfitCents:    total - actualLaborCostCents - actualPartsCostCents,
+	}); err != nil {
+		respondError(w, http.StatusInternalServerError, err)
+		return
+	}
+	if err := tx.Commit(ctx); err != nil {
+		respondError(w, http.StatusInternalServerError, err)
+		return
+	}
 	respondJSON(w, http.StatusCreated, inv)
 }
 
@@ -111,7 +149,11 @@ func (d *deps) handleRecordInvoicePayment(w http.ResponseWriter, r *http.Request
 		respondError(w, http.StatusNotFound, err)
 		return
 	}
-	payments, _ := d.queries.ListPaymentsByInvoice(ctx, id)
+	payments, err := d.queries.ListPaymentsByInvoice(ctx, id)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, err)
+		return
+	}
 	var paidSoFar int64
 	for _, p := range payments {
 		paidSoFar += p.AmountCents
@@ -134,7 +176,14 @@ func (d *deps) handleRecordInvoicePayment(w http.ResponseWriter, r *http.Request
 	default:
 		status = inv.Status
 	}
-	_, err = d.queries.CreatePayment(ctx, repository.CreatePaymentParams{
+	tx, err := d.pool.Begin(ctx)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer tx.Rollback(ctx)
+	queries := d.queries.WithTx(tx)
+	_, err = queries.CreatePayment(ctx, repository.CreatePaymentParams{
 		ServiceInvoiceID: id,
 		AmountCents:      req.AmountCents,
 		PaymentMethod:    req.PaymentMethod,
@@ -146,12 +195,16 @@ func (d *deps) handleRecordInvoicePayment(w http.ResponseWriter, r *http.Request
 		respondError(w, http.StatusInternalServerError, err)
 		return
 	}
-	updated, err := d.queries.UpdateServiceInvoicePaymentStatus(ctx, repository.UpdateServiceInvoicePaymentStatusParams{
+	updated, err := queries.UpdateServiceInvoicePaymentStatus(ctx, repository.UpdateServiceInvoicePaymentStatusParams{
 		ID:              id,
 		AmountPaidCents: newPaid,
 		Status:          status,
 	})
 	if err != nil {
+		respondError(w, http.StatusInternalServerError, err)
+		return
+	}
+	if err := tx.Commit(ctx); err != nil {
 		respondError(w, http.StatusInternalServerError, err)
 		return
 	}

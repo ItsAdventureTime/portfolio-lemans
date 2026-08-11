@@ -97,6 +97,21 @@ export default async function PurchasingPage() {
     const invoiceDate = String(formData.get('invoiceDate') ?? '').trim();
     const dueDate = String(formData.get('dueDate') ?? '').trim();
     const notes = String(formData.get('notes') ?? '').trim();
+    let allocations: { joId: string; amountCents: number; description: string }[] = [];
+    try {
+      const raw = JSON.parse(String(formData.get('allocations') ?? '[]'));
+      if (Array.isArray(raw)) {
+        allocations = raw
+          .filter((item) => item && typeof item.joId === 'string')
+          .map((item) => ({
+            joId: item.joId,
+            amountCents: Math.round(Number(item.amount || 0) * 100),
+            description: String(item.description || '').trim(),
+          }));
+      }
+    } catch {
+      return errorResult('Allocation data is invalid. Please try again.');
+    }
 
     const fieldErrors: Record<string, string> = {};
     if (!supplier) fieldErrors.supplier = 'Supplier is required';
@@ -104,6 +119,12 @@ export default async function PurchasingPage() {
       fieldErrors.totalAmount = 'Enter a positive total amount';
     }
     if (!invoiceDate) fieldErrors.invoiceDate = 'Invoice date is required';
+    if (allocations.length > 0) {
+      const allocatedCents = allocations.reduce((sum, item) => sum + item.amountCents, 0);
+      if (allocatedCents !== Math.round(totalAmount * 100)) {
+        fieldErrors.allocations = 'Allocations must equal the invoice total';
+      }
+    }
 
     const values = {
       supplier,
@@ -125,6 +146,7 @@ export default async function PurchasingPage() {
           invoiceDate,
           dueDate,
           notes,
+          allocations,
         },
         await r
       );

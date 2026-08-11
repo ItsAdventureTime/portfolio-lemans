@@ -11,7 +11,8 @@
 - **Date**: 2026-08-11
 - **Operator**: Lead Agent / Remediation Agent
 - **Execution Mode**: Rootless Podman Container Stack (`podman-machine-default`, arm64/amd64 target)
-- **Status**: **LOCAL VERIFICATION + E2E PASS; REMOTE DEPLOY NOT YET EXERCISED**
+- **Status**: **Historical local verification evidence; rerun after changes dated
+  2026-08-12. Remote deployment was not exercised.**
 
 ---
 
@@ -79,6 +80,25 @@ export B2_ACCESS_KEY_ID=...
 export B2_SECRET_ACCESS_KEY=...
 ./scripts/deploy-remote-demo.sh
 ```
+
+---
+
+## 10. 2026-08-12 current-source verification
+
+This section is the latest local evidence for the current source and supersedes
+the older counts and command examples above. It does not claim that the remote
+host was deployed or modified.
+
+| Check                                                 | Result                                                           |
+| ----------------------------------------------------- | ---------------------------------------------------------------- |
+| Demo image build (`./scripts/build.sh demo`)          | ✅ web and Go images built                                       |
+| Local verification (`./scripts/verify-local.sh`)      | ✅ format, lint, typecheck, Next build, sqlc, Go build/tests     |
+| Vertical slice (`./scripts/verify-vertical-slice.sh`) | ✅ routes and Go health returned 200; DB port unpublished        |
+| Playwright browser matrix                             | ✅ 24/24 passed across Chromium, mobile, reduced-motion          |
+| Runtime cleanup                                       | ✅ `./scripts/stop-local.sh`; no project containers left running |
+
+The latest browser run used the disposable Playwright container contract in
+[`AGENT-EXECUTION-PROMPTS.md`](./AGENT-EXECUTION-PROMPTS.md).
 
 ---
 

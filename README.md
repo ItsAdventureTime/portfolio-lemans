@@ -14,7 +14,7 @@ Enterprise operational and job costing platform built for **Le Mans Service Plus
 
 - **Single Source Repository**: [`ItsAdventureTime/bridge-lemans`](https://github.com/ItsAdventureTime/bridge-lemans)
 - **Release model**: The demo is the canonical actively developed build. Production is promoted from the validated demo source/image lineage with production runtime configuration enabled.
-- **Documentation and Git synchronization**: Every change updates affected guides and verification evidence; local Git uses `git`, and GitHub operations use the official `gh` CLI over HTTPS (`https://github.com/ItsAdventureTime/bridge-lemans.git`).
+- **Documentation and Git synchronization**: Every change updates affected guides and verification evidence. Work stays on `main`; GitHub remote inspection, synchronization, and branch administration use the official `gh` CLI over HTTPS (`https://github.com/ItsAdventureTime/bridge-lemans.git`). See [`docs/DOCUMENTATION-INDEX.md`](./docs/DOCUMENTATION-INDEX.md).
 - **Single Source of Truth**: One Job Order (`JO` / `RA`) governs estimations, procurement allocations, OPEX requests, customer billing, and net job profitability.
 - **Containerized Execution**: 100% rootless Podman execution (`podman machine start` on macOS Apple Silicon; Linux rootless for VPS).
 - **No Compose**: `podman compose` / `docker compose` are not used. Local execution uses `podman run --rm` via helper scripts.
@@ -95,6 +95,8 @@ See [`docs/REMOTE-OPERATIONS.md`](./docs/REMOTE-OPERATIONS.md) for full details.
 
 ## 5. Primary Documentation Index
 
+- [`docs/CURRENT-STATE.md`](./docs/CURRENT-STATE.md): Implementation-backed current runtime, workflow, and documentation authority
+- [`docs/DOCUMENTATION-INDEX.md`](./docs/DOCUMENTATION-INDEX.md): Documentation status map, authority order, synchronization, and verification contract
 - [`AGENTS.md`](./AGENTS.md): Agent Operating Guidelines & Sandbox Policy
 - [`docs/DEMO-IMPLEMENTATION-PLAYBOOK.md`](./docs/DEMO-IMPLEMENTATION-PLAYBOOK.md): Authoritative Demo Specification, Workflow, UI/UX, and Verification Contract
 - [`docs/AGENT-EXECUTION-PROMPTS.md`](./docs/AGENT-EXECUTION-PROMPTS.md): Copy-Paste Prompts and Commands for Coding, Review, and Handoff Agents

@@ -5,7 +5,7 @@
 - **Client**: LeMans Service Plus OPC (Angeles City, Pampanga)
 - **Project Repository**: `lemans-bridge-dashboard`
 - **Scope**: Comprehensive UX/UI overhaul across all 6 user roles (`ROLE-SALES`, `ROLE-SVC`, `ROLE-PURCH`, `ROLE-GM`, `ROLE-DCS`, `ROLE-ADMIN`), complete elimination of developer shortcuts/pipe textareas, interactive line-item editors, cascading dropdown selectors, visual workflow steppers, and a realistic multi-role, multi-month operational database seed.
-- **Mandatory Constraint**: The executing agent MUST NOT break rootless Podman containerized execution (`./scripts/run-local.sh`, `./scripts/verify-vertical-slice.sh`), database schema constraints, Better Auth session handling, or Server Action contracts.
+- **Mandatory Constraint**: The executing agent MUST NOT break rootless Podman containerized execution (`./scripts/run-local.sh`, `./scripts/verify-vertical-slice.sh`), database schema constraints, demo actor/policy handling, or Server Action contracts. The current demo has no Better Auth session layer.
 
 ---
 
@@ -127,9 +127,15 @@ The objective of this specification is to transform the `lemans-bridge-dashboard
 
 ---
 
-## 4. Master Realistic Demo Database Expansion (`prisma/seed.ts`)
+## 4. Master Realistic Demo Database Expansion (`backend/internal/api/handlers_seed.go`)
 
-The executing agent MUST expand `prisma/seed.ts` to create a rich, multi-month operational dataset:
+The executing agent MUST expand the Go seed handler to create a rich,
+multi-month operational dataset:
+
+> The persona list below is historical planning input. The current demo has no
+> user accounts or passwords; its Admin and five business roles are simulated
+> by the browser cookie/header actor. Never use the credentials below as current
+> runtime instructions.
 
 ### 4.1 Accounts & User Personas (6 Authenticated Accounts)
 
@@ -223,7 +229,9 @@ Before declaring completion, the executing agent MUST run and pass:
    ```bash
    ./scripts/verify-vertical-slice.sh
    ```
-   - Must push database schema, apply expanded `prisma/seed.ts`, verify HTTP health checks (`200 OK` on protected routes, `307` on unauthenticated `/`, `403` on unauthorized `/accounting`), and confirm database port isolation.
+   - Must run the Go API migrations and seed flow, verify HTTP health checks
+     (`200 OK` on the demo splash and routes, explicit `AccessDenied` for
+     unauthorized `/accounting`), and confirm database port isolation.
 
 ---
 

@@ -23,7 +23,9 @@ run_node() {
       set -euo pipefail
       npm ci
       npm run format:check
+      npm run lint
       npm run typecheck
+      npm run build
     " || fail=1
 }
 
@@ -31,16 +33,21 @@ run_go() {
   podman run --rm \
     -v "${PROJECT_ROOT}/backend:/app:rw" \
     -w /app \
-    "$GO_IMAGE" sh -c "
+    "$GO_IMAGE" sh -c '
       set -euo pipefail
       apk add --no-cache git curl tar
-      curl -fsSL -o /tmp/sqlc.tgz https://github.com/sqlc-dev/sqlc/releases/download/v1.29.0/sqlc_1.29.0_linux_arm64.tar.gz
+      case "$(uname -m)" in
+        aarch64|arm64) sqlc_arch=arm64 ;;
+        x86_64|amd64) sqlc_arch=amd64 ;;
+        *) echo "Unsupported container architecture: $(uname -m)" >&2; exit 1 ;;
+      esac
+      curl -fsSL -o /tmp/sqlc.tgz "https://github.com/sqlc-dev/sqlc/releases/download/v1.29.0/sqlc_1.29.0_linux_${sqlc_arch}.tar.gz"
       tar -xzf /tmp/sqlc.tgz -C /usr/local/bin sqlc
       sqlc generate
       go mod tidy
       go build ./cmd/api
       go test ./...
-    " || fail=1
+    ' || fail=1
 }
 
 echo "[1/2] Node format + typecheck..."

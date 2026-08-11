@@ -1,5 +1,9 @@
 # Agent Execution Prompts
 
+- **Status**: Current operational prompt set
+- **Updated**: 2026-08-12
+- **Documentation map**: [`DOCUMENTATION-INDEX.md`](./DOCUMENTATION-INDEX.md)
+
 These prompts are copy-paste instructions for the next coding or review agent.
 Use them with [`docs/DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md)
 open in the same workspace.
@@ -92,8 +96,8 @@ Run:
   ./scripts/verify-local.sh
   ./scripts/verify-vertical-slice.sh
 
-Run the E2E suite:
-  npx playwright test
+Run the E2E suite in a disposable Playwright container attached to
+`lemans-demo-net` with `PLAYWRIGHT_BASE_URL=http://lemans-demo-app:3000`.
 
 Then exercise the UI through `Enter as an Admin`, and as Admin, General Manager,
 Sales Advisor, Service Advisor, Purchasing, and DCS. Verify role switching without
@@ -144,8 +148,12 @@ podman machine start
 
 # Manual spot checks at http://127.0.0.1:3000/lemans/demo/...
 
-# Browser / E2E checks (requires local stack running)
-npx playwright test
+# Browser / E2E checks (requires local stack running and Playwright container)
+podman run --rm --net lemans-demo-net \
+  -v "$PWD:/app:rw" -w /app \
+  -e PLAYWRIGHT_BASE_URL=http://lemans-demo-app:3000 \
+  mcr.microsoft.com/playwright:v1.62.1-noble \
+  bash -lc 'npm ci && npx playwright test'
 
 # Stop only the project demo runtime after validation
 ./scripts/stop-local.sh
@@ -165,12 +173,12 @@ change, update all affected requirements, design documents, operating guides,
 README/index entries, verification evidence, and handoff notes in the same
 change set. Mark historical or superseded documents clearly.
 
-Inspect git status before staging and preserve unrelated user changes. Use local
-git for branches, staging, commits, and local history. Use the official GitHub
-CLI (`gh`) for GitHub operations, keep the remote URL on HTTPS
-(`https://github.com/ItsAdventureTime/bridge-lemans.git`), and do not use SSH or
-SSH keys. Run focused verification before commit and report the exact branch,
-commit, files included, and remote push result. Never stage unrelated
+Inspect the worktree before editing and preserve unrelated user changes. Keep
+the worktree on `main`; do not create feature or review branches. Use the
+official GitHub CLI (`gh`) over HTTPS for remote inspection, synchronization,
+and branch administration. Never delete `main`; inspect branch protection and
+unique commits before deleting another branch. Report the exact branch, commit,
+files included, and remote synchronization result. Never stage unrelated
 dirty-worktree files just to create a clean-looking release.
 ```
 

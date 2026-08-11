@@ -1,5 +1,13 @@
 # Migration Notes: Prisma/Next.js Monolith to Go API + Next.js 16
 
+- **Status**: Historical migration record with current follow-up notes
+- **Updated**: 2026-08-12
+
+> The migration described below is complete. Its former Prisma, Better Auth,
+> login, and Server Action references describe the before-state only. Use
+> [`CURRENT-STATE.md`](./CURRENT-STATE.md) and
+> [`DOCUMENTATION-INDEX.md`](./DOCUMENTATION-INDEX.md) for current behavior.
+
 ## What changed
 
 - Replaced the Next.js monolithic data layer (Prisma, Better Auth, server actions) with a Go API backend.
@@ -35,13 +43,16 @@
   roles.
 - Role-sensitive actions validated server-side by the Go API using `X-Demo-Role` header.
 
-## Known TODOs
+## Follow-up status
 
-- Add focused Go unit tests for policy, money math, and handlers.
-- Add integration tests for the seed workflow inside a disposable Podman container.
-- Verify remote Quadlet deployment on the VPS after user authorizes it.
-- Update README with new quickstart.
-- Review `docs/MIGRATION-HANDOFF.md` and update it as work progresses.
+- Focused Go policy and money tests exist; broader handler integration coverage
+  remains a worthwhile future improvement.
+- The seed workflow is exercised by the local runtime and vertical-slice checks.
+- Remote Quadlet deployment remains unverified and requires explicit user
+  authorization.
+- README and current-state documentation now carry the current quickstart.
+- The migration handoff remains historical; current status is maintained in
+  `docs/CURRENT-STATE.md`.
 
 ## Verification commands
 

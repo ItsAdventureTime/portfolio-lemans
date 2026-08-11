@@ -35,7 +35,9 @@ This product specification synthesizes two mutually compensating handoff documen
 
 ### Production Authentication & Attachment Foundations
 
-- **Authentication**: See ADR-0003. The system uses **Better Auth** with database sessions stored in PostgreSQL, enforcing role-based access control for all server actions and protected routes.
+- **Authentication**: See ADR-0003. The current demo has no real authentication
+  and uses simulated roles. Better Auth (or an approved equivalent) remains a
+  future production-profile decision; it is not a current dependency.
 - **Attachments**: See ADR-0004. All file attachments (inspection photos, DCS proof-of-payment, invoice/OPEX supporting documents) are stored in **Backblaze B2** via its S3-compatible API. Access is gated by role/ownership checks and served through presigned URLs.
 
 For the demo, preserve the attachment workflow and role-aware presentation but
@@ -146,10 +148,15 @@ The platform includes server-side rendering for official printable receipts and 
 - **AC-DCS-001**: Users logged in under `ROLE-DCS` must not see "Approve" buttons on PRs or OPEX requests. API calls to approve via DCS token must return `403 Forbidden`.
 - **AC-GM-001**: Disbursements cannot be released by DCS unless the associated PR or Expense record has status `APPROVED_BY_GM`.
 - **AC-BILL-001**: Generated Service Invoices must compute VAT at 12% on taxable lines and display required footer notice: _"THIS IS NOT AN OFFICIAL RECEIPT. NOT VALID FOR CLAIMING INPUT TAX"_.
-- **AC-ACCT-001**: Non-admin user roles accessing `/accounting` routes must be redirected to `/dashboard` with an authorization warning.
+- **AC-ACCT-001**: Non-admin roles accessing `/accounting` must receive an
+  authorization warning and no accounting data. The current demo renders an
+  `AccessDenied` state in place; a future authenticated production profile may
+  redirect to its canonical dashboard.
 
 ### Non-Functional Security Requirements
 
-- **NF-AUTH-001**: Server Actions, Route Handlers, and Server Components must verify both authentication and authorization on every request.
+- **NF-AUTH-001**: The demo’s server actions, route handlers, and Go API
+  mutations must verify role authorization. A future production profile must
+  additionally verify authentication on every protected request.
 - **NF-AUTH-002**: DCS role must never be able to invoke GM-only actions; UI hiding is not sufficient (defense-in-depth).
 - **NF-ATTACH-001**: File attachments must be stored off-host in private object storage; presigned download URLs must expire within 15 minutes.

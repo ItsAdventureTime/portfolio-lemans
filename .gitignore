@@ -12,8 +12,8 @@ tsconfig.tsbuildinfo
 backend/bin
 backend/tmp
 backend/api
+.freebuff/
 
 # Playwright / test artifacts
 e2e-results.json
 test-results/
-

@@ -21,6 +21,9 @@ interface CascadingCustomerVehicleSelectorProps {
   vehicles: VehicleOption[];
   customerName?: string;
   vehicleName?: string;
+  selectedCustomerId?: string;
+  selectedVehicleId?: string;
+  onChange?: (customerId: string, vehicleId: string) => void;
   onQuickAddCustomer?: () => void;
   onQuickAddVehicle?: () => void;
 }
@@ -30,11 +33,18 @@ export default function CascadingCustomerVehicleSelector({
   vehicles,
   customerName = 'customerId',
   vehicleName = 'vehicleId',
+  selectedCustomerId: controlledCustomerId,
+  selectedVehicleId: controlledVehicleId,
+  onChange,
   onQuickAddCustomer,
   onQuickAddVehicle,
 }: CascadingCustomerVehicleSelectorProps) {
-  const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
-  const [selectedVehicleId, setSelectedVehicleId] = useState<string>('');
+  const isControlled = controlledCustomerId !== undefined;
+  const [internalCustomerId, setInternalCustomerId] = useState<string>('');
+  const [internalVehicleId, setInternalVehicleId] = useState<string>('');
+
+  const selectedCustomerId = isControlled ? controlledCustomerId : internalCustomerId;
+  const selectedVehicleId = isControlled ? (controlledVehicleId ?? '') : internalVehicleId;
 
   const filteredVehicles = useMemo(
     () => vehicles.filter((v) => v.customerId === selectedCustomerId),
@@ -42,8 +52,20 @@ export default function CascadingCustomerVehicleSelector({
   );
 
   const handleCustomerChange = (customerId: string) => {
-    setSelectedCustomerId(customerId);
-    setSelectedVehicleId('');
+    if (isControlled) {
+      onChange?.(customerId, '');
+    } else {
+      setInternalCustomerId(customerId);
+      setInternalVehicleId('');
+    }
+  };
+
+  const handleVehicleChange = (vehicleId: string) => {
+    if (isControlled) {
+      onChange?.(selectedCustomerId, vehicleId);
+    } else {
+      setInternalVehicleId(vehicleId);
+    }
   };
 
   return (
@@ -68,6 +90,7 @@ export default function CascadingCustomerVehicleSelector({
           required
           value={selectedCustomerId}
           onChange={(e) => handleCustomerChange(e.target.value)}
+          aria-controls={`${vehicleName}-select`}
           className="w-full px-3 py-2 rounded-xl border border-slate-300 text-base focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
         >
           <option value="">Select Customer</option>
@@ -98,12 +121,12 @@ export default function CascadingCustomerVehicleSelector({
           )}
         </label>
         <select
-          id={vehicleName}
+          id={`${vehicleName}-select`}
           name={vehicleName}
           required
           disabled={!selectedCustomerId}
           value={selectedVehicleId}
-          onChange={(e) => setSelectedVehicleId(e.target.value)}
+          onChange={(e) => handleVehicleChange(e.target.value)}
           className="w-full px-3 py-2 rounded-xl border border-slate-300 text-base disabled:bg-slate-100 disabled:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
         >
           <option value="">

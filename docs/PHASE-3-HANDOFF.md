@@ -1,5 +1,11 @@
 # Phase 3 Handoff & Architecture Readiness Evaluation
 
+> **Historical document notice (2026-08-12):** This handoff records the
+> pre-migration Next.js/Prisma phase. The current implementation is Next.js 16
+> plus the Go API in `backend/`; use [`CURRENT-STATE.md`](./CURRENT-STATE.md)
+> and [`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md)
+> for current architecture and acceptance claims.
+
 ## 1. Architecture Readiness Verdict
 
 > **ARCHITECTURE IS READY**: The Next.js 14 App Router standalone containerized architecture paired with PostgreSQL 16 Alpine in rootless Podman has passed all empirical validation criteria. Both `local-demo` and `local-prodlike` environments execute cleanly, enforce strict security isolation, and deliver 100% functional parity.

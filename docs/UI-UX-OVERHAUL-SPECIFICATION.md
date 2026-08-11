@@ -4,7 +4,12 @@
 - **Client**: LeMans Service Plus OPC (Angeles City, Pampanga)
 - **Project**: `lemans-bridge-dashboard`
 - **Scope**: Screen space utilization, high-readability typography, role-aware RBAC navigation, brand color alignment, and component defect resolution.
-- **Strict Constraint**: The executing agent must implement all specified code changes in Next.js 14 App Router and Tailwind CSS without breaking existing server actions, authentication, database schemas, or rootless Podman execution.
+- **Strict Constraint**: The executing agent must implement all specified code changes in Next.js 16 App Router and Tailwind CSS without breaking existing server actions, demo actor policy, database schemas, or rootless Podman execution.
+
+> **Current-state note (2026-08-12):** The silent-redirect findings below are
+> historical audit input. The current demo uses a visible `AccessDenied` state,
+> has no login requirement, and keeps role policy in the Go API. Use
+> [`CURRENT-STATE.md`](./CURRENT-STATE.md) for current behavior.
 
 ---
 

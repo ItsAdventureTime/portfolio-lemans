@@ -10,5 +10,15 @@ export function getBasePath(): string {
 
 export function getApiUrl(path: string): string {
   const base = getBasePath();
-  return `${base}${path}`;
+  const normalized = path.startsWith('/') ? path : `/${path}`;
+  return `${base}${normalized}`;
+}
+
+export function getInternalApiUrl(path: string): string {
+  const base = getBasePath();
+  const normalized = path.startsWith('/') ? path : `/${path}`;
+  if (base) {
+    return `${base}${normalized}`;
+  }
+  return normalized;
 }

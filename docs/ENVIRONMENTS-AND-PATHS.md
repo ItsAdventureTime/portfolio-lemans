@@ -6,7 +6,9 @@ All application logic, container build files, database schemas, and Quadlet defi
 
 - **Remote GitHub Repository**: `https://github.com/ItsAdventureTime/bridge-lemans`
 - **Transport Protocol**: HTTPS (`https://github.com/ItsAdventureTime/bridge-lemans.git`) authenticated by default (SSH deprecated)
-- **Git & Remote Workflow**: Local `git` for local commits; GitHub official CLI (`gh`) for remote commits and remote operations.
+- **Git & Remote Workflow**: Work remains on `main`; use the official GitHub CLI
+  (`gh`) over HTTPS for remote inspection, synchronization, and branch
+  administration. Do not create feature branches or delete `main`.
 
 ### Demo profile
 

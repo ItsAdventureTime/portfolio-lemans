@@ -1,6 +1,11 @@
-const API_BASE_URL =
-  process.env.API_BASE_URL ||
-  (process.env.NODE_ENV === 'production' ? 'http://lemans-demo-go:8080' : 'http://127.0.0.1:8080');
+function getApiBaseUrl(): string {
+  if (process.env.API_BASE_URL) return process.env.API_BASE_URL;
+  if (process.env.NODE_ENV === 'production') {
+    // Inside the Next.js container, the Go API is reachable by its container name.
+    return 'http://lemans-demo-go:8080';
+  }
+  return 'http://127.0.0.1:8080';
+}
 
 export class ApiError extends Error {
   constructor(
@@ -15,7 +20,7 @@ async function apiFetch(path: string, options: RequestInit = {}, role?: string) 
   const headers = new Headers(options.headers);
   headers.set('Content-Type', 'application/json');
   if (role) headers.set('X-Demo-Role', role);
-  const res = await fetch(`${API_BASE_URL}${path}`, {
+  const res = await fetch(`${getApiBaseUrl()}${path}`, {
     ...options,
     headers,
   });
@@ -37,7 +42,7 @@ export async function apiPost(path: string, body: unknown, role?: string) {
 export { formatPeso, formatPesoAmount, pesoToCents, centsToPeso } from './money';
 
 export async function listCustomers(role?: string) {
-  return apiGet('/api/customers', role);
+  return apiGet('/api/customers/', role);
 }
 
 export async function getCustomer(id: string, role?: string) {
@@ -45,7 +50,7 @@ export async function getCustomer(id: string, role?: string) {
 }
 
 export async function createCustomerAndVehicle(input: unknown, role?: string) {
-  return apiPost('/api/customers', input, role);
+  return apiPost('/api/customers/', input, role);
 }
 
 export async function listVehiclesByCustomer(customerId: string, role?: string) {
@@ -57,11 +62,11 @@ export async function listVehicles(role?: string) {
 }
 
 export async function listQuotations(role?: string) {
-  return apiGet('/api/quotations', role);
+  return apiGet('/api/quotations/', role);
 }
 
 export async function createSalesQuotation(input: unknown, role?: string) {
-  return apiPost('/api/quotations', input, role);
+  return apiPost('/api/quotations/', input, role);
 }
 
 export async function approveQuotation(id: string, role?: string) {
@@ -77,7 +82,7 @@ export async function convertQuotation(id: string, role?: string) {
 }
 
 export async function listJobOrders(role?: string) {
-  return apiGet('/api/job-orders', role);
+  return apiGet('/api/job-orders/', role);
 }
 
 export async function getJobOrder(id: string, role?: string) {
@@ -117,11 +122,11 @@ export async function registerAttachment(entityId: string, body: unknown, role?:
 }
 
 export async function listPurchaseRequests(role?: string) {
-  return apiGet('/api/purchase-requests', role);
+  return apiGet('/api/purchase-requests/', role);
 }
 
 export async function createPurchaseRequest(input: unknown, role?: string) {
-  return apiPost('/api/purchase-requests', input, role);
+  return apiPost('/api/purchase-requests/', input, role);
 }
 
 export async function createPurchaseRequestFromJO(joId: string, input: unknown, role?: string) {
@@ -133,11 +138,11 @@ export async function approvePurchaseRequest(id: string, role?: string) {
 }
 
 export async function listSupplierInvoices(role?: string) {
-  return apiGet('/api/supplier-invoices', role);
+  return apiGet('/api/supplier-invoices/', role);
 }
 
 export async function createSupplierInvoice(input: unknown, role?: string) {
-  return apiPost('/api/supplier-invoices', input, role);
+  return apiPost('/api/supplier-invoices/', input, role);
 }
 
 export async function allocateSupplierInvoice(id: string, allocations: unknown[], role?: string) {
@@ -149,11 +154,11 @@ export async function approveSupplierInvoice(id: string, role?: string) {
 }
 
 export async function listOpexRequests(role?: string) {
-  return apiGet('/api/opex-requests', role);
+  return apiGet('/api/opex-requests/', role);
 }
 
 export async function createOpexRequest(input: unknown, role?: string) {
-  return apiPost('/api/opex-requests', input, role);
+  return apiPost('/api/opex-requests/', input, role);
 }
 
 export async function approveOpexRequest(id: string, role?: string) {
@@ -161,7 +166,7 @@ export async function approveOpexRequest(id: string, role?: string) {
 }
 
 export async function listDisbursements(role?: string) {
-  return apiGet('/api/disbursements', role);
+  return apiGet('/api/disbursements/', role);
 }
 
 export async function approveDisbursement(id: string, role?: string) {
@@ -193,7 +198,7 @@ export async function attachProofOfPayment(id: string, storageKey: string, role?
 }
 
 export async function listInvoices(role?: string) {
-  return apiGet('/api/invoices', role);
+  return apiGet('/api/invoices/', role);
 }
 
 export async function getInvoice(id: string, role?: string) {

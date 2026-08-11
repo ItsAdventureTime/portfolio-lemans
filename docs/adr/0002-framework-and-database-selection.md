@@ -1,23 +1,39 @@
-# ADR 0002: Technology Stack Selection - Next.js 14+ Standalone & PostgreSQL
+# ADR 0002: Technology Stack Selection — Next.js 16 + Go API + PostgreSQL
 
-- **Status**: Approved
+- **Status**: Accepted; supersedes the original 2026-08-07 Prisma decision
 - **Deciders**: Lead Agent, Project Architect
-- **Date**: 2026-08-07 (Updated)
+- **Date**: 2026-08-12
 
 ## Context
 
-The application requires complex relational data modeling (Job Orders, Supplier Invoices, Multi-JO Line Item Allocations, Customer Billings, QBO Exports, Accounts Receivable, Audit Trail) and exact document rendering matching client paper forms (Service Invoice RA0003973, Repair Order RA0003973, OPEX Request Budget).
+The application requires relational data modeling for job orders, supplier
+invoices, multi-job-order allocations, customer billing, accounts receivable,
+and audit-friendly operational records. It also needs a small self-hosted web
+runtime and a backend boundary that can own migrations and financial rules.
 
 ## Decision
 
-We decide to adopt **Next.js 14+ App Router (TypeScript, `output: 'standalone'`)** paired with **PostgreSQL 16** via **Prisma ORM**:
+The current source uses Next.js 16 App Router (`output: 'standalone'`) as the
+web frontend, a Go 1.26 API for persistence and business logic, and PostgreSQL
+on rootless Podman:
 
-1. **Unified Stack**: Single end-to-end TypeScript codebase for UI components, Server Actions, API routes, and database models.
-2. **Server-Rendered Documents**: Next.js Server Components enable generating pixel-faithful printable invoice and job order documents on the server matching client reference templates (`photo_2026-08-03_00-36-03.jpg`, `photo_2026-08-03_00-36-09.jpg`, `photo_2026-08-03_00-36-12.jpg`).
-3. **Enterprise UI/UX Alignment**: Follows `llm_ui_context_prompt_framework.md` with semantic component primitives, multi-state UI visual contracts (loading skeleton, empty, error, success), and cross-platform readiness for future iOS (SwiftUI) / Android (Jetpack Compose) apps.
-4. **Relational Data Integrity**: PostgreSQL provides strict ACID transactions for job cost allocations across multiple job orders.
+1. **Web frontend**: Next.js Server Components and Server Actions provide the
+   demo UI and form feedback; standalone output produces the minimal runtime
+   image.
+2. **API boundary**: Go owns migrations, SQL transactions, role-policy checks,
+   domain mutations, and S3-compatible presigned URLs. The frontend uses the
+   typed client in `src/lib/api.ts`.
+3. **Relational integrity**: PostgreSQL and the Go repository enforce durable
+   job-cost, purchasing, billing, and payment records.
+4. **Profiles**: Demo and production share this source tree. Runtime base paths,
+   image tags, credentials, reset behavior, and deployment units vary by
+   profile; there is no separate production source copy.
 
 ## Consequences
 
-- **Positive**: Rapid development, single toolchain, strict type safety from DB schema to frontend UI, simplified container packaging.
-- **Negative**: Requires careful server/client component boundary management in Next.js App Router.
+- **Positive**: Clear persistence ownership, compact frontend image, typed API,
+  and explicit rootless container isolation.
+- **Negative**: Frontend and backend contracts must stay synchronized, and both
+  images must be built and verified together.
+- **Migration note**: Prisma and Better Auth files described by earlier ADR
+  revisions are historical and are not dependencies of the current demo.

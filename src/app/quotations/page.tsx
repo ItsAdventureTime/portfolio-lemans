@@ -12,14 +12,26 @@ import PageHeader from '@/components/PageHeader';
 import QuotationForm from './QuotationForm';
 import QuotationList from './QuotationList';
 import { errorResult, FormResult, okResult } from '@/lib/form-result';
+import type { Customer, Vehicle } from '@/lib/types';
 
 export default async function QuotationsPage() {
   const role = await getDemoRole();
-  const [quotes, customers, vehicles] = await Promise.all([
+  const [quotes, customersRaw, vehiclesRaw] = await Promise.all([
     listQuotations(role),
     listCustomers(role),
     listVehicles(role),
   ]);
+  const customers = customersRaw.map((c: Customer) => ({
+    id: c.id,
+    customerNo: c.customer_no,
+    name: c.name,
+  }));
+  const vehicles = vehiclesRaw.map((v: Vehicle) => ({
+    id: v.id,
+    customerId: v.customer_id,
+    plateNo: v.plate_no,
+    makeModel: v.make_model,
+  }));
   const canCreate = hasPermission(role, 'salesQuotationCreate');
 
   async function createAction(_prev: FormResult, formData: FormData): Promise<FormResult> {

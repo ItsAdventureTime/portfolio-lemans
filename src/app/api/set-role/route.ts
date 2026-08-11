@@ -1,6 +1,10 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { parseRole, ProjectRole } from '@/lib/roles';
+import { parseRole } from '@/lib/roles';
+
+function cookiePath() {
+  return process.env.NEXT_PUBLIC_BASE_PATH || '/';
+}
 
 export async function POST(request: Request) {
   let role: unknown;
@@ -14,9 +18,10 @@ export async function POST(request: Request) {
   const valid = parseRole(typeof role === 'string' ? role : undefined);
   const jar = await cookies();
   jar.set('lemans-demo-role', valid, {
-    path: '/',
+    path: cookiePath(),
     maxAge: 60 * 60 * 24 * 30,
     sameSite: 'lax',
+    httpOnly: false,
   });
   return NextResponse.json({ role: valid });
 }

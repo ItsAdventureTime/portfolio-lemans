@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, Page } from '@playwright/test';
 
 const ROLES = [
   { value: 'ROLE_ADMIN', label: 'Admin' },
@@ -40,6 +40,7 @@ test('splash entry and role switching persist across routes', async ({ page }) =
 test('role switching renders accessible error on failure', async ({ page }) => {
   await page.goto(`${BASE}/`);
   await page.getByRole('main').getByRole('button', { name: 'Enter as an Admin' }).click();
+  await expect(page.getByText('Operations Overview')).toBeVisible();
 
   await page.route(`${BASE}/api/set-role`, async (route) => {
     await route.fulfill({ status: 500, body: JSON.stringify({ error: 'Role switch failed' }) });
@@ -52,6 +53,7 @@ test('role switching renders accessible error on failure', async ({ page }) => {
 test('customer form validation shows field errors and preserves values', async ({ page }) => {
   await page.goto(`${BASE}/`);
   await page.getByRole('main').getByRole('button', { name: 'Enter as an Admin' }).click();
+  await expect(page.getByText('Operations Overview')).toBeVisible();
   await page.goto(`${BASE}/customers`);
 
   await page.getByLabel('Customer No').fill('C-TEST-001');
@@ -69,6 +71,7 @@ test('mobile touch targets are at least 44x44 CSS pixels', async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(`${BASE}/`);
   await page.getByRole('main').getByRole('button', { name: 'Enter as an Admin' }).click();
+  await expect(page.getByText('Operations Overview')).toBeVisible();
   await page.goto(`${BASE}/customers`);
 
   const targets = page.locator(
@@ -84,8 +87,6 @@ test('mobile touch targets are at least 44x44 CSS pixels', async ({ page }) => {
     if (!box) continue;
     const text = (await el.textContent().catch(() => '')) ?? '';
     const role = await el.evaluate((e) => e.getAttribute('role') ?? e.tagName.toLowerCase());
-    const tag = await el.evaluate((e) => e.tagName.toLowerCase());
-
     // Use the rendered bounding box as the practical touch target, but also guard
     // that the element is explicitly styled to at least 44px so a zero-height box
     // inside a scroll container is not mistaken for a valid target.
@@ -111,6 +112,7 @@ test('reduced-motion media emulation disables non-essential motion', async ({ pa
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await page.goto(`${BASE}/`);
   await page.getByRole('main').getByRole('button', { name: 'Enter as an Admin' }).click();
+  await expect(page.getByText('Operations Overview')).toBeVisible();
 
   const prefersReduced = await page.evaluate(
     () => window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -147,14 +149,169 @@ test('focus-visible rings are visible with keyboard navigation', async ({ page }
   expect(hasVisibleFocus).toBe(true);
 });
 
-test('deterministic local reset restores seed data', async ({ page, request }) => {
+test('seeded local data is available', async ({ page }) => {
   await page.goto(`${BASE}/`);
   await page.getByRole('main').getByRole('button', { name: 'Enter as an Admin' }).click();
+  await expect(page.getByText('Operations Overview')).toBeVisible();
   await expect(page.getByText('Operations Overview')).toBeVisible();
 
   await page.goto(`${BASE}/customers`);
   await expect(page.getByText('No customers yet')).not.toBeVisible();
+});
 
-  const reset = await request.get('http://127.0.0.1:3000/lemans/demo');
-  expect(reset.status()).toBe(200);
+async function enterAsAdmin(page: Page) {
+  await page.goto(`${BASE}/`);
+  await page.getByRole('main').getByRole('button', { name: 'Enter as an Admin' }).click();
+  await expect(page.getByText('Operations Overview')).toBeVisible();
+}
+
+async function switchRole(page: Page, roleValue: string) {
+  const switcher = page.locator('#role-switcher');
+  await switcher.selectOption(roleValue);
+  await expect(switcher).toHaveValue(roleValue);
+  await page.waitForFunction(
+    (role) => document.cookie.includes(`lemans-demo-role=${role}`),
+    roleValue
+  );
+  await page.goto(`${BASE}/`);
+  await expect(switcher).toHaveValue(roleValue);
+}
+
+test('quote-to-payment workflow creates records and updates statuses', async ({ page }) => {
+  await enterAsAdmin(page);
+
+  // Seed state already has customers/vehicles; create a fresh customer+vehicle for determinism.
+  const unique = Date.now().toString();
+  const workflowCustomerName = `E2E Workflow Customer ${unique}`;
+  await page.goto(`${BASE}/customers`);
+  await page.getByLabel('Customer No').fill(`C-${unique}`);
+  await page.getByLabel('Name').fill(workflowCustomerName);
+  await page.getByLabel('Plate No').fill(`E2E-${unique}`);
+  await page.getByLabel('Make/Model').fill('Toyota Test');
+  await page.getByRole('button', { name: 'Add Customer & Vehicle' }).click();
+  await expect(page.getByText('Customer and vehicle added')).toBeVisible();
+
+  // Create a quotation as Sales.
+  await switchRole(page, 'ROLE_SALES');
+  await page.goto(`${BASE}/quotations`);
+
+  const customerSelect = page.locator('select[name="customerId"]');
+  const vehicleSelect = page.locator('select[name="vehicleId"]');
+  await customerSelect.waitFor({ state: 'visible' });
+  const customerId = await customerSelect.evaluate((el: HTMLSelectElement, unique: string) => {
+    const needle = `C-${unique} - E2E Workflow Customer ${unique}`;
+    for (const opt of el.options) {
+      if (opt.text.includes(needle)) return opt.value;
+    }
+    return '';
+  }, unique);
+  expect(customerId).not.toBe('');
+  await customerSelect.selectOption(customerId);
+  const vehicleId = await vehicleSelect.evaluate((el: HTMLSelectElement, unique: string) => {
+    const needle = `E2E-${unique} - Toyota Test`;
+    for (const opt of el.options) {
+      if (opt.text.includes(needle)) return opt.value;
+    }
+    return '';
+  }, unique);
+  expect(vehicleId).not.toBe('');
+  await vehicleSelect.selectOption(vehicleId);
+
+  await page.getByLabel('Advisor').fill('E2E Advisor');
+
+  const quoteBuilder = page
+    .locator('table')
+    .filter({ has: page.locator('input[placeholder="Item description"]') })
+    .first();
+  await expect(quoteBuilder).toBeVisible();
+  const rows = quoteBuilder.locator('tbody tr');
+  await expect(rows.first()).toBeVisible();
+  await rows.first().locator('input[placeholder="Item description"]').fill('Labor service');
+  await rows.first().locator('input[type="number"]').nth(0).fill('2');
+  await rows.first().locator('input[type="number"]').nth(1).fill('1000');
+  await rows.first().locator('input[type="number"]').nth(2).fill('0');
+
+  await page.getByRole('button', { name: 'Create Quotation' }).click();
+  await expect(page.getByText('Quotation created')).toBeVisible();
+
+  // Locate the new quotation row by customer name (the list renders name, not number).
+  const quoteRow = page.locator('table tbody tr', { hasText: workflowCustomerName }).first();
+  await expect(quoteRow).toBeVisible();
+  const quoteLink = quoteRow.locator('a');
+  const quoteNo = (await quoteLink.textContent()) ?? '';
+  expect(quoteNo).toMatch(/^SQ-/);
+
+  // Approve and convert to JO as Admin (also tests approve permission).
+  await switchRole(page, 'ROLE_ADMIN');
+  await page.goto(`${BASE}/quotations`);
+  const quoteRowAfterRefresh = page
+    .locator('table tbody tr', { hasText: workflowCustomerName })
+    .first();
+  await expect(quoteRowAfterRefresh).toBeVisible();
+  const approveBtn = quoteRowAfterRefresh.getByRole('button', { name: 'Approve' });
+  await approveBtn.click();
+  await expect(quoteRowAfterRefresh.getByText('APPROVED')).toBeVisible();
+  const convertBtn = quoteRowAfterRefresh.getByRole('button', { name: 'Convert to JO' });
+  await convertBtn.click();
+  await expect(quoteRowAfterRefresh.getByText('CONVERTED')).toBeVisible();
+
+  // Find the generated JO and complete it.
+  await page.goto(`${BASE}/job-orders`);
+  const joRow = page.locator('table tbody tr', { hasText: workflowCustomerName }).first();
+  await expect(joRow).toBeVisible();
+  const joLink = joRow.locator('a');
+  const joNo = (await joLink.textContent()) ?? '';
+  await joLink.click();
+  await expect(page.getByText(`Job Order ${joNo}`)).toBeVisible();
+  await page.locator('select[name="nextStatus"]').selectOption('COMPLETED');
+  await page.locator('button', { hasText: 'Change Status' }).click();
+  await expect(page.getByRole('cell', { name: 'Status changed to COMPLETED' })).toBeVisible();
+
+  // Create supplier invoice and allocate across the JO as Purchasing.
+  await switchRole(page, 'ROLE_PURCH');
+  await page.goto(`${BASE}/purchasing`);
+  await page.locator('input[name="supplier"]').last().fill('E2E Supplier');
+  await page.getByLabel('Total Amount (₱)').fill('500');
+  await page.getByLabel('Invoice Date').fill('2026-08-11');
+  await page.getByRole('button', { name: 'Allocate Across JOs' }).click();
+  const modal = page.locator('div.fixed.inset-0');
+  await expect(modal).toBeVisible();
+  const joOption = modal.locator('option').filter({ hasText: joNo }).first();
+  const joId = await joOption.getAttribute('value');
+  expect(joId).not.toBeNull();
+  await modal.locator('select').selectOption(joId!);
+  await modal.locator('input[placeholder="Allocation note"]').fill('Parts allocation');
+  const amountInputs = modal.locator('input[type="number"]');
+  await amountInputs.fill('500');
+  await page.getByRole('button', { name: 'Save Allocation' }).click();
+  await expect(modal).not.toBeVisible();
+  await page.getByRole('button', { name: 'Create Supplier Invoice' }).click();
+  await expect(page.getByText('Supplier invoice created')).toBeVisible();
+
+  // Approve supplier invoice as GM.
+  await switchRole(page, 'ROLE_GM');
+  await page.goto(`${BASE}/purchasing`);
+  const siRow = page.locator('table tbody tr', { hasText: 'E2E Supplier' }).first();
+  await expect(siRow).toBeVisible();
+  await siRow.getByRole('button', { name: 'Approve' }).click();
+  await expect(siRow.getByText('APPROVED')).toBeVisible();
+
+  // Create customer invoice as Sales, then record payment as DCS.
+  await switchRole(page, 'ROLE_SALES');
+  await page.goto(`${BASE}/invoices`);
+  await page.getByLabel('Job Order ID').fill(joNo);
+  await page.getByRole('button', { name: 'Create Invoice' }).click();
+  await expect(page.getByText('Invoice created')).toBeVisible();
+
+  await switchRole(page, 'ROLE_DCS');
+  await page.goto(`${BASE}/invoices`);
+  const invRow = page.locator('table tbody tr', { hasText: workflowCustomerName }).first();
+  await expect(invRow).toBeVisible();
+  const invTotal = await invRow.locator('td').nth(2).textContent();
+  const invTotalNum = Number(invTotal?.replace(/[^0-9.]/g, ''));
+  expect(invTotalNum).toBeGreaterThan(0);
+  await invRow.getByPlaceholder('Amount').fill(String(invTotalNum));
+  await invRow.getByPlaceholder('Method').fill('Cash');
+  await invRow.getByRole('button', { name: 'Pay' }).click();
+  await expect(invRow.getByText('PAID')).toBeVisible();
 });

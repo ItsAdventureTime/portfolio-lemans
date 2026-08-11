@@ -34,7 +34,7 @@ This design system synthesizes evidence and directives from core sources:
   --brand-primary: #d32f2f; /* LeMans Racing Red */
   --brand-primary-hover: #b71c1c; /* Dark Red Hover */
   --brand-primary-light: #ffebee; /* Light Red Tint for Badges */
-  /* Implementation note: applied across src/app/page.tsx, src/app/login/**/*,
+  /* Implementation note: applied across src/app/page.tsx, src/components/DemoSplash.tsx,
      src/app/customers/page.tsx, src/app/quotations/page.tsx,
      src/app/job-orders/page.tsx, src/app/job-orders/[id]/page.tsx,
      src/app/job-costing/[id]/page.tsx, src/app/purchasing/page.tsx,

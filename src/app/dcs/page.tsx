@@ -12,6 +12,7 @@ import { hasPermission } from '@/lib/roles';
 import { DataTable, StatusBadge, FormField } from '@/components/ui';
 import type { Disbursement } from '@/lib/types';
 import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 
 export default async function DcsPage() {
   const role = await getDemoRole();
@@ -62,6 +63,7 @@ export default async function DcsPage() {
                 )}
                 {d.status === 'APPROVED' && canPay && (
                   <form
+                    encType="multipart/form-data"
                     action={async (formData: FormData) => {
                       'use server';
                       const r = (await import('@/lib/actor')).getDemoRole();
@@ -125,7 +127,7 @@ export default async function DcsPage() {
                       const r = (await import('@/lib/actor')).getDemoRole();
                       const { url } = await getProofDownloadUrl(d.id, await r);
                       if (url) {
-                        return url;
+                        redirect(url);
                       }
                     }}
                   >

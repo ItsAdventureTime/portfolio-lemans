@@ -1,9 +1,15 @@
 # Le Mans Migration Handoff & Review Document
 
+> **Historical handoff notice (2026-08-12):** This records the 2026-08-11
+> migration checkpoint. The source has since received documentation and runtime
+> hardening updates. Use [`CURRENT-STATE.md`](./CURRENT-STATE.md),
+> [`DELIVERY-PLAN.md`](./DELIVERY-PLAN.md), and
+> [`DOCUMENTATION-INDEX.md`](./DOCUMENTATION-INDEX.md) for current status.
+
 **Commit**: `71e7578` on `main`  
 **Date**: 2026-08-11  
 **Scope**: Replace the Prisma/Next.js monolith with a Go API backend + Next.js 16 frontend; remediate review 33b4a6d / NEXT-AGENT-REMEDIATION-REPORT-2026-08-11.md (R1–R9).  
-**Status**: Local verification + E2E pass; handoff-ready. Remote deployment not yet exercised.
+**Status**: Historical checkpoint; remote deployment was not exercised.
 
 ---
 

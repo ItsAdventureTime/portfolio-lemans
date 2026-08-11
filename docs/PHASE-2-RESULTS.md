@@ -1,5 +1,14 @@
 # Phase 2 Execution & Validation Results Report
 
+> **Historical document notice (2026-08-12):** This report describes the
+> original Prisma/Compose implementation. Its commands, image names, and
+> results are not current verification evidence. Use [`CURRENT-STATE.md`](./CURRENT-STATE.md)
+> for the current workflow.
+>
+> The historical implementation details below intentionally mention the former
+> Next.js 14, Prisma, and Compose stack; they are not claims about the current
+> demo build.
+
 ## 1. Executive Summary
 
 Phase 2 thin vertical slice implementation and empirical validation has been completed 100% inside rootless Podman containers on macOS Apple Silicon. Zero host contamination occurred, zero dependencies were run natively on macOS, and no remote environment was accessed or modified.

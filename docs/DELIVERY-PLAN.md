@@ -1,64 +1,75 @@
-# Le Mans Operations & Job Cost Management System - Delivery Plan
+# Le Mans Operations & Job Cost Management System — Delivery Plan
 
-## 1. Project Delivery Roadmap
+- **Updated**: 2026-08-12
+- **Current delivery authority**: [`CURRENT-STATE.md`](./CURRENT-STATE.md)
+- **Demo acceptance authority**: [`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md)
+- **Branch policy**: `main` only
 
-```
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│ PHASE 1: INTAKE & ARCHITECTURE CONTRACTS (COMPLETED & APPROVED)                       │
-│ - Inventory raw files & map provenance into _intake/originals/ & references/           │
-│ - Establish durable project contracts (AGENTS.md, SPEC, DESIGN, ARCH, ENVS)            │
-│ - Ground architecture with web research (Podman Quadlet systemd, Next.js standalone)   │
-└───────────────────────────────────────────┬────────────────────────────────────────────┘
-                                            │
-                                            ▼
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│ PHASE 2: THIN VERTICAL SLICE VALIDATION (COMPLETED & VERIFIED)                         │
-│ - Verified rootless Podman environment via `podman machine start` & `podman info`      │
-│ - Built & verified local-demo container stack (127.0.0.1:3000) with disposable `podman run --rm` │
-│ - Built & verified local-prodlike standalone container stack (127.0.0.1:3001)           │
-│ - Implemented End-to-End Flow: Customer/Vehicle -> Sales Quote -> JO RA0003973 -> Cost Sheet│
-│ - Passed automated unit tests, type-checking, database migrations, and loopback HTTP   │
-│ - Created docs/PHASE-2-RESULTS.md & docs/PHASE-3-HANDOFF.md                            │
-└───────────────────────────────────────────┬────────────────────────────────────────────┘
-                                            │
-                                            ▼
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│ PHASE 3: CORE OPERATIONS MODULES IMPLEMENTATION (NEXT PHASE)                           │
-│ - Production-only authentication & RBAC planning; demo uses simulated role state        │
-│ - Service Delivery & Technician Progress Tracking                                      │
-│ - Purchasing: Purchase Requests (PR), POs, Supplier Invoice Multi-JO Line Allocation   │
-│ - Expenses: OPEX Request Budget Form & GM Approval Workflow                            │
-│ - DCS Module: Payment Execution & Proof-of-Payment Upload via Backblaze B2            │
-│ - Billing: Official Service Invoice Generation (RA0003973 format with 12% VAT)        │
-└───────────────────────────────────────────┬────────────────────────────────────────────┘
-                                            │
-                                            ▼
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│ PHASE 4: REPORTING, ADMIN, QBO EXPORT, & ACCOUNTING MODULES                            │
-│ - Job Cost Sheet deep-dive timeline & profit calculation                               │
-│ - Executive Reporting Suite (Sales, Purchases, Profitability, AR Aging)                │
-│ - QBO Export Engine (Customers, Vendors, Bills, Expenses, Invoices, Payments)          │
-│ - System Administration (RBAC, Audit Logs, Database Backup/Restore)                   │
-│ - Admin-Only Accounting Module (General Ledger, AP, Journal Entries)                   │
-└───────────────────────────────────────────┬────────────────────────────────────────────┘
-                                            │
-                                            ▼
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│ PHASE 5: QUADLET CONTAINERIZATION & DEPLOYMENT PREPARATION                             │
-│ - Multi-architecture container image builds (arm64 & amd64 tags) using pure `podman build` │
-│ - Generate Quadlet unit files (`.container`, `.volume`, `.network`, `.service`, `.timer`) │
-│   - Demo: `/home/jk/.config/containers/systemd/bridge-ph/lemans-demo`                 │
-│   - Prod: `/home/jk/.config/containers/systemd/bridge-ph/lemans`                      │
-│ - Deploy via `scripts/deploy-remote-demo.sh` and `scripts/deploy-remote-prod.sh`        │
-│ - Remote demo reset every 30 minutes plus manual trigger; production daily backup to B2 │
-└────────────────────────────────────────────────────────────────────────────────────────┘
+## 1. Delivered baseline
+
+The repository has moved from the former Prisma/Next.js monolith to the
+implementation that is currently in source control:
+
+- Next.js 16.3 App Router frontend with build-time `/lemans/demo` and `/lemans`
+  base paths.
+- Go API with Goose migrations, sqlc repository code, centralized demo actor
+  policy, and PostgreSQL persistence.
+- Rootless Podman local demo topology: PostgreSQL, Go API, and Next.js web.
+- Customer → quotation → job order → procurement → costing → billing → payment
+  walkthrough, plus OPEX → approval → DCS payment/proof flow.
+- Transactional purchasing, supplier-invoice allocation and approval, service
+  invoice creation, and customer payment persistence.
+- Demo splash, Admin default, six-role switcher, loading/empty/error/success
+  states, keyboard focus, mobile touch targets, and reduced-motion behavior.
+- Rootless remote-demo Quadlets and reset-timer artifacts prepared in source,
+  but remote deployment remains authorization-gated and unexercised here.
+
+## 2. Current verification gates
+
+Run from the repository root:
+
+```bash
+export PATH="/opt/podman/bin:$PATH"
+./scripts/build.sh demo
+./scripts/verify-local.sh
+./scripts/run-local.sh
+./scripts/verify-vertical-slice.sh
+./scripts/stop-local.sh
 ```
 
----
+The browser gate runs the Playwright projects (Chromium, mobile, and
+reduced-motion) in a disposable Playwright container on `lemans-demo-net`.
+The exact result must be recorded in the handoff or release evidence.
 
-## 2. Phase 2 Completion Summary
+## 3. Remaining demo boundaries
 
-- **Verification Summary**: Documented in [`docs/PHASE-2-RESULTS.md`](file:///Users/jk.deguzman/dev/lemans-bridge-dashboard/docs/PHASE-2-RESULTS.md).
-- **Handoff Summary**: Documented in [`docs/PHASE-3-HANDOFF.md`](file:///Users/jk.deguzman/dev/lemans-bridge-dashboard/docs/PHASE-3-HANDOFF.md).
-- **Architecture Readiness**: Verified & Approved for Phase 3.
-- **Phase 3 Implementation Plan**: [`docs/PHASE-3-IMPLEMENTATION.md`](file:///Users/jk.deguzman/dev/lemans-bridge-dashboard/docs/PHASE-3-IMPLEMENTATION.md).
+These are known and intentional, not delivery failures:
+
+1. B2 upload/download requires valid runtime credentials.
+2. Search, richer contacts, exports, and deeper reporting remain future scope.
+3. The role switcher is a demo policy simulation, not authentication or a
+   production security boundary.
+4. Local runtime is disposable; remote deployment requires explicit user
+   authorization and live Caddy/network context.
+
+## 4. Future production profile
+
+Production promotion must come from the validated demo source and image lineage,
+with runtime-only controls for:
+
+- real authentication and revocable sessions;
+- secrets, backups, retention, and audit controls;
+- production B2 storage and attachment lifecycle;
+- reporting, accounting exports, and external integrations;
+- staged migrations and deployment rollback.
+
+The future authentication decision is recorded in
+[`adr/0003-authentication-and-session-strategy.md`](./adr/0003-authentication-and-session-strategy.md).
+
+## 5. Documentation and Git hygiene
+
+Keep all work on `main`. Update the affected current guides and verification
+evidence with each source change. Historical phase reports remain dated evidence
+and must not be used to override the current-state guide. Use the complete
+[`DOCUMENTATION-INDEX.md`](./DOCUMENTATION-INDEX.md) for the document map and
+GitHub CLI synchronization policy.

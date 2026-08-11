@@ -3,74 +3,67 @@ set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export PATH="/opt/podman/bin:$PATH"
-
 cd "$PROJECT_ROOT"
 
-source "${PROJECT_ROOT}/scripts/lib/common.sh"
-
-# Pure Podman multi-arch build using manifests.
-# Requires qemu-user-static for cross-architecture builds.
-
+# Build and publish the same two images used by build.sh for both supported
+# architectures. Requires a Podman machine configured for multi-arch builds.
 REGISTRY="${REGISTRY:-docker.io}"
 IMAGE_PREFIX="${IMAGE_PREFIX:-library}"
-DEMO_TAG="${DEMO_TAG:-latest-alpine}"
-PROD_TAG="${PROD_TAG:-lts-alpine}"
-IMAGE_NAME="${REGISTRY}/${IMAGE_PREFIX}/lemans-bridge-dashboard"
-
-PLATFORMS="linux/amd64,linux/arm64"
+WEB_IMAGE="${REGISTRY}/${IMAGE_PREFIX}/lemans-bridge-dashboard"
+GO_IMAGE="${REGISTRY}/${IMAGE_PREFIX}/lemans-bridge-dashboard-go"
+PLATFORMS="${PLATFORMS:-linux/amd64,linux/arm64}"
 
 build_and_push_manifest() {
-  local tag="$1"
-  local manifest_name="${IMAGE_NAME}:${tag}"
+  local image="$1"
+  local tag="$2"
+  local dockerfile="$3"
+  local manifest="${image}:${tag}"
+  shift 3
 
-  echo "Building multi-arch manifest ${manifest_name}..."
-
-  # Remove any existing manifest with this name to avoid conflicts
-  podman manifest rm "${manifest_name}" 2> /dev/null || true
-
+  echo "Building multi-arch manifest ${manifest}..."
+  podman manifest rm "$manifest" 2>/dev/null || true
   podman build \
     --platform "$PLATFORMS" \
-    --manifest "${manifest_name}" \
-    -f Dockerfile.prod \
+    --manifest "$manifest" \
+    -f "$dockerfile" \
+    "$@" \
     .
+  podman manifest push --all "$manifest" "$manifest"
+}
 
-  echo "Pushing manifest ${manifest_name}..."
-  podman manifest push --all "${manifest_name}" "${manifest_name}"
+build_profile() {
+  local profile="$1"
+  local web_tag="${profile}-web"
+  local go_tag="${profile}-go"
+  local base_path="/lemans/demo"
+  if [[ "$profile" == "prod" ]]; then
+    base_path="/lemans"
+  fi
 
-  echo "Manifest ${manifest_name} pushed."
+  build_and_push_manifest \
+    "$WEB_IMAGE" "$web_tag" Dockerfile.web \
+    --build-arg "NEXT_PUBLIC_BASE_PATH=${base_path}"
+  build_and_push_manifest "$GO_IMAGE" "$go_tag" Dockerfile.go
 }
 
 promote_demo_to_prod() {
-  demo_cmd=$(podman inspect "${IMAGE_NAME}:${DEMO_TAG}" --format '{{json .Config.Cmd}}' 2> /dev/null || true)
-  if [[ "$demo_cmd" != *"node server.js"* ]]; then
-    echo "Refusing to promote ${IMAGE_NAME}:${DEMO_TAG}: not built from Dockerfile.prod (Cmd: ${demo_cmd})"
-    exit 1
-  fi
-  digest=$(podman inspect "${IMAGE_NAME}:${DEMO_TAG}" --format '{{index .RepoDigests 0}}' || true)
-  if [[ -z "$digest" ]]; then
-    echo "Could not resolve digest for ${IMAGE_NAME}:${DEMO_TAG}"
-    exit 1
-  fi
-  echo "Promoting ${digest} to ${IMAGE_NAME}:${PROD_TAG}"
-  podman manifest push --all "${IMAGE_NAME}:${DEMO_TAG}" "${IMAGE_NAME}:${PROD_TAG}"
+  echo "Promoting validated demo manifests to production tags..."
+  podman manifest push --all \
+    "${WEB_IMAGE}:demo-web" "${WEB_IMAGE}:prod-web"
+  podman manifest push --all \
+    "${GO_IMAGE}:demo-go" "${GO_IMAGE}:prod-go"
 }
 
 case "${1:-all}" in
-  demo)
-    build_and_push_manifest "$DEMO_TAG"
-    ;;
-  prod)
-    build_and_push_manifest "$PROD_TAG"
-    ;;
-  promote)
-    promote_demo_to_prod
-    ;;
+  demo) build_profile demo ;;
+  prod) build_profile prod ;;
+  promote) promote_demo_to_prod ;;
   all)
-    build_and_push_manifest "$DEMO_TAG"
-    build_and_push_manifest "$PROD_TAG"
+    build_profile demo
+    build_profile prod
     ;;
   *)
-    echo "Usage: $0 {demo|prod|promote|all}"
+    echo "Usage: $0 {demo|prod|promote|all}" >&2
     exit 1
     ;;
 esac

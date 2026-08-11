@@ -2,9 +2,11 @@
 
 - **Status**: Authoritative for the remote demo deployment profile
 - **Version**: 1.1.0
-- **Updated**: 2026-08-11
+- **Updated**: 2026-08-12
 - **Target URL**: `https://delegateops.business/lemans/demo`
 - **Remote user**: `jk`
+- **Current evidence**: Local image/runtime verification is complete; remote
+  deployment has not been exercised and remains authorization-gated.
 
 This playbook defines the preferred deployment model for the demo. It supersedes
 older remote-demo instructions that describe local long-running deployments,

@@ -301,9 +301,8 @@ podman machine start
 
 The verification result must explicitly report:
 
-- build, formatting, lint, and type-check status (note: `next lint` is disabled
-  pending a working container invocation; the production build and
-  `tsc --noEmit` cover the same static checks);
+- build, formatting, ESLint, and type-check status (`npm run build`,
+  `npm run format:check`, `npm run lint`, and `npm run typecheck`);
 - unit/integration test status;
 - browser workflow status for each simulated role;
 - accessibility (visible focus, target sizing, reduced motion, ARIA live/error
@@ -336,7 +335,7 @@ Review these sources before implementation and again before handoff:
 - [Podman Quadlet](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html)
 
 At the time of this playbook update, the repository baseline is Next.js 16.3.0,
-React 19.2, Tailwind 4, Go latest (`golang:alpine`), and PostgreSQL latest
+React 19.2, Tailwind CSS 3.4, Go latest (`golang:alpine`), and PostgreSQL latest
 (`postgres:alpine`). Review the current official guidance before planning any
 further upgrades:
 
