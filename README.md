@@ -60,10 +60,13 @@ podman machine start
 # Stop the local demo
 ./scripts/stop-local.sh
 
-# Deploy only when you have explicit authorization. REMOTE_HOST is the SSH host;
-# PUBLIC_URL is the browser-facing URL.
-REMOTE_HOST=<vps-host-or-ip> PUBLIC_URL=https://delegateops.business/lemans/demo \
-  ./scripts/deploy-remote-demo.sh
+# First remote demo deployment on macOS only: save settings and B2 credentials
+# in the login Keychain. The helper does not create a plaintext credentials file.
+./scripts/configure-remote-demo.sh
+
+# Later deployments need no exported deployment variables. The script reuses one
+# SSH connection for its rsync and remote commands.
+./scripts/deploy-remote-demo.sh
 
 # Open the remote demo
 open https://delegateops.business/lemans/demo
@@ -98,6 +101,12 @@ Stop / reset:
 ---
 
 ## Deploy remotely
+
+On macOS, run `./scripts/configure-remote-demo.sh` once before the first demo
+deployment. It stores the remote settings and B2 credentials in the login
+Keychain, so later `./scripts/deploy-remote-demo.sh` runs need no exported
+deployment variables. The environment-variable form below remains available for
+non-macOS and automated environments.
 
 ```bash
 # Remote demo (automatic 30-minute reset; manual reset also available)

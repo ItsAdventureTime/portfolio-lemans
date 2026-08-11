@@ -179,20 +179,30 @@ site-block structure, or TLS ownership is unclear.
 
 ## 5. Single-command deployment contract
 
-The operator should need one repository command:
+On macOS, the operator runs one interactive setup command once to save the
+remote settings and B2 credentials in the login Keychain:
 
 ```bash
-REMOTE_HOST=<vps-host-or-ip> PUBLIC_URL=https://delegateops.business/lemans/demo \
-  ./scripts/deploy-remote-demo.sh
+./scripts/configure-remote-demo.sh
 ```
 
-The script may accept `REMOTE_USER`, but it defaults to `jk`. It must:
+After that, the operator needs one repository command per deployment:
+
+```bash
+./scripts/deploy-remote-demo.sh
+```
+
+Environment variables remain supported and take precedence for non-macOS and
+automated environments. The deployment script may accept `REMOTE_USER`, but it
+defaults to `jk`. It must:
 
 1. Require a clean committed `main` worktree and collect the source commit.
 2. Create a release archive locally; do not invoke local image builds or app
    execution.
 3. Transfer the archive and mode-0600 runtime environment file to the VPS with
    resumable `rsync` over SSH.
+   Reuse a temporary SSH control socket so password-based access authenticates
+   once for all transfer and remote-command connections.
 4. Build both release-tagged images on the VPS with rootless `podman build`.
 5. Run disposable `podman run --rm` image smoke checks on the VPS.
 6. Install the tracked Quadlets, scripts, release manifest, and environment

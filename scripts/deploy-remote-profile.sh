@@ -15,7 +15,7 @@ if [[ "$PROFILE" != "demo" && "$PROFILE" != "prod" ]]; then
   exit 1
 fi
 
-REMOTE_USER="${REMOTE_USER:-jk}"
+REMOTE_USER="${REMOTE_USER:-}"
 REMOTE_HOST="${REMOTE_HOST:-}"
 REMOTE_ROOT="${REMOTE_PATH:-/home/jk/bridge-ph/lemans-demo}"
 QUADLET_PATH="${QUADLET_PATH:-/home/jk/.config/containers/systemd/bridge-ph/lemans-demo}"
@@ -29,7 +29,7 @@ GO_SERVICE="lemans-demo-go.service"
 DB_SERVICE="lemans-demo-db.service"
 NETWORK_SERVICE="lemans-demo-network.service"
 VOLUME_SERVICE="lemans-demo-volume.service"
-CADDY_NETWORK_NAME="${CADDY_NETWORK_NAME:-caddy}"
+CADDY_NETWORK_NAME="${CADDY_NETWORK_NAME:-}"
 BACKUP_TIMER=""
 DB_CONTAINER="lemans-demo-db"
 GO_CONTAINER="lemans-demo-go"
@@ -61,6 +61,25 @@ if [[ "$PROFILE" == "prod" ]]; then
   QUADLET_SOURCE_DIR="quadlet/remote-prod"
 fi
 
+KEYCHAIN_SERVICE_PREFIX="lemans-bridge-dashboard/${PROFILE}"
+keychain_value() {
+  /usr/bin/security find-generic-password -s "$KEYCHAIN_SERVICE_PREFIX/$1" -w 2>/dev/null || true
+}
+
+if [[ "$(uname -s)" == "Darwin" ]] && command -v security >/dev/null 2>&1; then
+  REMOTE_HOST="${REMOTE_HOST:-$(keychain_value remote-host)}"
+  REMOTE_USER="${REMOTE_USER:-$(keychain_value remote-user)}"
+  CADDY_NETWORK_NAME="${CADDY_NETWORK_NAME:-$(keychain_value caddy-network-name)}"
+  KEYCHAIN_PUBLIC_URL="$(keychain_value public-url)"
+  B2_ACCESS_KEY_ID="${B2_ACCESS_KEY_ID:-$(keychain_value b2-access-key-id)}"
+  B2_SECRET_ACCESS_KEY="${B2_SECRET_ACCESS_KEY:-$(keychain_value b2-secret-access-key)}"
+else
+  KEYCHAIN_PUBLIC_URL=""
+fi
+
+REMOTE_USER="${REMOTE_USER:-jk}"
+CADDY_NETWORK_NAME="${CADDY_NETWORK_NAME:-caddy}"
+
 DEMO_MODE_VALUE=false
 if [[ "$PROFILE" == "demo" ]]; then
   DEMO_MODE_VALUE=true
@@ -75,7 +94,7 @@ DEFAULT_PUBLIC_URL="https://${REMOTE_HOST}${BASE_PATH}"
 if [[ "$PROFILE" == "demo" ]]; then
   DEFAULT_PUBLIC_URL="https://delegateops.business${BASE_PATH}"
 fi
-PUBLIC_URL="${PUBLIC_URL:-$DEFAULT_PUBLIC_URL}"
+PUBLIC_URL="${PUBLIC_URL:-${KEYCHAIN_PUBLIC_URL:-$DEFAULT_PUBLIC_URL}}"
 if [[ "$PUBLIC_URL" != https://* ]]; then
   echo "Error: PUBLIC_URL must start with https://" >&2
   exit 1
@@ -89,7 +108,7 @@ if [[ ! "$CADDY_NETWORK_NAME" =~ ^[A-Za-z0-9][A-Za-z0-9_.-]*$ ]]; then
   exit 1
 fi
 
-for tool in git ssh rsync tar install sed openssl; do
+for tool in git ssh rsync tar install sed openssl mktemp; do
   if ! command -v "$tool" >/dev/null 2>&1; then
     echo "Error: required local tool not found: $tool" >&2
     exit 1
@@ -108,6 +127,7 @@ fi
 
 if [[ -z "${B2_ACCESS_KEY_ID:-}" || -z "${B2_SECRET_ACCESS_KEY:-}" ]]; then
   echo "Backblaze B2 credentials required for ${PROFILE_LABEL}."
+  echo "On macOS, run ./scripts/configure-remote-${PROFILE}.sh once to save them in Keychain."
   echo -n "B2 Access Key ID: "
   read -r B2_ACCESS_KEY_ID
   echo -n "B2 Secret Access Key: "
@@ -122,12 +142,26 @@ RELEASE_DIR="${REMOTE_ROOT}/releases/${RELEASE_ID}"
 SOURCE_ARCHIVE="${PROJECT_ROOT}/.${PROFILE}-source-${RELEASE_ID}.tar.gz"
 ENV_FILE="${PROJECT_ROOT}/.${PROFILE}-env-${RELEASE_ID}.tmp"
 REMOTE="${REMOTE_USER}@${REMOTE_HOST}"
+SSH_CONTROL_DIR="$(mktemp -d "${TMPDIR:-/tmp}/lemans-deploy-ssh.XXXXXX")"
+SSH_CONTROL_PATH="${SSH_CONTROL_DIR}/m"
+SSH_OPTIONS=(
+  -o ControlMaster=auto
+  -o ControlPersist=5m
+  -o "ControlPath=${SSH_CONTROL_PATH}"
+)
+RSYNC_RSH="ssh -o ControlMaster=auto -o ControlPersist=5m -o ControlPath=${SSH_CONTROL_PATH}"
+ssh_remote() {
+  # shellcheck disable=SC2029
+  ssh "${SSH_OPTIONS[@]}" "$REMOTE" "$@"
+}
 
 WEB_IMAGE="localhost/lemans-bridge-dashboard:${WEB_SOURCE_TAG}-${RELEASE_ID}"
 GO_IMAGE="localhost/lemans-bridge-dashboard-go:${GO_SOURCE_TAG}-${RELEASE_ID}"
 DB_PASSWORD="$(generate_password)"
 cleanup_local() {
+  ssh "${SSH_OPTIONS[@]}" -O exit "$REMOTE" >/dev/null 2>&1 || true
   rm -f "$SOURCE_ARCHIVE" "$ENV_FILE"
+  rm -rf "$SSH_CONTROL_DIR"
 }
 trap cleanup_local EXIT
 
@@ -154,15 +188,15 @@ echo "Local actions: source archive + resumable rsync transfer only"
 
 # Values are intentionally expanded locally into the remote command.
 # shellcheck disable=SC2029
-ssh "$REMOTE" "command -v rsync >/dev/null 2>&1 || { echo 'Error: rsync is required on the remote host.' >&2; exit 1; }; mkdir -p '$RELEASE_DIR' '$QUADLET_PATH'"
-rsync -a --partial --progress -e ssh \
+ssh_remote "command -v rsync >/dev/null 2>&1 || { echo 'Error: rsync is required on the remote host.' >&2; exit 1; }; mkdir -p '$RELEASE_DIR' '$QUADLET_PATH'"
+rsync -a --partial --progress -e "$RSYNC_RSH" \
   "$SOURCE_ARCHIVE" "$REMOTE:${RELEASE_DIR}/source.tar.gz"
-rsync -a --partial --progress -e ssh \
+rsync -a --partial --progress -e "$RSYNC_RSH" \
   "$ENV_FILE" "$REMOTE:${RELEASE_DIR}/${ENV_NAME}"
 
 # Values are intentionally expanded locally into the remote environment.
 # shellcheck disable=SC2029
-ssh "$REMOTE" \
+ssh_remote \
   "PROFILE='$PROFILE' RELEASE_ID='$RELEASE_ID' RELEASE_COMMIT='$RELEASE_COMMIT' RELEASE_DIR='$RELEASE_DIR' QUADLET_PATH='$QUADLET_PATH' BASE_PATH='$BASE_PATH' WEB_IMAGE='$WEB_IMAGE' GO_IMAGE='$GO_IMAGE' WEB_SOURCE_TAG='$WEB_SOURCE_TAG' GO_SOURCE_TAG='$GO_SOURCE_TAG' ENV_NAME='$ENV_NAME' QUADLET_SOURCE_DIR='$QUADLET_SOURCE_DIR' DEMO_MODE='$DEMO_MODE_VALUE' bash -s" <<'REMOTE_BUILD'
 set -euo pipefail
 export PATH="/opt/podman/bin:$PATH"
@@ -237,11 +271,11 @@ REMOTE_BUILD
 
 # The secret is created separately so it never appears in a command-line
 # argument or release manifest. Replacing an existing secret is done remotely.
-printf '%s' "$DB_PASSWORD" | ssh "$REMOTE" "podman secret create --replace db_password -"
+printf '%s' "$DB_PASSWORD" | ssh "${SSH_OPTIONS[@]}" "$REMOTE" "podman secret create --replace db_password -"
 
 # Values are intentionally expanded locally into the remote environment.
 # shellcheck disable=SC2029
-ssh "$REMOTE" \
+ssh_remote \
   "PROFILE='$PROFILE' RELEASE_ID='$RELEASE_ID' RELEASE_DIR='$RELEASE_DIR' QUADLET_PATH='$QUADLET_PATH' BASE_PATH='$BASE_PATH' PUBLIC_URL='$PUBLIC_URL' WEB_SERVICE='$WEB_SERVICE' GO_SERVICE='$GO_SERVICE' DB_SERVICE='$DB_SERVICE' NETWORK_SERVICE='$NETWORK_SERVICE' VOLUME_SERVICE='$VOLUME_SERVICE' CADDY_NETWORK_NAME='$CADDY_NETWORK_NAME' BACKUP_TIMER='$BACKUP_TIMER' DB_CONTAINER='$DB_CONTAINER' GO_CONTAINER='$GO_CONTAINER' APP_CONTAINER='$APP_CONTAINER' APP_PORT='$APP_PORT' DB_NAME='$DB_NAME' RESET_FLAG='$RESET_FLAG' DEMO_MODE='$DEMO_MODE_VALUE' bash -s" <<'REMOTE_ACTIVATE'
 set -euo pipefail
 export PATH="/opt/podman/bin:$PATH"
@@ -367,7 +401,7 @@ REMOTE_ACTIVATE
 
 # The release path is intentionally expanded locally.
 # shellcheck disable=SC2029
-ssh "$REMOTE" "rm -f '$RELEASE_DIR/source.tar.gz'"
+ssh_remote "rm -f '$RELEASE_DIR/source.tar.gz'"
 
 echo "=== ${PROFILE_LABEL} deployed ==="
 echo "Release manifest: ${RELEASE_DIR}/${RELEASE_ID}.json"

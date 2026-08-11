@@ -101,7 +101,11 @@ The remote demo is deployed through the single orchestrator
 `./scripts/deploy-remote-demo.sh` and rootless Quadlets. The workstation only
 archives and transfers the clean committed source with `rsync` over SSH; do not
 use `scp`. The VPS builds release-tagged images with rootless `podman build` and smoke-tests them with disposable
-`podman run --rm` containers. The authoritative remote
+`podman run --rm` containers. On macOS, run
+`scripts/configure-remote-demo.sh` once to store remote settings and B2
+credentials in the login Keychain; later deployments need no exported variables.
+The deployer reuses one SSH connection for its `rsync` transfers and remote
+commands. The authoritative remote
 locations are:
 
 - Quadlets: `/home/jk/.config/containers/systemd/bridge-ph/lemans-demo`

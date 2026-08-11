@@ -140,6 +140,7 @@ Values are injected at container runtime via `EnvironmentFile=` in Quadlet files
 | `scripts/deploy-remote-profile.sh` | Package source; build/smoke-test/activate on VPS      |
 | `scripts/deploy-remote-demo.sh`    | Demo wrapper for the remote-only profile deploy       |
 | `scripts/deploy-remote-prod.sh`    | Production wrapper for the remote-only profile deploy |
+| `scripts/configure-remote-*.sh`    | One-time macOS Keychain setup for remote profiles     |
 
 ## 8. Official Guidance
 
