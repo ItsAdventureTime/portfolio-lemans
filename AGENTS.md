@@ -67,6 +67,10 @@ documentation or repository synchronization is outstanding.
   - Internal app↔database traffic stays on a dedicated internal network (`lemans-demo-net` or `lemans-prod-net`).
   - Database ports are never published to host interfaces.
   - The Go API container is attached only to the internal network; the Next.js web container is attached to both the Caddy network and the internal network.
+  - Remote runtime variables belong in generated Quadlet `Environment=` entries
+    inside the profile `.container` files. Do not create or reference external
+    `.env`/`EnvironmentFile=` files; credential-bearing generated Quadlets are
+    mode `600`.
 
 8. **Git & GitHub Operations Standard**: - **Local Commits**: Local commits and local branch operations MUST use local `git` command. - **Remote Commits & Operations**: Remote commits, pushes, and GitHub repository operations MUST use GitHub official CLI (`gh` command). - **Transport Protocol**: Remote repository access MUST use HTTPS (`https://...`), not SSH. Authentication is assumed default via `gh auth setup-git` credential helper. - **Branch Policy**: Keep the worktree and remote on `main`; do not create feature/review branches. Never delete `main`; inspect protection and unique commits before deleting another branch.
 

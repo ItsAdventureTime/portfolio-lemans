@@ -332,8 +332,10 @@ by that Quadlet.
 - The remote demo reset service/timer must invoke the tracked reset script every
   30 minutes; this is a required deployment artifact, not an undocumented host
   customization.
-- Temporary local env/release files must be removed on success and failure; the
-  remote env file must be chmod `600`; release manifests must be written to
+- Runtime credentials must be written as `Environment=` entries in the generated
+  Go API `.container` file with mode `600`; no external remote `.env` file is
+  allowed. Legacy generated env files are removed from the active Quadlet and
+  release directories. Release manifests must be written to
   `/home/jk/bridge-ph/lemans-demo/releases`. Verify these guarantees against
   both success and failure paths; see
   the current validation records in `CURRENT-STATE.md` and this playbook.

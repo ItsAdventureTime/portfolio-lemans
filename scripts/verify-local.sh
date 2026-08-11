@@ -18,7 +18,6 @@ run_node() {
   podman run --rm \
     -v "${PROJECT_ROOT}:/app:rw" \
     -w /app \
-    --env-file "${PROJECT_ROOT}/.env.demo" \
     "$NODE_IMAGE" sh -c "
       set -euo pipefail
       npm ci

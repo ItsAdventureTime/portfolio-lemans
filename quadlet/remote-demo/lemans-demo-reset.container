@@ -10,7 +10,6 @@ Environment=LISTEN_ADDR=:8080
 Environment=PGHOST=lemans-demo-db
 Environment=PGUSER=postgres
 Environment=PGDATABASE=lemans_demo_db
-EnvironmentFile=%h/.config/containers/systemd/bridge-ph/lemans-demo/lemans-demo.env
 Secret=db_password,type=env,target=PGPASSWORD
 Exec=/usr/local/bin/reset-demo.sh
 

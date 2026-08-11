@@ -75,7 +75,6 @@ podman run -d \
   --name "$APP_NAME" \
   --network "$NETWORK_NAME" \
   -p "127.0.0.1:${PORT}:3000" \
-  --env-file "${PROJECT_ROOT}/.env.demo" \
   -e API_BASE_URL="http://${GO_NAME}:8080" \
   lemans-bridge-dashboard:demo-web
 

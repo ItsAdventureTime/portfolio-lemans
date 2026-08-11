@@ -10,7 +10,11 @@ Network=lemans.network
 Environment=NODE_ENV=production
 Environment=LISTEN_ADDR=:8080
 Environment=DEMO_MODE=false
-EnvironmentFile=%h/.config/containers/systemd/bridge-ph/lemans/lemans.env
+Environment=B2_ENDPOINT=https://s3.us-west-004.backblazeb2.com
+Environment=B2_REGION=us-west-004
+Environment=B2_BUCKET_NAME=lemans-prod-attachments
+# The deployment adds release-specific DATABASE_URL and B2 credential values
+# as Environment= entries before the [Service] section.
 
 [Service]
 Restart=always

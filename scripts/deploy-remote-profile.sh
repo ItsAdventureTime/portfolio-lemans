@@ -43,7 +43,6 @@ DB_CONTAINER="lemans-demo-db"
 GO_CONTAINER="lemans-demo-go"
 APP_CONTAINER="lemans-demo-app"
 DB_NAME="lemans_demo_db"
-ENV_NAME="lemans-demo.env"
 QUADLET_SOURCE_DIR="quadlet/remote-demo"
 RESET_FLAG="${RESET:-false}"
 
@@ -65,7 +64,6 @@ if [[ "$PROFILE" == "prod" ]]; then
   GO_CONTAINER="lemans-prod-go"
   APP_CONTAINER="lemans-prod-app"
   DB_NAME="lemans_prod_db"
-  ENV_NAME="lemans.env"
   QUADLET_SOURCE_DIR="quadlet/remote-prod"
   CADDY_ROUTE_SOURCE=""
   CADDY_ROUTE_TARGET_NAME=""
@@ -158,7 +156,6 @@ RELEASE_TIME="$(date -u +%Y%m%d-%H%M%S)"
 RELEASE_ID="${RELEASE_TIME}-${RELEASE_COMMIT:0:8}"
 RELEASE_DIR="${REMOTE_ROOT}/releases/${RELEASE_ID}"
 SOURCE_ARCHIVE="${PROJECT_ROOT}/.${PROFILE}-source-${RELEASE_ID}.tar.gz"
-ENV_FILE="${PROJECT_ROOT}/.${PROFILE}-env-${RELEASE_ID}.tmp"
 REMOTE="${REMOTE_USER}@${REMOTE_HOST}"
 CADDY_ROUTE_SOURCE_REMOTE=""
 if [[ -n "$CADDY_ROUTE_SOURCE" ]]; then
@@ -182,26 +179,12 @@ GO_IMAGE="localhost/lemans-bridge-dashboard-go:${GO_SOURCE_TAG}-${RELEASE_ID}"
 DB_PASSWORD="$(generate_password)"
 cleanup_local() {
   ssh "${SSH_OPTIONS[@]}" -O exit "$REMOTE" >/dev/null 2>&1 || true
-  rm -f "$SOURCE_ARCHIVE" "$ENV_FILE"
+  rm -f "$SOURCE_ARCHIVE"
   rm -rf "$SSH_CONTROL_DIR"
 }
 trap cleanup_local EXIT
 
 git archive --format=tar.gz --output="$SOURCE_ARCHIVE" HEAD
-
-cat > "$ENV_FILE" <<EOF
-DATABASE_URL=postgresql://postgres:${DB_PASSWORD}@${DB_CONTAINER}:5432/${DB_NAME}
-B2_ENDPOINT=https://s3.us-west-004.backblazeb2.com
-B2_REGION=us-west-004
-B2_ACCESS_KEY_ID=${B2_ACCESS_KEY_ID}
-B2_SECRET_ACCESS_KEY=${B2_SECRET_ACCESS_KEY}
-B2_BUCKET_NAME=lemans-${PROFILE}-attachments
-DEMO_MODE=${DEMO_MODE_VALUE}
-DEMO_PUBLIC_URL=${PUBLIC_URL}
-NEXT_PUBLIC_BASE_PATH=${BASE_PATH}
-API_BASE_URL=http://${GO_CONTAINER}:8080
-EOF
-chmod 600 "$ENV_FILE"
 
 echo "=== Remote-only ${PROFILE_LABEL} deployment ==="
 echo "Host: ${REMOTE}"
@@ -213,13 +196,11 @@ echo "Local actions: source archive + resumable rsync transfer only"
 ssh_remote "command -v rsync >/dev/null 2>&1 || { echo 'Error: rsync is required on the remote host.' >&2; exit 1; }; mkdir -p '$RELEASE_DIR' '$QUADLET_PATH'"
 rsync -a --partial --progress -e "$RSYNC_RSH" \
   "$SOURCE_ARCHIVE" "$REMOTE:${RELEASE_DIR}/source.tar.gz"
-rsync -a --partial --progress -e "$RSYNC_RSH" \
-  "$ENV_FILE" "$REMOTE:${RELEASE_DIR}/${ENV_NAME}"
 
 # Values are intentionally expanded locally into the remote environment.
 # shellcheck disable=SC2029
 ssh_remote \
-  "PROFILE='$PROFILE' RELEASE_ID='$RELEASE_ID' RELEASE_COMMIT='$RELEASE_COMMIT' RELEASE_DIR='$RELEASE_DIR' QUADLET_PATH='$QUADLET_PATH' BASE_PATH='$BASE_PATH' WEB_IMAGE='$WEB_IMAGE' GO_IMAGE='$GO_IMAGE' WEB_SOURCE_TAG='$WEB_SOURCE_TAG' GO_SOURCE_TAG='$GO_SOURCE_TAG' ENV_NAME='$ENV_NAME' QUADLET_SOURCE_DIR='$QUADLET_SOURCE_DIR' DEMO_MODE='$DEMO_MODE_VALUE' bash -s" <<'REMOTE_BUILD'
+  "PROFILE='$PROFILE' RELEASE_ID='$RELEASE_ID' RELEASE_COMMIT='$RELEASE_COMMIT' RELEASE_DIR='$RELEASE_DIR' QUADLET_PATH='$QUADLET_PATH' BASE_PATH='$BASE_PATH' WEB_IMAGE='$WEB_IMAGE' GO_IMAGE='$GO_IMAGE' WEB_SOURCE_TAG='$WEB_SOURCE_TAG' GO_SOURCE_TAG='$GO_SOURCE_TAG' QUADLET_SOURCE_DIR='$QUADLET_SOURCE_DIR' DEMO_MODE='$DEMO_MODE_VALUE' bash -s" <<'REMOTE_BUILD'
 set -euo pipefail
 export PATH="/opt/podman/bin:$PATH"
 
@@ -270,12 +251,18 @@ for file in "$QUADLET_SOURCE_DIR"/*.timer; do
   install -m 0644 "$file" "$systemd_user_dir/$(basename "$file")"
 done
 
+# Remove the legacy external environment files created by older releases.
+rm -f "$QUADLET_PATH/lemans-demo.env" "$QUADLET_PATH/lemans.env"
+if grep -R -n --fixed-strings 'EnvironmentFile=' "$QUADLET_PATH"/*.container; then
+  echo "Error: external EnvironmentFile= references are not allowed in remote Quadlets." >&2
+  exit 1
+fi
+
 sed -i \
   -e "s#docker.io/library/lemans-bridge-dashboard:${WEB_SOURCE_TAG}#${WEB_IMAGE}#g" \
   -e "s#docker.io/library/lemans-bridge-dashboard-go:${GO_SOURCE_TAG}#${GO_IMAGE}#g" \
   "$QUADLET_PATH"/*.container
 
-install -m 0600 "$RELEASE_DIR/$ENV_NAME" "$QUADLET_PATH/$ENV_NAME"
 cat > "$RELEASE_DIR/${RELEASE_ID}.json" <<EOF
 {
   "release_id": "${RELEASE_ID}",
@@ -295,10 +282,12 @@ REMOTE_BUILD
 # argument or release manifest. Replacing an existing secret is done remotely.
 printf '%s' "$DB_PASSWORD" | ssh "${SSH_OPTIONS[@]}" "$REMOTE" "podman secret create --replace db_password -"
 
-# Values are intentionally expanded locally into the remote environment.
-# shellcheck disable=SC2029
-ssh_remote \
-  "PROFILE='$PROFILE' RELEASE_ID='$RELEASE_ID' RELEASE_DIR='$RELEASE_DIR' QUADLET_PATH='$QUADLET_PATH' BASE_PATH='$BASE_PATH' PUBLIC_URL='$PUBLIC_URL' WEB_SERVICE='$WEB_SERVICE' GO_SERVICE='$GO_SERVICE' DB_SERVICE='$DB_SERVICE' NETWORK_SERVICE='$NETWORK_SERVICE' VOLUME_SERVICE='$VOLUME_SERVICE' CADDY_NETWORK_NAME='$CADDY_NETWORK_NAME' CADDY_SERVICE='$CADDY_SERVICE' CADDY_CONTAINER='$CADDY_CONTAINER' CADDY_CONFIG_FILE='$CADDY_CONFIG_FILE' CADDY_ROUTE_SOURCE='$CADDY_ROUTE_SOURCE_REMOTE' CADDY_ROUTE_TARGET_NAME='$CADDY_ROUTE_TARGET_NAME' CADDY_ROUTE_IMPORT='$CADDY_ROUTE_IMPORT' BACKUP_TIMER='$BACKUP_TIMER' DB_CONTAINER='$DB_CONTAINER' GO_CONTAINER='$GO_CONTAINER' APP_CONTAINER='$APP_CONTAINER' APP_PORT='$APP_PORT' DB_NAME='$DB_NAME' RESET_FLAG='$RESET_FLAG' DEMO_MODE='$DEMO_MODE_VALUE' bash -s" <<'REMOTE_ACTIVATE'
+# Runtime credentials are streamed over the encrypted SSH stdin channel rather
+# than passed as command-line arguments. The remote script writes them only to
+# the mode-600 Go API Quadlet.
+{
+  printf '%s\n' "$DB_PASSWORD" "$B2_ACCESS_KEY_ID" "$B2_SECRET_ACCESS_KEY"
+  cat <<'REMOTE_ACTIVATE'
 set -euo pipefail
 export PATH="/opt/podman/bin:$PATH"
 
@@ -344,6 +333,50 @@ run_unit() {
     exit 1
   fi
 }
+
+write_runtime_environment() {
+  local file="$1"
+  local db_container="$2"
+  local db_name="$3"
+  local runtime_lines
+  local temp
+
+  runtime_lines="$(printf '%s\n' \
+    "Environment=DATABASE_URL=postgresql://postgres:${DB_PASSWORD}@${db_container}:5432/${db_name}" \
+    "Environment=B2_ACCESS_KEY_ID=${B2_ACCESS_KEY_ID}" \
+    "Environment=B2_SECRET_ACCESS_KEY=${B2_SECRET_ACCESS_KEY}")"
+  temp="$(mktemp)"
+  if ! awk -v runtime_lines="$runtime_lines" '
+    $0 == "[Service]" && !inserted {
+      printf "%s\n", runtime_lines
+      inserted=1
+    }
+    { print }
+    END { if (!inserted) exit 7 }
+  ' "$file" > "$temp"; then
+    echo "Error: could not inject runtime Environment= entries into $file." >&2
+    rm -f "$temp"
+    exit 1
+  fi
+  install -m 0600 "$temp" "$file"
+  rm -f "$temp"
+}
+
+if [[ "$DEMO_MODE" == "true" ]]; then
+  write_runtime_environment "$QUADLET_PATH/lemans-demo-go.container" "$DB_CONTAINER" "$DB_NAME"
+else
+  write_runtime_environment "$QUADLET_PATH/lemans-go.container" "$DB_CONTAINER" "$DB_NAME"
+fi
+
+# Remove legacy generated env files. Runtime values now live in the generated
+# .container file, so no external env file is required.
+rm -f "$QUADLET_PATH/lemans-demo.env" "$QUADLET_PATH/lemans.env"
+release_root="${RELEASE_DIR%/*}"
+if [[ -d "$release_root" ]]; then
+  find "$release_root" -maxdepth 2 -type f \
+    \( -name 'lemans-demo.env' -o -name 'lemans.env' \) -delete
+fi
+systemctl --user daemon-reload
 
 ensure_caddy_route() {
   [[ -n "$CADDY_ROUTE_SOURCE" ]] || return 0
@@ -530,6 +563,8 @@ echo "Web: $(podman inspect "$APP_CONTAINER" --format '{{.ImageName}}')"
 echo "Go:  $(podman inspect "$GO_CONTAINER" --format '{{.ImageName}}')"
 echo "DB publishes: $(podman inspect "$DB_CONTAINER" --format '{{json .NetworkSettings.Ports}}')"
 REMOTE_ACTIVATE
+} | ssh_remote \
+  "PROFILE='$PROFILE' RELEASE_ID='$RELEASE_ID' RELEASE_DIR='$RELEASE_DIR' QUADLET_PATH='$QUADLET_PATH' BASE_PATH='$BASE_PATH' PUBLIC_URL='$PUBLIC_URL' WEB_SERVICE='$WEB_SERVICE' GO_SERVICE='$GO_SERVICE' DB_SERVICE='$DB_SERVICE' NETWORK_SERVICE='$NETWORK_SERVICE' VOLUME_SERVICE='$VOLUME_SERVICE' CADDY_NETWORK_NAME='$CADDY_NETWORK_NAME' CADDY_SERVICE='$CADDY_SERVICE' CADDY_CONTAINER='$CADDY_CONTAINER' CADDY_CONFIG_FILE='$CADDY_CONFIG_FILE' CADDY_ROUTE_SOURCE='$CADDY_ROUTE_SOURCE_REMOTE' CADDY_ROUTE_TARGET_NAME='$CADDY_ROUTE_TARGET_NAME' CADDY_ROUTE_IMPORT='$CADDY_ROUTE_IMPORT' BACKUP_TIMER='$BACKUP_TIMER' DB_CONTAINER='$DB_CONTAINER' GO_CONTAINER='$GO_CONTAINER' APP_CONTAINER='$APP_CONTAINER' APP_PORT='$APP_PORT' DB_NAME='$DB_NAME' RESET_FLAG='$RESET_FLAG' DEMO_MODE='$DEMO_MODE_VALUE' bash -c 'IFS= read -r DB_PASSWORD; IFS= read -r B2_ACCESS_KEY_ID; IFS= read -r B2_SECRET_ACCESS_KEY; export DB_PASSWORD B2_ACCESS_KEY_ID B2_SECRET_ACCESS_KEY; exec bash -s'"
 
 # The release path is intentionally expanded locally.
 # shellcheck disable=SC2029

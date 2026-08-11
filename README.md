@@ -108,7 +108,9 @@ Keychain, so later `./scripts/deploy-remote-demo.sh` runs need no exported
 deployment variables. The environment-variable form below remains available for
 non-macOS and automated environments. The demo deployment also installs the
 tracked `/lemans/demo` Caddy route, validates and formats the complete
-Caddyfile, and gracefully reloads rootless Caddy when that route changes.
+Caddyfile, and gracefully reloads rootless Caddy when that route changes. It
+writes remote runtime values directly into the generated Quadlet `.container`
+file; it does not create an external `.env` file.
 
 ```bash
 # Remote demo (automatic 30-minute reset; manual reset also available)
