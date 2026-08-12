@@ -28,25 +28,24 @@ for direct loopback health checks.
 
 ### `delegateops.business` demo route
 
-The tracked route fragment is
+The tracked route block is
 [`caddy/lemans-demo.handlers.Caddyfile`](../caddy/lemans-demo.handlers.Caddyfile).
-The remote demo deploy installs it into the existing Caddy configuration
-directory, adds its import immediately before the DelegateOps static fallback,
-formats both Caddyfile inputs, validates the complete configuration, and then
-performs a graceful Caddy reload. Existing Caddy mounts and unrelated app
-routes remain untouched. The Caddy Quadlet is expected at
+The remote demo deploy inserts it directly into the existing
+`/home/jk/caddy/conf/Caddyfile` immediately before the DelegateOps static
+fallback, formats and validates the complete configuration, and then performs a
+graceful Caddy reload. Existing Caddy mounts and unrelated app routes remain
+untouched. The Caddy Quadlet is expected at
 `/home/jk/.config/containers/systemd/caddy/`, with its configuration and data
 under `/home/jk/caddy/`; if a newly added `:Z`-mounted file is unreadable, the
 activation script restarts `caddy.service` once to reapply the mount label.
 
 ```caddy
 delegateops.business {
-    @lemans_demo_root path /lemans/demo
-    redir @lemans_demo_root /lemans/demo/ 308
+    @lemans_demo path /lemans/demo /lemans/demo/*
 
     # Place this handle block before the static-site fallback. Do not use
     # handle_path: Next.js was built with /lemans/demo as its base path.
-    handle /lemans/demo/* {
+    handle @lemans_demo {
         header {
             >Cache-Control "public, max-age=0, must-revalidate"
         }
@@ -67,7 +66,7 @@ network through the `caddy.network` Quadlet reference, Caddy can resolve
 ```bash
 # Manual validation/reload path when the tracked fragment and import already exist.
 # If either is missing, rerun ./scripts/deploy-remote-demo.sh so the script can
-# install the fragment and create the fixed Caddyfile backup before reloading.
+# install the fragment before reloading.
 formatted_caddyfile="$(mktemp)"
 podman exec --user 0 caddy caddy fmt /etc/caddy/Caddyfile > "$formatted_caddyfile"
 install -m 0644 "$formatted_caddyfile" /home/jk/caddy/conf/Caddyfile
@@ -250,10 +249,9 @@ The script dumps `lemans_prod_db` with `pg_dump`, gzips it, and uploads it to `s
 1. Restore the previous known-good source commit by rerunning the sync and
    activation commands for that commit. Stable image tags are replaced by the
    activation, so the stable `current` path is all that is required.
-2. If only the proxy changed, restore `/home/jk/caddy/conf/Caddyfile.bak`, then
-   validate and gracefully reload Caddy:
+2. If only the proxy changed, edit `/home/jk/caddy/conf/Caddyfile`, then validate
+   and gracefully reload Caddy:
    ```bash
-   install -m 0644 /home/jk/caddy/conf/Caddyfile.bak /home/jk/caddy/conf/Caddyfile
    podman exec --user 0 caddy caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
    podman exec --user 0 caddy caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile
    ```

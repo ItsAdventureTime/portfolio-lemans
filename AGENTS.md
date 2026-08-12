@@ -124,10 +124,11 @@ Follow [`docs/REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`](docs/REMOTE-DEMO-DEPLOYMENT-P
 before changing deployment code. Do not connect to, reload, or modify the remote
 host or shared Caddy configuration until the user explicitly authorizes the
 deployment and provides any required Caddy context. When authorized for the
-demo, the deployment may install only the tracked demo route fragment, add its
-single import before the DelegateOps fallback, validate/format the complete
-Caddyfile, and perform a graceful reload through the running rootless Caddy
-container. It must preserve unrelated site routes and keep one previous backup.
+demo, the deployment may install only the tracked demo route block directly
+before the DelegateOps fallback in `/home/jk/caddy/conf/Caddyfile`,
+validate/format the complete Caddyfile, and perform a graceful reload through
+the running rootless Caddy container. It must preserve unrelated site routes
+and must not create backup files.
 
 ## Verified Execution Boundaries & Results
 

@@ -148,14 +148,13 @@ Recommended approach:
 4. Verify navigation, static assets, API routes, browser flows, redirects,
    cookies, and error pages under the subpath.
 
-The tracked `caddy/lemans-demo.handlers.Caddyfile` is imported inside the
-`delegateops.business` site before its static fallback:
+The tracked `caddy/lemans-demo.handlers.Caddyfile` is inserted directly into
+the active `/home/jk/caddy/conf/Caddyfile` before its static fallback:
 
 ```caddy
-@lemans_demo_root path /lemans/demo
-redir @lemans_demo_root /lemans/demo/ 308
+@lemans_demo path /lemans/demo /lemans/demo/*
 
-handle /lemans/demo/* {
+handle @lemans_demo {
     reverse_proxy lemans-demo-app:3000
 }
 ```
@@ -174,9 +173,9 @@ The Caddy container/network definitions and Caddyfile must be reviewed before
 the first deployment. For the supplied Caddy configuration, `caddy.network`
 sets `NetworkName=caddy`; therefore the deployment checks the `caddy` Podman
 network while Le Mans Quadlets continue to use `Network=caddy.network`. The
-authorized demo deployment installs the tracked fragment, inserts one import
-before the static fallback, formats and validates the complete configuration,
-and gracefully reloads the running Caddy container. It preserves the existing
+authorized demo deployment installs the tracked route block directly before the
+static fallback, formats and validates the complete configuration, and
+gracefully reloads the running Caddy container. It preserves the existing
 static-site and application mounts. The operator should provide the
 configuration if the network name, site-block structure, or TLS ownership is
 unclear.
@@ -249,9 +248,9 @@ of `125` means Podman could not start the container.
 
 The script must not silently deploy to production, reset the database, or modify
 unrelated Caddy routes or systemd units. For the demo profile, it may manage the
-tracked route fragment and its single import in the supplied Caddyfile. It keeps
-a fixed `Caddyfile.bak` backup, formats and validates the complete configuration, and uses a
-graceful reload. Remote deployment remains an explicitly authorized operation.
+tracked route block in the supplied Caddyfile. It formats and validates the
+active Caddyfile in place, then uses a graceful reload. It does not create a
+`.bak` file. Remote deployment remains an explicitly authorized operation.
 
 Because Caddy runs in a rootless Quadlet, the activation script invokes the
 Caddy CLI as UID 0 inside the container's user namespace when it reads the
@@ -326,17 +325,18 @@ The deployment is not successful until all checks pass:
   at 30-minute intervals after deployment.
 - Logs identify the source commit and image digest.
 
-If the tracked demo route changes Caddy configuration, the deployment validates
-the complete Caddyfile before a graceful reload and keeps one previous
-`Caddyfile.bak` copy. Do not reload the shared proxy during an exploratory
-deployment without explicit approval.
+If the tracked demo route changes Caddy configuration, the deployment formats
+and validates the active Caddyfile before a graceful reload. It does not create
+`.bak` files. Do not reload the shared proxy during an exploratory deployment
+without explicit approval.
 
 ## 9. Rollback contract
 
 The stable image tags point to the current deployment. The previous Caddy
-configuration is retained at `Caddyfile.bak`; rollback of application code
-requires restoring a known-good source commit and rerunning the same sync and
-activation commands.
+rollback of application code requires restoring a known-good source commit and
+rerunning the same sync and activation commands. Caddy configuration rollback
+is operator-managed from the active `/home/jk/caddy/conf/Caddyfile`; this script
+does not create backup files.
 
 Rollback must:
 

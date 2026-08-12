@@ -47,10 +47,9 @@ DB_CONTAINER="lemans-demo-db"
 GO_CONTAINER="lemans-demo-go"
 APP_CONTAINER="lemans-demo-app"
 DB_NAME="lemans_demo_db"
-QUADLET_SOURCE_DIR="quadlet/remote-demo"
-CADDY_ROUTE_SOURCE="caddy/lemans-demo.handlers.Caddyfile"
-CADDY_ROUTE_TARGET_NAME="lemans-demo.handlers.Caddyfile"
-CADDY_ROUTE_IMPORT="/etc/caddy/lemans-demo.handlers.Caddyfile"
+  QUADLET_SOURCE_DIR="quadlet/remote-demo"
+  CADDY_ROUTE_SOURCE="caddy/lemans-demo.handlers.Caddyfile"
+  CADDY_ROUTE_IMPORT="/etc/caddy/lemans-demo.handlers.Caddyfile"
 BACKUP_TIMER=""
 DEMO_MODE=true
 
@@ -71,7 +70,6 @@ if [[ "$PROFILE" == "prod" ]]; then
   DB_NAME="lemans_prod_db"
   QUADLET_SOURCE_DIR="quadlet/remote-prod"
   CADDY_ROUTE_SOURCE=""
-  CADDY_ROUTE_TARGET_NAME=""
   CADDY_ROUTE_IMPORT=""
   BACKUP_TIMER="lemans-backup.timer"
   DEMO_MODE=false
@@ -366,70 +364,64 @@ fi
 ensure_caddy_route() {
   [[ -n "$CADDY_ROUTE_SOURCE" ]] || return 0
   # UID 0 is root only inside Caddy's rootless user namespace. The Caddy image
-  # default user may not read newly-created files on the Quadlet bind mount.
+  # default user may not read files on the Quadlet bind mount.
   caddy_cli() {
     podman exec --user 0 "$CADDY_CONTAINER" caddy "$@"
   }
+  caddy_cli_stdin() {
+    podman exec -i --user 0 "$CADDY_CONTAINER" caddy "$@"
+  }
   local config_dir="${CADDY_CONFIG_FILE%/*}"
-  local route_file="${config_dir}/${CADDY_ROUTE_TARGET_NAME}"
-  local import_line="import ${CADDY_ROUTE_IMPORT}"
-  local config_backup="${CADDY_CONFIG_FILE}.bak"
-  local route_backup="${route_file}.bak"
   local temp_route="$(mktemp)" temp_config="$(mktemp)" formatted="$(mktemp)"
   relabel_caddy_files() {
     # Quadlet's :Z mount labels existing files when Caddy starts. Files copied
     # into that mount later may need the same label before a reload/restart.
-    if command -v chcon >/dev/null 2>&1 && [[ -f "$config_backup" ]]; then
+    if command -v chcon >/dev/null 2>&1; then
       podman unshare chcon -Rt container_file_t "$config_dir" \
         >/dev/null 2>&1 || true
-      podman unshare chcon --reference="$config_backup" \
-        "$CADDY_CONFIG_FILE" "$route_file" >/dev/null 2>&1 || true
     fi
   }
-  install -m 0644 "$CADDY_CONFIG_FILE" "$config_backup"
-  [[ -f "$route_file" ]] && install -m 0644 "$route_file" "$route_backup"
-  install -m 0644 "$SOURCE_ROOT/$CADDY_ROUTE_SOURCE" "$route_file"
-  if ! grep -Fq "$import_line" "$CADDY_CONFIG_FILE"; then
-    awk -v import_line="$import_line" '
-      !inserted && $0 ~ /^[[:space:]]*# DelegateOps static-site fallback[[:space:]]*$/ {
-        print "\t" import_line; inserted=1
-      }
-      { print }
-      END { if (!inserted) exit 7 }
-    ' "$CADDY_CONFIG_FILE" > "$temp_config"
-    install -m 0644 "$temp_config" "$CADDY_CONFIG_FILE"
-  fi
-  relabel_caddy_files
-  format_caddy_inputs() {
-    caddy_cli fmt "/etc/caddy/${CADDY_ROUTE_TARGET_NAME}" > "$temp_route" &&
-      caddy_cli fmt /etc/caddy/Caddyfile > "$formatted"
+  caddy_cli_stdin fmt - < "$SOURCE_ROOT/$CADDY_ROUTE_SOURCE" > "$temp_route" || {
+    echo "Error: tracked Le Mans Caddy route could not be formatted." >&2
+    exit 1
   }
-  if ! format_caddy_inputs; then
-    echo "Caddy config mount was not readable; restarting caddy.service to reapply its rootless :Z mount label." >&2
-    if ! systemctl --user restart caddy.service || ! format_caddy_inputs; then
-      install -m 0644 "$config_backup" "$CADDY_CONFIG_FILE"
-      [[ -f "$route_backup" ]] && install -m 0644 "$route_backup" "$route_file" || rm -f "$route_file"
-      relabel_caddy_files
-      systemctl --user restart caddy.service >/dev/null 2>&1 || true
-      echo "Error: Caddy formatting failed after restarting caddy.service." >&2
-      exit 1
-    fi
-  fi
-  install -m 0644 "$temp_route" "$route_file"
+  awk -v route_file="$temp_route" -v import_path="$CADDY_ROUTE_IMPORT" '
+    $0 == "import " import_path { next }
+    /# BEGIN LEMANS DEMO ROUTE/ { skipping=1; next }
+    skipping && /# END LEMANS DEMO ROUTE/ { skipping=0; next }
+    !skipping && !inserted && $0 ~ /^[[:space:]]*# DelegateOps static-site fallback[[:space:]]*$/ {
+      while ((getline line < route_file) > 0) print line
+      close(route_file)
+      print ""
+      inserted=1
+    }
+    !skipping { print }
+    END { if (!inserted) exit 7 }
+  ' "$CADDY_CONFIG_FILE" > "$temp_config" || {
+    echo "Error: DelegateOps static fallback marker was not found in Caddyfile." >&2
+    exit 1
+  }
+  caddy_cli_stdin validate --config - --adapter caddyfile < "$temp_config" || {
+    echo "Error: generated Caddyfile failed validation; active file was not changed." >&2
+    exit 1
+  }
+  caddy_cli_stdin fmt - < "$temp_config" > "$formatted" || {
+    echo "Error: generated Caddyfile could not be formatted." >&2
+    exit 1
+  }
   install -m 0644 "$formatted" "$CADDY_CONFIG_FILE"
   relabel_caddy_files
   if ! caddy_cli validate --config /etc/caddy/Caddyfile --adapter caddyfile; then
-    install -m 0644 "$config_backup" "$CADDY_CONFIG_FILE"
-    [[ -f "$route_backup" ]] && install -m 0644 "$route_backup" "$route_file" || rm -f "$route_file"
-    relabel_caddy_files
-    echo "Error: Caddyfile validation failed; previous configuration restored." >&2
-    exit 1
+    echo "Caddy config mount was not readable; restarting caddy.service to reapply its rootless :Z mount label." >&2
+    if ! systemctl --user restart caddy.service ||
+       ! caddy_cli validate --config /etc/caddy/Caddyfile --adapter caddyfile; then
+      systemctl --user restart caddy.service >/dev/null 2>&1 || true
+      echo "Error: Caddy validation failed after restarting caddy.service." >&2
+      exit 1
+    fi
   fi
   if ! caddy_cli reload --config /etc/caddy/Caddyfile --adapter caddyfile; then
-    install -m 0644 "$config_backup" "$CADDY_CONFIG_FILE"
-    [[ -f "$route_backup" ]] && install -m 0644 "$route_backup" "$route_file" || rm -f "$route_file"
-    relabel_caddy_files
-    echo "Error: graceful Caddy reload failed; previous configuration restored." >&2
+    echo "Error: graceful Caddy reload failed; the active file was not reloaded." >&2
     exit 1
   fi
   rm -f "$temp_route" "$temp_config" "$formatted"

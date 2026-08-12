@@ -1,13 +1,15 @@
-# Le Mans remote demo route.
-# This file is imported inside delegateops.business before its static fallback.
+# BEGIN LEMANS DEMO ROUTE
+# Le Mans remote demo route. This block is installed directly in the active
+# `/home/jk/caddy/conf/Caddyfile` before the DelegateOps static fallback.
 
-@lemans_demo_root path /lemans/demo
-redir @lemans_demo_root /lemans/demo/ 308
+@lemans_demo path /lemans/demo /lemans/demo/*
 
-handle /lemans/demo/* {
+handle @lemans_demo {
 	header {
 		>Cache-Control "public, max-age=0, must-revalidate"
 	}
 
 	reverse_proxy lemans-demo-app:3000
 }
+
+# END LEMANS DEMO ROUTE
