@@ -82,9 +82,9 @@ systemctl --user start lemans-demo-app.service
 
 if command -v b2 2>/dev/null && [[ -n "${B2_APPLICATION_KEY_ID:-}" ]]; then
   log "Deleting uploaded attachments from B2 demo bucket..."
-  b2 ls "${B2_BUCKET}" "${B2_PREFIX}" 2>/dev/null | while read -r file; do
-    b2 delete-file-version "${file}" 2>/dev/null || true
-  done
+  # `b2 rm --versions --recursive` removes every version below this prefix
+  # while leaving production objects in the shared bucket untouched.
+  b2 rm --versions --recursive "b2://${B2_BUCKET}/${B2_PREFIX}" 2>/dev/null || true
 fi
 
 log "=== Remote demo reset complete ==="
