@@ -1,13 +1,12 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# VPS-side activation. Run this from a synced release source tree. All builds,
+# VPS-side activation. Run this from the synced current source tree. All builds,
 # smoke checks, service changes, and health checks stay on the VPS.
 
 PROFILE="${1:-}"
 shift || true
-RELEASE_ID=""
-RELEASE_COMMIT="synced-source"
+SOURCE_COMMIT="synced-source"
 REMOTE_ROOT=""
 QUADLET_PATH=""
 PUBLIC_URL=""
@@ -18,8 +17,8 @@ B2_FROM_STDIN="${B2_FROM_STDIN:-false}"
 
 while (($# > 0)); do
   case "$1" in
-    --release-id) RELEASE_ID="${2:-}"; shift 2 ;;
-    --release-commit) RELEASE_COMMIT="${2:-}"; shift 2 ;;
+    --release-id) shift 2 ;; # accepted for older commands; no longer used
+    --release-commit|--source-commit) SOURCE_COMMIT="${2:-}"; shift 2 ;;
     --remote-root) REMOTE_ROOT="${2:-}"; shift 2 ;;
     --quadlet-path) QUADLET_PATH="${2:-}"; shift 2 ;;
     --public-url) PUBLIC_URL="${2:-}"; shift 2 ;;
@@ -30,11 +29,7 @@ while (($# > 0)); do
 done
 
 if [[ "$PROFILE" != "demo" && "$PROFILE" != "prod" ]]; then
-  echo "Usage: $0 {demo|prod} --release-id RELEASE_ID [options]" >&2
-  exit 1
-fi
-if [[ -z "$RELEASE_ID" || ! "$RELEASE_ID" =~ ^[0-9]{8}-[0-9]{6}-[0-9a-f]{8}$ ]]; then
-  echo "Error: a valid --release-id is required." >&2
+  echo "Usage: $0 {demo|prod} [--source-commit COMMIT] [options]" >&2
   exit 1
 fi
 
@@ -94,14 +89,13 @@ fi
 REMOTE_ROOT="${REMOTE_ROOT:-$DEFAULT_REMOTE_ROOT}"
 QUADLET_PATH="${QUADLET_PATH:-$DEFAULT_QUADLET_PATH}"
 
-# The activation script runs from releases/<id>/source.
+# The activation script runs from the stable current source directory.
 SOURCE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-RELEASE_DIR="${REMOTE_ROOT}/releases/${RELEASE_ID}"
 if [[ ! -d "$SOURCE_ROOT" || ! -f "$SOURCE_ROOT/package.json" ]]; then
-  echo "Error: run this script from a synced release source tree." >&2
+  echo "Error: run this script from the synced current source directory." >&2
   exit 1
 fi
-mkdir -p "$RELEASE_DIR" "$QUADLET_PATH"
+mkdir -p "$QUADLET_PATH"
 cd "$SOURCE_ROOT"
 
 PUBLIC_URL="${PUBLIC_URL:-$DEFAULT_PUBLIC_URL}"
@@ -142,10 +136,10 @@ if [[ -z "$B2_ACCESS_KEY_ID" || -z "$B2_SECRET_ACCESS_KEY" ]]; then
   exit 1
 fi
 
-WEB_IMAGE="localhost/lemans-bridge-dashboard:${WEB_SOURCE_TAG}-${RELEASE_ID}"
-GO_IMAGE="localhost/lemans-bridge-dashboard-go:${GO_SOURCE_TAG}-${RELEASE_ID}"
+WEB_IMAGE="localhost/lemans-bridge-dashboard:${WEB_SOURCE_TAG}"
+GO_IMAGE="localhost/lemans-bridge-dashboard-go:${GO_SOURCE_TAG}"
 
-# Keep the existing database password across releases. A new password is
+# Keep the existing database password across deployments. A new password is
 # generated only when this profile has no prior generated DATABASE_URL.
 if [[ "$PROFILE" == "demo" ]]; then
   GO_UNIT_NAME="lemans-demo-go"
@@ -190,7 +184,7 @@ if ! podman secret inspect "$DB_SECRET_NAME" >/dev/null 2>&1; then
 fi
 
 echo "=== ${PROFILE_LABEL} activation on VPS ==="
-echo "Release: ${RELEASE_ID}"
+echo "Source commit: ${SOURCE_COMMIT}"
 echo "Source: ${SOURCE_ROOT}"
 
 echo "[1/5] Building web image on the VPS..."
@@ -211,7 +205,7 @@ podman run --rm --entrypoint /bin/sh "$GO_IMAGE" \
 WEB_ID="$(podman image inspect "$WEB_IMAGE" --format '{{.Id}}')"
 GO_ID="$(podman image inspect "$GO_IMAGE" --format '{{.Id}}')"
 
-echo "[4/5] Installing release-specific Quadlets and runtime configuration..."
+echo "[4/5] Installing Quadlets and runtime configuration..."
 for file in "$SOURCE_ROOT/$QUADLET_SOURCE_DIR"/*.container \
             "$SOURCE_ROOT/$QUADLET_SOURCE_DIR"/*.network \
             "$SOURCE_ROOT/$QUADLET_SOURCE_DIR"/*.volume; do
@@ -261,10 +255,9 @@ awk -v runtime_file="$runtime_file" '
 ' "$GO_UNIT_FILE" > "$runtime_temp"
 install -m 0600 "$runtime_temp" "$GO_UNIT_FILE"
 
-cat > "$RELEASE_DIR/${RELEASE_ID}.json" <<EOF
+cat > "$REMOTE_ROOT/deployment.json" <<EOF
 {
-  "release_id": "${RELEASE_ID}",
-  "commit": "${RELEASE_COMMIT}",
+  "commit": "${SOURCE_COMMIT}",
   "web_image": "${WEB_IMAGE}",
   "web_image_id": "${WEB_ID}",
   "go_image": "${GO_IMAGE}",
@@ -360,8 +353,8 @@ ensure_caddy_route() {
   local config_dir="${CADDY_CONFIG_FILE%/*}"
   local route_file="${config_dir}/${CADDY_ROUTE_TARGET_NAME}"
   local import_line="import ${CADDY_ROUTE_IMPORT}"
-  local config_backup="${CADDY_CONFIG_FILE}.bak.${RELEASE_ID}"
-  local route_backup="${route_file}.bak.${RELEASE_ID}"
+  local config_backup="${CADDY_CONFIG_FILE}.bak"
+  local route_backup="${route_file}.bak"
   local temp_route="$(mktemp)" temp_config="$(mktemp)" formatted="$(mktemp)"
   install -m 0644 "$CADDY_CONFIG_FILE" "$config_backup"
   [[ -f "$route_file" ]] && install -m 0644 "$route_file" "$route_backup"
@@ -420,8 +413,20 @@ if [[ "$public_status" != 200 ]]; then
   exit 1
 fi
 
-echo "[5/5] ${PROFILE_LABEL} release active."
-echo "Release manifest: ${RELEASE_DIR}/${RELEASE_ID}.json"
+# Remove only this profile's obsolete directories and image tags. Do
+# not use broad Podman prune commands; unrelated applications must remain intact.
+if [[ -d "$REMOTE_ROOT/releases" ]]; then
+  find "$REMOTE_ROOT/releases" -mindepth 1 -maxdepth 1 -type d -exec rm -rf -- {} +
+  rmdir "$REMOTE_ROOT/releases" 2>/dev/null || true
+fi
+legacy_image_prefix="${WEB_SOURCE_TAG}|${GO_SOURCE_TAG}"
+while IFS= read -r image; do
+  [[ -n "$image" ]] || continue
+  podman image rm "$image" >/dev/null 2>&1 || true
+done < <(podman image ls --format '{{.Repository}}:{{.Tag}}' | grep -E "^localhost/(lemans-bridge-dashboard|lemans-bridge-dashboard-go):(${legacy_image_prefix})-[0-9]{8}-[0-9]{6}-[0-9a-f]{8}$" || true)
+
+echo "[5/5] ${PROFILE_LABEL} deployment active."
+echo "Deployment manifest: ${REMOTE_ROOT}/deployment.json"
 echo "Public URL: ${PUBLIC_URL}"
 echo "Web image: ${WEB_IMAGE}"
 echo "Go image: ${GO_IMAGE}"

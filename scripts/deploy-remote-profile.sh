@@ -97,16 +97,13 @@ for tool in git ssh rsync mktemp; do
   }
 done
 if [[ -n "$(git status --porcelain)" ]]; then
-  echo "Error: worktree must be clean; commit the release before syncing." >&2
+echo "Error: worktree must be clean; commit the source before syncing." >&2
   exit 1
 fi
 
-RELEASE_COMMIT="$(git rev-parse HEAD)"
-RELEASE_TIME="$(date -u +%Y%m%d-%H%M%S)"
-RELEASE_ID="${RELEASE_TIME}-${RELEASE_COMMIT:0:8}"
+SOURCE_COMMIT="$(git rev-parse HEAD)"
 REMOTE="${REMOTE_USER}@${REMOTE_HOST}"
-REMOTE_RELEASE_DIR="${REMOTE_ROOT}/releases/${RELEASE_ID}"
-REMOTE_SOURCE_DIR="${REMOTE_RELEASE_DIR}/source"
+REMOTE_SOURCE_DIR="${REMOTE_ROOT}/current"
 STAGING_DIR="$(mktemp -d "${TMPDIR:-/tmp}/lemans-source.XXXXXX")"
 SSH_CONTROL_DIR="$(mktemp -d "${TMPDIR:-/tmp}/lemans-deploy-ssh.XXXXXX")"
 SSH_CONTROL_PATH="${SSH_CONTROL_DIR}/m"
@@ -128,7 +125,7 @@ git checkout-index --all --force --prefix="$STAGING_DIR/"
 
 echo "=== Remote ${PROFILE_LABEL} source sync ==="
 echo "Host: ${REMOTE}"
-echo "Release: ${RELEASE_ID}"
+echo "Source commit: ${SOURCE_COMMIT}"
 echo "Local actions: committed source snapshot + resumable rsync only"
 
 ssh_remote() {
@@ -142,7 +139,7 @@ rsync -a --delete --partial --info=progress2 -e "$RSYNC_RSH" \
 
 echo "Source synced to ${REMOTE_SOURCE_DIR}"
 echo "VPS activation command (copy exactly after logging in):"
-echo "  cd '${REMOTE_SOURCE_DIR}' && ./scripts/${ACTIVATE_SCRIPT} --release-id '${RELEASE_ID}' --release-commit '${RELEASE_COMMIT}' --public-url '${PUBLIC_URL}'"
+echo "  cd '${REMOTE_SOURCE_DIR}' && ./scripts/${ACTIVATE_SCRIPT} --source-commit '${SOURCE_COMMIT}' --public-url '${PUBLIC_URL}'"
 
 if [[ "$SYNC_ONLY" == true ]]; then
   echo "Sync complete. Log in to the VPS and run the activation command above."
@@ -158,12 +155,12 @@ if [[ -z "${B2_ACCESS_KEY_ID:-}" || -z "${B2_SECRET_ACCESS_KEY:-}" ]]; then
   echo
 fi
 
-echo "Activating release on the VPS..."
+echo "Activating deployment on the VPS..."
 {
   printf '%s\n' "$B2_ACCESS_KEY_ID" "$B2_SECRET_ACCESS_KEY"
 } | ssh_remote \
-  "cd '$REMOTE_SOURCE_DIR' && B2_FROM_STDIN=true RESET='$RESET_FLAG' ./scripts/${ACTIVATE_SCRIPT} --release-id '$RELEASE_ID' --release-commit '$RELEASE_COMMIT' --public-url '$PUBLIC_URL' --remote-root '$REMOTE_ROOT' --quadlet-path '$QUADLET_PATH' --caddy-network-name '$CADDY_NETWORK_NAME' --caddy-config-file '$CADDY_CONFIG_FILE'"
+  "cd '$REMOTE_SOURCE_DIR' && B2_FROM_STDIN=true RESET='$RESET_FLAG' ./scripts/${ACTIVATE_SCRIPT} --source-commit '$SOURCE_COMMIT' --public-url '$PUBLIC_URL' --remote-root '$REMOTE_ROOT' --quadlet-path '$QUADLET_PATH' --caddy-network-name '$CADDY_NETWORK_NAME' --caddy-config-file '$CADDY_CONFIG_FILE'"
 
 echo "=== ${PROFILE_LABEL} deployed ==="
-echo "Release: ${RELEASE_ID}"
+echo "Source commit: ${SOURCE_COMMIT}"
 echo "Public URL: ${PUBLIC_URL}"

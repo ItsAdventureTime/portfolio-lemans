@@ -6,8 +6,8 @@
 
 | Environment       | Quadlet Path                                         | Web Port         | Go API Container | DB Volume             | Web Image                                              | Go Image                                                 |
 | ----------------- | ---------------------------------------------------- | ---------------- | ---------------- | --------------------- | ------------------------------------------------------ | -------------------------------------------------------- |
-| Remote demo       | `~/.config/containers/systemd/bridge-ph/lemans-demo` | `127.0.0.1:3002` | `lemans-demo-go` | `lemans-demo-db-data` | `localhost/lemans-bridge-dashboard:demo-web-<release>` | `localhost/lemans-bridge-dashboard-go:demo-go-<release>` |
-| Remote production | `~/.config/containers/systemd/bridge-ph/lemans`      | `127.0.0.1:3003` | `lemans-prod-go` | `lemans-prod-db-data` | `localhost/lemans-bridge-dashboard:prod-web-<release>` | `localhost/lemans-bridge-dashboard-go:prod-go-<release>` |
+| Remote demo       | `~/.config/containers/systemd/bridge-ph/lemans-demo` | `127.0.0.1:3002` | `lemans-demo-go` | `lemans-demo-db-data` | `localhost/lemans-bridge-dashboard:demo-web` | `localhost/lemans-bridge-dashboard-go:demo-go` |
+| Remote production | `~/.config/containers/systemd/bridge-ph/lemans`      | `127.0.0.1:3003` | `lemans-prod-go` | `lemans-prod-db-data` | `localhost/lemans-bridge-dashboard:prod-web` | `localhost/lemans-bridge-dashboard-go:prod-go` |
 
 ## Caddy Integration
 
@@ -94,7 +94,7 @@ key ID, and B2 secret in profile-specific Keychain items. Explicit environment
 variables still take precedence, which keeps the scripts usable in non-macOS or
 automated environments.
 
-The deployment writes release-specific `Environment=` entries directly into the
+The deployment writes current `Environment=` entries directly into the
 profile's Go API `.container` file. The active file contains values such as:
 
 ```ini
@@ -108,7 +108,7 @@ Environment=B2_BUCKET_NAME=lemans-demo-attachments
 
 The runtime `.container` file is mode `600`. No external `lemans-demo.env` or
 `lemans.env` file is created; the deployment removes those legacy files from
-the active Quadlet directory and release directories. Demo uses
+the active Quadlet directory and current deployment directory. Demo uses
 `lemans_demo_db_password`; production uses `lemans_prod_db_password`. These
 names are profile-scoped to avoid collisions with unrelated containers. If an
 older profile still references the legacy `db_password` secret, activation
@@ -132,9 +132,9 @@ This will:
    archive.
 2. Transfer the source tree with resumable `rsync --partial --delete` over SSH;
    do not use `scp`. The temporary tree is removed when the sync command exits.
-3. Build release-tagged web and Go API images on the VPS with rootless Podman.
+3. Build stable profile-tagged web and Go API images on the VPS with rootless Podman.
 4. Run disposable `podman run --rm` image smoke checks on the VPS.
-5. Sync release-specific Quadlets and scripts to
+5. Sync the current source and tracked Quadlets/scripts to
    `~/.config/containers/systemd/bridge-ph/lemans-demo`.
 6. Install native timer units in `~/.config/systemd/user`, reload the user
    manager, and confirm every required unit is loaded before activation.
@@ -241,18 +241,17 @@ The script dumps `lemans_prod_db` with `pg_dump`, gzips it, and uploads it to `s
 
 ## Rollback Procedure
 
-1. Select the previous release manifest under the environment's `releases/`
-   directory and identify its release-specific local image tags:
+1. Restore the previous known-good source commit by rerunning the sync and
+   activation commands for that commit. Stable image tags are replaced by the
+   activation, so no release directory or tag lookup is required.
+2. If only the proxy changed, restore `/home/jk/caddy/conf/Caddyfile.bak`, then
+   validate and gracefully reload Caddy:
    ```bash
-   cat /home/jk/bridge-ph/lemans/releases/<previous-release>/<previous-release>.json
+   install -m 0644 /home/jk/caddy/conf/Caddyfile.bak /home/jk/caddy/conf/Caddyfile
+   podman exec caddy caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+   podman exec caddy caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile
    ```
-2. Update only the selected Quadlet image references to those `localhost/...`
-   tags, then reload and restart the affected user services:
-   ```bash
-   systemctl --user daemon-reload
-   systemctl --user restart lemans.service lemans-go.service
-   ```
-3. Verify `http://127.0.0.1:3003/lemans` returns `200 OK`.
+3. Verify the profile loopback URL returns `200 OK`.
 
 ## Health Checks
 

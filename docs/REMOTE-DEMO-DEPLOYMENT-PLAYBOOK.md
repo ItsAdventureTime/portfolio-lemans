@@ -1,7 +1,7 @@
 # Remote Demo Deployment Playbook
 
 - **Status**: Authoritative for the remote demo deployment profile
-- **Version**: 1.3.0
+- **Version**: 1.4.0
 - **Updated**: 2026-08-12
 - **Target URL**: `https://delegateops.business/lemans/demo`
 - **Remote user**: `jk`
@@ -55,7 +55,8 @@ controlled, for example:
 ├── data/         # persistent demo data and database bind data if used
 ├── uploads/      # demo attachment objects
 ├── backups/      # optional demo backups
-└── releases/     # release manifests and deployment evidence
+├── current/      # synced source used for the next VPS activation
+└── deployment.json # current image and source metadata
 ```
 
 Secrets must not be committed or placed in public repository files. Database
@@ -66,21 +67,20 @@ environment file is created.
 
 ### Remote builder contract
 
-Each deployment creates a release directory below
-`/home/jk/bridge-ph/lemans-demo/releases/<release-id>` and builds images from
-the transferred committed source tree. The remote rootless image store keeps
-release-specific tags such as:
+Each deployment synchronizes the committed source to
+`/home/jk/bridge-ph/lemans-demo/current` and builds stable profile-scoped image
+tags:
 
 ```text
-localhost/lemans-bridge-dashboard:demo-web-<release-id>
-localhost/lemans-bridge-dashboard-go:demo-go-<release-id>
+localhost/lemans-bridge-dashboard:demo-web
+localhost/lemans-bridge-dashboard-go:demo-go
 ```
 
-The Quadlets are rewritten to those exact local tags, so deployment does not
-depend on a registry or on a local `podman save`/`podman load` pipeline. The
-database volume is retained across application releases. The synced source tree,
-manifest, and release images remain available for rollback and audit. There is
-no remote source archive to clean up.
+The Quadlets use those exact local tags, so deployment does not depend on a
+registry or on a local `podman save`/`podman load` pipeline. The database volume
+is retained across deployments. After a successful health check, obsolete
+profile release directories and old profile image tags are removed with
+targeted commands; unrelated Podman resources are never pruned.
 
 ## 3. Required topology
 
@@ -221,18 +221,17 @@ defaults to `jk`. It must:
 2. Create a temporary committed source tree locally; do not invoke local image
    builds or app execution and do not create a transfer archive.
 3. Transfer the source tree with resumable `rsync --partial --delete` over SSH.
-4. Build both release-tagged images on the VPS with rootless `podman build`.
+4. Build both stable profile-tagged images on the VPS with rootless `podman build`.
 5. Run disposable `podman run --rm` image smoke checks on the VPS.
-6. Install the tracked Quadlets, scripts, and release manifest under the required
-   remote paths.
+6. Install the tracked Quadlets, scripts, and current deployment manifest under
+   the required remote paths.
 7. Install native timer units in `~/.config/systemd/user`, reload the user
    manager, and confirm every required unit is loaded before starting the
    selected profile.
 8. Seed the demo database on first install or with `RESET=true`; production
    never seeds or resets. Migrations run in the Go API container.
 9. Check the internal Go health endpoint and loopback web endpoint on the VPS.
-10. Print the release commit, image IDs, service status, URL, and rollback
-    command.
+10. Print the source commit, image IDs, service status, and URL.
 
 If a managed service fails to start or pass its health check, the script prints
 that unit's complete status and current-boot journal before it exits. The first
@@ -284,7 +283,7 @@ belong to the later production profile and must not be required by the demo.
 - Provide an explicit manual demo reset command in addition to the timer.
 - Keep database and uploads inside the demo data boundary.
 - Keep demo data fictional and safe for public presentation.
-- Record schema version and seed version in the release manifest.
+- Record schema version and seed version in the deployment manifest.
 
 ## 8. Verification gates
 
@@ -305,17 +304,21 @@ The deployment is not successful until all checks pass:
 - Database-backed workflows and attachments work.
 - Reset is not triggered by ordinary deployment; the verified user timer runs
   at 30-minute intervals after deployment.
-- Logs identify the release commit and image digest.
+- Logs identify the source commit and image digest.
 
 If the tracked demo route changes Caddy configuration, the deployment validates
-the complete Caddyfile before a graceful reload and keeps a release-specific
-rollback copy. Do not reload the shared proxy during an exploratory deployment
-without explicit approval.
+the complete Caddyfile before a graceful reload and keeps one previous
+`Caddyfile.bak` copy. Do not reload the shared proxy during an exploratory
+deployment without explicit approval.
 
 ## 9. Rollback contract
 
-Every deployment must retain the previous known-good image digest and release
-manifest. Rollback must:
+The stable image tags point to the current deployment. The previous Caddy
+configuration is retained at `Caddyfile.bak`; rollback of application code
+requires restoring a known-good source commit and rerunning the same sync and
+activation commands.
+
+Rollback must:
 
 1. Point the demo Quadlet to the previous image digest.
 2. Reload only the demo user units.
@@ -329,15 +332,15 @@ schema changes.
 
 ## 10. Current implementation notes
 
-The deployment script now builds release-tagged images on the VPS; it does not
+The deployment script now builds stable profile-tagged images on the VPS; it does not
 build or execute the application locally. The Next.js web container references
 `caddy.network` directly, which joins it to the `caddy` Podman network defined
 by that Quadlet.
 
 - The sync script stages the committed source in a temporary local directory;
   the activation script then builds both
-  `localhost/lemans-bridge-dashboard:demo-web-<release-id>` and
-  `localhost/lemans-bridge-dashboard-go:demo-go-<release-id>` on the remote host.
+  `localhost/lemans-bridge-dashboard:demo-web` and
+  `localhost/lemans-bridge-dashboard-go:demo-go` on the remote host.
 - Remote image checks use disposable `podman run --rm` containers. No local
   deployment, local build, local compile, or local runtime is required.
 - The Go API container is attached only to `lemans-demo-net`; the web container
@@ -351,8 +354,8 @@ by that Quadlet.
 - Runtime credentials must be written as `Environment=` entries in the generated
   Go API `.container` file with mode `600`; no external remote `.env` file is
   allowed. Legacy generated env files are removed from the active Quadlet and
-  release directories. Release manifests must be written to
-  `/home/jk/bridge-ph/lemans-demo/releases`. Verify these guarantees against
+  current deployment directory. The deployment manifest is written to
+  `/home/jk/bridge-ph/lemans-demo/deployment.json`. Verify these guarantees against
   both success and failure paths; see
   the current validation records in `CURRENT-STATE.md` and this playbook.
 - Rootless user services require a user manager that remains available after

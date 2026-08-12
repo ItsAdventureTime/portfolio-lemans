@@ -106,7 +106,7 @@ two-stage: run `./scripts/sync-remote-demo.sh` on macOS, then log in to the VPS
 and run the printed `scripts/activate-remote-demo.sh` command. The sync step
 uses `rsync` over SSH; do not use `scp`. It transfers a temporary tree created
 from the clean committed source and never transfers a `.tar` archive. The VPS
-activation script builds release-tagged images with rootless `podman build` and
+activation script builds stable profile-tagged images with rootless `podman build` and
 smoke-tests them with disposable `podman run --rm` containers. The original
 `./scripts/deploy-remote-demo.sh` remains available as an automated wrapper that
 performs both stages over one SSH control connection. On macOS, run
@@ -117,6 +117,7 @@ locations are:
 
 - Quadlets: `/home/jk/.config/containers/systemd/bridge-ph/lemans-demo`
 - Demo data/config/database/backups: `/home/jk/bridge-ph/lemans-demo`
+- Current synced source: `/home/jk/bridge-ph/lemans-demo/current`
 - Public URL: `https://delegateops.business/lemans/demo`
 
 Follow [`docs/REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`](docs/REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md)
@@ -126,7 +127,7 @@ deployment and provides any required Caddy context. When authorized for the
 demo, the deployment may install only the tracked demo route fragment, add its
 single import before the DelegateOps fallback, validate/format the complete
 Caddyfile, and perform a graceful reload through the running rootless Caddy
-container. It must preserve unrelated site routes and keep a release backup.
+container. It must preserve unrelated site routes and keep one previous backup.
 
 ## Verified Execution Boundaries & Results
 

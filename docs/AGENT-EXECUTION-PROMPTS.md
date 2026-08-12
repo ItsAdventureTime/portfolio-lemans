@@ -200,7 +200,7 @@ remains the automated one-command entry point. The
 rootless Quadlets must install under:
   /home/jk/.config/containers/systemd/bridge-ph/lemans-demo
 
-The remote demo data, config, database, uploads, and release evidence must stay
+The remote demo data, config, database, uploads, and deployment metadata must stay
 under:
   /home/jk/bridge-ph/lemans-demo
 
@@ -208,7 +208,8 @@ The target URL is:
   https://delegateops.business/lemans/demo
 
 Follow docs/REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md. Transfer the committed source
-tree (not a source archive), build both release-tagged web and Go API images on the
+tree to the stable `current` directory (not a source archive), build both stable
+profile-tagged web and Go API images on the
 VPS, and use disposable `podman run --rm` image smoke checks there. Attach the
 web container directly to the Caddy and internal networks, attach the Go API
 only to the internal network, keep the DB internal with no published port, use

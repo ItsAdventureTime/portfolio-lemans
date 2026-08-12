@@ -41,7 +41,8 @@ export PATH="/opt/podman/bin:$PATH"
 publishes port 5432 to the host.
 
 Remote deployment is separate: the workstation stages a clean committed source
-tree and syncs it with rsync, the VPS builds and smoke-tests release images with
+tree to the stable `current` path and syncs it with rsync, the VPS builds and
+smoke-tests stable profile images with
 rootless Podman, and the existing Quadlets under
 `/home/jk/.config/containers/systemd/bridge-ph/lemans-demo` activate those
 images. Remote operations require explicit authorization.
