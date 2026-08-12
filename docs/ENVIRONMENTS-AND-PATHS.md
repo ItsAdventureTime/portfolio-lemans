@@ -54,7 +54,7 @@ The current deployment target is remote-only for the demo:
 | **DB Volume Name**      | `lemans-demo-db-data`                              | `lemans-prodlike-db-data`                          | `lemans-demo-db-data`                              | `lemans-prod-db-data`                              |
 | **Podman Network**      | `lemans-demo-net`                                  | `lemans-prodlike-net`                              | `lemans-demo-net`                                  | `lemans-prod-net`                                  |
 | **Auth Secret**         | Not used in demo (production-only planning value)  | Production-only                                    | Not used in demo                                   | Production-only                                    |
-| **Backblaze B2 Bucket** | `lemans-demo-attachments`                          | `lemans-prodlike-attachments`                      | `lemans-demo-attachments`                          | `lemans-prod-attachments`                          |
+| **Backblaze B2 Bucket** | `bridge-ph` (`lemans/demo`)                        | `bridge-ph` (`lemans`)                             | `bridge-ph` (`lemans/demo`)                        | `bridge-ph` (`lemans`)                             |
 | **Reset Policy**        | Manual via `scripts/reset-local.sh`                | Manual only                                        | Every 30 minutes plus manual trigger               | None (persistent)                                  |
 
 ## Run local validation
@@ -86,7 +86,7 @@ podman machine start
 
 - **Remote Demo Application Build Path**: `/home/jk/bridge-ph/lemans-demo`
 - **Remote Demo Systemd Quadlet Path**: `/home/jk/.config/containers/systemd/bridge-ph/lemans-demo`
-- **Remote Demo Backblaze Bucket**: `lemans-demo-attachments`
+- **Remote Demo Backblaze Bucket**: `bridge-ph`, prefix `lemans/demo`
 - **Reset Service**: `/home/jk/.config/systemd/user/lemans-demo-reset.service`
 - **Reset Timer**: `/home/jk/.config/systemd/user/lemans-demo-reset.timer`
 
@@ -94,7 +94,7 @@ podman machine start
 
 - **Remote Production Application Build Path**: `/home/jk/bridge-ph/lemans`
 - **Remote Production Systemd Quadlet Path**: `/home/jk/.config/containers/systemd/bridge-ph/lemans`
-- **Remote Production Backblaze Bucket**: `lemans-prod-attachments`
+- **Remote Production Backblaze Bucket**: `bridge-ph`, prefix `lemans`
 - **Backup Service**: `/home/jk/.config/systemd/user/lemans-backup.service`
 - **Backup Timer**: `/home/jk/.config/systemd/user/lemans-backup.timer`
 
@@ -138,6 +138,7 @@ deployment no longer creates external `.env` files.
 | `B2_ACCESS_KEY_ID`     | Backblaze application key ID                                                                    | Generated `Environment=` entry |
 | `B2_SECRET_ACCESS_KEY` | Backblaze application key secret                                                                | Generated `Environment=` entry |
 | `B2_BUCKET_NAME`       | Target bucket name per environment                                                              | Quadlet `Environment=` entry   |
+| `B2_KEY_PREFIX`        | Profile object-key prefix (`lemans/demo` demo; `lemans` production)                            | Quadlet `Environment=` entry   |
 
 ## 7. Deployment Scripts
 

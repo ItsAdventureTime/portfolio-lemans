@@ -111,10 +111,13 @@ Environment=B2_ENDPOINT=https://s3.us-west-004.backblazeb2.com
 Environment=B2_REGION=us-west-004
 Environment=B2_ACCESS_KEY_ID=<Backblaze key ID>
 Environment=B2_SECRET_ACCESS_KEY=<Backblaze key secret>
-Environment=B2_BUCKET_NAME=lemans-demo-attachments
+Environment=B2_BUCKET_NAME=bridge-ph
+Environment=B2_KEY_PREFIX=lemans/demo
 ```
 
-The runtime `.container` file is mode `600`. No external `lemans-demo.env` or
+The runtime `.container` file is mode `600`. Production uses the same
+`bridge-ph` bucket with `B2_KEY_PREFIX=lemans`; demo reset and production
+backup scripts operate only within their profile prefixes. No external `lemans-demo.env` or
 `lemans.env` file is created; the deployment removes those legacy files from
 the active Quadlet directory and current deployment directory. Demo uses
 `lemans_demo_db_password`; production uses `lemans_prod_db_password`. These
@@ -230,7 +233,8 @@ export PATH="/opt/podman/bin:$PATH"
 /home/jk/bridge-ph/lemans/backup-prod.sh
 ```
 
-The script dumps `lemans_prod_db` with `pg_dump`, gzips it, and uploads it to `s3://lemans-prod-attachments/backups/db/` using the B2 CLI.
+The script dumps `lemans_prod_db` with `pg_dump`, gzips it, and uploads it to
+`s3://bridge-ph/lemans/backups/db/` using the B2 CLI.
 
 ## Restore Procedure
 
@@ -241,7 +245,7 @@ The script dumps `lemans_prod_db` with `pg_dump`, gzips it, and uploads it to `s
 2. Recreate the database volume or use a new volume.
 3. Download the desired backup from Backblaze B2:
    ```bash
-   b2 download-file-by-name lemans-prod-attachments backups/db/lemans-prod-backup-YYYY-MM-DD-HHMMSS.sql.gz /tmp/restore.sql.gz
+   b2 download-file-by-name bridge-ph lemans/backups/db/lemans-prod-backup-YYYY-MM-DD-HHMMSS.sql.gz /tmp/restore.sql.gz
    gunzip /tmp/restore.sql.gz
    ```
 4. Restore:
@@ -285,7 +289,8 @@ If a user without permission manually navigates to a restricted URL (e.g. a `ROL
 - Do not create external remote `.env` files. The deployment writes runtime
   values into mode-`600` Quadlet `Environment=` entries in the active Go API
   `.container` file.
-- Keep remote demo and production databases and buckets isolated.
+- Keep remote demo and production databases isolated; their shared B2 bucket
+  remains isolated by the `lemans/demo` and `lemans` object-key prefixes.
 - DNS and reverse proxy configuration are managed by the existing Caddy quadlet; only Caddy binds public ports.
 - Use `node:lts-alpine`, `golang:alpine`, and `postgres:alpine` for all images unless dependency compatibility explicitly requires a Debian-based image.
 - All deployment containers and temporary build containers are `--rm` or explicitly removed.

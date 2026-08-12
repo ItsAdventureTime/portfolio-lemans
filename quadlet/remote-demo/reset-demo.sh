@@ -8,7 +8,8 @@ GO_CONTAINER="lemans-demo-go"
 DB_CONTAINER="lemans-demo-db"
 DB_VOLUME="lemans-demo-db-data"
 NETWORK_NAME="lemans-demo-net"
-B2_BUCKET="lemans-demo-attachments"
+B2_BUCKET="bridge-ph"
+B2_PREFIX="lemans/demo"
 RESET_LOG="/home/jk/bridge-ph/lemans-demo/reset.log"
 
 mkdir -p "$(dirname "$RESET_LOG")"
@@ -81,7 +82,7 @@ systemctl --user start lemans-demo-app.service
 
 if command -v b2 2>/dev/null && [[ -n "${B2_APPLICATION_KEY_ID:-}" ]]; then
   log "Deleting uploaded attachments from B2 demo bucket..."
-  b2 ls "${B2_BUCKET}" 2>/dev/null | while read -r file; do
+  b2 ls "${B2_BUCKET}" "${B2_PREFIX}" 2>/dev/null | while read -r file; do
     b2 delete-file-version "${file}" 2>/dev/null || true
   done
 fi

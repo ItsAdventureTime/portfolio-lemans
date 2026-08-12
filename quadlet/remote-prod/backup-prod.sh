@@ -4,8 +4,8 @@ set -euo pipefail
 export PATH="/opt/podman/bin:$PATH"
 
 DB_CONTAINER="lemans-prod-db"
-B2_BUCKET="lemans-prod-attachments"
-BACKUP_PREFIX="backups/db"
+B2_BUCKET="bridge-ph"
+BACKUP_PREFIX="lemans/backups/db"
 BACKUP_FILE="lemans-prod-backup-$(date +%F-%H%M%S).sql.gz"
 
 echo "=== Backing up production database to Backblaze B2 ==="

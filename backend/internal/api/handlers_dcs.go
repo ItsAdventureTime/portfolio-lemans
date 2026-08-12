@@ -150,7 +150,7 @@ func (d *deps) handleRecordPayment(w http.ResponseWriter, r *http.Request) {
 }
 
 func (d *deps) b2Client() *b2.Client {
-	return b2.New(d.cfg.B2Endpoint, d.cfg.B2Region, d.cfg.B2AccessKeyID, d.cfg.B2SecretAccessKey, d.cfg.B2BucketName)
+	return b2.New(d.cfg.B2Endpoint, d.cfg.B2Region, d.cfg.B2AccessKeyID, d.cfg.B2SecretAccessKey, d.cfg.B2BucketName, d.cfg.B2KeyPrefix)
 }
 
 func (d *deps) handleProofUploadURL(w http.ResponseWriter, r *http.Request) {

@@ -5,15 +5,16 @@ import (
 )
 
 type Config struct {
-	DatabaseURL      string
-	ListenAddr       string
-	LogLevel         string
-	DemoMode         bool
-	B2Endpoint       string
-	B2Region         string
-	B2AccessKeyID    string
+	DatabaseURL       string
+	ListenAddr        string
+	LogLevel          string
+	DemoMode          bool
+	B2Endpoint        string
+	B2Region          string
+	B2AccessKeyID     string
 	B2SecretAccessKey string
-	B2BucketName     string
+	B2BucketName      string
+	B2KeyPrefix       string
 }
 
 func Load() Config {
@@ -26,8 +27,16 @@ func Load() Config {
 		B2Region:          getEnv("B2_REGION", "us-west-004"),
 		B2AccessKeyID:     getEnv("B2_ACCESS_KEY_ID", ""),
 		B2SecretAccessKey: getEnv("B2_SECRET_ACCESS_KEY", ""),
-		B2BucketName:      getEnv("B2_BUCKET_NAME", ""),
+		B2BucketName:      getEnv("B2_BUCKET_NAME", "bridge-ph"),
+		B2KeyPrefix:       getEnv("B2_KEY_PREFIX", defaultB2KeyPrefix()),
 	}
+}
+
+func defaultB2KeyPrefix() string {
+	if os.Getenv("DEMO_MODE") == "true" {
+		return "lemans/demo"
+	}
+	return "lemans"
 }
 
 func getEnv(key, fallback string) string {

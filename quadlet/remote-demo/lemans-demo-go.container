@@ -12,7 +12,8 @@ Environment=LISTEN_ADDR=:8080
 Environment=DEMO_MODE=true
 Environment=B2_ENDPOINT=https://s3.us-west-004.backblazeb2.com
 Environment=B2_REGION=us-west-004
-Environment=B2_BUCKET_NAME=lemans-demo-attachments
+Environment=B2_BUCKET_NAME=bridge-ph
+Environment=B2_KEY_PREFIX=lemans/demo
 # The deployment adds release-specific DATABASE_URL and B2 credential values
 # as Environment= entries before the [Service] section.
 
