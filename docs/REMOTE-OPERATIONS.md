@@ -75,8 +75,9 @@ podman exec caddy caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile
 
 ## Required Secrets
 
-The deployment script creates the environment file at the Quadlet path and
-auto-generates the database password. On macOS, run the one-time configuration
+The activation script writes runtime `Environment=` entries in the profile Go
+API Quadlet and creates a profile-specific Podman database secret. On macOS, run
+the one-time configuration
 helper to store the remote settings and Backblaze B2 credentials in the login
 Keychain. Later deployments load those values automatically and do not prompt
 for deployment variables or B2 credentials.
@@ -107,7 +108,12 @@ Environment=B2_BUCKET_NAME=lemans-demo-attachments
 
 The runtime `.container` file is mode `600`. No external `lemans-demo.env` or
 `lemans.env` file is created; the deployment removes those legacy files from
-the active Quadlet directory and release directories.
+the active Quadlet directory and release directories. Demo uses
+`lemans_demo_db_password`; production uses `lemans_prod_db_password`. These
+names are profile-scoped to avoid collisions with unrelated containers. If an
+older profile still references the legacy `db_password` secret, activation
+migrates its value to the profile-specific name without deleting the legacy
+secret, which may belong to another application.
 
 ## Remote Demo Deployment
 

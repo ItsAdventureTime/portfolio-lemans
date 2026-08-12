@@ -149,10 +149,17 @@ GO_IMAGE="localhost/lemans-bridge-dashboard-go:${GO_SOURCE_TAG}-${RELEASE_ID}"
 # generated only when this profile has no prior generated DATABASE_URL.
 if [[ "$PROFILE" == "demo" ]]; then
   GO_UNIT_NAME="lemans-demo-go"
+  DB_UNIT_NAME="lemans-demo-db"
+  DB_SECRET_NAME="lemans_demo_db_password"
+  DB_VOLUME_NAME="lemans-demo-db-data"
 else
   GO_UNIT_NAME="lemans-go"
+  DB_UNIT_NAME="lemans-db"
+  DB_SECRET_NAME="lemans_prod_db_password"
+  DB_VOLUME_NAME="lemans-prod-db-data"
 fi
 GO_UNIT_FILE="$QUADLET_PATH/${GO_UNIT_NAME}.container"
+DB_UNIT_FILE="$QUADLET_PATH/${DB_UNIT_NAME}.container"
 DB_PASSWORD=""
 if [[ -f "$GO_UNIT_FILE" ]]; then
   existing_url="$(awk -F= '/^Environment=DATABASE_URL=/{sub(/^Environment=DATABASE_URL=/, ""); print; exit}' "$GO_UNIT_FILE" || true)"
@@ -160,15 +167,26 @@ if [[ -f "$GO_UNIT_FILE" ]]; then
     DB_PASSWORD="${BASH_REMATCH[1]}"
   fi
 fi
-if [[ -z "$DB_PASSWORD" ]] && podman secret inspect db_password >/dev/null 2>&1; then
-  echo "Error: db_password already exists but no prior DATABASE_URL is available." >&2
-  echo "Restore the previous Go API Quadlet or rotate the database password deliberately." >&2
+legacy_secret_in_use=false
+if [[ -f "$DB_UNIT_FILE" ]] && grep -Fq 'Secret=db_password,' "$DB_UNIT_FILE"; then
+  legacy_secret_in_use=true
+fi
+if [[ -z "$DB_PASSWORD" ]] && podman secret inspect "$DB_SECRET_NAME" >/dev/null 2>&1; then
+  DB_PASSWORD="$(podman secret inspect --showsecret --format '{{.SecretData}}' "$DB_SECRET_NAME")"
+fi
+if [[ -z "$DB_PASSWORD" && "$legacy_secret_in_use" == true ]] && podman secret inspect db_password >/dev/null 2>&1; then
+  echo "Migrating legacy secret db_password to ${DB_SECRET_NAME}."
+  DB_PASSWORD="$(podman secret inspect --showsecret --format '{{.SecretData}}' db_password)"
+fi
+if [[ -z "$DB_PASSWORD" ]] && podman volume exists "$DB_VOLUME_NAME" >/dev/null 2>&1; then
+  echo "Error: ${DB_UNIT_NAME} has existing data but its database password cannot be recovered." >&2
+  echo "Restore the prior profile Quadlet or perform an explicitly planned password rotation." >&2
   exit 1
 fi
 DB_PASSWORD="${DB_PASSWORD:-$(openssl rand -hex 16)}"
 
-if ! podman secret inspect db_password >/dev/null 2>&1; then
-  printf '%s' "$DB_PASSWORD" | podman secret create db_password - >/dev/null
+if ! podman secret inspect "$DB_SECRET_NAME" >/dev/null 2>&1; then
+  printf '%s' "$DB_PASSWORD" | podman secret create "$DB_SECRET_NAME" - >/dev/null
 fi
 
 echo "=== ${PROFILE_LABEL} activation on VPS ==="

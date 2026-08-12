@@ -58,10 +58,11 @@ controlled, for example:
 └── releases/     # release manifests and deployment evidence
 ```
 
-Secrets must not be committed or placed in public repository files. Prefer
-Podman secrets or a rootless systemd credential mechanism. Any environment file
-containing secrets must be owned by `jk`, mode `0600`, and stored only on the
-remote host.
+Secrets must not be committed or placed in public repository files. Database
+passwords use profile-scoped Podman secrets (`lemans_demo_db_password` or
+`lemans_prod_db_password`); Backblaze credentials are written to the mode-600
+profile Go API `.container` file as required by this project. No external
+environment file is created.
 
 ### Remote builder contract
 

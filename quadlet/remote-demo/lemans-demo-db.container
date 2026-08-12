@@ -8,7 +8,7 @@ Network=lemans-demo.network
 Environment=POSTGRES_USER=postgres
 Environment=POSTGRES_PASSWORD_FILE=/run/secrets/db_password
 Environment=POSTGRES_DB=lemans_demo_db
-Secret=db_password,type=mount,target=/run/secrets/db_password
+Secret=lemans_demo_db_password,type=mount,target=/run/secrets/db_password
 Volume=lemans-demo.volume:/var/lib/postgresql
 
 [Service]
