@@ -96,6 +96,8 @@ cryptographically random suffix to avoid collisions.
   a dedicated quotation detail view, and production authentication remain
   future work until the playbook adds implementation and verification
   requirements.
+- Customer detail pages now load `/api/customers/{id}/service-history` and show
+  a linked service-history timeline of the customer's job orders.
 - Remote deployment is intentionally not part of local verification and requires
   explicit user authorization.
 

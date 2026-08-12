@@ -1,14 +1,17 @@
 import { getDemoRole } from '@/lib/actor';
-import { getCustomer, listVehiclesByCustomer } from '@/lib/api';
-import { DataTable } from '@/components/ui';
-import type { Vehicle } from '@/lib/types';
+import { getCustomer, listCustomerServiceHistory, listVehiclesByCustomer } from '@/lib/api';
+import { DataTable, StatusBadge } from '@/components/ui';
+import { formatPeso } from '@/lib/money';
+import type { JobOrder, Vehicle } from '@/lib/types';
+import Link from 'next/link';
 
 export default async function CustomerDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const role = await getDemoRole();
-  const [customer, vehicles] = await Promise.all([
+  const [customer, vehicles, serviceHistory] = await Promise.all([
     getCustomer(id, role),
     listVehiclesByCustomer(id, role),
+    listCustomerServiceHistory(id, role),
   ]);
 
   return (
@@ -44,6 +47,47 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
           { key: 'color', header: 'Color', render: (v) => v.color || '—' },
         ]}
       />
+      <section aria-labelledby="service-history-heading" className="space-y-3">
+        <h2 id="service-history-heading" className="text-lg font-semibold">
+          Service history
+        </h2>
+        {serviceHistory.length === 0 ? (
+          <div className="rounded border border-slate-200 bg-white p-4 text-sm text-slate-600">
+            No service history yet.
+          </div>
+        ) : (
+          <ol className="space-y-3 border-l-2 border-slate-200 pl-4">
+            {(serviceHistory as JobOrder[]).map((jobOrder) => (
+              <li
+                key={jobOrder.id}
+                className="relative rounded border border-slate-200 bg-white p-4"
+              >
+                <span
+                  className="absolute -left-[1.4rem] top-5 h-3 w-3 rounded-full bg-brand-primary"
+                  aria-hidden="true"
+                />
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div>
+                    <Link
+                      href={`/job-orders/${jobOrder.jo_no}`}
+                      className="font-semibold text-brand-primary hover:underline"
+                    >
+                      {jobOrder.jo_no}
+                    </Link>
+                    <p className="text-sm text-slate-600">
+                      {jobOrder.vehicle_plate} · {jobOrder.vehicle_make_model || 'Vehicle'}
+                    </p>
+                  </div>
+                  <StatusBadge status={jobOrder.status} />
+                </div>
+                <p className="mt-2 text-sm text-slate-600">
+                  Recorded billed amount: {formatPeso(jobOrder.billed_amount_cents ?? 0)}
+                </p>
+              </li>
+            ))}
+          </ol>
+        )}
+      </section>
     </div>
   );
 }

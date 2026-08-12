@@ -134,6 +134,19 @@ JOIN customers c ON c.id = jo.customer_id
 JOIN vehicles v ON v.id = jo.vehicle_id
 ORDER BY jo.created_at DESC;
 
+-- name: ListJobOrdersByCustomer :many
+SELECT jo.id, jo.jo_no, jo.sq_id, jo.customer_id, jo.vehicle_id, jo.advisor,
+       jo.technician, jo.status,
+       jo.total_estimated_labor_cents, jo.total_estimated_parts_cents,
+       jo.actual_labor_cost_cents, jo.actual_parts_cost_cents, jo.billed_amount_cents, jo.net_profit_cents,
+       c.name AS customer_name, v.plate_no AS vehicle_plate, v.make_model AS vehicle_make_model,
+       jo.created_at, jo.updated_at
+FROM job_orders jo
+JOIN customers c ON c.id = jo.customer_id
+JOIN vehicles v ON v.id = jo.vehicle_id
+WHERE jo.customer_id = $1
+ORDER BY jo.created_at DESC;
+
 -- name: GetJobOrder :one
 SELECT jo.id, jo.jo_no, jo.sq_id, jo.customer_id, jo.vehicle_id, jo.advisor,
        jo.technician, jo.status,

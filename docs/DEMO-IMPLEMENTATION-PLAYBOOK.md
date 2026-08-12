@@ -114,7 +114,8 @@ freshly created records.
 - Vehicle linked to exactly one customer.
 - Plate, VIN/chassis, engine number, year, make, model, color, transmission,
   and odometer fields.
-- Customer detail shows a complete service-history timeline.
+- Customer detail calls `/api/customers/{id}/service-history` and shows a linked
+  service-history timeline for the customer's job orders.
 
 ### 3.2 Quotations and job orders
 

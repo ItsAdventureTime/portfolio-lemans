@@ -50,6 +50,17 @@ test('role switching renders accessible error on failure', async ({ page }) => {
   await expect(page.locator('#role-switcher-error')).toContainText('Role switch failed');
 });
 
+test('restricted routes return to the base-path overview', async ({ page }) => {
+  await enterAsAdmin(page);
+  await switchRole(page, 'ROLE_DCS');
+  await page.goto(`${BASE}/accounting`);
+  await expect(page.getByRole('heading', { name: 'Access restricted' })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Return to overview' }).click();
+  await expect(page).toHaveURL(/\/lemans\/demo\/?$/);
+  await expect(page.getByText('Operations Overview')).toBeVisible();
+});
+
 test('customer form validation shows field errors and preserves values', async ({ page }) => {
   await page.goto(`${BASE}/`);
   await page.getByRole('main').getByRole('button', { name: 'Enter as an Admin' }).click();
@@ -157,6 +168,47 @@ test('seeded local data is available', async ({ page }) => {
 
   await page.goto(`${BASE}/customers`);
   await expect(page.getByText('No customers yet')).not.toBeVisible();
+  await page.locator('table tbody tr a').first().click();
+  await expect(page.getByRole('heading', { name: 'Service history' })).toBeVisible();
+});
+
+test('customer service history is customer-specific, ordered, and renders empty state', async ({
+  page,
+}) => {
+  await enterAsAdmin(page);
+  await page.goto(`${BASE}/customers`);
+
+  const seededCustomerRow = page.locator('table tbody tr', { hasText: 'C-2026-001' }).first();
+  await expect(seededCustomerRow).toBeVisible();
+  await seededCustomerRow.getByRole('link').click();
+
+  const historySection = page.locator('section[aria-labelledby="service-history-heading"]');
+  await expect(historySection.getByRole('heading', { name: 'Service history' })).toBeVisible();
+  const historyLinks = historySection.getByRole('link');
+  await expect(historyLinks).toHaveCount(1);
+  await expect(historyLinks.first()).toHaveText('RA0003973');
+  await expect(historyLinks.first()).toHaveAttribute('href', /\/job-orders\/RA0003973$/);
+  await expect(historySection.getByText('COMPLETED', { exact: true })).toBeVisible();
+
+  await page.goto(`${BASE}/customers`);
+  const unique = Date.now().toString();
+  const customerNo = `C-HISTORY-${unique}`;
+  await page.getByLabel('Customer No').fill(customerNo);
+  await page.getByLabel('Name').fill(`Empty History Customer ${unique}`);
+  await page.getByLabel('Plate No').fill(`EMPTY-${unique}`);
+  await page.getByLabel('Make/Model').fill('History Test Vehicle');
+  await page.getByRole('button', { name: 'Add Customer & Vehicle' }).click();
+  await expect(page.getByText('Customer and vehicle added')).toBeVisible();
+  await page.reload();
+
+  const emptyCustomerRow = page.locator('table tbody tr', { hasText: customerNo }).first();
+  await expect(emptyCustomerRow).toBeVisible();
+  await emptyCustomerRow.getByRole('link').click();
+  const emptyHistorySection = page.locator('section[aria-labelledby="service-history-heading"]');
+  await expect(emptyHistorySection.getByRole('heading', { name: 'Service history' })).toBeVisible();
+  await expect(emptyHistorySection.getByText('No service history yet.')).toBeVisible();
+  await expect(emptyHistorySection.getByText('RA0003973')).not.toBeVisible();
+  await expect(emptyHistorySection.getByRole('link')).toHaveCount(0);
 });
 
 test('Admin can download deterministic accounting exports', async ({ page }, testInfo) => {

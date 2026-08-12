@@ -56,6 +56,7 @@ export interface JobOrder {
   actual_parts_cost_cents?: number;
   billed_amount_cents?: number;
   net_profit_cents?: number;
+  created_at?: string;
 }
 
 export interface JobOrderItem {

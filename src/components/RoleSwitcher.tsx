@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { ROLE_ORDER, ROLES, ProjectRole } from '@/lib/roles';
 import { getApiUrl } from '@/lib/api-url';
@@ -7,6 +8,7 @@ import { getApiUrl } from '@/lib/api-url';
 const ROLE_SWITCH_ERROR = "We couldn't switch roles. Please try again.";
 
 export default function RoleSwitcher({ currentRole }: { currentRole: ProjectRole }) {
+  const router = useRouter();
   const [optimisticRole, setOptimisticRole] = useState<ProjectRole | null>(null);
   const [error, setError] = useState<string | null>(null);
   const displayRole = optimisticRole ?? currentRole;
@@ -28,6 +30,7 @@ export default function RoleSwitcher({ currentRole }: { currentRole: ProjectRole
       if (!res.ok || data.role !== role) {
         throw new Error(data.error || ROLE_SWITCH_ERROR);
       }
+      router.refresh();
     } catch (err) {
       setOptimisticRole(null);
       setError(err instanceof Error ? err.message : ROLE_SWITCH_ERROR);

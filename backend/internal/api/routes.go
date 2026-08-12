@@ -42,6 +42,7 @@ func NewRouter(pool *pgxpool.Pool, cfg config.Config, log *slog.Logger) http.Han
 		cr.Get("/{id}", deps.handleGetCustomer)
 		cr.Put("/{id}", deps.handleUpdateCustomer)
 		cr.Get("/{id}/vehicles", deps.handleListVehiclesByCustomer)
+		cr.Get("/{id}/service-history", deps.handleListCustomerServiceHistory)
 		cr.Post("/{id}/vehicles", deps.handleCreateVehicle)
 	})
 	r.Get("/api/vehicles", deps.handleListVehicles)

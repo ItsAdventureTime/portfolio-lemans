@@ -1709,6 +1709,82 @@ func (q *Queries) ListJobOrders(ctx context.Context) ([]ListJobOrdersRow, error)
 	return items, nil
 }
 
+const listJobOrdersByCustomer = `-- name: ListJobOrdersByCustomer :many
+SELECT jo.id, jo.jo_no, jo.sq_id, jo.customer_id, jo.vehicle_id, jo.advisor,
+       jo.technician, jo.status,
+       jo.total_estimated_labor_cents, jo.total_estimated_parts_cents,
+       jo.actual_labor_cost_cents, jo.actual_parts_cost_cents, jo.billed_amount_cents, jo.net_profit_cents,
+       c.name AS customer_name, v.plate_no AS vehicle_plate, v.make_model AS vehicle_make_model,
+       jo.created_at, jo.updated_at
+FROM job_orders jo
+JOIN customers c ON c.id = jo.customer_id
+JOIN vehicles v ON v.id = jo.vehicle_id
+WHERE jo.customer_id = $1
+ORDER BY jo.created_at DESC
+`
+
+type ListJobOrdersByCustomerRow struct {
+	ID                       string             `db:"id" json:"id"`
+	JoNo                     string             `db:"jo_no" json:"jo_no"`
+	SqID                     *string            `db:"sq_id" json:"sq_id"`
+	CustomerID               string             `db:"customer_id" json:"customer_id"`
+	VehicleID                string             `db:"vehicle_id" json:"vehicle_id"`
+	Advisor                  string             `db:"advisor" json:"advisor"`
+	Technician               *string            `db:"technician" json:"technician"`
+	Status                   JoStatus           `db:"status" json:"status"`
+	TotalEstimatedLaborCents int64              `db:"total_estimated_labor_cents" json:"total_estimated_labor_cents"`
+	TotalEstimatedPartsCents int64              `db:"total_estimated_parts_cents" json:"total_estimated_parts_cents"`
+	ActualLaborCostCents     int64              `db:"actual_labor_cost_cents" json:"actual_labor_cost_cents"`
+	ActualPartsCostCents     int64              `db:"actual_parts_cost_cents" json:"actual_parts_cost_cents"`
+	BilledAmountCents        int64              `db:"billed_amount_cents" json:"billed_amount_cents"`
+	NetProfitCents           int64              `db:"net_profit_cents" json:"net_profit_cents"`
+	CustomerName             string             `db:"customer_name" json:"customer_name"`
+	VehiclePlate             string             `db:"vehicle_plate" json:"vehicle_plate"`
+	VehicleMakeModel         string             `db:"vehicle_make_model" json:"vehicle_make_model"`
+	CreatedAt                pgtype.Timestamptz `db:"created_at" json:"created_at"`
+	UpdatedAt                pgtype.Timestamptz `db:"updated_at" json:"updated_at"`
+}
+
+func (q *Queries) ListJobOrdersByCustomer(ctx context.Context, customerID string) ([]ListJobOrdersByCustomerRow, error) {
+	rows, err := q.db.Query(ctx, listJobOrdersByCustomer, customerID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListJobOrdersByCustomerRow
+	for rows.Next() {
+		var i ListJobOrdersByCustomerRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.JoNo,
+			&i.SqID,
+			&i.CustomerID,
+			&i.VehicleID,
+			&i.Advisor,
+			&i.Technician,
+			&i.Status,
+			&i.TotalEstimatedLaborCents,
+			&i.TotalEstimatedPartsCents,
+			&i.ActualLaborCostCents,
+			&i.ActualPartsCostCents,
+			&i.BilledAmountCents,
+			&i.NetProfitCents,
+			&i.CustomerName,
+			&i.VehiclePlate,
+			&i.VehicleMakeModel,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listOpexRequests = `-- name: ListOpexRequests :many
 SELECT id, request_no, category, description, amount_cents, requested_by_role,
        status, requested_at, approved_by_role, approved_at, notes

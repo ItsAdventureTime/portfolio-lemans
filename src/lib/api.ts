@@ -57,6 +57,10 @@ export async function listVehiclesByCustomer(customerId: string, role?: string) 
   return apiGet(`/api/customers/${customerId}/vehicles`, role);
 }
 
+export async function listCustomerServiceHistory(customerId: string, role?: string) {
+  return apiGet(`/api/customers/${customerId}/service-history`, role);
+}
+
 export async function listVehicles(role?: string) {
   return apiGet('/api/vehicles', role);
 }

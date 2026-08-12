@@ -84,11 +84,14 @@ export default async function DcsPage() {
                           file.type,
                           await r
                         );
-                        await fetch(url, {
+                        const uploadResponse = await fetch(url, {
                           method: 'PUT',
                           body: file,
                           headers: { 'Content-Type': file.type },
                         });
+                        if (!uploadResponse.ok) {
+                          throw new Error(`Proof upload failed (HTTP ${uploadResponse.status})`);
+                        }
                         await attachProofOfPayment(d.id, key, await r);
                       }
                       await recordDisbursementPayment(d.id, body, await r);

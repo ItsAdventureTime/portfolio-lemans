@@ -49,6 +49,30 @@ func (d *deps) handleGetCustomer(w http.ResponseWriter, r *http.Request) {
 	respondJSON(w, http.StatusOK, customer)
 }
 
+func (d *deps) handleListCustomerServiceHistory(w http.ResponseWriter, r *http.Request) {
+	ctx := r.Context()
+	customerID := idParam(r, "id")
+	if _, err := d.queries.GetCustomer(ctx, customerID); err != nil {
+		respondError(w, http.StatusNotFound, err)
+		return
+	}
+	history, err := d.queries.ListJobOrdersByCustomer(ctx, customerID)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, err)
+		return
+	}
+	respondJSON(w, http.StatusOK, normalizeCustomerServiceHistory(history))
+}
+
+func normalizeCustomerServiceHistory(
+	history []repository.ListJobOrdersByCustomerRow,
+) []repository.ListJobOrdersByCustomerRow {
+	if history == nil {
+		return []repository.ListJobOrdersByCustomerRow{}
+	}
+	return history
+}
+
 func (d *deps) handleCreateCustomer(w http.ResponseWriter, r *http.Request) {
 	if err := requirePermission(r.Context(), policy.CustomerCreate); err != nil {
 		respondError(w, http.StatusForbidden, err)
@@ -118,12 +142,12 @@ func (d *deps) handleUpdateCustomer(w http.ResponseWriter, r *http.Request) {
 	id := idParam(r, "id")
 	c := req.Customer
 	customer, err := d.queries.UpdateCustomer(r.Context(), repository.UpdateCustomerParams{
-		ID:         id,
-		Name:       c.Name,
-		Tin:        strPtr(c.Tin),
-		Address:    strPtr(c.Address),
-		Phone:      strPtr(c.Phone),
-		Email:      strPtr(c.Email),
+		ID:      id,
+		Name:    c.Name,
+		Tin:     strPtr(c.Tin),
+		Address: strPtr(c.Address),
+		Phone:   strPtr(c.Phone),
+		Email:   strPtr(c.Email),
 	})
 	if err != nil {
 		respondError(w, http.StatusInternalServerError, err)

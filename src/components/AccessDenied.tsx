@@ -40,7 +40,7 @@ export default function AccessDenied({ role, requiredCapability }: AccessDeniedP
         </div>
         <button
           type="button"
-          onClick={() => router.push('/lemans/demo')}
+          onClick={() => router.push('/')}
           className="inline-flex items-center justify-center h-12 px-5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-hover transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
