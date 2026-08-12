@@ -40,7 +40,7 @@ export default function Navbar({ role }: { role: ProjectRole }) {
 
   return (
     <nav className="bg-slate-900 text-white">
-      <div className="w-full max-w-[1920px] mx-auto px-6 lg:px-8 xl:px-10">
+      <div className="w-full max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
         <ul className="flex items-center gap-1 overflow-x-auto">
           {visibleItems.map((item) => {
             const Icon = item.icon;

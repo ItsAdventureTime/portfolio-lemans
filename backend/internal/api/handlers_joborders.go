@@ -209,6 +209,10 @@ func (d *deps) handleChangeJobStatus(w http.ResponseWriter, r *http.Request) {
 }
 
 func (d *deps) handleGetJobCosting(w http.ResponseWriter, r *http.Request) {
+	if err := requirePermission(r.Context(), policy.ViewJobCosting); err != nil {
+		respondError(w, http.StatusForbidden, err)
+		return
+	}
 	ctx := r.Context()
 	id, err := d.resolveJobOrderID(ctx, chi.URLParam(r, "id"))
 	if err != nil {

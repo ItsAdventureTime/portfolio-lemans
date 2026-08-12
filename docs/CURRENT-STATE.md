@@ -80,9 +80,12 @@ cryptographically random suffix to avoid collisions.
   seed data does not include real uploads.
 - The demo role switcher demonstrates policy behavior but does not authenticate
   users or protect public data.
-- Search, richer customer contacts, deeper reporting, and production
-  authentication remain future work until the playbook adds implementation and
-  verification requirements.
+- Job Costing supports server-rendered search and status filtering across job
+  number, customer, vehicle, and technician, with estimate/actual summary
+  metrics. Customer-wide search, richer customer contacts, deeper reporting,
+  a dedicated quotation detail view, and production authentication remain
+  future work until the playbook adds implementation and verification
+  requirements.
 - Remote deployment is intentionally not part of local verification and requires
   explicit user authorization.
 

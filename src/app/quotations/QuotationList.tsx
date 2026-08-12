@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { DataTable, StatusBadge } from '@/components/ui';
 import { formatPeso } from '@/lib/money';
 import { hasPermission, ProjectRole } from '@/lib/roles';
@@ -39,12 +38,9 @@ export default function QuotationList({ quotes, role }: QuotationListProps) {
           key: 'quoteNo',
           header: 'Quote No',
           render: (q) => (
-            <Link
-              href={`/quotations/${q.id}`}
-              className="inline-flex items-center min-h-11 text-brand-primary hover:underline focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 rounded px-1 -mx-1"
-            >
+            <span className="font-medium text-slate-900">
               {q.quote_no}
-            </Link>
+            </span>
           ),
         },
         { key: 'customer', header: 'Customer', render: (q) => q.customer_name },

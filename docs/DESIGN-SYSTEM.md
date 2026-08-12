@@ -14,7 +14,7 @@ This design system draws from these sources:
 2. **UI Architecture Inspiration**: ColdTrace Operations Dashboard (`references/design-inspiration/coldtrace-ui-mockup.webp`), featuring a modern light interface, elevated cards, subtle borders, high-visibility metric displays, and data-dense tables.
 3. **UI context guides**: Blueprints in `references/prompts/` define reusable interface patterns, four visual states, and cross-platform alignment for web, iOS (SwiftUI), and Android (Jetpack Compose).
 4. **2026 Modern UX & WCAG 2.2 Standards**:
-   - **Zero Wasted Space**: Fluid full-bleed layouts (`max-w-[1920px]` container grids) replacing cramped centered frames.
+   - **Readable Density**: Context-aware centered shells (`max-w-screen-2xl` for the app frame, narrower wrappers for forms and error states) with horizontal scrolling for genuinely wide tables.
    - **High-Readability Typography**: 16px baseline body text and high-contrast typography designed for users wearing glasses or viewing under shop lighting.
    - **Role-Aware RBAC Navigation**: Navigation items filtered by active role; explicit 403 "Access Restricted" views instead of silent redirects.
    - **Accessible Target Sizing**: Minimum 44x44px touch/click targets with focus ring states.
@@ -37,7 +37,7 @@ This design system draws from these sources:
   /* Implementation note: applied across src/app/page.tsx, src/components/DemoSplash.tsx,
      src/app/customers/page.tsx, src/app/quotations/page.tsx,
      src/app/job-orders/page.tsx, src/app/job-orders/[id]/page.tsx,
-     src/app/job-costing/[id]/page.tsx, src/app/purchasing/page.tsx,
+     src/app/job-costing/page.tsx, src/app/job-costing/[id]/page.tsx, src/app/purchasing/page.tsx,
      src/app/expenses/page.tsx, src/app/dcs/page.tsx, src/app/invoices/page.tsx,
      and src/app/invoices/[id]/page.tsx. */
 
@@ -83,9 +83,9 @@ This design system draws from these sources:
 - `text-sm` (14px, font-semibold): Navigation tabs, table column headers, form field labels.
 - `text-xs` (12px, font-bold): Status pills, metadata tags.
 
-### Spacing Grid & Full-Bleed Container Constraints
+### Spacing Grid & Readable Container Constraints
 
-- All layout outer wrappers MUST use fluid width: `w-full max-w-[1920px] mx-auto px-6 lg:px-8 xl:px-10`.
+- The app shell uses `w-full max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8`; page content should use a narrower `max-w-*` wrapper when the task is reading or editing rather than scanning a wide table.
 - Implemented in `src/app/layout.tsx` and `src/components/Header.tsx`.
 - All padding, margin, and gap values MUST follow strict 4px multiples (`p-2` [8px], `p-4` [16px], `p-6` [24px], `p-8` [32px]).
 - Table action buttons MUST enforce `whitespace-nowrap inline-flex items-center justify-center h-9 px-4` to prevent awkward line breaks (e.g. `View RA`).
@@ -110,7 +110,7 @@ This design system draws from these sources:
 
 Every dynamic component MUST explicitly implement four discrete visual UI states:
 
-1. **LOADING STATE**: Render pulse skeleton loaders (`animate-pulse`) matching target geometry.
+1. **LOADING STATE**: Use a lightweight, layout-preserving loading boundary. Motion is optional (`motion-safe`) and must honor reduced-motion preferences; do not cover the shell with a full gray skeleton.
 2. **EMPTY STATE**: Render an accessible container displaying instructional copy, icon, and a primary call-to-action button.
 3. **ERROR STATE**: Render clear error boundary notifications with action retry triggers (`onClick={retry}`).
 4. **SUCCESS / DEFAULT STATE**: Render the fully hydrated, populated user interface.
@@ -152,3 +152,11 @@ Motion is functional and restrained:
 Every page and data-dependent component must visibly support loading, empty,
 error, and success/default states. The full interaction and acceptance contract
 is maintained in [`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md).
+
+The Job Costing index is the reference scanning workflow: it keeps the wide
+records table inside an overflow region, provides server-rendered search and
+status filters, reports the current filtered result count, and shows summary
+cards for estimated cost, actual cost, billed revenue, and net profit. Detail
+views use a narrower reading surface with estimate-versus-actual variance and
+links back to the source job order; the index table also exposes per-job
+estimate-versus-actual variance for quick scanning.

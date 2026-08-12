@@ -50,6 +50,12 @@ export interface JobOrder {
   advisor?: string;
   technician?: string;
   status: string;
+  total_estimated_labor_cents?: number;
+  total_estimated_parts_cents?: number;
+  actual_labor_cost_cents?: number;
+  actual_parts_cost_cents?: number;
+  billed_amount_cents?: number;
+  net_profit_cents?: number;
 }
 
 export interface JobOrderItem {

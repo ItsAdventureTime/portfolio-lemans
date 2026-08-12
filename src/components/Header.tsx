@@ -6,7 +6,7 @@ export default async function Header() {
 
   return (
     <header className="bg-white border-b border-slate-200">
-      <div className="w-full max-w-[1920px] mx-auto px-6 lg:px-8 xl:px-10 py-3 flex items-center justify-between">
+      <div className="w-full max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 rounded bg-brand-primary flex items-center justify-center text-white font-bold">
             LM

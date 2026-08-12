@@ -193,7 +193,7 @@ Use the existing tokens in `docs/DESIGN-SYSTEM.md`:
 - Off-white application canvas `#f8fafc` and white elevated surfaces.
 - Functional success, warning, danger, and info colors only for their semantic
   meaning; do not turn the demo into a red danger dashboard.
-- Fluid wrapper: `w-full max-w-[1920px] mx-auto px-6 lg:px-8 xl:px-10`.
+- Readable app shell: `w-full max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8`; use narrower context wrappers for forms, detail cards, and error messages. Keep genuinely wide tables inside an `overflow-x-auto` region.
 - Spacing uses 4px multiples.
 - Body and input text starts at 16px; buttons and table actions never wrap.
 - Use one icon family, consistent stroke weight, and accessible labels.
@@ -216,7 +216,7 @@ Use the existing tokens in `docs/DESIGN-SYSTEM.md`:
 
 Every data-dependent page and component explicitly implements:
 
-1. Loading: geometry-matched skeleton.
+1. Loading: a lightweight, layout-preserving route boundary (motion-safe only, with reduced-motion support), not an intrusive full-page gray skeleton.
 2. Empty: explanation, next action, and no dead-end blank panel.
 3. Error: plain-language message, retry action, and preserved context.
 4. Success/default: populated content with clear status and next action.

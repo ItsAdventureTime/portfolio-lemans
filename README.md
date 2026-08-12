@@ -36,6 +36,9 @@ City, Pampanga.
   Podman network.
 - **Workflow safety**: Quote creation and quote-to-job-order conversion run in
   database transactions, so a failed write does not leave partial records.
+- **Job costing workflow**: The demo includes searchable, status-filtered job
+  costing records with estimate/actual summary metrics and detail variance
+  views linked to each job order.
 - **Accounting exports**: Admins can download deterministic, formula-safe CSV
   or JSON interchange files. They are not direct QuickBooks import files.
 
