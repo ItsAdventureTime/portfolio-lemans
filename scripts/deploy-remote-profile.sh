@@ -141,9 +141,8 @@ rsync -a --delete --partial --info=progress2 -e "$RSYNC_RSH" \
   "$STAGING_DIR/" "$REMOTE:${REMOTE_SOURCE_DIR}/"
 
 echo "Source synced to ${REMOTE_SOURCE_DIR}"
-echo "VPS activation command:"
-echo "  cd ${REMOTE_SOURCE_DIR}"
-echo "  ./scripts/${ACTIVATE_SCRIPT} --release-id ${RELEASE_ID} --release-commit ${RELEASE_COMMIT} --public-url '${PUBLIC_URL}'"
+echo "VPS activation command (copy exactly after logging in):"
+echo "  cd '${REMOTE_SOURCE_DIR}' && ./scripts/${ACTIVATE_SCRIPT} --release-id '${RELEASE_ID}' --release-commit '${RELEASE_COMMIT}' --public-url '${PUBLIC_URL}'"
 
 if [[ "$SYNC_ONLY" == true ]]; then
   echo "Sync complete. Log in to the VPS and run the activation command above."

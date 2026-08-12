@@ -200,14 +200,14 @@ The preferred operator-controlled workflow separates transfer from activation:
 
 ```bash
 ./scripts/sync-remote-demo.sh
-ssh jk@<vps-host>
-cd /home/jk/bridge-ph/lemans-demo/releases/<release-id>/source
-./scripts/activate-remote-demo.sh --release-id <release-id> --release-commit <commit>
+ssh jk@216.75.75.136
+# Copy the complete activation command printed by sync-remote-demo.sh.
 ```
 
 The sync command validates the clean committed worktree, uses `rsync --partial`
 to transfer only the committed source tree, and prints the exact activation
-command. The activation command runs entirely on the VPS and prompts for B2
+command. Do not type the angle-bracket placeholders from examples; Bash treats
+`<word>` as input redirection. The activation command runs entirely on the VPS and prompts for B2
 credentials only when they were not provided by the automated wrapper. SSH key
 authentication can remove the remaining password prompt; never put an SSH
 password in a script.
