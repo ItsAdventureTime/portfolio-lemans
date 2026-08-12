@@ -6,8 +6,9 @@
 - **Client Name**: Le Mans Service Plus OPC
 - **Project Name**: Le Mans Operations & Job Cost Management System (`lemans-bridge-dashboard`)
 - **Version**: 1.1.0 (Updated with Integrated Complementary Specs)
-- **Date**: 2026-08-07
-- **Status**: Approved Base Scope & Workflow Pattern Integration
+- **Date**: 2026-08-12
+- **Status**: Approved base scope; current demo implementation is tracked in
+  `CURRENT-STATE.md` and the demo playbook.
 
 > **Demo profile override (2026-08-09):** The current demo build intentionally
 > runs without real authentication. It opens at a simulated `Enter as an Admin`
@@ -32,6 +33,12 @@ This specification combines two handoff documents:
    - General Manager approval matrix and DCS payment stages;
    - Progress billing calculations and retention/variation order tracking primitives;
    - Complete audit trail logging, file attachments, and full database backup/restore mechanisms.
+
+The requirements below describe the product target. They do not by themselves
+prove that a demo feature is implemented. For the current demo boundary,
+verification status, and known gaps, follow
+[`CURRENT-STATE.md`](./CURRENT-STATE.md) and
+[`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md).
 
 ### Production Authentication & Attachment Foundations
 
@@ -133,10 +140,16 @@ The platform includes server-side rendering for official printable receipts and 
 
 - **REQ-COST-001**: System shall automatically aggregate Estimated vs Actual Labor Costs, Parts Costs, Allocated Direct Expenses, and compute Net Job Profitability ($ / %).
 - **REQ-COST-002**: System shall display a visual timeline of all JO events.
+  This remains a product requirement; the current demo exposes job-order event
+  context but does not yet render the full visual timeline.
 
 ### Module 9: QBO Export Readiness & Accounting Integration
 
-- **REQ-QBO-001**: System shall provide export-ready data files (CSV/Excel/JSON) for QBO ingestion covering Customers, Vendors, Bills, Expenses, Invoices, Collections, and Payments.
+- **REQ-QBO-001**: The production integration profile shall provide export-ready
+  data files (CSV/Excel/JSON) for QBO ingestion covering Customers, Vendors,
+  Bills, Expenses, Invoices, Collections, and Payments. The current demo exports
+  stable, formula-safe interchange files; it does not claim direct QuickBooks
+  import compatibility.
 - **REQ-ACCT-001**: Admin-only General Ledger (`GL`) overview, Accounts Payable (`AP`) ledger, Journal Entries (`JE`), and financial summaries.
 
 ---

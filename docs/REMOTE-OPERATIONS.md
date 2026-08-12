@@ -4,10 +4,10 @@
 
 ## Environments
 
-| Environment       | Quadlet Path                                         | Web Port         | Go API Container | DB Volume             | Web Image                                    | Go Image                                       |
-| ----------------- | ---------------------------------------------------- | ---------------- | ---------------- | --------------------- | -------------------------------------------- | ---------------------------------------------- |
-| Remote demo       | `~/.config/containers/systemd/bridge-ph/lemans-demo` | `127.0.0.1:3002` | `lemans-demo-go` | `lemans-demo-db-data` | `localhost/lemans-bridge-dashboard:demo-web` | `localhost/lemans-bridge-dashboard-go:demo-go` |
-| Remote production | `~/.config/containers/systemd/bridge-ph/lemans`      | `127.0.0.1:3003` | `lemans-prod-go` | `lemans-prod-db-data` | `localhost/lemans-bridge-dashboard:prod-web` | `localhost/lemans-bridge-dashboard-go:prod-go` |
+| Environment       | Quadlet Path                                                | Web Port         | Go API Container | DB Volume             | Web Image                                    | Go Image                                       |
+| ----------------- | ----------------------------------------------------------- | ---------------- | ---------------- | --------------------- | -------------------------------------------- | ---------------------------------------------- |
+| Remote demo       | `/home/jk/.config/containers/systemd/bridge-ph/lemans-demo` | `127.0.0.1:3002` | `lemans-demo-go` | `lemans-demo-db-data` | `localhost/lemans-bridge-dashboard:demo-web` | `localhost/lemans-bridge-dashboard-go:demo-go` |
+| Remote production | `/home/jk/.config/containers/systemd/bridge-ph/lemans`      | `127.0.0.1:3003` | `lemans-prod-go` | `lemans-prod-db-data` | `localhost/lemans-bridge-dashboard:prod-web` | `localhost/lemans-bridge-dashboard-go:prod-go` |
 
 ## Caddy Integration
 
@@ -143,8 +143,8 @@ This will:
 3. Build stable profile-tagged web and Go API images on the VPS with rootless Podman.
 4. Run disposable `podman run --rm` image smoke checks on the VPS.
 5. Sync the current source and tracked Quadlets/scripts to
-   `~/.config/containers/systemd/bridge-ph/lemans-demo`.
-6. Install native timer units in `~/.config/systemd/user`, reload the user
+   `/home/jk/.config/containers/systemd/bridge-ph/lemans-demo`.
+6. Install native timer units in `/home/jk/.config/systemd/user`, reload the user
    manager, and confirm every required unit is loaded before activation.
 7. Create the managed internal network and database volume, then start the DB,
    Go API, and web systemd services.

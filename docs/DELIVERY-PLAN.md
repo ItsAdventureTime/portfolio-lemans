@@ -5,6 +5,11 @@
 - **Demo acceptance authority**: [`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md)
 - **Branch policy**: `main` only
 
+This file is a roadmap, not a release certificate. Use `CURRENT-STATE.md` for
+implementation-backed facts and verification results. No active Phase 4 plan is
+maintained; future work is recorded as scoped backlog in the current-state and
+demo playbook documents.
+
 ## Delivered work
 
 The current source replaces the former Prisma/Next.js monolith with:

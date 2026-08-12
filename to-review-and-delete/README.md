@@ -4,6 +4,10 @@ These files are preserved for review and possible deletion. They are not
 current implementation authority and must not guide code, deployment, or demo
 work.
 
+The active-document audit on 2026-08-12 did not identify another current file
+that needed to be moved here. Review candidates already listed below remain
+intentionally preserved until the repository owner deletes them.
+
 ## `historical-docs/`
 
 Prior phase reports, migration handoffs, remote results, and superseded UX

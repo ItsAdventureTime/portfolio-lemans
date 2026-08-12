@@ -35,7 +35,7 @@ the authority order below.
 | `REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`, `REMOTE-OPERATIONS.md`                                                                      | Current but remote-only                 | Do not execute without explicit authorization and required host/Caddy context.                                     |
 | `AGENT-EXECUTION-PROMPTS.md`                                                                                                      | Current operational prompts             | Keep commands synchronized with scripts and the current demo boundary.                                             |
 | `WRITING-STYLE.md`                                                                                                                | Current editorial standard              | Apply to active app copy, documentation, guides, and commit messages.                                              |
-| `DELIVERY-PLAN.md`                                                                                                                | Current roadmap                         | Use for active delivery boundaries; current claims must link back to `CURRENT-STATE.md`.                           |
+| `DELIVERY-PLAN.md`                                                                                                                | Current roadmap                         | Use for roadmap boundaries only; implementation and verification claims come from `CURRENT-STATE.md`.              |
 | `to-review-and-delete/historical-docs/`, `to-review-and-delete/historical-reviews/`                                               | Review candidates / historical evidence | Preserve only for user review; never use as current proof, operating instructions, or implementation authority.    |
 | `adr/0001*`, `adr/0002*`, `adr/0004*`                                                                                             | Current architecture decisions          | Apply to the current source unless superseded in the document.                                                     |
 | `adr/0003*`                                                                                                                       | Future production design                | Do not add its authentication/session requirements to the demo profile.                                            |
@@ -48,6 +48,11 @@ change must update the affected current guides and verification evidence in the
 same change set. Move conflicting historical material to
 `to-review-and-delete/` rather than leaving it beside active guidance.
 
+The 2026-08-12 audit found no additional active document that was obsolete
+enough to move. Existing phase reports, review handoffs, duplicate source files,
+and superseded specifications remain under `to-review-and-delete/` and are
+listed in its README.
+
 Before closing a change, confirm that the active documentation matches the
 implementation and that local `main` and GitHub `main` point to the same commit.
 
@@ -55,6 +60,10 @@ The repository remains on `main`. Use the official GitHub CLI for remote
 repository inspection, synchronization, and branch administration over HTTPS.
 Do not create new branches. Never delete `main`; review branch protection before
 deleting any other remote branch.
+
+There is no active “Phase 4” document. Future work is tracked as backlog in the
+current-state and demo playbook documents; archived phase reports are evidence
+only.
 
 ## Verify changes
 

@@ -2,7 +2,7 @@
 
 ## Repository and environment model
 
-The repository holds the application, container build files, database schemas, and Quadlet definitions. Environment files, container names, database volumes, networks, and Quadlet units keep each environment separate.
+The repository holds the application, container build files, database schemas, and Quadlet definitions. Profile-scoped runtime variables, container names, database volumes, networks, and Quadlet units keep each environment separate. Remote credentials are written as `Environment=` entries in mode-`600` Quadlet files; external `.env` files are not part of this project.
 
 - **Remote GitHub Repository**: `https://github.com/ItsAdventureTime/bridge-lemans`
 - **Transport Protocol**: HTTPS (`https://github.com/ItsAdventureTime/bridge-lemans.git`) authenticated by default (SSH deprecated)
@@ -85,18 +85,18 @@ podman machine start
 ### Remote Demo Environment
 
 - **Remote Demo Application Build Path**: `/home/jk/bridge-ph/lemans-demo`
-- **Remote Demo Systemd Quadlet Path**: `~/.config/containers/systemd/bridge-ph/lemans-demo`
+- **Remote Demo Systemd Quadlet Path**: `/home/jk/.config/containers/systemd/bridge-ph/lemans-demo`
 - **Remote Demo Backblaze Bucket**: `lemans-demo-attachments`
-- **Reset Service**: `~/.config/systemd/user/lemans-demo-reset.service`
-- **Reset Timer**: `~/.config/systemd/user/lemans-demo-reset.timer`
+- **Reset Service**: `/home/jk/.config/systemd/user/lemans-demo-reset.service`
+- **Reset Timer**: `/home/jk/.config/systemd/user/lemans-demo-reset.timer`
 
 ### Remote Production Environment
 
 - **Remote Production Application Build Path**: `/home/jk/bridge-ph/lemans`
-- **Remote Production Systemd Quadlet Path**: `~/.config/containers/systemd/bridge-ph/lemans`
+- **Remote Production Systemd Quadlet Path**: `/home/jk/.config/containers/systemd/bridge-ph/lemans`
 - **Remote Production Backblaze Bucket**: `lemans-prod-attachments`
-- **Backup Service**: `~/.config/systemd/user/lemans-backup.service`
-- **Backup Timer**: `~/.config/systemd/user/lemans-backup.timer`
+- **Backup Service**: `/home/jk/.config/systemd/user/lemans-backup.service`
+- **Backup Timer**: `/home/jk/.config/systemd/user/lemans-backup.timer`
 
 ## 5. Caddy Reverse Proxy Integration
 

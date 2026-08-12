@@ -233,7 +233,7 @@ defaults to `jk`. It must:
 5. Run disposable `podman run --rm` image smoke checks on the VPS.
 6. Install the tracked Quadlets, scripts, and current deployment manifest under
    the required remote paths.
-7. Install native timer units in `~/.config/systemd/user`, reload the user
+7. Install native timer units in `/home/jk/.config/systemd/user`, reload the user
    manager, and confirm every required unit is loaded before starting the
    selected profile.
 8. Seed the demo database on first install or with `RESET=true`; production

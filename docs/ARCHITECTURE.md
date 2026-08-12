@@ -20,7 +20,7 @@ Based on current 2026 containerization standards (Next.js 16 self-hosting, Go la
 
 - Next.js standalone output is the recommended self-hosting mode for Docker/Container deployments: https://nextjs.org/docs/app/api-reference/config/next-config-js/output
 - Go backend best practice is SQL-first data access with sqlc + goose and HTTP routing with Chi: https://docs.sqlc.dev, https://github.com/pressly/goose, https://github.com/go-chi/chi
-- Podman Quadlet rootless user units live in `~/.config/containers/systemd/` and are managed via `systemctl --user`: https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html
+- Podman Quadlet rootless user units live in `/home/jk/.config/containers/systemd/` on this VPS and are managed via `systemctl --user`: https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html
 - Podman’s rootless Quadlet workflow uses `daemon-reload` and `systemctl --user start`; generated units should be verified rather than enabled directly: https://docs.podman.io/en/latest/markdown/podman-quadlet-basic-usage.7.html
 
 Specific project choices:
@@ -47,7 +47,7 @@ Specific project choices:
    - Optional local validation uses `podman run --rm` helper scripts; remote
      deployment performs builds and execution on the VPS.
 6. **Declarative Podman Quadlet Systemd Management**:
-   - Production containers are managed declaratively using Quadlet files (`.container`, `.volume`, `.network`) placed in user systemd paths (`~/.config/containers/systemd/`).
+   - Production containers are managed declaratively using Quadlet files (`.container`, `.volume`, `.network`) placed in `/home/jk/.config/containers/systemd/` on the VPS.
    - Systemd user lingering is a remote operator prerequisite
      (`loginctl enable-linger <user>`) to keep services active across reboots.
    - Observability via structured JSON logging to `stdout`/`stderr` collected by systemd journal (`journalctl --user -u <service>`) and `podman logs`.
