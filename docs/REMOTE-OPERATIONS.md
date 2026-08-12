@@ -39,6 +39,13 @@ untouched. The Caddy Quadlet is expected at
 under `/home/jk/caddy/`; if a newly added `:Z`-mounted file is unreadable, the
 activation script restarts `caddy.service` once to reapply the mount label.
 
+The activation removes any indented legacy import of
+`/etc/caddy/lemans-demo.handlers.Caddyfile`, replaces the marked Le Mans route
+block in place, validates the generated Caddyfile through Caddy's rootless
+container, and then performs a graceful reload. It does not follow redirects
+for the final public health check, so a `308` is reported with its redirect
+chain instead of being hidden.
+
 ```caddy
 delegateops.business {
     @lemans_demo path /lemans/demo /lemans/demo/*
@@ -64,9 +71,8 @@ network through the `caddy.network` Quadlet reference, Caddy can resolve
 `lemans-demo-app` directly.
 
 ```bash
-# Manual validation/reload path when the tracked fragment and import already exist.
-# If either is missing, rerun ./scripts/deploy-remote-demo.sh so the script can
-# install the fragment before reloading.
+# Manual validation/reload path after the active Caddyfile contains the tracked
+# Le Mans route block. If it is missing, rerun the activation script.
 formatted_caddyfile="$(mktemp)"
 podman exec --user 0 caddy caddy fmt /etc/caddy/Caddyfile > "$formatted_caddyfile"
 install -m 0644 "$formatted_caddyfile" /home/jk/caddy/conf/Caddyfile

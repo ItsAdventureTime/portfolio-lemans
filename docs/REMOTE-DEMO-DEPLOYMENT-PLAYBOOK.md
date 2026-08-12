@@ -239,7 +239,9 @@ defaults to `jk`. It must:
 8. Seed the demo database on first install or with `RESET=true`; production
    never seeds or resets. Migrations run in the Go API container.
 9. Check the internal Go health endpoint and loopback web endpoint on the VPS.
-10. Print the source commit, image IDs, service status, and URL.
+10. Print the source commit, image IDs, service status, and URL. The public
+    check does not follow redirects; a non-200 response prints a redirect
+    inspection command so trailing-slash or proxy loops remain visible.
 
 If a managed service fails to start or pass its health check, the script prints
 that unit's complete status and current-boot journal before it exits. The first

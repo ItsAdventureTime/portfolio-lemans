@@ -109,9 +109,10 @@ container is attached only to the internal network.
 
 The demo route is tracked in
 [`caddy/lemans-demo.handlers.Caddyfile`](../caddy/lemans-demo.handlers.Caddyfile).
-An authorized demo deployment imports it before the DelegateOps static
-fallback, formats and validates the complete Caddyfile, and gracefully reloads
-the rootless Caddy container only when the route or import changes. The shared
+An authorized demo deployment inserts it directly before the DelegateOps static
+fallback in `/home/jk/caddy/conf/Caddyfile`, removes any indented legacy import,
+formats and validates the complete Caddyfile, and gracefully reloads the
+rootless Caddy container. It does not create backup files. The shared
 `caddy.container` remains on the shared edge network; it does not join an
 environment's internal network.
 

@@ -386,7 +386,7 @@ ensure_caddy_route() {
     exit 1
   }
   awk -v route_file="$temp_route" -v import_path="$CADDY_ROUTE_IMPORT" '
-    $0 == "import " import_path { next }
+    $0 ~ "^[[:space:]]*import[[:space:]]+" import_path "[[:space:]]*$" { next }
     /# BEGIN LEMANS DEMO ROUTE/ { skipping=1; next }
     skipping && /# END LEMANS DEMO ROUTE/ { skipping=0; next }
     !skipping && !inserted && $0 ~ /^[[:space:]]*# DelegateOps static-site fallback[[:space:]]*$/ {
@@ -441,9 +441,10 @@ if [[ "$(curl -sL -o /dev/null -w '%{http_code}' "http://127.0.0.1:${APP_PORT}${
   exit 1
 fi
 
-public_status="$(curl -sSL --max-time 30 -o /dev/null -w '%{http_code}' "$PUBLIC_URL" || true)"
+public_status="$(curl -sS --max-time 30 -o /dev/null -w '%{http_code}' "$PUBLIC_URL" || true)"
 if [[ "$public_status" != 200 ]]; then
   echo "Error: public URL check failed for $PUBLIC_URL (HTTP ${public_status:-unavailable})." >&2
+  echo "Inspect redirects with: curl -sSIL --max-redirs 10 '$PUBLIC_URL'" >&2
   exit 1
 fi
 
