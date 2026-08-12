@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { getApiUrl } from '@/lib/api-url';
-import { Landmark } from 'lucide-react';
+import Image from 'next/image';
 
 const DEMO_ENTRY_ERROR = "We couldn't open the demo. Please try again.";
 
@@ -34,9 +34,15 @@ export default function DemoSplash() {
     <div className="min-h-[70vh] flex flex-col items-center justify-center px-6 text-center">
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 md:p-12 max-w-lg w-full space-y-6">
         <div className="flex justify-center">
-          <div className="w-16 h-16 rounded-2xl bg-brand-primary flex items-center justify-center text-white">
-            <Landmark className="w-8 h-8" aria-hidden="true" />
-          </div>
+          <Image
+            src="/lemans-service-plus-logo.jpg"
+            alt="LeMans Service Plus OPC logo"
+            width={160}
+            height={160}
+            sizes="(min-width: 768px) 160px, 128px"
+            className="h-32 w-32 rounded-2xl object-contain md:h-40 md:w-40"
+            priority
+          />
         </div>
         <div className="space-y-2">
           <h1 className="text-3xl font-bold text-slate-900">Le Mans Operations</h1>

@@ -224,7 +224,11 @@ func (d *deps) handleGetJobCosting(w http.ResponseWriter, r *http.Request) {
 		respondError(w, http.StatusNotFound, err)
 		return
 	}
-	partsAllocated, _ := d.queries.SumSupplierInvoiceAllocationsByJO(ctx, id)
+	partsAllocated, err := d.queries.SumSupplierInvoiceAllocationsByJO(ctx, id)
+	if err != nil {
+		respondError(w, http.StatusInternalServerError, err)
+		return
+	}
 	costing := mathx.CalculateJobCosting(
 		jo.BilledAmountCents,
 		jo.ActualLaborCostCents,

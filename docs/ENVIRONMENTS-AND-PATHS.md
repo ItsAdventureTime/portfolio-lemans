@@ -35,27 +35,27 @@ The current deployment target is remote-only for the demo:
 
 ## Environment matrix
 
-| Environment Parameter   | 1. `local-demo`                                    | 2. `local-prodlike`                                | 3. `remote-demo`                     | 4. `remote-production`               |
-| ----------------------- | -------------------------------------------------- | -------------------------------------------------- | ------------------------------------ | ------------------------------------ |
-| **Status**              | **Verified (200 OK)**                              | **Verified (200 OK)**                              | **Prepared (authorization-gated)**   | **Prepared (Quadlets)**              |
-| **Target Host**         | macOS (Apple Silicon arm64)                        | macOS (Apple Silicon arm64)                        | Remote Linux Server                  | Remote Linux Server                  |
-| **Podman Command**      | `podman machine start` + `podman run`              | `podman machine start` + `podman run`              | Systemd User Quadlet                 | Systemd User Quadlet                 |
-| **Web Image**           | `lemans-bridge-dashboard:demo-web`                 | `lemans-bridge-dashboard:prod-web`                 | `localhost/...:demo-web`             | `localhost/...:prod-web`             |
-| **Go API Image**        | `lemans-bridge-dashboard-go:demo-go`               | `lemans-bridge-dashboard-go:prod-go`               | `localhost/...:demo-go`              | `localhost/...:prod-go`              |
-| **Next.js Base Image**  | `node:lts-alpine`                                  | `node:lts-alpine`                                  | `node:lts-alpine`                    | `node:lts-alpine`                    |
-| **Go Base Image**       | `golang:alpine` / `alpine:latest`                  | `golang:alpine` / `alpine:latest`                  | `golang:alpine` / `alpine:latest`    | `golang:alpine` / `alpine:latest`    |
-| **Database Image**      | `postgres:alpine`                                  | `postgres:alpine`                                  | `postgres:alpine`                    | `postgres:alpine`                    |
+| Environment Parameter   | 1. `local-demo`                                    | 2. `local-prodlike`                                | 3. `remote-demo`                                   | 4. `remote-production`                             |
+| ----------------------- | -------------------------------------------------- | -------------------------------------------------- | -------------------------------------------------- | -------------------------------------------------- |
+| **Status**              | **Verified (200 OK)**                              | **Verified (200 OK)**                              | **Prepared (authorization-gated)**                 | **Prepared (Quadlets)**                            |
+| **Target Host**         | macOS (Apple Silicon arm64)                        | macOS (Apple Silicon arm64)                        | Remote Linux Server                                | Remote Linux Server                                |
+| **Podman Command**      | `podman machine start` + `podman run`              | `podman machine start` + `podman run`              | Systemd User Quadlet                               | Systemd User Quadlet                               |
+| **Web Image**           | `lemans-bridge-dashboard:demo-web`                 | `lemans-bridge-dashboard:prod-web`                 | `localhost/...:demo-web`                           | `localhost/...:prod-web`                           |
+| **Go API Image**        | `lemans-bridge-dashboard-go:demo-go`               | `lemans-bridge-dashboard-go:prod-go`               | `localhost/...:demo-go`                            | `localhost/...:prod-go`                            |
+| **Next.js Base Image**  | `node:lts-alpine`                                  | `node:lts-alpine`                                  | `node:lts-alpine`                                  | `node:lts-alpine`                                  |
+| **Go Base Image**       | `golang:alpine` / `alpine:latest`                  | `golang:alpine` / `alpine:latest`                  | `golang:alpine` / `alpine:latest`                  | `golang:alpine` / `alpine:latest`                  |
+| **Database Image**      | `postgres:alpine`                                  | `postgres:alpine`                                  | `postgres:alpine`                                  | `postgres:alpine`                                  |
 | **Source Mounting**     | **Disposable `--rm` containers + named DB volume** | **Disposable `--rm` containers + named DB volume** | **Synced `current` source; no runtime bind mount** | **Synced `current` source; no runtime bind mount** |
-| **Web Port Binding**    | `127.0.0.1:3000`                                   | `127.0.0.1:3001` (build/verify only)               | `127.0.0.1:3002` (Behind Proxy)      | `127.0.0.1:3003` (Behind Proxy)      |
-| **Go API Port Binding** | NONE (internal net)                                | NONE (internal net)                                | NONE (internal net)                  | NONE (internal net)                  |
-| **DB Port Binding**     | `NONE` (Internal Podman Net)                       | `NONE` (Internal Podman Net)                       | `NONE` (Internal Podman Net)         | `NONE` (Internal Podman Net)         |
-| **Web Container Name**  | `lemans-demo-app`                                  | `lemans-prodlike-app`                              | `lemans-demo-app`                    | `lemans-prod-app`                    |
-| **Go Container Name**   | `lemans-demo-go`                                   | `lemans-prodlike-go`                               | `lemans-demo-go`                     | `lemans-prod-go`                     |
-| **DB Volume Name**      | `lemans-demo-db-data`                              | `lemans-prodlike-db-data`                          | `lemans-demo-db-data`                | `lemans-prod-db-data`                |
-| **Podman Network**      | `lemans-demo-net`                                  | `lemans-prodlike-net`                              | `lemans-demo-net`                    | `lemans-prod-net`                    |
-| **Auth Secret**         | Not used in demo (production-only planning value)  | Production-only                                    | Not used in demo                     | Production-only                      |
-| **Backblaze B2 Bucket** | `lemans-demo-attachments`                          | `lemans-prodlike-attachments`                      | `lemans-demo-attachments`            | `lemans-prod-attachments`            |
-| **Reset Policy**        | Manual via `scripts/reset-local.sh`                | Manual only                                        | Every 30 minutes plus manual trigger | None (persistent)                    |
+| **Web Port Binding**    | `127.0.0.1:3000`                                   | `127.0.0.1:3001` (build/verify only)               | `127.0.0.1:3002` (Behind Proxy)                    | `127.0.0.1:3003` (Behind Proxy)                    |
+| **Go API Port Binding** | NONE (internal net)                                | NONE (internal net)                                | NONE (internal net)                                | NONE (internal net)                                |
+| **DB Port Binding**     | `NONE` (Internal Podman Net)                       | `NONE` (Internal Podman Net)                       | `NONE` (Internal Podman Net)                       | `NONE` (Internal Podman Net)                       |
+| **Web Container Name**  | `lemans-demo-app`                                  | `lemans-prodlike-app`                              | `lemans-demo-app`                                  | `lemans-prod-app`                                  |
+| **Go Container Name**   | `lemans-demo-go`                                   | `lemans-prodlike-go`                               | `lemans-demo-go`                                   | `lemans-prod-go`                                   |
+| **DB Volume Name**      | `lemans-demo-db-data`                              | `lemans-prodlike-db-data`                          | `lemans-demo-db-data`                              | `lemans-prod-db-data`                              |
+| **Podman Network**      | `lemans-demo-net`                                  | `lemans-prodlike-net`                              | `lemans-demo-net`                                  | `lemans-prod-net`                                  |
+| **Auth Secret**         | Not used in demo (production-only planning value)  | Production-only                                    | Not used in demo                                   | Production-only                                    |
+| **Backblaze B2 Bucket** | `lemans-demo-attachments`                          | `lemans-prodlike-attachments`                      | `lemans-demo-attachments`                          | `lemans-prod-attachments`                          |
+| **Reset Policy**        | Manual via `scripts/reset-local.sh`                | Manual only                                        | Every 30 minutes plus manual trigger               | None (persistent)                                  |
 
 ## Run local validation
 
@@ -141,23 +141,23 @@ deployment no longer creates external `.env` files.
 
 ## 7. Deployment Scripts
 
-| Script                             | Purpose                                               |
-| ---------------------------------- | ----------------------------------------------------- |
-| `scripts/build.sh`                 | Optional local validation image build                 |
-| `scripts/build-multiarch.sh`       | Build and push multi-arch images to registry          |
-| `scripts/run-local.sh`             | Start local DB + Go API + web with `--rm` containers  |
-| `scripts/stop-local.sh`            | Stop local DB + Go API + web                          |
-| `scripts/reset-local.sh`           | Reset local DB volume to empty / seeded state         |
-| `scripts/verify-local.sh`          | Run format/lint/type-check/tests in `--rm` container  |
-| `scripts/verify-vertical-slice.sh` | Full local verification incl. HTTP health checks      |
-| `scripts/deploy-remote-profile.sh` | Sync source and optionally activate on the VPS        |
-| `scripts/sync-remote-demo.sh`      | Demo source sync; prints one no-flag activation command |
+| Script                             | Purpose                                                       |
+| ---------------------------------- | ------------------------------------------------------------- |
+| `scripts/build.sh`                 | Optional local validation image build                         |
+| `scripts/build-multiarch.sh`       | Build and push multi-arch images to registry                  |
+| `scripts/run-local.sh`             | Start local DB + Go API + web with `--rm` containers          |
+| `scripts/stop-local.sh`            | Stop local DB + Go API + web                                  |
+| `scripts/reset-local.sh`           | Reset local DB volume to empty / seeded state                 |
+| `scripts/verify-local.sh`          | Run format/lint/type-check/tests in `--rm` container          |
+| `scripts/verify-vertical-slice.sh` | Full local verification incl. HTTP health checks              |
+| `scripts/deploy-remote-profile.sh` | Sync source and optionally activate on the VPS                |
+| `scripts/sync-remote-demo.sh`      | Demo source sync; prints one no-flag activation command       |
 | `scripts/sync-remote-prod.sh`      | Production source sync; prints one no-flag activation command |
-| `scripts/activate-remote-demo.sh`  | VPS-side demo build, activation, and verification     |
-| `scripts/activate-remote-prod.sh`  | VPS-side production build, activation, and verification |
-| `scripts/deploy-remote-demo.sh`    | Automated demo sync + activation wrapper              |
-| `scripts/deploy-remote-prod.sh`    | Automated production sync + activation wrapper        |
-| `scripts/configure-remote-*.sh`    | One-time macOS Keychain setup for remote profiles     |
+| `scripts/activate-remote-demo.sh`  | VPS-side demo build, activation, and verification             |
+| `scripts/activate-remote-prod.sh`  | VPS-side production build, activation, and verification       |
+| `scripts/deploy-remote-demo.sh`    | Automated demo sync + activation wrapper                      |
+| `scripts/deploy-remote-prod.sh`    | Automated production sync + activation wrapper                |
+| `scripts/configure-remote-*.sh`    | One-time macOS Keychain setup for remote profiles             |
 
 ## 8. Official Guidance
 

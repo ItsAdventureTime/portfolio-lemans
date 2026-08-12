@@ -10,7 +10,7 @@
 
 This design system draws from these sources:
 
-1. **Client Brand Identity**: Official logo for **LeMans Service Plus OPC** (`references/branding/logo.jpg`), featuring a racing-inspired shield badge with LeMans Racing Red (`#d32f2f`), Crisp White (`#ffffff`), and Dark Slate (`#0f172a`).
+1. **Client Brand Identity**: Official logo for **LeMans Service Plus OPC** (`references/branding/logo.jpg`), featuring a racing-inspired shield badge with LeMans Racing Red (`#d32f2f`), Crisp White (`#ffffff`), and Dark Slate (`#0f172a`). The runtime copy is `public/lemans-service-plus-logo.jpg`, rendered in `Header` and `DemoSplash` and registered as the app icon.
 2. **UI Architecture Inspiration**: ColdTrace Operations Dashboard (`references/design-inspiration/coldtrace-ui-mockup.webp`), featuring a modern light interface, elevated cards, subtle borders, high-visibility metric displays, and data-dense tables.
 3. **UI context guides**: Blueprints in `references/prompts/` define reusable interface patterns, four visual states, and cross-platform alignment for web, iOS (SwiftUI), and Android (Jetpack Compose).
 4. **2026 Modern UX & WCAG 2.2 Standards**:

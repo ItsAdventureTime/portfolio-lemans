@@ -21,6 +21,14 @@ implementation or operations.
   enters as Admin, and uses the `lemans-demo-role` cookie plus `X-Demo-Role`
   header for role simulation. This is not a security boundary.
 
+### Runtime branding
+
+The canonical LeMans Service Plus logo is tracked at
+`public/lemans-service-plus-logo.jpg` (copied byte-for-byte from
+`references/branding/logo.jpg`). Next Image renders it in the persistent
+`Header` and `DemoSplash` with explicit dimensions; the same asset supplies
+the app icon metadata.
+
 ## Run the demo locally
 
 The demo base path is `/lemans/demo`; the production profile uses `/lemans`.
@@ -82,7 +90,9 @@ cryptographically random suffix to avoid collisions.
   users or protect public data.
 - Job Costing supports server-rendered search and status filtering across job
   number, customer, vehicle, and technician, with estimate/actual summary
-  metrics. Customer-wide search, richer customer contacts, deeper reporting,
+  metrics. List actuals and variances are recorded labor plus parts costs;
+  supplier invoice allocations are included on each detail sheet. Customer-wide
+  search, richer customer contacts, deeper reporting,
   a dedicated quotation detail view, and production authentication remain
   future work until the playbook adds implementation and verification
   requirements.

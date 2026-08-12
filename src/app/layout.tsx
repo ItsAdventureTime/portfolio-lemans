@@ -1,12 +1,17 @@
 import './globals.css';
+import type { Metadata } from 'next';
 import Header from '@/components/Header';
 import Navbar from '@/components/Navbar';
 import { getDemoRole } from '@/lib/actor';
 
-export const metadata = {
+export const metadata: Metadata = {
   title: 'Le Mans Service Plus - Operations & Job Cost Management',
   description:
     'Enterprise operational dashboard and job costing platform for auto service centers.',
+  icons: {
+    icon: '/lemans-service-plus-logo.jpg',
+    apple: '/lemans-service-plus-logo.jpg',
+  },
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

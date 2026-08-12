@@ -4,8 +4,8 @@
 
 ## Environments
 
-| Environment       | Quadlet Path                                         | Web Port         | Go API Container | DB Volume             | Web Image                                              | Go Image                                                 |
-| ----------------- | ---------------------------------------------------- | ---------------- | ---------------- | --------------------- | ------------------------------------------------------ | -------------------------------------------------------- |
+| Environment       | Quadlet Path                                         | Web Port         | Go API Container | DB Volume             | Web Image                                    | Go Image                                       |
+| ----------------- | ---------------------------------------------------- | ---------------- | ---------------- | --------------------- | -------------------------------------------- | ---------------------------------------------- |
 | Remote demo       | `~/.config/containers/systemd/bridge-ph/lemans-demo` | `127.0.0.1:3002` | `lemans-demo-go` | `lemans-demo-db-data` | `localhost/lemans-bridge-dashboard:demo-web` | `localhost/lemans-bridge-dashboard-go:demo-go` |
 | Remote production | `~/.config/containers/systemd/bridge-ph/lemans`      | `127.0.0.1:3003` | `lemans-prod-go` | `lemans-prod-db-data` | `localhost/lemans-bridge-dashboard:prod-web` | `localhost/lemans-bridge-dashboard-go:prod-go` |
 
@@ -152,7 +152,7 @@ This will:
    reset timer.
 9. Confirm the configured public HTTPS URL returns `200 OK`. This makes a
    missing or prefix-stripping Caddy route a deployment failure rather than a
-false success.
+   false success.
 
 For an operator-controlled deployment, run `./scripts/sync-remote-demo.sh`, log
 in to the VPS, and run the one activation command printed by the script. It is

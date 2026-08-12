@@ -37,11 +37,7 @@ export default function QuotationList({ quotes, role }: QuotationListProps) {
         {
           key: 'quoteNo',
           header: 'Quote No',
-          render: (q) => (
-            <span className="font-medium text-slate-900">
-              {q.quote_no}
-            </span>
-          ),
+          render: (q) => <span className="font-medium text-slate-900">{q.quote_no}</span>,
         },
         { key: 'customer', header: 'Customer', render: (q) => q.customer_name },
         { key: 'vehicle', header: 'Vehicle', render: (q) => q.vehicle_plate },

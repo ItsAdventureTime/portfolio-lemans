@@ -154,8 +154,12 @@ freshly created records.
 - Invoice includes the exact footer:
   `THIS IS NOT AN OFFICIAL RECEIPT. NOT VALID FOR CLAIMING INPUT TAX`.
 - Payments update AR status and reject invalid, negative, or overpaid amounts.
-- Job costing shows estimated versus actual labor, parts, expenses, revenue,
-  margin, and a visual job timeline.
+- Job costing shows estimated versus actual labor and parts, billed revenue,
+  margin, and recorded-versus-allocated cost context. List actuals and
+  variances use recorded labor plus parts costs; supplier invoice allocations
+  are shown and included in the parts variance on each detail sheet. A visual
+  job timeline remains future work until its event data is rendered in the
+  costing detail view.
 - Admin accounting view provides demo read-only GL/AP/JE summaries and
   deterministic CSV, JSON, and Excel-compatible exports for customers, vendors,
   bills, expenses, invoices, collections, and payments.
