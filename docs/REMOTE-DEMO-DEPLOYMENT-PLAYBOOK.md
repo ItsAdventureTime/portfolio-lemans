@@ -253,6 +253,14 @@ tracked route fragment and its single import in the supplied Caddyfile. It keeps
 a fixed `Caddyfile.bak` backup, formats and validates the complete configuration, and uses a
 graceful reload. Remote deployment remains an explicitly authorized operation.
 
+Because Caddy runs in a rootless Quadlet, the activation script invokes the
+Caddy CLI as UID 0 inside the container's user namespace when it reads the
+read-only configuration mount. This is not host-root execution; it only avoids
+mapped-user permission failures on newly installed route fragments.
+On SELinux hosts, it also copies the existing Caddyfile label to newly installed
+files through `podman unshare chcon`; this is the documented follow-up for files
+moved into a `:Z` volume after container creation.
+
 ## 6. Demo runtime configuration
 
 The demo profile remains free of real authentication:

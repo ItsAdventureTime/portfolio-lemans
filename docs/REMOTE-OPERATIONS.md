@@ -66,11 +66,11 @@ network through the `caddy.network` Quadlet reference, Caddy can resolve
 # If either is missing, rerun ./scripts/deploy-remote-demo.sh so the script can
 # install the fragment and create the fixed Caddyfile backup before reloading.
 formatted_caddyfile="$(mktemp)"
-podman exec caddy caddy fmt /etc/caddy/Caddyfile > "$formatted_caddyfile"
+podman exec --user 0 caddy caddy fmt /etc/caddy/Caddyfile > "$formatted_caddyfile"
 install -m 0644 "$formatted_caddyfile" /home/jk/caddy/conf/Caddyfile
 rm -f "$formatted_caddyfile"
-podman exec caddy caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
-podman exec caddy caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile
+podman exec --user 0 caddy caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+podman exec --user 0 caddy caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile
 ```
 
 ## Required Secrets
@@ -251,8 +251,8 @@ The script dumps `lemans_prod_db` with `pg_dump`, gzips it, and uploads it to `s
    validate and gracefully reload Caddy:
    ```bash
    install -m 0644 /home/jk/caddy/conf/Caddyfile.bak /home/jk/caddy/conf/Caddyfile
-   podman exec caddy caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
-   podman exec caddy caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile
+   podman exec --user 0 caddy caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile
+   podman exec --user 0 caddy caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile
    ```
 3. Verify the profile loopback URL returns `200 OK`.
 

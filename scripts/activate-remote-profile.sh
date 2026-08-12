@@ -365,12 +365,25 @@ fi
 
 ensure_caddy_route() {
   [[ -n "$CADDY_ROUTE_SOURCE" ]] || return 0
+  # UID 0 is root only inside Caddy's rootless user namespace. The Caddy image
+  # default user may not read newly-created files on the Quadlet bind mount.
+  caddy_cli() {
+    podman exec --user 0 "$CADDY_CONTAINER" caddy "$@"
+  }
   local config_dir="${CADDY_CONFIG_FILE%/*}"
   local route_file="${config_dir}/${CADDY_ROUTE_TARGET_NAME}"
   local import_line="import ${CADDY_ROUTE_IMPORT}"
   local config_backup="${CADDY_CONFIG_FILE}.bak"
   local route_backup="${route_file}.bak"
   local temp_route="$(mktemp)" temp_config="$(mktemp)" formatted="$(mktemp)"
+  relabel_caddy_files() {
+    # Quadlet's :Z mount labels existing files when Caddy starts. Files copied
+    # into that mount later may need the same label before a reload/restart.
+    if command -v chcon >/dev/null 2>&1 && [[ -f "$config_backup" ]]; then
+      podman unshare chcon --reference="$config_backup" \
+        "$CADDY_CONFIG_FILE" "$route_file" >/dev/null 2>&1 || true
+    fi
+  }
   install -m 0644 "$CADDY_CONFIG_FILE" "$config_backup"
   [[ -f "$route_file" ]] && install -m 0644 "$route_file" "$route_backup"
   install -m 0644 "$SOURCE_ROOT/$CADDY_ROUTE_SOURCE" "$route_file"
@@ -384,24 +397,28 @@ ensure_caddy_route() {
     ' "$CADDY_CONFIG_FILE" > "$temp_config"
     install -m 0644 "$temp_config" "$CADDY_CONFIG_FILE"
   fi
-  if ! podman exec "$CADDY_CONTAINER" caddy fmt "/etc/caddy/${CADDY_ROUTE_TARGET_NAME}" > "$temp_route" ||
-     ! podman exec "$CADDY_CONTAINER" caddy fmt /etc/caddy/Caddyfile > "$formatted"; then
+  relabel_caddy_files
+  if ! caddy_cli fmt "/etc/caddy/${CADDY_ROUTE_TARGET_NAME}" > "$temp_route" ||
+     ! caddy_cli fmt /etc/caddy/Caddyfile > "$formatted"; then
     install -m 0644 "$config_backup" "$CADDY_CONFIG_FILE"
     [[ -f "$route_backup" ]] && install -m 0644 "$route_backup" "$route_file" || rm -f "$route_file"
+    relabel_caddy_files
     echo "Error: Caddy formatting failed." >&2
     exit 1
   fi
   install -m 0644 "$temp_route" "$route_file"
   install -m 0644 "$formatted" "$CADDY_CONFIG_FILE"
-  if ! podman exec "$CADDY_CONTAINER" caddy validate --config /etc/caddy/Caddyfile --adapter caddyfile; then
+  if ! caddy_cli validate --config /etc/caddy/Caddyfile --adapter caddyfile; then
     install -m 0644 "$config_backup" "$CADDY_CONFIG_FILE"
     [[ -f "$route_backup" ]] && install -m 0644 "$route_backup" "$route_file" || rm -f "$route_file"
+    relabel_caddy_files
     echo "Error: Caddyfile validation failed; previous configuration restored." >&2
     exit 1
   fi
-  if ! podman exec "$CADDY_CONTAINER" caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile; then
+  if ! caddy_cli reload --config /etc/caddy/Caddyfile --adapter caddyfile; then
     install -m 0644 "$config_backup" "$CADDY_CONFIG_FILE"
     [[ -f "$route_backup" ]] && install -m 0644 "$route_backup" "$route_file" || rm -f "$route_file"
+    relabel_caddy_files
     echo "Error: graceful Caddy reload failed; previous configuration restored." >&2
     exit 1
   fi
