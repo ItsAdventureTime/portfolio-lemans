@@ -72,7 +72,7 @@ documentation or repository synchronization is outstanding.
     `.env`/`EnvironmentFile=` files; credential-bearing generated Quadlets are
     mode `600`.
 
-8. **Git & GitHub Operations Standard**: - **Local Commits**: Local commits and local branch operations MUST use local `git` command. - **Remote Commits & Operations**: Remote commits, pushes, and GitHub repository operations MUST use GitHub official CLI (`gh` command). - **Transport Protocol**: Remote repository access MUST use HTTPS (`https://...`), not SSH. Authentication is assumed default via `gh auth setup-git` credential helper. - **Branch Policy**: Keep the worktree and remote on `main`; do not create feature/review branches. Never delete `main`; inspect protection and unique commits before deleting another branch.
+8. **Git & GitHub Operations Standard**: Use the GitHub official CLI (`gh`) for all GitHub operations: authentication, remote inspection, pushes, pulls/synchronization, branch or PR operations, and API checks. Configure HTTPS with `gh auth setup-git --hostname github.com`; never use SSH Git remotes, SSH keys, or passkeys for GitHub transport. Local commit object creation and local worktree inspection still require the `git` executable because `gh` does not replace local Git. Keep the worktree and remote on `main`; do not create feature/review branches. Never delete `main`; inspect protection and unique commits before deleting another branch.
 
 ## Demo Build Authority
 
