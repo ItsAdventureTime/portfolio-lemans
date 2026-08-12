@@ -64,7 +64,7 @@ network through the `caddy.network` Quadlet reference, Caddy can resolve
 ```bash
 # Manual validation/reload path when the tracked fragment and import already exist.
 # If either is missing, rerun ./scripts/deploy-remote-demo.sh so the script can
-# install the fragment and create a release backup before reloading.
+# install the fragment and create the fixed Caddyfile backup before reloading.
 formatted_caddyfile="$(mktemp)"
 podman exec caddy caddy fmt /etc/caddy/Caddyfile > "$formatted_caddyfile"
 install -m 0644 "$formatted_caddyfile" /home/jk/caddy/conf/Caddyfile
@@ -147,9 +147,12 @@ This will:
 false success.
 
 For an operator-controlled deployment, run `./scripts/sync-remote-demo.sh`, log
-in to the VPS, and run the activation command printed by the script. The
-existing `./scripts/deploy-remote-demo.sh` wrapper performs both stages over one
-SSH control connection.
+in to the VPS, and run the one activation command printed by the script. It is
+just `cd /home/jk/bridge-ph/lemans-demo/current &&
+./scripts/activate-remote-demo.sh`; the synced source marker and profile
+defaults supply the remaining values. The existing
+`./scripts/deploy-remote-demo.sh` wrapper performs both stages over one SSH
+control connection.
 
 The Caddy Quadlet must already have created its `caddy` Podman network. Le Mans
 containers continue to reference `caddy.network` by filename. The tracked
@@ -243,7 +246,7 @@ The script dumps `lemans_prod_db` with `pg_dump`, gzips it, and uploads it to `s
 
 1. Restore the previous known-good source commit by rerunning the sync and
    activation commands for that commit. Stable image tags are replaced by the
-   activation, so no release directory or tag lookup is required.
+   activation, so the stable `current` path is all that is required.
 2. If only the proxy changed, restore `/home/jk/caddy/conf/Caddyfile.bak`, then
    validate and gracefully reload Caddy:
    ```bash

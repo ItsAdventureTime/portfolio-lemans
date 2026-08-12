@@ -1,7 +1,7 @@
 # Remote Demo Deployment Playbook
 
 - **Status**: Authoritative for the remote demo deployment profile
-- **Version**: 1.4.0
+- **Version**: 1.5.0
 - **Updated**: 2026-08-12
 - **Target URL**: `https://delegateops.business/lemans/demo`
 - **Remote user**: `jk`
@@ -202,16 +202,25 @@ The preferred operator-controlled workflow separates transfer from activation:
 ```bash
 ./scripts/sync-remote-demo.sh
 ssh jk@216.75.75.136
-# Copy the complete activation command printed by sync-remote-demo.sh.
+# Run the single activation command printed by sync-remote-demo.sh.
 ```
 
 The sync command validates the clean committed worktree, uses `rsync --partial`
-to transfer only the committed source tree, and prints the exact activation
-command. Do not type the angle-bracket placeholders from examples; Bash treats
-`<word>` as input redirection. The activation command runs entirely on the VPS and prompts for B2
-credentials only when they were not provided by the automated wrapper. SSH key
-authentication can remove the remaining password prompt; never put an SSH
-password in a script.
+to transfer only the committed source tree, writes small deployment metadata
+(source commit and public URL) into that tree, and prints one short activation
+command. The command is always:
+
+```bash
+cd '/home/jk/bridge-ph/lemans-demo/current' && ./scripts/activate-remote-demo.sh
+```
+
+The activation script infers the source commit, profile, public URL, and stable
+remote paths. No release ID, archive name, or commit/public-URL flags are
+required. Do not type angle-bracket placeholders from older examples; Bash
+treats `<word>` as input redirection. The activation command runs entirely on
+the VPS and prompts for B2 credentials only when they were not provided by the
+automated wrapper. SSH key authentication can remove the remaining password
+prompt; never put an SSH password in a script.
 
 Environment variables remain supported and take precedence for non-macOS and
 automated environments. The deployment script may accept `REMOTE_USER`, but it
@@ -241,7 +250,7 @@ of `125` means Podman could not start the container.
 The script must not silently deploy to production, reset the database, or modify
 unrelated Caddy routes or systemd units. For the demo profile, it may manage the
 tracked route fragment and its single import in the supplied Caddyfile. It keeps
-a release backup, formats and validates the complete configuration, and uses a
+a fixed `Caddyfile.bak` backup, formats and validates the complete configuration, and uses a
 graceful reload. Remote deployment remains an explicitly authorized operation.
 
 ## 6. Demo runtime configuration

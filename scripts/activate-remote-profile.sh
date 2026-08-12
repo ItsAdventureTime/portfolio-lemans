@@ -6,7 +6,7 @@ set -euo pipefail
 
 PROFILE="${1:-}"
 shift || true
-SOURCE_COMMIT="synced-source"
+SOURCE_COMMIT=""
 REMOTE_ROOT=""
 QUADLET_PATH=""
 PUBLIC_URL=""
@@ -29,7 +29,7 @@ while (($# > 0)); do
 done
 
 if [[ "$PROFILE" != "demo" && "$PROFILE" != "prod" ]]; then
-  echo "Usage: $0 {demo|prod} [--source-commit COMMIT] [options]" >&2
+  echo "Usage: $0 {demo|prod} [options]" >&2
   exit 1
 fi
 
@@ -86,11 +86,18 @@ else
   DEFAULT_QUADLET_PATH="/home/jk/.config/containers/systemd/bridge-ph/lemans"
   DEFAULT_PUBLIC_URL="https://delegateops.business/lemans"
 fi
-REMOTE_ROOT="${REMOTE_ROOT:-$DEFAULT_REMOTE_ROOT}"
-QUADLET_PATH="${QUADLET_PATH:-$DEFAULT_QUADLET_PATH}"
 
 # The activation script runs from the stable current source directory.
 SOURCE_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+REMOTE_ROOT_ARG="$REMOTE_ROOT"
+if [[ -n "$REMOTE_ROOT_ARG" ]]; then
+  REMOTE_ROOT="$REMOTE_ROOT_ARG"
+elif [[ "$(basename "$SOURCE_ROOT")" == current ]]; then
+  REMOTE_ROOT="$(cd "$SOURCE_ROOT/.." && pwd)"
+else
+  REMOTE_ROOT="$DEFAULT_REMOTE_ROOT"
+fi
+QUADLET_PATH="${QUADLET_PATH:-$DEFAULT_QUADLET_PATH}"
 if [[ ! -d "$SOURCE_ROOT" || ! -f "$SOURCE_ROOT/package.json" ]]; then
   echo "Error: run this script from the synced current source directory." >&2
   exit 1
@@ -98,6 +105,14 @@ fi
 mkdir -p "$QUADLET_PATH"
 cd "$SOURCE_ROOT"
 
+if [[ -z "$SOURCE_COMMIT" && -f "$SOURCE_ROOT/.lemans-source-commit" ]]; then
+  SOURCE_COMMIT="$(<"$SOURCE_ROOT/.lemans-source-commit")"
+fi
+SOURCE_COMMIT="${SOURCE_COMMIT:-synced-source}"
+
+if [[ -z "$PUBLIC_URL" && -f "$SOURCE_ROOT/.lemans-public-url" ]]; then
+  PUBLIC_URL="$(<"$SOURCE_ROOT/.lemans-public-url")"
+fi
 PUBLIC_URL="${PUBLIC_URL:-$DEFAULT_PUBLIC_URL}"
 if [[ "$PUBLIC_URL" != https://* || "$PUBLIC_URL" != *"${BASE_PATH}"* ]]; then
   echo "Error: PUBLIC_URL must be HTTPS and include ${BASE_PATH}." >&2

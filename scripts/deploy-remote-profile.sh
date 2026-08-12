@@ -122,10 +122,11 @@ trap cleanup EXIT
 # Export the clean index into a temporary directory; no archive file is created
 # or transferred. The temporary tree is removed on every exit path.
 git checkout-index --all --force --prefix="$STAGING_DIR/"
+printf '%s\n' "$SOURCE_COMMIT" > "$STAGING_DIR/.lemans-source-commit"
+printf '%s\n' "$PUBLIC_URL" > "$STAGING_DIR/.lemans-public-url"
 
 echo "=== Remote ${PROFILE_LABEL} source sync ==="
 echo "Host: ${REMOTE}"
-echo "Source commit: ${SOURCE_COMMIT}"
 echo "Local actions: committed source snapshot + resumable rsync only"
 
 ssh_remote() {
@@ -138,8 +139,8 @@ rsync -a --delete --partial --info=progress2 -e "$RSYNC_RSH" \
   "$STAGING_DIR/" "$REMOTE:${REMOTE_SOURCE_DIR}/"
 
 echo "Source synced to ${REMOTE_SOURCE_DIR}"
-echo "VPS activation command (copy exactly after logging in):"
-echo "  cd '${REMOTE_SOURCE_DIR}' && ./scripts/${ACTIVATE_SCRIPT} --source-commit '${SOURCE_COMMIT}' --public-url '${PUBLIC_URL}'"
+echo "After logging in to the VPS, run:"
+echo "  cd '${REMOTE_SOURCE_DIR}' && ./scripts/${ACTIVATE_SCRIPT}"
 
 if [[ "$SYNC_ONLY" == true ]]; then
   echo "Sync complete. Log in to the VPS and run the activation command above."
@@ -159,8 +160,7 @@ echo "Activating deployment on the VPS..."
 {
   printf '%s\n' "$B2_ACCESS_KEY_ID" "$B2_SECRET_ACCESS_KEY"
 } | ssh_remote \
-  "cd '$REMOTE_SOURCE_DIR' && B2_FROM_STDIN=true RESET='$RESET_FLAG' ./scripts/${ACTIVATE_SCRIPT} --source-commit '$SOURCE_COMMIT' --public-url '$PUBLIC_URL' --remote-root '$REMOTE_ROOT' --quadlet-path '$QUADLET_PATH' --caddy-network-name '$CADDY_NETWORK_NAME' --caddy-config-file '$CADDY_CONFIG_FILE'"
+  "cd '$REMOTE_SOURCE_DIR' && B2_FROM_STDIN=true RESET='$RESET_FLAG' ./scripts/${ACTIVATE_SCRIPT} --remote-root '$REMOTE_ROOT' --quadlet-path '$QUADLET_PATH' --caddy-network-name '$CADDY_NETWORK_NAME' --caddy-config-file '$CADDY_CONFIG_FILE'"
 
 echo "=== ${PROFILE_LABEL} deployed ==="
-echo "Source commit: ${SOURCE_COMMIT}"
 echo "Public URL: ${PUBLIC_URL}"

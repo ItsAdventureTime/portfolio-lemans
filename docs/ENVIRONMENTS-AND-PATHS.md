@@ -150,8 +150,8 @@ deployment no longer creates external `.env` files.
 | `scripts/verify-local.sh`          | Run format/lint/type-check/tests in `--rm` container  |
 | `scripts/verify-vertical-slice.sh` | Full local verification incl. HTTP health checks      |
 | `scripts/deploy-remote-profile.sh` | Sync source and optionally activate on the VPS        |
-| `scripts/sync-remote-demo.sh`      | Demo source sync; prints the VPS activation command   |
-| `scripts/sync-remote-prod.sh`      | Production source sync; prints the activation command |
+| `scripts/sync-remote-demo.sh`      | Demo source sync; prints one no-flag activation command |
+| `scripts/sync-remote-prod.sh`      | Production source sync; prints one no-flag activation command |
 | `scripts/activate-remote-demo.sh`  | VPS-side demo build, activation, and verification     |
 | `scripts/activate-remote-prod.sh`  | VPS-side production build, activation, and verification |
 | `scripts/deploy-remote-demo.sh`    | Automated demo sync + activation wrapper              |
