@@ -18,12 +18,16 @@ the authority order below.
 4. [`REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`](./REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md) —
    remote-only deployment contract; remote operations require explicit user
    authorization.
-5. [`ARCHITECTURE.md`](./ARCHITECTURE.md),
+5. [`UI-UX-REVAMP-HANDOFF.md`](./UI-UX-REVAMP-HANDOFF.md) — current handoff for
+   the planned complete demo UI/UX and workflow-navigation revamp.
+6. [`ARCHITECTURE.md`](./ARCHITECTURE.md),
    [`GO-BACKEND-ARCHITECTURE.md`](./GO-BACKEND-ARCHITECTURE.md),
    [`ENVIRONMENTS-AND-PATHS.md`](./ENVIRONMENTS-AND-PATHS.md), and the ADRs —
    architecture and future-profile decisions.
-6. [`README.md`](../README.md) — quickstart and navigation index.
-7. [`WRITING-STYLE.md`](./WRITING-STYLE.md) — US-English voice, tone, and
+7. [`GOOGLE-ANTIGRAVITY-UI-UX-PROMPT.md`](./GOOGLE-ANTIGRAVITY-UI-UX-PROMPT.md)
+   — copy-and-paste execution prompt for the next UI/UX agent.
+8. [`README.md`](../README.md) — quickstart and navigation index.
+9. [`WRITING-STYLE.md`](./WRITING-STYLE.md) — US-English voice, tone, and
    proofreading standard for active content.
 
 ## Document status
@@ -33,7 +37,8 @@ the authority order below.
 | `CURRENT-STATE.md`, `DEMO-IMPLEMENTATION-PLAYBOOK.md`, `README.md`                                                                | Current                                 | Use for implementation and verification decisions.                                                                 |
 | `ARCHITECTURE.md`, `GO-BACKEND-ARCHITECTURE.md`, `ENVIRONMENTS-AND-PATHS.md`, `DESIGN-SYSTEM.md`, `PROJECT-SPEC.md`, and the ADRs | Current contract/specification          | Use for design, domain, and architecture constraints; confirm runtime facts against `CURRENT-STATE.md`.            |
 | `REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`, `REMOTE-OPERATIONS.md`                                                                      | Current but remote-only                 | Do not execute without explicit authorization and required host/Caddy context.                                     |
-| `AGENT-EXECUTION-PROMPTS.md`                                                                                                      | Current operational prompts             | Keep commands synchronized with scripts and the current demo boundary.                                             |
+| `AGENT-EXECUTION-PROMPTS.md`, `GOOGLE-ANTIGRAVITY-UI-UX-PROMPT.md`                                                                  | Current operational prompts             | Keep commands synchronized with scripts and the current demo boundary.                                             |
+| `UI-UX-REVAMP-HANDOFF.md`                                                                                                          | Current future-work handoff             | Use for the complete UI/UX and workflow-navigation revamp; confirm implementation facts against `CURRENT-STATE.md`. |
 | `WRITING-STYLE.md`                                                                                                                | Current editorial standard              | Apply to active app copy, documentation, guides, and commit messages.                                              |
 | `DELIVERY-PLAN.md`                                                                                                                | Current roadmap                         | Use for roadmap boundaries only; implementation and verification claims come from `CURRENT-STATE.md`.              |
 | `to-review-and-delete/historical-docs/`, `to-review-and-delete/historical-reviews/`                                               | Review candidates / historical evidence | Preserve only for user review; never use as current proof, operating instructions, or implementation authority.    |
@@ -48,10 +53,10 @@ change must update the affected current guides and verification evidence in the
 same change set. Move conflicting historical material to
 `to-review-and-delete/` rather than leaving it beside active guidance.
 
-The 2026-08-12 audit found no additional active document that was obsolete
-enough to move. Existing phase reports, review handoffs, duplicate source files,
-and superseded specifications remain under `to-review-and-delete/` and are
-listed in its README.
+The 2026-08-13 audit found no additional active document that was obsolete
+enough to move. Superseded UI/UX specifications, phase reports, review
+handoffs, and duplicate source files remain under `to-review-and-delete/` and
+are listed in its README. Agents must not scan that folder as current guidance.
 
 Before closing a change, confirm that the active documentation matches the
 implementation and that local `main` and GitHub `main` point to the same commit.
@@ -93,6 +98,9 @@ frontend and Go checks only.
 - [React rules](https://react.dev/reference/rules)
 - [TypeScript strict mode](https://www.typescriptlang.org/tsconfig/strict)
 - [WCAG 2.2](https://www.w3.org/TR/WCAG22/)
+- [WCAG 2.2: consistent navigation](https://www.w3.org/WAI/WCAG22/Understanding/consistent-navigation.html)
+- [Next.js linking and navigating](https://nextjs.org/docs/app/getting-started/linking-and-navigating)
+- [Next.js accessibility](https://nextjs.org/docs/architecture/accessibility)
 - [Go release history](https://go.dev/doc/devel/release)
 - [Podman documentation](https://docs.podman.io/_/downloads/en/v5.8.1/pdf/)
 - [Podman Quadlet units](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html)

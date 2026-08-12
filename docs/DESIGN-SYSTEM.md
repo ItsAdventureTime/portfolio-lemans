@@ -18,6 +18,10 @@ This design system draws from these sources:
    - **High-Readability Typography**: 16px baseline body text and high-contrast typography designed for users wearing glasses or viewing under shop lighting.
    - **Role-Aware RBAC Navigation**: Navigation items filtered by active role; explicit 403 "Access Restricted" views instead of silent redirects.
    - **Accessible Target Sizing**: Minimum 44x44px touch/click targets with focus ring states.
+   - **Workflow clarity**: The planned end-to-end workflow visualization and
+     navigation hierarchy are defined in
+     [`UI-UX-REVAMP-HANDOFF.md`](./UI-UX-REVAMP-HANDOFF.md); implementation must
+     preserve current route, role, and API contracts.
 
 ---
 

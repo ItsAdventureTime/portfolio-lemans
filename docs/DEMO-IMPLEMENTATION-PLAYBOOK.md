@@ -9,6 +9,11 @@ Use this guide for demo work. It takes precedence over older phase-completion
 matrices, historical credentials, and production-authentication documents.
 Those documents provide historical or future-production context only.
 
+The planned complete shell, navigation, and workflow-visualization redesign is
+specified in [`UI-UX-REVAMP-HANDOFF.md`](./UI-UX-REVAMP-HANDOFF.md). Until that
+handoff is implemented and verified, this playbook remains the source of truth
+for current routes, behavior, role simulation, and acceptance boundaries.
+
 ## 1. Demo mission and boundary
 
 The demo is the actively developed build. New features, removals,

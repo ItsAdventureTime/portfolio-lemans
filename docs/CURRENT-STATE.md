@@ -98,6 +98,10 @@ cryptographically random suffix to avoid collisions.
   requirements.
 - Customer detail pages now load `/api/customers/{id}/service-history` and show
   a linked service-history timeline of the customer's job orders.
+- A complete UI/UX and workflow-navigation revamp is planned from
+  [`UI-UX-REVAMP-HANDOFF.md`](./UI-UX-REVAMP-HANDOFF.md). The handoff is a
+  future-work contract; current route and behavior facts remain here and in the
+  demo playbook until that work is implemented and verified.
 - Remote deployment is intentionally not part of local verification and requires
   explicit user authorization.
 
