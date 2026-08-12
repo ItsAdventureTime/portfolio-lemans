@@ -259,7 +259,10 @@ read-only configuration mount. This is not host-root execution; it only avoids
 mapped-user permission failures on newly installed route fragments.
 On SELinux hosts, it also copies the existing Caddyfile label to newly installed
 files through `podman unshare chcon`; this is the documented follow-up for files
-moved into a `:Z` volume after container creation.
+moved into a `:Z` volume after container creation. If the running container still
+cannot read the new fragment, it restarts the existing rootless `caddy.service`
+from `/home/jk/.config/containers/systemd/caddy/` so Podman reapplies the mount
+label, then performs the normal graceful reload.
 
 ## 6. Demo runtime configuration
 

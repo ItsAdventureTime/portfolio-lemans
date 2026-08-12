@@ -380,6 +380,8 @@ ensure_caddy_route() {
     # Quadlet's :Z mount labels existing files when Caddy starts. Files copied
     # into that mount later may need the same label before a reload/restart.
     if command -v chcon >/dev/null 2>&1 && [[ -f "$config_backup" ]]; then
+      podman unshare chcon -Rt container_file_t "$config_dir" \
+        >/dev/null 2>&1 || true
       podman unshare chcon --reference="$config_backup" \
         "$CADDY_CONFIG_FILE" "$route_file" >/dev/null 2>&1 || true
     fi
@@ -398,16 +400,24 @@ ensure_caddy_route() {
     install -m 0644 "$temp_config" "$CADDY_CONFIG_FILE"
   fi
   relabel_caddy_files
-  if ! caddy_cli fmt "/etc/caddy/${CADDY_ROUTE_TARGET_NAME}" > "$temp_route" ||
-     ! caddy_cli fmt /etc/caddy/Caddyfile > "$formatted"; then
-    install -m 0644 "$config_backup" "$CADDY_CONFIG_FILE"
-    [[ -f "$route_backup" ]] && install -m 0644 "$route_backup" "$route_file" || rm -f "$route_file"
-    relabel_caddy_files
-    echo "Error: Caddy formatting failed." >&2
-    exit 1
+  format_caddy_inputs() {
+    caddy_cli fmt "/etc/caddy/${CADDY_ROUTE_TARGET_NAME}" > "$temp_route" &&
+      caddy_cli fmt /etc/caddy/Caddyfile > "$formatted"
+  }
+  if ! format_caddy_inputs; then
+    echo "Caddy config mount was not readable; restarting caddy.service to reapply its rootless :Z mount label." >&2
+    if ! systemctl --user restart caddy.service || ! format_caddy_inputs; then
+      install -m 0644 "$config_backup" "$CADDY_CONFIG_FILE"
+      [[ -f "$route_backup" ]] && install -m 0644 "$route_backup" "$route_file" || rm -f "$route_file"
+      relabel_caddy_files
+      systemctl --user restart caddy.service >/dev/null 2>&1 || true
+      echo "Error: Caddy formatting failed after restarting caddy.service." >&2
+      exit 1
+    fi
   fi
   install -m 0644 "$temp_route" "$route_file"
   install -m 0644 "$formatted" "$CADDY_CONFIG_FILE"
+  relabel_caddy_files
   if ! caddy_cli validate --config /etc/caddy/Caddyfile --adapter caddyfile; then
     install -m 0644 "$config_backup" "$CADDY_CONFIG_FILE"
     [[ -f "$route_backup" ]] && install -m 0644 "$route_backup" "$route_file" || rm -f "$route_file"

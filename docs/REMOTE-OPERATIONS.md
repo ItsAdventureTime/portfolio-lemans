@@ -34,7 +34,10 @@ The remote demo deploy installs it into the existing Caddy configuration
 directory, adds its import immediately before the DelegateOps static fallback,
 formats both Caddyfile inputs, validates the complete configuration, and then
 performs a graceful Caddy reload. Existing Caddy mounts and unrelated app
-routes remain untouched.
+routes remain untouched. The Caddy Quadlet is expected at
+`/home/jk/.config/containers/systemd/caddy/`, with its configuration and data
+under `/home/jk/caddy/`; if a newly added `:Z`-mounted file is unreadable, the
+activation script restarts `caddy.service` once to reapply the mount label.
 
 ```caddy
 delegateops.business {
