@@ -17,8 +17,13 @@ City, Pampanga.
   contains the demo and production source.
 - **Release path**: Validate the demo source and image lineage before you
   promote it with production runtime settings.
-- **Git and docs**: Keep work on `main`. Use `gh` over HTTPS for GitHub
-  operations, and update the affected guides with each change. See
+- **Git and docs**: Keep work on `main`. Commit locally, synchronize remote
+  `main` after validation, and confirm both refs share one SHA. Use `gh` as the
+  only GitHub-facing CLI over HTTPS; `git commit` is the necessary local
+  commit primitive because `gh` has no local commit command. Do not use SSH,
+  SSH keys, or passkeys. Delete non-`main` branches after inspecting their
+  protection and unique commits, and update affected guides with each change.
+  See
   [`docs/DOCUMENTATION-INDEX.md`](./docs/DOCUMENTATION-INDEX.md).
 - **Business record**: A Job Order (`JO` / `RA`) connects estimates,
   procurement, OPEX, billing, and job profitability.

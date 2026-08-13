@@ -135,9 +135,15 @@ cryptographically random suffix to avoid collisions.
 ## Git policy
 
 - Work remains on `main`; do not create or switch to feature branches.
-- GitHub remote inspection, synchronization, and branch administration use the
-  official `gh` CLI over HTTPS.
-- Never delete `main`. Before deleting another branch, inspect its protection
-  status and compare it with `main`.
+- Complete validated changes require a local commit and synchronization to
+  remote `main`; confirm both refs point to the same SHA before reporting
+  completion.
+- The official `gh` CLI is the only GitHub-facing CLI. Use HTTPS with
+  `gh auth setup-git --hostname github.com`; never use SSH remotes, SSH keys,
+  passkeys, or another GitHub transport. `git commit` remains the necessary
+  local commit primitive because `gh` has no local commit command.
+- Inspect all branches after each change. Delete every non-`main` branch locally
+  and remotely after checking protection and unique commits. Never delete
+  `main`.
 - The complete documentation status map is maintained in
   [`DOCUMENTATION-INDEX.md`](./DOCUMENTATION-INDEX.md).

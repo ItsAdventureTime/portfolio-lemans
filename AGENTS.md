@@ -23,10 +23,17 @@ affected active documentation and guides so they match the implemented code,
 configuration, scripts, deployment behavior, and verification results. Keep
 historical material separate from current operating guidance.
 
-Commit the complete, validated change locally. Use `gh` for GitHub
-authentication and remote operations, then confirm that local `main` and remote
-`main` point to the same commit. Do not report work as complete while required
-documentation or repository synchronization is outstanding.
+Commit the complete, validated change locally. For every completed change,
+synchronize the local and remote `main` branches before reporting completion.
+Use `gh` as the only GitHub-facing CLI: authenticate with HTTPS and use
+`gh auth setup-git --hostname github.com` as the Git credential helper. The
+local commit primitive remains `git commit` because GitHub CLI has no local
+commit command; do not use SSH remotes, SSH keys, passkeys, or another remote
+transport. Confirm that local `main` and remote `main` point to the same commit.
+If any branch other than `main` exists, inspect its protection and unique
+commits, then remove the local and remote branch with `gh` after confirming it
+is not `main` and has no required work. Do not report work as complete while
+documentation, branch cleanup, or repository synchronization is outstanding.
 
 ## Architectural Mandates
 
@@ -72,7 +79,7 @@ documentation or repository synchronization is outstanding.
     `.env`/`EnvironmentFile=` files; credential-bearing generated Quadlets are
     mode `600`.
 
-8. **Git & GitHub Operations Standard**: Use the GitHub official CLI (`gh`) for all GitHub operations: authentication, remote inspection, pushes, pulls/synchronization, branch or PR operations, and API checks. Configure HTTPS with `gh auth setup-git --hostname github.com`; never use SSH Git remotes, SSH keys, or passkeys for GitHub transport. Local commit object creation and local worktree inspection still require the `git` executable because `gh` does not replace local Git. Keep the worktree and remote on `main`; do not create feature/review branches. Never delete `main`; inspect protection and unique commits before deleting another branch.
+8. **Git & GitHub Operations Standard**: Use the GitHub official CLI (`gh`) as the only GitHub-facing CLI for authentication, remote inspection, HTTPS credential setup, pushes, pulls/synchronization, branch deletion, PR operations, and API checks. Configure HTTPS with `gh auth setup-git --hostname github.com`; never use SSH Git remotes, SSH keys, passkeys, or another GitHub transport. The local commit and local worktree primitives necessarily use `git` because `gh` has no local commit command. Keep the worktree and remote on `main`; do not create feature/review branches. After each validated change, commit locally, synchronize remote `main`, and confirm both refs have the same SHA. Inspect all branches; delete every non-`main` branch locally and remotely after checking protection and unique commits. Never delete `main`.
 
 ## Demo Build Authority
 
