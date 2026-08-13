@@ -18,88 +18,117 @@ export default async function DashboardOverview() {
   const data = await getDashboard(role);
 
   return (
-    <div className="space-y-8">
-      {/* Page Heading & Quick Actions */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-            Operations Overview
-          </h1>
-          <p className="text-sm text-slate-500 mt-1">
-            Real-time status tracking and end-to-end workflow management for Le Mans Service Plus.
-          </p>
-        </div>
-        <div className="flex items-center gap-2.5 flex-wrap">
-          <Link
-            href="/customers"
-            className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-3.5 py-2.5 rounded-lg min-h-11 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
-          >
-            <Users className="w-4 h-4" />
-            <span>New Customer / Vehicle</span>
-          </Link>
-          <Link
-            href="/quotations"
-            className="inline-flex items-center gap-2 bg-brand-primary hover:bg-brand-primary-hover text-white text-xs font-semibold px-3.5 py-2.5 rounded-lg min-h-11 shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
-          >
-            <Plus className="w-4 h-4" />
-            <span>New Sales Quote</span>
-          </Link>
-        </div>
-      </div>
-
-      {/* Connected 7-stage Visualizer */}
-      <EndToEndWorkflowVisualizer counts={data.counts} />
-
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard
-          label="Active Job Orders"
-          value={data.counts.activeJobOrders}
-          hint="Work in progress"
-        />
-        <StatCard
-          label="Parts Pending"
-          value={data.counts.partsPendingJobOrders}
-          hint="Awaiting inventory / PR"
-        />
-        <StatCard
-          label="Completed JOs"
-          value={data.counts.completedJobOrders}
-          hint="Ready for billing"
-        />
-        <StatCard
-          label="Pending PRs"
-          value={data.counts.pendingPurchaseRequests}
-          hint="Awaiting GM approval"
-        />
-      </div>
-
-      {/* Financial Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <MoneyCard label="Total Billed Revenue" value={formatPeso(data.financials.billedCents)} />
-        <MoneyCard label="Total Actual Cost" value={formatPeso(data.financials.actualCostCents)} />
-        <MoneyCard
-          label="Net Profit"
-          value={formatPeso(data.financials.netProfitCents)}
-          highlight={data.financials.netProfitCents > 0}
-        />
-      </div>
-
-      {/* Recent Job Orders Table */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="px-5 py-4 border-b border-slate-200 bg-slate-50/70 flex items-center justify-between">
+    <div className="space-y-8 sm:space-y-10">
+      <section
+        className="surface-card relative overflow-hidden p-5 sm:p-7"
+        aria-labelledby="overview-heading"
+      >
+        <div className="absolute inset-y-0 left-0 w-1 bg-brand-primary" aria-hidden="true" />
+        <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
           <div>
-            <h2 className="font-bold text-slate-900 text-base">Recent Job Orders</h2>
-            <p className="text-xs text-slate-500">
-              Live operational status and assigned technicians
+            <p className="utility-label mb-2 text-brand-primary">Today&apos;s operating picture</p>
+            <h1
+              id="overview-heading"
+              className="text-3xl font-extrabold tracking-[-0.03em] text-slate-950 sm:text-4xl"
+            >
+              Operations Overview
+            </h1>
+            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">
+              See the work moving through LeMans Service Plus and take the next action from one calm
+              operating view.
             </p>
+          </div>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <Link href="/customers" className="action-secondary">
+              <Users className="h-4 w-4" aria-hidden="true" />
+              <span>New customer / vehicle</span>
+            </Link>
+            <Link href="/quotations" className="action-primary">
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              <span>New sales quote</span>
+            </Link>
+          </div>
+        </div>
+      </section>
+
+      <section aria-labelledby="workflow-heading">
+        <div className="sr-only">
+          <h2 id="workflow-heading">End-to-end workflow</h2>
+        </div>
+        <EndToEndWorkflowVisualizer counts={data.counts} />
+      </section>
+
+      <section aria-labelledby="operational-counts-heading">
+        <div className="mb-3 flex items-end justify-between gap-4">
+          <div>
+            <p className="utility-label">Operational counts</p>
+            <h2 id="operational-counts-heading" className="mt-1 text-lg font-bold text-slate-950">
+              Work requiring attention
+            </h2>
+            <p className="mt-1 text-xs text-slate-500">
+              Seeded demo data, updated with the active role
+            </p>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 sm:gap-4">
+          <StatCard
+            label="Active Job Orders"
+            value={data.counts.activeJobOrders}
+            hint="Work in progress"
+          />
+          <StatCard
+            label="Parts Pending"
+            value={data.counts.partsPendingJobOrders}
+            hint="Awaiting inventory / PR"
+          />
+          <StatCard
+            label="Completed JOs"
+            value={data.counts.completedJobOrders}
+            hint="Ready for billing"
+          />
+          <StatCard
+            label="Pending PRs"
+            value={data.counts.pendingPurchaseRequests}
+            hint="Awaiting GM approval"
+          />
+        </div>
+      </section>
+
+      <section aria-labelledby="financial-summary-heading">
+        <div className="mb-3">
+          <p className="utility-label">Financial snapshot</p>
+          <h2 id="financial-summary-heading" className="mt-1 text-lg font-bold text-slate-950">
+            Revenue and cost position
+          </h2>
+        </div>
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-3 sm:gap-4">
+          <MoneyCard label="Total Billed Revenue" value={formatPeso(data.financials.billedCents)} />
+          <MoneyCard
+            label="Total Actual Cost"
+            value={formatPeso(data.financials.actualCostCents)}
+          />
+          <MoneyCard
+            label="Net Profit"
+            value={formatPeso(data.financials.netProfitCents)}
+            highlight={data.financials.netProfitCents > 0}
+          />
+        </div>
+      </section>
+
+      <section className="surface-card overflow-hidden" aria-labelledby="recent-orders-heading">
+        <div className="flex items-center justify-between gap-4 border-b border-slate-200 bg-slate-50/70 px-5 py-4 sm:px-6">
+          <div>
+            <h2 id="recent-orders-heading" className="text-base font-bold text-slate-950">
+              Recent job orders
+            </h2>
+            <p className="text-xs text-slate-500">Current status and assigned technicians</p>
           </div>
           <Link
             href="/job-orders"
-            className="inline-flex items-center gap-1 text-xs font-semibold text-brand-primary hover:text-brand-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary rounded px-2 py-1"
+            className="inline-flex min-h-11 items-center gap-1 rounded-md px-2 text-xs font-bold text-brand-primary transition-colors hover:bg-brand-light hover:text-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
           >
-            <span>View All JOs</span>
-            <ArrowUpRight className="w-3.5 h-3.5" />
+            <span>View all</span>
+            <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
           </Link>
         </div>
 
@@ -123,8 +152,8 @@ export default async function DashboardOverview() {
                   className="flex items-center justify-between px-5 py-3.5 hover:bg-slate-50/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-inset min-h-11"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-slate-100 flex items-center justify-center text-slate-700 font-semibold text-xs shrink-0">
-                      <Wrench className="w-4 h-4" />
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-700">
+                      <Wrench className="h-4 w-4" aria-hidden="true" />
                     </div>
                     <div>
                       <p className="font-bold text-slate-900 text-sm tracking-tight">{jo.jo_no}</p>
@@ -139,22 +168,22 @@ export default async function DashboardOverview() {
             )
           )}
         </div>
-      </div>
+      </section>
     </div>
   );
 }
 
 function StatCard({ label, value, hint }: { label: string; value: number; hint?: string }) {
   return (
-    <div className="bg-white rounded-xl border border-slate-200 p-4 sm:p-5 shadow-sm flex flex-col justify-between">
+    <article className="surface-card flex min-h-32 flex-col justify-between border-t-2 border-t-slate-300 p-4 sm:p-5">
       <div>
-        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{label}</p>
-        <p className="text-2xl sm:text-3xl font-extrabold text-slate-900 tabular-nums mt-1">
+        <p className="utility-label">{label}</p>
+        <p className="mt-2 text-2xl font-extrabold tracking-tight text-slate-950 tabular-nums sm:text-3xl">
           {value}
         </p>
       </div>
-      {hint && <p className="text-[11px] text-slate-400 mt-2">{hint}</p>}
-    </div>
+      {hint && <p className="mt-2 text-[11px] text-slate-500">{hint}</p>}
+    </article>
   );
 }
 
@@ -168,15 +197,15 @@ function MoneyCard({
   highlight?: boolean;
 }) {
   return (
-    <div
-      className={`bg-white rounded-xl border p-4 sm:p-5 shadow-sm ${highlight ? 'border-emerald-300 bg-emerald-50/10' : 'border-slate-200'}`}
+    <article
+      className={`surface-card border-t-2 p-4 sm:p-5 ${highlight ? 'border-t-emerald-500 bg-emerald-50/30' : 'border-t-slate-300'}`}
     >
-      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">{label}</p>
+      <p className="utility-label">{label}</p>
       <p
-        className={`text-xl sm:text-2xl font-extrabold tabular-nums mt-1 ${highlight ? 'text-emerald-700' : 'text-slate-900'}`}
+        className={`mt-2 text-xl font-extrabold tracking-tight tabular-nums sm:text-2xl ${highlight ? 'text-emerald-700' : 'text-slate-950'}`}
       >
         {value}
       </p>
-    </div>
+    </article>
   );
 }

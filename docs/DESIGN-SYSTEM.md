@@ -1,6 +1,6 @@
 # Design system
 
-- **Document Version**: 2.0.1
+- **Document Version**: 2.1.0
 - **Updated**: 2026-08-14
 - **Audience**: UI engineers, reviewers, and mobile developers (SwiftUI / Jetpack Compose)
 - **Client Brand**: LeMans Service Plus OPC (Angeles City, Pampanga)
@@ -11,7 +11,7 @@
 
 This design system draws from these sources:
 
-1. **Client Brand Identity**: Official logo for **LeMans Service Plus OPC** (`references/branding/logo.jpg`), featuring a racing-inspired shield badge with LeMans Racing Red (`#d32f2f`), Crisp White (`#ffffff`), and Dark Slate (`#0f172a`). The runtime copy is `public/lemans-service-plus-logo.jpg`, rendered in `Header` and `DemoSplash` and registered as the app icon.
+1. **Client Brand Identity**: Official logo for **LeMans Service Plus OPC** (`references/branding/logo.jpg`), featuring a racing-inspired shield badge with LeMans Racing Red (`#d32f2f`), Crisp White (`#ffffff`), and Dark Slate (`#0f172a`). The runtime copy is `public/lemans-service-plus-logo.jpg`, rendered in `Header` and `DemoSplash` with base-path-aware direct asset delivery and registered as the app icon.
 2. **UI Architecture Inspiration**: ColdTrace Operations Dashboard (`references/design-inspiration/coldtrace-ui-mockup.webp`), featuring a modern light interface, elevated cards, subtle borders, high-visibility metric displays, and data-dense tables.
 3. **UI context guides**: Blueprints in `references/prompts/` define reusable interface patterns, four visual states, and cross-platform alignment for web, iOS (SwiftUI), and Android (Jetpack Compose).
 4. **2026 Modern UX & WCAG 2.2 Standards**:
@@ -72,8 +72,18 @@ This design system draws from these sources:
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+  --shadow-surface: 0 18px 42px -30px rgba(15, 23, 42, 0.48);
+  --shadow-raised: 0 14px 30px -24px rgba(211, 47, 47, 0.45);
 }
 ```
+
+The current implementation uses the same tokens in `src/app/globals.css` and
+adds a restrained dot texture to the Off-White canvas. Texture is decorative
+only and never carries status meaning. Reusable `.surface-card`,
+`.surface-card-muted`, `.action-primary`, `.action-secondary`, and
+`.utility-label` classes are available to shared shell and overview surfaces.
+Logo URLs use `getBasePath()` and `unoptimized` image delivery so the branded
+asset remains valid under both `/lemans/demo` and `/lemans` deployments.
 
 ---
 
@@ -102,7 +112,7 @@ This design system draws from these sources:
 1. **Role-Aware Navigation**:
    - `Navbar` components MUST inspect the active user's permissions via `hasPermission(role, permission)`.
    - Links for un-permitted modules (e.g. `Accounting` for `ROLE-GM`) MUST be filtered out of the navigation menu.
-   - Navigation implementation: `src/components/Navbar.tsx` accepts a `role` prop and filters `navItems` by permission. Active tab uses LeMans Red (`#d32f2f`).
+   - Navigation implementation: `src/components/Navbar.tsx` accepts a `role` prop, keeps Overview visible as the shared landing surface, filters grouped workspaces by permission, and uses `stripBasePath()` for active-route state. Active tab uses LeMans Red (`#d32f2f`).
 2. **Explicit 403 Access Restricted View**:
    - When an un-permitted user attempts to access a restricted URL directly, the page MUST render a dedicated `<AccessDenied />` component.
    - Component location: `src/components/AccessDenied.tsx`.
@@ -111,7 +121,22 @@ This design system draws from these sources:
 
 ---
 
-## 5. Mandatory Multi-State Visual UI Contract
+## 5. Shared primitive and state conventions
+
+- `SectionCard` provides a titled, optionally described surface with an optional
+  action slot and a generated or caller-supplied heading id.
+- `DataTable` keeps genuinely wide content inside an overflow region, uses
+  scoped column headers, muted row hover, the shared surface treatment, and
+  optional loading/error surfaces with an action slot for retry.
+- `EmptyState` is a composed instructional surface rather than a blank panel.
+- `FormField` provides a block label, required-field text alternative, field
+  description, focus state, and inline error association.
+- `Skeleton` uses `motion-safe:animate-pulse`; reduced-motion users see no
+  continuous loading animation.
+- `StatusBadge` uses compact bordered status labels. Red remains reserved for
+  rejected/error semantics; the brand red is not used as a general alert theme.
+
+## 6. Mandatory Multi-State Visual UI Contract
 
 Every dynamic component MUST explicitly implement four discrete visual UI states:
 
@@ -122,7 +147,7 @@ Every dynamic component MUST explicitly implement four discrete visual UI states
 
 ---
 
-## 6. Accessibility & Native Mobile Alignment
+## 7. Accessibility & Native Mobile Alignment
 
 - **WCAG 2.2 target**:
   - Interactive targets meet a minimum **44x44px** size for touch and pointer input.
@@ -134,7 +159,7 @@ Every dynamic component MUST explicitly implement four discrete visual UI states
 
 ---
 
-## 7. Demo Shell, Motion, and Role Simulation
+## 8. Demo Shell, Motion, and Role Simulation
 
 The current demo profile has no real authentication. A login-like splash may
 offer `Enter as an Admin` as demo theatre; that action enters the `Admin`

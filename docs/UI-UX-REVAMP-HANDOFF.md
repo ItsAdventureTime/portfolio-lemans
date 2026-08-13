@@ -2,7 +2,7 @@
 
 - **Status**: IMPLEMENTED & VERIFIED
 
-- **Version**: 1.0.0
+- **Version**: 1.1.0
 - **Updated**: 2026-08-14
 - **Audience**: Google Antigravity, UI engineers, UX reviewers, and coding agents
 - **Product**: Le Mans Operations & Job Cost Management System demo
@@ -30,6 +30,53 @@ The redesign must reduce visual sprawl, shorten navigation paths, make the
 workflow legible at a glance, and preserve the fictional data and role-based
 demo behavior already implemented.
 
+### Current implementation pass
+
+The current shell and overview pass implements the following bounded changes:
+
+- `Header` uses `public/lemans-service-plus-logo.jpg` as the visible brand asset,
+  adds a compact service-center eyebrow, and keeps `Demo mode` and the active
+  role visible in the utility header. The logo URL is base-path-aware and uses
+  direct public-asset delivery so it renders correctly in the demo and
+  production subpaths.
+- `Navbar` keeps the existing role-filtered route map, but presents it as three
+  keyboard-accessible groups: Workspace, Control, and Finance. Active styling
+  is calculated after removing the configured base path, so `/lemans/demo` and
+  `/lemans` retain the same route state. Overview remains available as the
+  shared landing surface for every simulated role.
+- `DemoSplash` uses a responsive two-column entry surface with the existing
+  `Enter as an Admin` demo-theatre action, a visible no-auth explanation, and a
+  non-interactive workflow preview. Entry errors and busy state remain inline.
+- The overview now has a branded operating-picture header, decision-oriented
+  count and finance sections, and a quieter recent-job-order surface. Existing
+  data fetches, links, role behavior, and status values are unchanged.
+- Shared `SectionCard`, `DataTable`, `EmptyState`, `FormField`, `Skeleton`, and
+  `StatusBadge` primitives now share the same surface, spacing, focus, state,
+  table-header, and semantic-markup conventions. `DataTable` also exposes
+  optional loading and error surfaces with an action slot for retry.
+- Global CSS adds the off-white micro-texture, tinted elevation, stronger focus
+  treatment, motion-safe skeletons, reduced-motion support, and reusable action
+  and surface classes. The visual foundation remains Racing Red `#d32f2f`,
+  Deep Slate `#0f172a`, and Off-White `#f8fafc`.
+
+### Verification recorded for this pass
+
+- `npm run format:check`, `npm run lint`, `npm run typecheck`, and
+  `npm run build` pass in a disposable rootless Podman container.
+- `./scripts/build.sh demo` passes and produces the required demo web and Go
+  image tags.
+- `./scripts/build.sh prod` passes and produces the required production web and
+  Go image tags from the same source.
+- `./scripts/verify-e2e.sh` passes all 33 desktop, mobile, and reduced-motion
+  Playwright tests, including focus rings, 44px targets, role switching,
+  workflow mutations, and seeded data.
+- Browser spot checks confirm both logo instances resolve under
+  `/lemans/demo/`, mobile grouped navigation opens, and Overview remains
+  available to the DCS simulated role.
+- The full Go/API `verify-local.sh` pass remains the broader repository
+  validation step when backend changes are included; this UI-only pass did not
+  change backend sources.
+
 ## 2. Current product map
 
 The current shell exposes these modules through `src/components/Navbar.tsx`:
@@ -56,9 +103,9 @@ Backblaze presigned URLs. Do not duplicate those rules in the UI.
 ### Shell and navigation
 
 - Keep the branded LeMans Service Plus logo visible in the header and splash.
-- Replace the long flat navigation strip with a clear information hierarchy:
-  a primary workspace switcher, a compact active-workflow trail, and a role-aware
-  secondary navigation or command menu.
+- Use the grouped primary navigation rail (Workspace, Control, and Finance) as
+  the compact active-workflow command surface. Keep the breadcrumb as the
+  secondary context trail on non-overview routes.
 - Keep Overview, Customers, Job Orders, Purchasing, Invoices, and Accounting
   easy to reach. Group Quotations with Job Orders and DCS with Expenses only if
   the grouping remains obvious and keyboard accessible.
@@ -156,7 +203,7 @@ ambiguous labels. Preserve domain identifiers and status values exactly.
 
 ## 6. Delivered components and maintenance checks
 
-1. Revised shell and navigation model with a route/state map.
+1. Revised shell and grouped navigation model with a route/state map.
 2. Reusable workflow visualization used on Overview and the relevant detail
    pages, not a one-off illustration.
 3. Redesigned list, detail, create, approve, payment, and costing experiences.
@@ -165,9 +212,8 @@ ambiguous labels. Preserve domain identifiers and status values exactly.
 6. Keyboard and screen-reader checks for navigation, filters, tables, dialogs,
    steppers, and mutation feedback.
 7. Updated screenshots or visual test evidence where the repository supports it.
-8. Synchronized `CURRENT-STATE.md`, `DEMO-IMPLEMENTATION-PLAYBOOK.md`,
-   `DESIGN-SYSTEM.md`, and this handoff when behavior or acceptance criteria
-   change.
+8. Synchronized `DESIGN-SYSTEM.md` and this handoff with the current shell,
+   surface, primitive, and motion implementation.
 
 ## 7. Acceptance checklist
 

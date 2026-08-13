@@ -27,12 +27,12 @@ export default function Breadcrumb() {
   return (
     <nav
       aria-label="Breadcrumb"
-      className="bg-slate-50 border-b border-slate-200 py-2.5 px-4 text-xs font-medium text-slate-600"
+      className="border-b border-slate-200 bg-white/65 px-4 py-2 text-xs font-medium text-slate-600 backdrop-blur sm:px-6 lg:px-8"
     >
-      <div className="w-full max-w-screen-2xl mx-auto flex items-center flex-wrap gap-1.5">
+      <div className="mx-auto flex w-full max-w-screen-2xl flex-wrap items-center gap-1.5">
         <Link
           href="/"
-          className="inline-flex min-h-11 items-center gap-1 rounded px-2 py-2 text-slate-500 transition-colors hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+          className="inline-flex min-h-11 items-center gap-1 rounded-md px-2 py-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
         >
           <Home className="w-3.5 h-3.5" aria-hidden="true" />
           <span>Overview</span>
@@ -53,7 +53,7 @@ export default function Breadcrumb() {
               ) : (
                 <Link
                   href={currentPath}
-                  className="inline-flex min-h-11 items-center rounded px-2 py-2 text-slate-500 transition-colors hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+                  className="inline-flex min-h-11 items-center rounded-md px-2 py-2 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
                 >
                   {label}
                 </Link>

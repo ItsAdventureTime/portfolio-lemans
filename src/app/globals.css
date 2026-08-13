@@ -25,12 +25,20 @@
   --status-danger-text: #dc2626;
   --status-info-bg: #eff6ff;
   --status-info-text: #2563eb;
+
+  --shadow-surface: 0 18px 42px -30px rgba(15, 23, 42, 0.48);
+  --shadow-raised: 0 14px 30px -24px rgba(211, 47, 47, 0.45);
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   background-color: var(--bg-app);
   color: var(--text-primary);
   font-family:
+    'Avenir Next',
     system-ui,
     -apple-system,
     BlinkMacSystemFont,
@@ -40,6 +48,21 @@ body {
     Ubuntu,
     Cantarell,
     sans-serif;
+  background-image:
+    radial-gradient(circle at 8% 0%, rgba(211, 47, 47, 0.08), transparent 25rem),
+    radial-gradient(rgba(15, 23, 42, 0.035) 0.7px, transparent 0.7px);
+  background-size:
+    auto,
+    18px 18px;
+  font-feature-settings:
+    'tnum' 1,
+    'ss01' 1;
+  text-rendering: optimizeLegibility;
+}
+
+::selection {
+  background: rgba(211, 47, 47, 0.18);
+  color: var(--text-primary);
 }
 
 a:focus-visible,
@@ -50,6 +73,8 @@ textarea:focus-visible,
 [tabindex]:focus-visible {
   outline: none;
   box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.35);
+  outline: 2px solid transparent;
+  outline-offset: 2px;
 }
 
 button,
@@ -60,6 +85,9 @@ textarea,
 input[type='file']::file-selector-button {
   min-height: 44px;
   min-width: 44px;
+  transition-duration: 180ms;
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
+  transition-timing-function: ease-out;
 }
 
 select {
@@ -70,6 +98,81 @@ select {
 
 textarea {
   min-height: 44px;
+}
+
+button,
+a,
+select,
+input,
+textarea {
+  transition-duration: 180ms;
+  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
+  transition-timing-function: ease-out;
+}
+
+@layer components {
+  .surface-card {
+    border: 1px solid var(--border-subtle);
+    border-radius: 1rem;
+    background: var(--bg-surface);
+    box-shadow: var(--shadow-surface);
+  }
+
+  .surface-card-muted {
+    border: 1px solid rgba(203, 213, 225, 0.8);
+    border-radius: 0.875rem;
+    background: rgba(255, 255, 255, 0.72);
+  }
+
+  .utility-label {
+    color: var(--text-tertiary);
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    line-height: 1rem;
+    text-transform: uppercase;
+  }
+
+  .action-primary,
+  .action-secondary {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border-radius: 0.625rem;
+    padding: 0.625rem 0.875rem;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    line-height: 1.25rem;
+  }
+
+  .action-primary {
+    background: var(--brand-primary);
+    color: white;
+    box-shadow: var(--shadow-raised);
+  }
+
+  .action-primary:hover {
+    background: var(--brand-primary-hover);
+    transform: translateY(-1px);
+  }
+
+  .action-primary:active,
+  .action-secondary:active {
+    transform: translateY(1px) scale(0.99);
+  }
+
+  .action-secondary {
+    border: 1px solid var(--border-strong);
+    background: rgba(255, 255, 255, 0.84);
+    color: var(--text-primary);
+  }
+
+  .action-secondary:hover {
+    border-color: var(--brand-primary);
+    background: var(--brand-primary-light);
+  }
 }
 
 @keyframes loading-bar {

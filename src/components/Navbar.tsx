@@ -18,38 +18,121 @@ import {
   X,
 } from 'lucide-react';
 import { hasPermission, ProjectRole } from '@/lib/roles';
+import { stripBasePath } from '@/lib/base-path';
 
-const navItems: {
+type NavItem = {
   href: string;
   label: string;
   icon: React.ElementType;
   action: Parameters<typeof hasPermission>[1];
-}[] = [
-  { href: '/', label: 'Overview', icon: LayoutDashboard, action: 'customerCreate' },
-  { href: '/customers', label: 'Customers', icon: Users, action: 'customerCreate' },
-  { href: '/quotations', label: 'Quotations', icon: FileText, action: 'salesQuotationCreate' },
-  { href: '/job-orders', label: 'Job Orders', icon: Wrench, action: 'joChangeStatus' },
-  { href: '/purchasing', label: 'Purchasing', icon: ShoppingCart, action: 'prCreate' },
-  { href: '/expenses', label: 'Expenses', icon: Receipt, action: 'opexCreate' },
-  { href: '/dcs', label: 'DCS', icon: Wallet, action: 'disburseRecordPayment' },
-  { href: '/invoices', label: 'Invoices', icon: FileCheck, action: 'invoiceCreate' },
-  { href: '/job-costing', label: 'Job Costing', icon: Calculator, action: 'viewJobCosting' },
-  { href: '/accounting', label: 'Accounting', icon: Landmark, action: 'viewAccounting' },
+};
+
+const navGroups: { label: string; items: NavItem[] }[] = [
+  {
+    label: 'Workspace',
+    items: [
+      {
+        href: '/',
+        label: 'Overview',
+        icon: LayoutDashboard,
+        action: 'customerCreate',
+      },
+      {
+        href: '/customers',
+        label: 'Customers',
+        icon: Users,
+        action: 'customerCreate',
+      },
+      {
+        href: '/quotations',
+        label: 'Quotations',
+        icon: FileText,
+        action: 'salesQuotationCreate',
+      },
+      {
+        href: '/job-orders',
+        label: 'Job Orders',
+        icon: Wrench,
+        action: 'joChangeStatus',
+      },
+    ],
+  },
+  {
+    label: 'Control',
+    items: [
+      {
+        href: '/purchasing',
+        label: 'Purchasing',
+        icon: ShoppingCart,
+        action: 'prCreate',
+      },
+      {
+        href: '/expenses',
+        label: 'Expenses',
+        icon: Receipt,
+        action: 'opexCreate',
+      },
+      {
+        href: '/dcs',
+        label: 'DCS',
+        icon: Wallet,
+        action: 'disburseRecordPayment',
+      },
+    ],
+  },
+  {
+    label: 'Finance',
+    items: [
+      {
+        href: '/invoices',
+        label: 'Invoices',
+        icon: FileCheck,
+        action: 'invoiceCreate',
+      },
+      {
+        href: '/job-costing',
+        label: 'Job Costing',
+        icon: Calculator,
+        action: 'viewJobCosting',
+      },
+      {
+        href: '/accounting',
+        label: 'Accounting',
+        icon: Landmark,
+        action: 'viewAccounting',
+      },
+    ],
+  },
 ];
 
 export default function Navbar({ role }: { role: ProjectRole }) {
   const pathname = usePathname();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const visibleItems = navItems.filter((item) => hasPermission(role, item.action));
+  const currentPath = stripBasePath(pathname ?? '/');
+
+  function isActive(item: NavItem) {
+    return item.href === '/'
+      ? currentPath === '/'
+      : currentPath === item.href || currentPath.startsWith(`${item.href}/`);
+  }
+
+  function canSeeItem(item: NavItem) {
+    // Overview is the shared landing surface for every simulated role. The
+    // mutation permission still filters the role-specific workspaces.
+    return item.href === '/' || hasPermission(role, item.action);
+  }
 
   return (
-    <nav className="bg-slate-900 text-white" aria-label="Main Navigation">
-      <div className="w-full max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav
+      className="border-b border-slate-800 bg-slate-900 text-white"
+      aria-label="Primary navigation"
+    >
+      <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between lg:justify-start">
           <button
             type="button"
-            className="lg:hidden inline-flex min-h-11 min-w-11 items-center justify-center rounded p-2 text-slate-300 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg p-2 text-slate-300 transition-colors hover:bg-slate-800 hover:text-white active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 lg:hidden"
+            onClick={() => setMobileMenuOpen((open) => !open)}
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-nav-menu"
             aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
@@ -57,61 +140,79 @@ export default function Navbar({ role }: { role: ProjectRole }) {
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
 
-          <ul className="hidden lg:flex items-center gap-1 overflow-x-auto">
-            {visibleItems.map((item) => {
-              const Icon = item.icon;
-              const isActive =
-                item.href === '/'
-                  ? pathname === '/'
-                  : pathname === item.href || pathname.startsWith(`${item.href}/`);
+          <div className="hidden items-center gap-3 overflow-x-auto lg:flex">
+            {navGroups.map((group, groupIndex) => {
+              const visibleItems = group.items.filter(canSeeItem);
+              if (visibleItems.length === 0) return null;
+
               return (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    className={`flex items-center gap-2 px-3.5 py-3 min-h-11 text-sm font-medium whitespace-nowrap border-b-2 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-inset ${
-                      isActive
-                        ? 'border-brand-primary text-white font-semibold bg-slate-800/60'
-                        : 'border-transparent text-slate-300 hover:text-white hover:bg-slate-800'
-                    }`}
-                    aria-current={isActive ? 'page' : undefined}
-                  >
-                    <Icon className="w-4 h-4 shrink-0" />
-                    {item.label}
-                  </Link>
-                </li>
+                <ul
+                  key={group.label}
+                  className={`flex items-center gap-1 ${groupIndex > 0 ? 'border-l border-slate-700 pl-3' : ''}`}
+                  aria-label={group.label}
+                >
+                  {visibleItems.map((item) => {
+                    const Icon = item.icon;
+                    const active = isActive(item);
+                    return (
+                      <li key={item.href}>
+                        <Link
+                          href={item.href}
+                          className={`group flex min-h-11 items-center gap-2 whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium transition-[background-color,color,border-color,transform] active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-inset ${
+                            active
+                              ? 'border-brand-primary bg-slate-800/80 font-semibold text-white'
+                              : 'border-transparent text-slate-300 hover:bg-slate-800 hover:text-white'
+                          }`}
+                          aria-current={active ? 'page' : undefined}
+                        >
+                          <Icon className="h-4 w-4 shrink-0 transition-transform group-hover:scale-105" />
+                          {item.label}
+                        </Link>
+                      </li>
+                    );
+                  })}
+                </ul>
               );
             })}
-          </ul>
+          </div>
         </div>
 
-        {/* Mobile menu dropdown */}
         {mobileMenuOpen && (
-          <ul id="mobile-nav-menu" className="lg:hidden py-2 border-t border-slate-800 space-y-1">
-            {visibleItems.map((item) => {
-              const Icon = item.icon;
-              const isActive =
-                item.href === '/'
-                  ? pathname === '/'
-                  : pathname === item.href || pathname.startsWith(`${item.href}/`);
+          <div id="mobile-nav-menu" className="space-y-3 border-t border-slate-800 py-3 lg:hidden">
+            {navGroups.map((group) => {
+              const visibleItems = group.items.filter(canSeeItem);
+              if (visibleItems.length === 0) return null;
+
               return (
-                <li key={item.href}>
-                  <Link
-                    href={item.href}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className={`flex items-center gap-3 px-4 py-2.5 min-h-11 text-sm font-medium rounded transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary ${
-                      isActive
-                        ? 'bg-brand-primary text-white font-semibold'
-                        : 'text-slate-300 hover:text-white hover:bg-slate-800'
-                    }`}
-                    aria-current={isActive ? 'page' : undefined}
-                  >
-                    <Icon className="w-5 h-5 shrink-0" />
-                    {item.label}
-                  </Link>
-                </li>
+                <div key={group.label} role="group" aria-label={group.label}>
+                  <p className="utility-label px-3 pb-1 text-slate-500">{group.label}</p>
+                  <ul className="space-y-1">
+                    {visibleItems.map((item) => {
+                      const Icon = item.icon;
+                      const active = isActive(item);
+                      return (
+                        <li key={item.href}>
+                          <Link
+                            href={item.href}
+                            onClick={() => setMobileMenuOpen(false)}
+                            className={`flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-[background-color,color,transform] active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary ${
+                              active
+                                ? 'bg-brand-primary font-semibold text-white'
+                                : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                            }`}
+                            aria-current={active ? 'page' : undefined}
+                          >
+                            <Icon className="h-5 w-5 shrink-0" />
+                            {item.label}
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
               );
             })}
-          </ul>
+          </div>
         )}
       </div>
     </nav>

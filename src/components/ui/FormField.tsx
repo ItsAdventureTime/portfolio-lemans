@@ -31,9 +31,16 @@ export default function FormField({
 
   return (
     <div className={`space-y-1 ${className}`}>
-      <label htmlFor={name} className="text-sm font-semibold text-slate-700">
+      <label htmlFor={name} className="block text-sm font-semibold text-slate-700">
         {label}
-        {required && <span className="text-rose-500 ml-1">*</span>}
+        {required && (
+          <>
+            <span className="ml-1 text-rose-500" aria-hidden="true">
+              *
+            </span>
+            <span className="sr-only"> required</span>
+          </>
+        )}
       </label>
       <input
         id={name}
@@ -44,8 +51,8 @@ export default function FormField({
         defaultValue={defaultValue}
         min={min}
         step={step}
-        className={`min-h-11 w-full px-3 py-2 rounded-lg border text-base focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary ${
-          error ? 'border-rose-300 bg-rose-50' : 'border-slate-300'
+        className={`min-h-11 w-full rounded-lg border bg-white px-3 py-2 text-base text-slate-900 placeholder:text-slate-400 transition-colors focus:outline-none focus-visible:border-brand-primary focus-visible:ring-2 focus-visible:ring-brand-primary ${
+          error ? 'border-rose-300 bg-rose-50/70' : 'border-slate-300 hover:border-slate-400'
         }`}
         aria-describedby={describedBy}
         aria-invalid={error ? 'true' : undefined}
