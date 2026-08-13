@@ -19,18 +19,21 @@ tutorial, how-to guide, reference, or explanation.
 4. [`REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`](./REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md) —
    remote-only deployment contract; remote operations require explicit user
    authorization.
-5. [`UI-UX-REVAMP-HANDOFF.md`](./UI-UX-REVAMP-HANDOFF.md) — implementation handoff for the completed UI/UX revamp and workflow visualizer navigation.
-6. [`CODEX-REVIEW-HANDOFF.md`](./CODEX-REVIEW-HANDOFF.md) — ChatGPT Codex handoff document for code review, inspection, evaluation, and ready-to-use copy-and-paste prompt.
-7. [`ARCHITECTURE.md`](./ARCHITECTURE.md),
+5. [`REMOTE-DEPLOYMENT-QUICKSTART.md`](./REMOTE-DEPLOYMENT-QUICKSTART.md) —
+   concise macOS operator workflow for updating the already deployed profiles
+   without exported environment variables.
+6. [`UI-UX-REVAMP-HANDOFF.md`](./UI-UX-REVAMP-HANDOFF.md) — implementation handoff for the completed UI/UX revamp and workflow visualizer navigation.
+7. [`CODEX-REVIEW-HANDOFF.md`](./CODEX-REVIEW-HANDOFF.md) — ChatGPT Codex handoff document for code review, inspection, evaluation, and ready-to-use copy-and-paste prompt.
+8. [`ARCHITECTURE.md`](./ARCHITECTURE.md),
 
    [`GO-BACKEND-ARCHITECTURE.md`](./GO-BACKEND-ARCHITECTURE.md),
    [`ENVIRONMENTS-AND-PATHS.md`](./ENVIRONMENTS-AND-PATHS.md), and the ADRs —
    architecture and future-profile decisions.
 
-8. [`GOOGLE-ANTIGRAVITY-UI-UX-PROMPT.md`](./GOOGLE-ANTIGRAVITY-UI-UX-PROMPT.md)
+9. [`GOOGLE-ANTIGRAVITY-UI-UX-PROMPT.md`](./GOOGLE-ANTIGRAVITY-UI-UX-PROMPT.md)
    — copy-and-paste execution prompt for the next UI/UX agent.
-9. [`README.md`](../README.md) — quickstart and navigation index.
-10. [`WRITING-STYLE.md`](./WRITING-STYLE.md) — US-English voice, tone, and
+10. [`README.md`](../README.md) — quickstart and navigation index.
+11. [`WRITING-STYLE.md`](./WRITING-STYLE.md) — US-English voice, tone, and
     proofreading standard for active content.
 
 ## Document status
@@ -40,6 +43,7 @@ tutorial, how-to guide, reference, or explanation.
 | `CURRENT-STATE.md`, `DEMO-IMPLEMENTATION-PLAYBOOK.md`, `README.md`                                                                | Current                                 | Use for implementation and verification decisions.                                                                   |
 | `ARCHITECTURE.md`, `GO-BACKEND-ARCHITECTURE.md`, `ENVIRONMENTS-AND-PATHS.md`, `DESIGN-SYSTEM.md`, `PROJECT-SPEC.md`, and the ADRs | Current contract/specification          | Use for design, domain, and architecture constraints; confirm runtime facts against `CURRENT-STATE.md`.              |
 | `REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`, `REMOTE-OPERATIONS.md`                                                                      | Current but remote-only                 | Do not execute without explicit authorization and required host/Caddy context.                                       |
+| `REMOTE-DEPLOYMENT-QUICKSTART.md`                                                                                                 | Current operator quickstart             | Use for the normal no-environment-variable update flow; follow the remote playbook for topology and rollback.        |
 | `AGENT-EXECUTION-PROMPTS.md`, `GOOGLE-ANTIGRAVITY-UI-UX-PROMPT.md`                                                                | Current operational prompts             | Keep commands synchronized with scripts and the current demo boundary.                                               |
 | `UI-UX-REVAMP-HANDOFF.md`                                                                                                         | Current implementation handoff          | Use for the completed UI/UX and workflow-navigation revamp; confirm implementation facts against `CURRENT-STATE.md`. |
 | `WRITING-STYLE.md`                                                                                                                | Current editorial standard              | Apply to active app copy, documentation, guides, and commit messages.                                                |
@@ -81,7 +85,7 @@ When local validation is explicitly needed, run project execution inside
 rootless Podman. Remote deployment does not invoke this local workflow:
 
 ```bash
-export PATH="/opt/podman/bin:$PATH"
+export PATH="/opt/homebrew/bin:$PATH"
 ./scripts/build.sh demo
 ./scripts/build.sh prod
 ./scripts/verify-local.sh

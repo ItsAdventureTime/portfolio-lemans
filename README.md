@@ -20,8 +20,10 @@ City, Pampanga.
 - **Git and docs**: Keep work on `main`. Commit locally, synchronize remote
   `main` after validation, and confirm both refs share one SHA. Use `gh` as the
   only GitHub-facing CLI over HTTPS; `git commit` is the necessary local
-  commit primitive because `gh` has no local commit command. Do not use SSH,
-  SSH keys, or passkeys. Delete non-`main` branches after inspecting their
+  commit primitive because `gh` has no local commit command. GitHub operations
+  use HTTPS through `gh`; the remote VPS transfer is the separate rsync-over-SSH
+  transport described in the deployment guide. Do not store SSH credentials in
+  scripts or documentation. Delete non-`main` branches after inspecting their
   protection and unique commits, and update affected guides with each change.
   See
   [`docs/DOCUMENTATION-INDEX.md`](./docs/DOCUMENTATION-INDEX.md).
@@ -59,7 +61,7 @@ run those tools in containers.
 ```bash
 # Use the local Podman VM for disposable validation only. Remote deployment
 # builds and runs on the VPS.
-export PATH="/opt/podman/bin:$PATH"
+export PATH="/opt/homebrew/bin:$PATH"
 podman machine start
 podman info --format '{{.Host.Security.Rootless}}' # expect true
 
@@ -108,14 +110,16 @@ context described in [`docs/REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`](./docs/REMOTE-D
 The workstation syncs committed source; the VPS builds and runs the images.
 Do not run these commands as part of local validation.
 
-On macOS, configure the remote demo once, then deploy it:
+On macOS, use the concise operator quickstart. The first deploy automatically
+opens Keychain setup when settings are missing:
 
 ```bash
-./scripts/configure-remote-demo.sh
 ./scripts/deploy-remote-demo.sh
 ```
 
-See [`docs/REMOTE-OPERATIONS.md`](./docs/REMOTE-OPERATIONS.md) for full details.
+See [`docs/REMOTE-DEPLOYMENT-QUICKSTART.md`](./docs/REMOTE-DEPLOYMENT-QUICKSTART.md)
+for the normal update flow and
+[`docs/REMOTE-OPERATIONS.md`](./docs/REMOTE-OPERATIONS.md) for full details.
 For automated or non-macOS operation, follow that guide's environment-variable
 workflow and never place credentials in documentation or shell history.
 

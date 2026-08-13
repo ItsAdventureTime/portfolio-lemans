@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-export PATH="/opt/podman/bin:$PATH"
+if [[ -x /opt/homebrew/bin/podman ]]; then
+  export PATH="/opt/homebrew/bin:$PATH"
+elif [[ -x /opt/podman/bin/podman ]]; then
+  export PATH="/opt/podman/bin:$PATH"
+fi
 
 generate_password() {
   openssl rand -hex 16

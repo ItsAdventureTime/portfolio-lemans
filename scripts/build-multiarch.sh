@@ -2,7 +2,11 @@
 set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-export PATH="/opt/podman/bin:$PATH"
+if [[ -x /opt/homebrew/bin/podman ]]; then
+  export PATH="/opt/homebrew/bin:$PATH"
+elif [[ -x /opt/podman/bin/podman ]]; then
+  export PATH="/opt/podman/bin:$PATH"
+fi
 cd "$PROJECT_ROOT"
 
 # Build and publish the same two images used by build.sh for both supported

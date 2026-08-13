@@ -141,7 +141,7 @@ git status --short --untracked-files=all
 git diff --check
 
 # Start and validate the demo
-export PATH="/opt/podman/bin:$PATH"
+export PATH="/opt/homebrew/bin:$PATH"
 podman machine start
 ./scripts/build.sh demo
 ./scripts/build.sh prod

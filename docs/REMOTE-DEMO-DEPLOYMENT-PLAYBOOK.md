@@ -1,7 +1,7 @@
 # Remote Demo Deployment Playbook
 
 - **Status**: Authoritative for the remote demo deployment profile
-- **Version**: 1.5.1
+- **Version**: 1.6.0
 - **Updated**: 2026-08-14
 - **Target URL**: `https://delegateops.business/lemans/demo`
 - **Remote user**: `jk`
@@ -187,19 +187,27 @@ unclear.
 
 ## 5. Deployment commands
 
-On macOS, the operator runs one interactive setup command once to save the
-remote settings and B2 credentials in the login Keychain:
+For the shortest operator path, see
+[`REMOTE-DEPLOYMENT-QUICKSTART.md`](./REMOTE-DEPLOYMENT-QUICKSTART.md).
+
+On macOS, the normal update command is:
+
+```bash
+./scripts/deploy-remote-demo.sh
+```
+
+If no saved remote host exists, the deployment wrapper automatically launches
+the existing Keychain setup and then continues with deployment. This first run
+saves the remote settings and B2 credentials in the login Keychain; later runs
+need no exported environment variables. The explicit setup command remains
+available when preferred:
 
 ```bash
 ./scripts/configure-remote-demo.sh
 ```
 
-For the simplest automated deployment, the operator needs one repository
-command per deployment:
-
-```bash
-./scripts/deploy-remote-demo.sh
-```
+Production uses the same pattern with `./scripts/deploy-remote-prod.sh`; it
+never accepts `--reset`.
 
 The preferred operator-controlled workflow separates transfer from activation:
 
@@ -351,6 +359,8 @@ The deployment is not successful until all checks pass:
 - Database-backed workflows and attachments work.
 - Reset is not triggered by ordinary deployment; the verified user timer runs
   at 30-minute intervals after deployment.
+- If the demo has B2 uploads, verify deletion of the `lemans/demo` object prefix
+  separately; the current reset container only reseeds relational demo data.
 - Logs identify the source commit and image digest.
 
 If the tracked demo route changes Caddy configuration, the deployment formats
@@ -399,6 +409,9 @@ by that Quadlet.
 - The remote demo reset service/timer must invoke the tracked reset script every
   30 minutes; this is a required deployment artifact, not an undocumented host
   customization.
+- The reset script runs inside `lemans-demo-reset.container` and calls the
+  demo Go API over `lemans-demo-net`. It must not call `systemctl`, `podman`, or
+  host-only commands from inside the reset container.
 - Runtime credentials must be written as `Environment=` entries in the generated
   Go API `.container` file with mode `600`; no external remote `.env` file is
   allowed. Legacy generated env files are removed from the active Quadlet and
@@ -409,11 +422,10 @@ by that Quadlet.
 - Rootless user services require a user manager that remains available after
   logout; verify `loginctl enable-linger jk` on the VPS as an operator
   prerequisite. Do not change that remote setting without explicit approval.
-- Pre-deployment audit note: `quadlet/remote-demo/reset-demo.sh` still refers
-  to `lemans-demo-app.service`, while the tracked
-  `lemans-demo.container` generates `lemans-demo.service`. Align those unit
-  names and rerun the remote reset/timer checks before treating remote demo
-  deployment as ready. This workspace has not executed remote deployment.
+- The reset path resets the fictional relational demo data through
+  `/admin/seed`; B2 upload-object cleanup remains a separate storage concern and
+  has not been exercised from this workspace. Do not claim the upload reset
+  guarantee until that remote storage check is completed.
 
 Do not claim the target URL is operational until the Caddy context and remote
 health checks are verified.
@@ -430,6 +442,7 @@ health checks are verified.
 - [Next.js 16 self-hosting](https://nextjs.org/docs/app/guides/self-hosting)
 - [Next.js `output: 'standalone'`](https://nextjs.org/docs/app/api-reference/config/next-config-js/output)
 - [Next.js `basePath`](https://nextjs.org/docs/app/api-reference/config/next-config-js/basePath)
+- [`gh auth setup-git`](https://cli.github.com/manual/gh_auth_setup-git)
 - [goose migrations](https://github.com/pressly/goose)
 - [goose SQL annotations](https://pressly.github.io/goose/documentation/annotations/)
 - [sqlc documentation](https://docs.sqlc.dev)

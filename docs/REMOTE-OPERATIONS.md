@@ -90,16 +90,18 @@ podman exec --user 0 caddy caddy reload --config /etc/caddy/Caddyfile --adapter 
 
 The activation script writes runtime `Environment=` entries in the profile Go
 API Quadlet and creates a profile-specific Podman database secret. On macOS, run
-the one-time configuration
-helper to store the remote settings and Backblaze B2 credentials in the login
-Keychain. Later deployments load those values automatically and do not prompt
-for deployment variables or B2 credentials.
+the deployment wrapper once; if no saved host exists, it automatically opens the
+existing one-time configuration helper. The helper stores the remote settings
+and Backblaze B2 credentials in the login Keychain. Later deployments load those
+values automatically and do not prompt for deployment variables or B2
+credentials.
 
 ```bash
-./scripts/configure-remote-demo.sh
-# Later deployments:
 ./scripts/deploy-remote-demo.sh
 ```
+
+Run `./scripts/configure-remote-demo.sh` explicitly when you want to update the
+saved Keychain values before deploying.
 
 The helper stores no plaintext credentials in the repository or a local config
 file. It stores the remote host, user, public URL, Caddy network name, B2 access
@@ -135,10 +137,8 @@ secret, which may belong to another application.
 ## Remote Demo Deployment
 
 ```bash
-# One-time setup on macOS. Values are saved in the login Keychain.
-./scripts/configure-remote-demo.sh
-
-# Later deployments require no exported deployment variables.
+# First run opens Keychain setup when settings are missing; later runs need no
+# exported deployment variables.
 ./scripts/deploy-remote-demo.sh
 ```
 
@@ -183,10 +183,7 @@ script selects the correct demo or production defaults.
 ## Remote Production Deployment
 
 ```bash
-# One-time setup on macOS.
-./scripts/configure-remote-prod.sh
-
-# Later deployments require no exported deployment variables.
+# First run opens Keychain setup when settings are missing.
 ./scripts/deploy-remote-prod.sh
 
 # For non-macOS or automation, inject REMOTE_HOST, PUBLIC_URL, REMOTE_USER,
@@ -216,14 +213,16 @@ The remote demo deploy installs two reset paths:
 2. **Manual**:
    ```bash
    ssh jk@vps.example.com
-   export PATH="/opt/podman/bin:$PATH"
-   /home/jk/bridge-ph/lemans-demo/reset-demo.sh
+   systemctl --user start lemans-demo-reset.service
+   journalctl --user -u lemans-demo-reset.service -n 100 --no-pager
    ```
 
-The reset script stops web + Go API + DB services, recreates the DB volume,
-restarts services, calls `POST /admin/seed` on the Go API, and deletes uploaded
-attachments from the demo B2 bucket. The same reset implementation is baked
-into the Go API image at `/usr/local/bin/reset-demo.sh`.
+The reset container calls `POST /admin/seed` on the Go API over
+`lemans-demo-net`; it does not control the VPS systemd manager or Podman daemon,
+and it does not need to restart the web, API, or database services. The same
+reset implementation is baked into the Go API image at
+`/usr/local/bin/reset-demo.sh`. B2 upload-object cleanup is not yet verified by
+this workspace and must be treated as a separate storage check.
 
 ## Backup Procedure (Production)
 
@@ -303,6 +302,8 @@ If a user without permission manually navigates to a restricted URL (e.g. a `ROL
 - [Podman Quadlet basic usage](https://docs.podman.io/en/latest/markdown/podman-quadlet-basic-usage.7.html)
 - [systemd `loginctl` linger](https://www.freedesktop.org/software/systemd/man/252/loginctl.html)
 - [Next.js 16 self-hosting](https://nextjs.org/docs/app/guides/self-hosting)
+- [Next.js standalone output](https://nextjs.org/docs/app/api-reference/config/next-config-js/output)
+- [`gh auth setup-git`](https://cli.github.com/manual/gh_auth_setup-git)
 - [Caddy command line (`fmt`, `validate`, and `reload`)](https://caddyserver.com/docs/command-line)
 - [Caddy graceful reload guidance](https://caddyserver.com/docs/getting-started)
 - [goose migrations](https://github.com/pressly/goose)

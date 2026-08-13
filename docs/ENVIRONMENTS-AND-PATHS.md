@@ -64,7 +64,7 @@ The current deployment target is remote-only for the demo:
 ## Run local validation
 
 ```bash
-export PATH="/opt/podman/bin:$PATH"
+export PATH="/opt/homebrew/bin:$PATH"
 podman machine start
 
 # Run local demo (database + Go API + web, loopback only)

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-export PATH="/opt/podman/bin:$PATH"
+export PATH="/opt/homebrew/bin:/opt/podman/bin:$PATH"
 
 APP_NAME="lemans-demo-app"
 NETWORK_NAME="lemans-demo-net"

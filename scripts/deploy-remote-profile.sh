@@ -6,6 +6,7 @@ set -euo pipefail
 # script under rootless Podman.
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+SCRIPT_DIR="${PROJECT_ROOT}/scripts"
 cd "$PROJECT_ROOT"
 
 PROFILE="${1:-}"
@@ -54,6 +55,14 @@ KEYCHAIN_SERVICE_PREFIX="lemans-bridge-dashboard/${PROFILE}"
 keychain_value() {
   /usr/bin/security find-generic-password -s "$KEYCHAIN_SERVICE_PREFIX/$1" -w 2>/dev/null || true
 }
+
+if [[ "$SYNC_ONLY" != true ]] && [[ "$(uname -s)" == Darwin ]] && command -v security >/dev/null 2>&1; then
+  if [[ -z "$REMOTE_HOST" && -z "$(keychain_value remote-host)" ]]; then
+    echo "No saved ${PROFILE} deployment settings found. Starting one-time Keychain setup."
+    "${SCRIPT_DIR}/configure-remote-profile.sh" "$PROFILE"
+  fi
+fi
+
 if [[ "$(uname -s)" == Darwin ]] && command -v security >/dev/null 2>&1; then
   REMOTE_HOST="${REMOTE_HOST:-$(keychain_value remote-host)}"
   REMOTE_USER="${REMOTE_USER:-$(keychain_value remote-user)}"
@@ -97,7 +106,7 @@ for tool in git ssh rsync mktemp; do
   }
 done
 if [[ -n "$(git status --porcelain)" ]]; then
-echo "Error: worktree must be clean; commit the source before syncing." >&2
+  echo "Error: worktree must be clean; commit the source before syncing." >&2
   exit 1
 fi
 

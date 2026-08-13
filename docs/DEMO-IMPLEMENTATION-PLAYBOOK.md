@@ -307,7 +307,7 @@ Remote deployment uses the remote-only procedure in
 the workstation packages source and the VPS builds and smoke-tests images.
 
 ```bash
-export PATH="/opt/podman/bin:$PATH"
+export PATH="/opt/homebrew/bin:$PATH"
 podman machine start
 ./scripts/build.sh demo
 ./scripts/build.sh prod

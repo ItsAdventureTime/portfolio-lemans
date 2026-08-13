@@ -35,7 +35,7 @@ The demo base path is `/lemans/demo`; the production profile uses `/lemans`.
 The optional local validation workflow is:
 
 ```bash
-export PATH="/opt/podman/bin:$PATH"
+export PATH="/opt/homebrew/bin:$PATH"
 ./scripts/build.sh demo
 ./scripts/run-local.sh
 ./scripts/verify-local.sh
@@ -70,6 +70,13 @@ smoke-tests stable profile images with
 rootless Podman, and the existing Quadlets under
 `/home/jk/.config/containers/systemd/bridge-ph/lemans-demo` activate those
 images. Remote operations require explicit authorization.
+
+The normal macOS operator path is documented in
+[`REMOTE-DEPLOYMENT-QUICKSTART.md`](./REMOTE-DEPLOYMENT-QUICKSTART.md). The
+deployment wrapper auto-starts the existing macOS Keychain setup when no saved
+profile host exists, so routine updates do not require exported environment
+variables. The demo reset Quadlet calls the Go API over its internal network;
+B2 upload-object cleanup remains unverified from this workspace.
 
 ## What you can do in the demo
 
