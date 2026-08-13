@@ -24,9 +24,9 @@ export default async function Header() {
           />
           <div className="min-w-0">
             <p className="utility-label">Service center cockpit</p>
-            <h1 className="truncate text-base font-bold tracking-tight text-slate-900">
+            <p className="truncate text-base font-bold tracking-tight text-slate-900">
               LeMans Operations
-            </h1>
+            </p>
           </div>
         </div>
         <div className="flex w-full flex-wrap items-center justify-between gap-3 sm:w-auto sm:justify-end sm:gap-4">

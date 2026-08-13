@@ -1,5 +1,6 @@
 'use client';
 
+import './globals.css';
 import { useEffect } from 'react';
 import { AlertOctagon, RefreshCw } from 'lucide-react';
 
@@ -16,29 +17,28 @@ export default function GlobalError({
 
   return (
     <html lang="en">
-      <body className="min-h-screen bg-slate-50 text-slate-900 flex items-center justify-center px-4">
+      <body className="flex min-h-screen items-center justify-center bg-slate-50 px-4 text-slate-900">
         <div
-          className="max-w-md w-full bg-white rounded-2xl border border-slate-200 shadow-sm p-8 text-center space-y-5"
+          className="surface-card w-full max-w-md space-y-5 p-6 text-center sm:p-8"
           role="alert"
           aria-live="assertive"
         >
-          <div className="mx-auto w-14 h-14 rounded-full bg-rose-50 flex items-center justify-center">
+          <div
+            className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-rose-50"
+            aria-hidden="true"
+          >
             <AlertOctagon className="w-7 h-7 text-rose-600" aria-hidden="true" />
           </div>
           <div className="space-y-2">
             <h1 className="text-2xl font-bold text-slate-900">
               We couldn&apos;t load the application
             </h1>
-            <p className="text-slate-600">
-              {error.message || 'Reload the application and try again.'}
+            <p className="text-sm leading-6 text-slate-600">
+              The application couldn&apos;t load. Please reload and try again.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={reset}
-            className="inline-flex items-center justify-center h-12 px-5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-hover transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
-          >
-            <RefreshCw className="w-4 h-4 mr-2" />
+          <button type="button" onClick={reset} className="action-primary">
+            <RefreshCw className="h-4 w-4" aria-hidden="true" />
             Reload
           </button>
         </div>

@@ -120,6 +120,10 @@ cryptographically random suffix to avoid collisions.
   - Connected 7-stage operational visualizer (`EndToEndWorkflowVisualizer`) across Overview, Quotations, Job Orders, Purchasing, DCS, Invoices, Job Costing, and Accounting.
   - Enhanced Header with brand logo, live actor pill, and responsive Navbar drawer.
   - High-contrast, WCAG 2.2-targeted typography, touch targets (min 44x44px), focus-visible outlines, and reduced-motion safety.
+  - Shared route-level loading, error, not-found, and access-denied surfaces use
+    branded recovery actions; loading preserves the overview shape with
+    motion-safe skeletons and error boundaries keep diagnostic details out of
+    user-facing copy.
 
 - Remote deployment is intentionally not part of local verification and requires
   explicit user authorization.

@@ -1,7 +1,7 @@
 # Demo implementation guide
 
 - **Status**: Authoritative for demo-build work
-- **Version**: 1.0.0
+- **Version**: 1.1.0
 - **Updated**: 2026-08-14
 - **Audience**: Coding agents, implementation agents, reviewers, and operators
 
@@ -343,6 +343,7 @@ Review these sources before implementation and again before handoff:
 - [Next.js authentication and authorization guidance](https://nextjs.org/docs/app/guides/authentication)
 - [Next.js production checklist](https://nextjs.org/docs/app/guides/production-checklist)
 - [Next.js self-hosting guidance](https://nextjs.org/docs/app/guides/self-hosting)
+- [WAI-ARIA Authoring Practices Guide](https://www.w3.org/WAI/ARIA/apg/)
 - [WCAG 2.2](https://www.w3.org/TR/WCAG22/)
 - [WCAG 2.2 changes](https://www.w3.org/WAI/standards-guidelines/wcag/new-in-22/)
 - [OWASP ASVS](https://github.com/OWASP/ASVS)
@@ -351,6 +352,7 @@ Review these sources before implementation and again before handoff:
 - [Playwright projects and device emulation](https://playwright.dev/docs/test-projects)
 - [systemd timers](https://man7.org/linux/man-pages/man5/systemd.timer.5.html)
 - [MDN View Transition API](https://developer.mozilla.org/en-US/docs/Web/API/View_Transition_API)
+- [Tailwind CSS v3-to-v4 upgrade guide](https://tailwindcss.com/docs/upgrade-guide)
 - [goose migrations](https://github.com/pressly/goose)
 - [Podman Quadlet](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html)
 - [Podman Quadlet basic usage](https://docs.podman.io/en/latest/markdown/podman-quadlet-basic-usage.7.html)

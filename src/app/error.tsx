@@ -20,23 +20,24 @@ export default function Error({
       role="alert"
       aria-live="assertive"
     >
-      <div className="max-w-md w-full bg-white rounded-2xl border border-slate-200 shadow-sm p-8 text-center space-y-5">
-        <div className="mx-auto w-14 h-14 rounded-full bg-rose-50 flex items-center justify-center">
+      <section className="surface-card w-full max-w-md space-y-5 p-6 text-center sm:p-8">
+        <div
+          className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-rose-50"
+          aria-hidden="true"
+        >
           <AlertTriangle className="w-7 h-7 text-rose-600" aria-hidden="true" />
         </div>
         <div className="space-y-2">
           <h1 className="text-2xl font-bold text-slate-900">We couldn&apos;t load this page</h1>
-          <p className="text-slate-600">{error.message || 'Try again in a moment.'}</p>
+          <p className="text-sm leading-6 text-slate-600">
+            We couldn&apos;t load this page. Please try again.
+          </p>
         </div>
-        <button
-          type="button"
-          onClick={reset}
-          className="inline-flex items-center justify-center h-12 px-5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-hover transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
-        >
-          <RefreshCw className="w-4 h-4 mr-2" />
+        <button type="button" onClick={reset} className="action-primary">
+          <RefreshCw className="h-4 w-4" aria-hidden="true" />
           Try again
         </button>
-      </div>
+      </section>
     </div>
   );
 }

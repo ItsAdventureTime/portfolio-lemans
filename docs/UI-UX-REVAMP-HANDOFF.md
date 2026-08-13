@@ -2,7 +2,7 @@
 
 - **Status**: IMPLEMENTED & VERIFIED
 
-- **Version**: 1.1.0
+- **Version**: 1.2.0
 - **Updated**: 2026-08-14
 - **Audience**: Google Antigravity, UI engineers, UX reviewers, and coding agents
 - **Product**: Le Mans Operations & Job Cost Management System demo
@@ -58,6 +58,22 @@ The current shell and overview pass implements the following bounded changes:
   treatment, motion-safe skeletons, reduced-motion support, and reusable action
   and surface classes. The visual foundation remains Racing Red `#d32f2f`,
   Deep Slate `#0f172a`, and Off-White `#f8fafc`.
+- Route-level loading, error, not-found, and access-restricted surfaces now use
+  the same branded surface/action language. Loading preserves the page shape
+  with reduced-motion-safe skeletons; error boundaries keep diagnostic details
+  in logs while showing plain recovery copy to users. The utility header uses a
+  non-heading brand label so each route retains one clear page-level `h1`.
+
+### Guidance review — 2026-08-14
+
+This pass checked the current implementation against the [WCAG 2.2 W3C
+Recommendation](https://www.w3.org/TR/WCAG22/), the [WAI-ARIA Authoring
+Practices Guide](https://www.w3.org/WAI/ARIA/apg/), the [Next.js production
+checklist](https://nextjs.org/docs/app/guides/production-checklist), and the
+[Tailwind CSS v3-to-v4 upgrade guide](https://tailwindcss.com/docs/upgrade-guide).
+The app keeps its pinned Next.js 16.3 and Tailwind CSS 3.4 stack; the review
+applies current accessibility and App Router guidance without introducing a
+major framework migration into a visual refinement.
 
 ### Verification recorded for this pass
 
@@ -228,13 +244,20 @@ ambiguous labels. Preserve domain identifiers and status values exactly.
 - The app remains usable without hover, with keyboard only, and with reduced
   motion enabled.
 - No page relies on a gray full-screen loading mask or an icon without a label.
+- Route-level loading, error, not-found, and access-denied states preserve the
+  shared brand language, recovery action, and safe user-facing copy.
+- Each route maintains a clear page-level heading hierarchy; utility branding is
+  not used as a competing `h1`.
 - The existing rootless Podman validation, API tests, and Playwright suite pass.
 - The public subpath and logo remain correct in the built demo.
 
 ## 8. Source guidance
 
 - [WCAG 2.2](https://www.w3.org/TR/WCAG22/)
+- [WAI-ARIA Authoring Practices Guide](https://www.w3.org/WAI/ARIA/apg/)
 - [WCAG 2.2: consistent navigation](https://www.w3.org/WAI/WCAG22/Understanding/consistent-navigation.html)
 - [Next.js linking and navigating](https://nextjs.org/docs/app/getting-started/linking-and-navigating)
 - [Next.js accessibility](https://nextjs.org/docs/architecture/accessibility)
+- [Next.js production checklist](https://nextjs.org/docs/app/guides/production-checklist)
 - [Next.js loading UI and streaming](https://nextjs.org/docs/app/getting-started/linking-and-navigating#streaming)
+- [Tailwind CSS v3-to-v4 upgrade guide](https://tailwindcss.com/docs/upgrade-guide)

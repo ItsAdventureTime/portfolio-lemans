@@ -1,6 +1,6 @@
 # Design system
 
-- **Document Version**: 2.1.0
+- **Document Version**: 2.2.0
 - **Updated**: 2026-08-14
 - **Audience**: UI engineers, reviewers, and mobile developers (SwiftUI / Jetpack Compose)
 - **Client Brand**: LeMans Service Plus OPC (Angeles City, Pampanga)
@@ -14,7 +14,7 @@ This design system draws from these sources:
 1. **Client Brand Identity**: Official logo for **LeMans Service Plus OPC** (`references/branding/logo.jpg`), featuring a racing-inspired shield badge with LeMans Racing Red (`#d32f2f`), Crisp White (`#ffffff`), and Dark Slate (`#0f172a`). The runtime copy is `public/lemans-service-plus-logo.jpg`, rendered in `Header` and `DemoSplash` with base-path-aware direct asset delivery and registered as the app icon.
 2. **UI Architecture Inspiration**: ColdTrace Operations Dashboard (`references/design-inspiration/coldtrace-ui-mockup.webp`), featuring a modern light interface, elevated cards, subtle borders, high-visibility metric displays, and data-dense tables.
 3. **UI context guides**: Blueprints in `references/prompts/` define reusable interface patterns, four visual states, and cross-platform alignment for web, iOS (SwiftUI), and Android (Jetpack Compose).
-4. **2026 Modern UX & WCAG 2.2 Standards**:
+4. **Current web standards and framework guidance (reviewed 2026-08-14)**:
    - **Readable Density**: Context-aware centered shells (`max-w-screen-2xl` for the app frame, narrower wrappers for forms and error states) with horizontal scrolling for genuinely wide tables.
    - **High-Readability Typography**: 16px baseline body text and high-contrast typography designed for users wearing glasses or viewing under shop lighting.
    - **Role-Aware RBAC Navigation**: Navigation items filtered by active role; explicit 403 "Access Restricted" views instead of silent redirects.
@@ -23,6 +23,25 @@ This design system draws from these sources:
      navigation hierarchy are recorded in
      [`UI-UX-REVAMP-HANDOFF.md`](./UI-UX-REVAMP-HANDOFF.md); implementation must
      preserve current route, role, and API contracts.
+   - **WCAG 2.2 AA baseline**: Use the current W3C Recommendation as the
+     accessibility baseline. The product policy intentionally keeps 44x44px
+     controls, visible focus, clear status text, and reduced-motion support.
+   - **ARIA APG patterns**: Prefer native HTML controls. When behavior needs
+     ARIA, expose the accessible name, state, relationship, and keyboard path;
+     the grouped navigation uses `aria-expanded`, `aria-controls`, and
+     `aria-current` for its disclosure and route state.
+   - **Next.js App Router**: Keep route-level loading, error, and not-found UI,
+     optimized metadata, static image handling, and accessibility linting in the
+     App Router shell.
+   - **Tailwind compatibility**: Tailwind CSS v4 is the current major release,
+     but this focused redesign retains the pinned Tailwind CSS 3.4.10 stack. A
+     v4 migration changes CSS configuration and browser support and must be a
+     separately planned, compatibility-tested work item.
+
+   Official references: [WCAG 2.2](https://www.w3.org/TR/WCAG22/), [ARIA
+   Authoring Practices Guide](https://www.w3.org/WAI/ARIA/apg/), [Next.js
+   production checklist](https://nextjs.org/docs/app/guides/production-checklist),
+   and [Tailwind CSS v3-to-v4 upgrade guide](https://tailwindcss.com/docs/upgrade-guide).
 
 ---
 
@@ -133,6 +152,8 @@ asset remains valid under both `/lemans/demo` and `/lemans` deployments.
   description, focus state, and inline error association.
 - `Skeleton` uses `motion-safe:animate-pulse`; reduced-motion users see no
   continuous loading animation.
+- Route-level `loading.tsx`, error, not-found, and access-denied surfaces use
+  the same branded shell language and safe plain-language recovery copy.
 - `StatusBadge` uses compact bordered status labels. Red remains reserved for
   rejected/error semantics; the brand red is not used as a general alert theme.
 
@@ -153,6 +174,8 @@ Every dynamic component MUST explicitly implement four discrete visual UI states
   - Interactive targets meet a minimum **44x44px** size for touch and pointer input.
   - Visible keyboard focus rings (`focus-visible:ring-2 focus-visible:ring-[#d32f2f]`).
   - Text contrast ratio exceeds 7:1 for primary copy.
+- Use one meaningful page-level `h1` per route; utility branding and eyebrow
+  labels must not compete with the route heading hierarchy.
 - **Cross-Platform Preparedness**:
   - Web UI views map directly to declarative mobile view models (SwiftUI `@Observable` / Jetpack Compose `State`).
   - Fluid layouts prevent clipping across mobile, tablet, and desktop screens.

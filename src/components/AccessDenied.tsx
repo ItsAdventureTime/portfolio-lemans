@@ -14,8 +14,11 @@ export default function AccessDenied({ role, requiredCapability }: AccessDeniedP
 
   return (
     <div className="min-h-[50vh] flex items-center justify-center px-4">
-      <div className="max-w-md w-full bg-white rounded-2xl border border-slate-200 shadow-sm p-8 text-center space-y-5">
-        <div className="mx-auto w-14 h-14 rounded-full bg-rose-50 flex items-center justify-center">
+      <section className="surface-card w-full max-w-md space-y-5 p-6 text-center sm:p-8">
+        <div
+          className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-rose-50"
+          aria-hidden="true"
+        >
           <ShieldAlert className="w-7 h-7 text-rose-600" aria-hidden="true" />
         </div>
         <div className="space-y-2">
@@ -24,7 +27,7 @@ export default function AccessDenied({ role, requiredCapability }: AccessDeniedP
             The simulated <strong>{ROLES[role]}</strong> role does not have access to this module.
           </p>
         </div>
-        <div className="bg-slate-50 rounded-xl p-4 text-left space-y-2">
+        <div className="surface-card-muted space-y-2 p-4 text-left">
           <p className="text-sm">
             <span className="font-semibold text-slate-700">Active role:</span>{' '}
             <span className="inline-flex items-center px-2 py-0.5 rounded bg-slate-200 text-slate-800 text-xs font-medium">
@@ -38,15 +41,11 @@ export default function AccessDenied({ role, requiredCapability }: AccessDeniedP
             </code>
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() => router.push('/')}
-          className="inline-flex items-center justify-center h-12 px-5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-hover transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
-        >
-          <ArrowLeft className="w-4 h-4 mr-2" />
+        <button type="button" onClick={() => router.push('/')} className="action-secondary">
+          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           Return to overview
         </button>
-      </div>
+      </section>
     </div>
   );
 }
