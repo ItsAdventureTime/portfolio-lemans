@@ -2,6 +2,11 @@
 
 > **Use this guide with the [remote demo deployment playbook](./REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md).** Remote operations require explicit authorization and have not been exercised from this workspace. The current Quadlets use `lemans-demo-*` and `lemans-prod-*` container and network names.
 
+The SSH commands in this guide are for the authorized VPS only. GitHub
+authentication, repository inspection, synchronization, and branch
+administration use `gh` over HTTPS; do not use SSH remotes, SSH keys, or
+passkeys for GitHub operations.
+
 ## Environments
 
 | Environment       | Quadlet Path                                                | Web Port         | Go API Container | DB Volume             | Web Image                                    | Go Image                                       |

@@ -1,5 +1,8 @@
 # Google Antigravity prompt: complete UI/UX revamp
 
+- **Status**: Current reference prompt for authorized follow-up UI/UX work
+- **Baseline**: The UI/UX revamp is implemented and verified; do not restart it
+
 Copy the prompt below into Google Antigravity from the repository root.
 
 ```text
@@ -18,9 +21,10 @@ Read these files before editing anything:
 Treat to-review-and-delete/ as historical review material only. Do not use it
 as implementation authority unless the user explicitly asks you to compare it.
 
-Goal: completely revamp the demo UI and UX, especially navigation and the visual
-representation of the end-to-end workflow, while preserving the existing
-business behavior and deployment contract.
+Goal: make an authorized follow-up improvement to the demo UI and UX while
+preserving the implemented navigation, end-to-end workflow visualization,
+business behavior, and deployment contract. Treat the completed baseline as the
+starting point; do not rebuild it without a new approved scope.
 
 Before coding:
 
@@ -59,6 +63,8 @@ Non-negotiable boundaries:
   switcher, and simulated policy behavior. Do not add real login or sessions.
 - Do not change API contracts, role policy, seeded business semantics, or
   deployment scripts unless required by a documented UI contract.
+- Do not use SSH remotes, SSH keys, or passkeys for GitHub operations; use the
+  official `gh` HTTPS credential path. Remote deployment is outside UI scope.
 - Do not create external .env files, compose files, a second source tree, or
   SSH/scp-based deployment behavior.
 - Keep Backblaze storage in bucket bridge-ph with demo prefix lemans/demo and

@@ -6,6 +6,7 @@
 - **Domain**: Auto Service Center Operations, Job Costing, Procurement, Billing, and Financial Accounting
 - **Repository Architecture**: Next.js 16.3 App Router (`src/`), Go 1.26 API (`backend/`), PostgreSQL on rootless Podman network
 - **Demo URL**: `http://127.0.0.1:3000/lemans/demo` (Base Path: `/lemans/demo`)
+- **Updated**: 2026-08-14
 
 ---
 
@@ -17,7 +18,10 @@ The UI/UX revamp has been fully implemented and verified against the 33-test Pla
 
 1. **Accessible Dynamic Breadcrumbs (`src/components/Breadcrumb.tsx`)**:
    - Renders dynamic breadcrumb hierarchy (`Overview / Customers / Customer C-2026-001`, `Overview / Job Orders / RA0003973`).
-   - Complies with WCAG 2.4.11 and 2.4.1 with explicit `aria-label="Breadcrumb"`, `aria-current="page"`, and 3px brand focus-visible outlines.
+   - Targets WCAG 2.2 navigation and focus requirements with explicit
+     `aria-label="Breadcrumb"`, `aria-current="page"`, and the shared 2px
+     brand `:focus-visible` ring. Validate conformance with the browser suite;
+     this handoff is not itself a conformance certificate.
 
 2. **Connected 7-Stage Operational Visualizer (`src/components/EndToEndWorkflowVisualizer.tsx`)**:
    - Embedded across all major operational screens (`/`, `/customers`, `/quotations`, `/job-orders`, `/purchasing`, `/dcs`, `/invoices`, `/job-costing`, `/accounting`).

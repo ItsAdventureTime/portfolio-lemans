@@ -1,6 +1,7 @@
 # Design system
 
-- **Document Version**: 2.0.0
+- **Document Version**: 2.0.1
+- **Updated**: 2026-08-14
 - **Audience**: UI engineers, reviewers, and mobile developers (SwiftUI / Jetpack Compose)
 - **Client Brand**: LeMans Service Plus OPC (Angeles City, Pampanga)
 
@@ -18,8 +19,8 @@ This design system draws from these sources:
    - **High-Readability Typography**: 16px baseline body text and high-contrast typography designed for users wearing glasses or viewing under shop lighting.
    - **Role-Aware RBAC Navigation**: Navigation items filtered by active role; explicit 403 "Access Restricted" views instead of silent redirects.
    - **Accessible Target Sizing**: Minimum 44x44px touch/click targets with focus ring states.
-   - **Workflow clarity**: The planned end-to-end workflow visualization and
-     navigation hierarchy are defined in
+   - **Workflow clarity**: The completed end-to-end workflow visualization and
+     navigation hierarchy are recorded in
      [`UI-UX-REVAMP-HANDOFF.md`](./UI-UX-REVAMP-HANDOFF.md); implementation must
      preserve current route, role, and API contracts.
 
@@ -123,8 +124,8 @@ Every dynamic component MUST explicitly implement four discrete visual UI states
 
 ## 6. Accessibility & Native Mobile Alignment
 
-- **WCAG 2.2 Compliance**:
-  - Interactive targets meet minimum **44x44px** on touch and **36px-40px** on desktop.
+- **WCAG 2.2 target**:
+  - Interactive targets meet a minimum **44x44px** size for touch and pointer input.
   - Visible keyboard focus rings (`focus-visible:ring-2 focus-visible:ring-[#d32f2f]`).
   - Text contrast ratio exceeds 7:1 for primary copy.
 - **Cross-Platform Preparedness**:

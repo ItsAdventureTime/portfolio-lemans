@@ -3,16 +3,17 @@
 - **Status**: IMPLEMENTED & VERIFIED
 
 - **Version**: 1.0.0
-- **Updated**: 2026-08-13
+- **Updated**: 2026-08-14
 - **Audience**: Google Antigravity, UI engineers, UX reviewers, and coding agents
 - **Product**: Le Mans Operations & Job Cost Management System demo
 
-This document is the implementation brief for a complete demo UI/UX revamp. It
-describes the current product and the outcome the next agent must deliver. It
-does not replace the demo business rules, API contracts, deployment playbook,
-or security boundaries. If this document conflicts with the current runtime,
-`CURRENT-STATE.md` and `DEMO-IMPLEMENTATION-PLAYBOOK.md` remain authoritative
-for facts; this handoff is authoritative for the intended revamp direction.
+This document records the completed demo UI/UX revamp and its maintenance
+acceptance criteria. It describes the current product and the interaction
+decisions that must be preserved. It does not replace the demo business rules,
+API contracts, deployment playbook, or security boundaries. If this document
+conflicts with the current runtime, `CURRENT-STATE.md` and
+`DEMO-IMPLEMENTATION-PLAYBOOK.md` remain authoritative for facts; this handoff
+is authoritative for the implemented revamp direction.
 
 ## 1. Outcome
 
@@ -82,7 +83,7 @@ Backblaze presigned URLs. Do not duplicate those rules in the UI.
 
 ### Workflow visualization
 
-The central visual model should be a connected operational flow:
+The central visual model is a connected operational flow:
 
 ```text
 Customer + vehicle
@@ -98,11 +99,11 @@ Invoice → collection
 Job costing + accounting review
 ```
 
-Represent that flow with a reusable stepper or timeline that shows completed,
-current, blocked, and future stages. Do not infer business state only from
-color. Each stage must expose text, status, timestamp or amount when available,
-and a link to the relevant record. The visualization must remain useful on a
-small screen and with a keyboard or screen reader.
+The implemented visualizer represents that flow with a reusable stepper that
+shows completed, current, blocked, and future stages. Do not infer business
+state only from color. Each stage must expose text, status, timestamp or amount
+when available, and a link to the relevant record. The visualization must remain
+useful on a small screen and with a keyboard or screen reader.
 
 ### Interaction quality
 
@@ -125,7 +126,7 @@ Target WCAG 2.2 AA as the minimum bar:
 
 - consistent navigation and repeated controls,
 - visible keyboard focus and logical focus order,
-- 44px touch targets where practical,
+- a minimum 44x44 CSS-pixel target for every interactive control,
 - sufficient text and non-text contrast,
 - descriptive page titles and headings for route announcements,
 - status messages that do not steal focus,
@@ -153,10 +154,10 @@ ambiguous labels. Preserve domain identifiers and status values exactly.
 - Reuse existing design tokens, logo asset, UI primitives, and status semantics
   before adding new visual systems.
 
-## 6. Required deliverables
+## 6. Delivered components and maintenance checks
 
-1. A revised shell and navigation model with a route/state map.
-2. A reusable workflow visualization used on Overview and the relevant detail
+1. Revised shell and navigation model with a route/state map.
+2. Reusable workflow visualization used on Overview and the relevant detail
    pages, not a one-off illustration.
 3. Redesigned list, detail, create, approve, payment, and costing experiences.
 4. Responsive behavior for phone, tablet, and desktop widths.
@@ -164,7 +165,7 @@ ambiguous labels. Preserve domain identifiers and status values exactly.
 6. Keyboard and screen-reader checks for navigation, filters, tables, dialogs,
    steppers, and mutation feedback.
 7. Updated screenshots or visual test evidence where the repository supports it.
-8. Updated `CURRENT-STATE.md`, `DEMO-IMPLEMENTATION-PLAYBOOK.md`,
+8. Synchronized `CURRENT-STATE.md`, `DEMO-IMPLEMENTATION-PLAYBOOK.md`,
    `DESIGN-SYSTEM.md`, and this handoff when behavior or acceptance criteria
    change.
 

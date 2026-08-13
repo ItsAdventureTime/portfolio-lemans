@@ -11,7 +11,7 @@ City, Pampanga.
 
 ---
 
-## How the app is built
+## Quick reference
 
 - **Repository**: [`ItsAdventureTime/bridge-lemans`](https://github.com/ItsAdventureTime/bridge-lemans)
   contains the demo and production source.
@@ -49,91 +49,75 @@ City, Pampanga.
 
 ---
 
-## Run a local validation
+## Tutorial: validate the local demo
+
+Run this tutorial from the repository root on macOS. You need a working
+rootless Podman installation and the project Podman machine. You do not need to
+install Node.js, Go, PostgreSQL, or Playwright on the host; the project scripts
+run those tools in containers.
 
 ```bash
-# Use the local Podman VM only for validation. Remote deployment builds on the VPS.
+# Use the local Podman VM for disposable validation only. Remote deployment
+# builds and runs on the VPS.
 export PATH="/opt/podman/bin:$PATH"
 podman machine start
+podman info --format '{{.Host.Security.Rootless}}' # expect true
 
-# Build images and start the local demo
+# Build the demo images and start a freshly seeded local demo
 ./scripts/build.sh demo
 ./scripts/run-local.sh
 
-# Verify the stack
+# Verify static checks, HTTP routes, and browser workflows
 ./scripts/verify-local.sh
 ./scripts/verify-vertical-slice.sh
 ./scripts/verify-e2e.sh
 
 # Stop the local demo
 ./scripts/stop-local.sh
-
-# First remote demo deployment on macOS only: save settings and B2 credentials
-# in the login Keychain. The helper does not create a plaintext credentials file.
-./scripts/configure-remote-demo.sh
-
-# Later deployments need no exported deployment variables. The script reuses one
-# SSH connection for its rsync and remote commands.
-./scripts/deploy-remote-demo.sh
-
-# Open the remote demo
-open https://delegateops.business/lemans/demo
 ```
 
-Stop / reset:
+`run-local.sh` starts the local PostgreSQL, Go API, and Next.js containers and
+seeds the demo. `reset-local.sh` removes the project-specific database volume;
+run `run-local.sh` again to recreate and seed it.
+
+## How-to: stop or reset the local demo
 
 ```bash
-./scripts/stop-local.sh     # stop local DB + Go API + web
-./scripts/reset-local.sh  # remove local DB volume; run before re-seeding
+./scripts/stop-local.sh   # stop the local DB, Go API, and web containers
+./scripts/reset-local.sh  # remove the local DB volume before re-seeding
 ```
 
 ---
 
-## Build and verify
+## Reference: build profiles
+
+Use these commands when you need to build both image profiles for local
+validation. Remote deployment builds on the VPS.
 
 ```bash
-# Local images support validation. Remote deployment builds on the VPS.
 ./scripts/build.sh demo   # demo-web + demo-go
 ./scripts/build.sh prod   # prod-web + prod-go
-
-# Run static analysis and tests inside disposable containers
-./scripts/verify-local.sh
-
-# Check the running demo over HTTP
-./scripts/verify-vertical-slice.sh
-
-# Browser verification in a disposable Playwright container
-./scripts/verify-e2e.sh
 ```
 
 ---
 
-## Deploy remotely
+## How-to: deploy the remote demo
 
-On macOS, run `./scripts/configure-remote-demo.sh` once before the first demo
-deployment. It stores the remote settings and B2 credentials in the login
-Keychain, so later `./scripts/deploy-remote-demo.sh` runs need no exported
-deployment variables. The environment-variable form below remains available for
-non-macOS and automated environments. The demo deployment also installs the
-tracked `/lemans/demo` Caddy route, validates and formats the complete
-Caddyfile, and gracefully reloads rootless Caddy when that route changes. It
-writes remote runtime values directly into the generated Quadlet `.container`
-file; it does not create an external `.env` file.
+Remote operations require explicit user authorization and the Caddy/network
+context described in [`docs/REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`](./docs/REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md).
+The workstation syncs committed source; the VPS builds and runs the images.
+Do not run these commands as part of local validation.
+
+On macOS, configure the remote demo once, then deploy it:
 
 ```bash
-# Remote demo (automatic 30-minute reset; manual reset also available)
-export REMOTE_HOST=<vps-host-or-ip>
-export PUBLIC_URL=https://delegateops.business/lemans/demo
-export REMOTE_USER=jk
-export B2_ACCESS_KEY_ID=...
-export B2_SECRET_ACCESS_KEY=...
+./scripts/configure-remote-demo.sh
 ./scripts/deploy-remote-demo.sh
-
-# Remote production (persistent + daily B2 backups)
-./scripts/deploy-remote-prod.sh
 ```
 
 See [`docs/REMOTE-OPERATIONS.md`](./docs/REMOTE-OPERATIONS.md) for full details.
+For automated or non-macOS operation, follow that guide's environment-variable
+workflow and never place credentials in documentation or shell history.
 
 ---
 

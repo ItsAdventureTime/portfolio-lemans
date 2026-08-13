@@ -1,6 +1,6 @@
 # Delivery plan
 
-- **Updated**: 2026-08-12
+- **Updated**: 2026-08-14
 - **Current delivery authority**: [`CURRENT-STATE.md`](./CURRENT-STATE.md)
 - **Demo acceptance authority**: [`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md)
 - **Branch policy**: `main` only
@@ -79,4 +79,6 @@ Keep all work on `main`. Update the affected current guides and verification
 evidence with each source change. Historical phase reports remain dated evidence
 and must not be used to override the current-state guide. Use the complete
 [`DOCUMENTATION-INDEX.md`](./DOCUMENTATION-INDEX.md) for the document map and
-GitHub CLI synchronization policy.
+GitHub CLI synchronization policy. Commit locally with `git`, synchronize
+remote `main` through the HTTPS/`gh` credential path, confirm matching SHAs, and
+delete non-`main` branches after checking protection and unique commits.

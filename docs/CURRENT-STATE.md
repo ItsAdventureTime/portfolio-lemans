@@ -1,6 +1,6 @@
 # Current repository state
 
-- **Updated**: 2026-08-13 (implementation audit and validation)
+- **Updated**: 2026-08-14 (implementation, documentation, and validation audit)
 - **Authority**: Current implementation and the demo rules in
   [`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md)
 - **Documentation index**: [`DOCUMENTATION-INDEX.md`](./DOCUMENTATION-INDEX.md)
@@ -46,7 +46,10 @@ export PATH="/opt/podman/bin:$PATH"
 
 `./scripts/reset-local.sh` removes the demo database volume; the next
 `run-local.sh` invocation recreates migrations and seed data. The database never
-publishes port 5432 to the host.
+publishes port 5432 to the host. The local runtime containers are named for
+verification and stopped by `stop-local.sh`; `run-local.sh` removes and replaces
+those project-specific containers on the next start. Validation-only containers
+use `--rm`.
 
 The current demo validation baseline is complete in rootless Podman:
 
@@ -116,7 +119,7 @@ cryptographically random suffix to avoid collisions.
   - Accessible `<Breadcrumb>` dynamic routing bar across all modules.
   - Connected 7-stage operational visualizer (`EndToEndWorkflowVisualizer`) across Overview, Quotations, Job Orders, Purchasing, DCS, Invoices, Job Costing, and Accounting.
   - Enhanced Header with brand logo, live actor pill, and responsive Navbar drawer.
-  - High-contrast WCAG 2.2 compliant typography, touch targets (min 44x44px), focus-visible outlines, and reduced motion safety.
+  - High-contrast, WCAG 2.2-targeted typography, touch targets (min 44x44px), focus-visible outlines, and reduced-motion safety.
 
 - Remote deployment is intentionally not part of local verification and requires
   explicit user authorization.

@@ -2,16 +2,16 @@
 
 - **Status**: Authoritative for demo-build work
 - **Version**: 1.0.0
-- **Updated**: 2026-08-11
+- **Updated**: 2026-08-14
 - **Audience**: Coding agents, implementation agents, reviewers, and operators
 
 Use this guide for demo work. It takes precedence over older phase-completion
 matrices, historical credentials, and production-authentication documents.
 Those documents provide historical or future-production context only.
 
-The planned complete shell, navigation, and workflow-visualization redesign is
-specified in [`UI-UX-REVAMP-HANDOFF.md`](./UI-UX-REVAMP-HANDOFF.md). Until that
-handoff is implemented and verified, this playbook remains the source of truth
+The completed shell, navigation, and workflow-visualization redesign is
+recorded in [`UI-UX-REVAMP-HANDOFF.md`](./UI-UX-REVAMP-HANDOFF.md) and verified
+against the current implementation. This playbook remains the source of truth
 for current routes, behavior, role simulation, and acceptance boundaries.
 
 ## 1. Demo mission and boundary
@@ -282,13 +282,18 @@ completion statements to remain authoritative.
 Git workflow:
 
 1. Inspect `git status` and preserve unrelated user changes.
-2. Use local `git` for local branches, staging, commits, and local history.
+2. Use local `git` for local branches, staging, commits, and local history;
+   `gh` has no local commit command.
 3. Run formatting, focused tests, and required Podman verification before commit.
-4. Use the official GitHub CLI (`gh`) for remote GitHub operations.
-5. Keep the remote URL on HTTPS; do not use SSH or SSH keys.
-6. Push only the intended branch/commit and report the commit, branch, and remote
-   result in the handoff.
-7. Never stage or commit unrelated dirty-worktree files merely to make a release
+4. Use the official GitHub CLI (`gh`) as the only GitHub-facing CLI; configure
+   HTTPS credentials with `gh auth setup-git --hostname github.com`.
+5. Keep the remote URL on HTTPS; do not use SSH, SSH keys, or passkeys for
+   GitHub transport.
+6. After validation, synchronize local `main` to remote `main`, confirm the
+   SHAs match, and report the commit, branch, and remote result.
+7. Inspect local and remote branches, then delete every non-`main` branch after
+   checking protection and unique commits. Never delete `main`.
+8. Never stage or commit unrelated dirty-worktree files merely to make a release
    appear complete.
 
 When a change cannot be safely committed because unrelated work overlaps the
@@ -314,13 +319,14 @@ podman machine start
 
 The verification result must explicitly report:
 
-- build, formatting, ESLint, and type-check status (`npm run build`,
-  `npm run format:check`, `npm run lint`, and `npm run typecheck`);
-- unit/integration test status;
-- browser workflow status for each simulated role;
+- `verify-local.sh` status: Prettier, ESLint, TypeScript, Next.js production
+  build, Go generation, Go build, and Go tests;
+- `verify-vertical-slice.sh` status: health checks, module routes, internal API
+  reachability, and zero published database ports;
+- `verify-e2e.sh` status: browser workflows across desktop, mobile, and
+  reduced-motion projects;
 - accessibility (visible focus, target sizing, reduced motion, ARIA live/error
   regions) and reduced-motion checks;
-- database port exposure (must be zero published host ports);
 - remaining warnings and known limitations.
 
 Do not report “verification complete” if any check failed or was skipped.
@@ -349,6 +355,9 @@ Review these sources before implementation and again before handoff:
 - [Podman Quadlet](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html)
 - [Podman Quadlet basic usage](https://docs.podman.io/en/latest/markdown/podman-quadlet-basic-usage.7.html)
 - [Podman build units](https://docs.podman.io/en/latest/markdown/podman-build.unit.5.html)
+- [Diátaxis documentation framework](https://diataxis.fr/)
+- [Microsoft writing style](https://learn.microsoft.com/en-us/windows/apps/design/style/writing-style)
+- [Google developer documentation style guide](https://developers.google.com/style)
 
 At the time of this playbook update, the repository baseline is Next.js 16.3.0,
 React 19.2, Tailwind CSS 3.4, Go latest (`golang:alpine`), and PostgreSQL latest

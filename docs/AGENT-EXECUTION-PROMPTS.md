@@ -1,7 +1,7 @@
 # Agent prompts
 
 - **Status**: Current operational prompt set
-- **Updated**: 2026-08-12
+- **Updated**: 2026-08-14
 - **Documentation map**: [`DOCUMENTATION-INDEX.md`](./DOCUMENTATION-INDEX.md)
 
 These prompts are copy-paste instructions for the next coding or review agent.
@@ -152,12 +152,8 @@ podman machine start
 
 # Manual spot checks at http://127.0.0.1:3000/lemans/demo/...
 
-# Browser / E2E checks (requires local stack running and Playwright container)
-podman run --rm --net lemans-demo-net \
-  -v "$PWD:/app:rw" -w /app \
-  -e PLAYWRIGHT_BASE_URL=http://lemans-demo-app:3000 \
-  mcr.microsoft.com/playwright:v1.62.1-noble \
-  bash -lc 'npm ci && npx playwright test'
+# Browser / E2E checks (the wrapper creates a disposable Playwright container)
+./scripts/verify-e2e.sh
 
 # Stop only the project demo runtime after validation
 ./scripts/stop-local.sh
@@ -178,12 +174,16 @@ README/index entries, verification evidence, and handoff notes in the same
 change set. Mark historical or superseded documents clearly.
 
 Inspect the worktree before editing and preserve unrelated user changes. Keep
-the worktree on `main`; do not create feature or review branches. Use the
-official GitHub CLI (`gh`) over HTTPS for remote inspection, synchronization,
-and branch administration. Never delete `main`; inspect branch protection and
-unique commits before deleting another branch. Report the exact branch, commit,
-files included, and remote synchronization result. Never stage unrelated
-dirty-worktree files just to create a clean-looking release.
+the worktree on `main`; do not create feature or review branches. Use local
+`git` for the local commit because `gh` has no local commit command. Use the
+official GitHub CLI (`gh`) as the only GitHub-facing CLI, with
+`gh auth setup-git --hostname github.com` and HTTPS transport. Never use SSH,
+SSH keys, or passkeys for GitHub operations. After validation, synchronize
+local `main` to remote `main`, confirm matching SHAs, inspect all branches, and
+delete every non-`main` branch after checking protection and unique commits.
+Never delete `main`. Report the exact branch, commit, files included, remote
+synchronization result, and branch cleanup. Never stage unrelated dirty-worktree
+files just to create a clean-looking release.
 ```
 
 ## 8. Remote demo deployment prompt

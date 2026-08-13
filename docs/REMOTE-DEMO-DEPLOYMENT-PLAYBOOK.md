@@ -2,7 +2,7 @@
 
 - **Status**: Authoritative for the remote demo deployment profile
 - **Version**: 1.5.0
-- **Updated**: 2026-08-12
+- **Updated**: 2026-08-14
 - **Target URL**: `https://delegateops.business/lemans/demo`
 - **Remote user**: `jk`
 - **Current evidence**: Local image/runtime verification is complete; remote
@@ -16,6 +16,11 @@ host-based standalone-output sync, or a sleeping Caddy bridge.
 
 The demo is deployed remotely only. There is no persistent local deployment
 target.
+
+GitHub and VPS transport are separate concerns. Use local `git` for the local
+commit, and use the official `gh` HTTPS credential path for GitHub operations.
+The SSH references in this playbook are only for the explicitly authorized VPS
+source transfer and activation; they must never be used as GitHub transport.
 
 The workstation does not deploy, build, compile, or execute the application as
 part of remote deployment. It creates a temporary tree from the committed
@@ -218,8 +223,9 @@ remote paths. No release ID, archive name, or commit/public-URL flags are
 required. Do not type angle-bracket placeholders from older examples; Bash
 treats `<word>` as input redirection. The activation command runs entirely on
 the VPS and prompts for B2 credentials only when they were not provided by the
-automated wrapper. SSH key authentication can remove the remaining password
-prompt; never put an SSH password in a script.
+automated wrapper. VPS authentication is an operator prerequisite; never put an
+SSH password or private key in a script. GitHub authentication remains HTTPS
+through `gh`.
 
 Environment variables remain supported and take precedence for non-macOS and
 automated environments. The deployment script may accept `REMOTE_USER`, but it

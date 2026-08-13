@@ -44,8 +44,10 @@ Specific project choices:
    - **Production Builds**: Web `lemans-bridge-dashboard:prod-web`, Go API `lemans-bridge-dashboard-go:prod-go`.
 5. **No Compose Mandate**:
    - `podman compose` / `docker compose` are not used.
-   - Optional local validation uses `podman run --rm` helper scripts; remote
-     deployment performs builds and execution on the VPS.
+   - Optional local validation uses disposable `podman run --rm` helper
+     containers. The local demo runtime uses named project containers that
+     `scripts/stop-local.sh` stops and `scripts/run-local.sh` replaces on the
+     next start; remote deployment performs builds and execution on the VPS.
 6. **Declarative Podman Quadlet Systemd Management**:
    - Production containers are managed declaratively using Quadlet files (`.container`, `.volume`, `.network`) placed in `/home/jk/.config/containers/systemd/` on the VPS.
    - Systemd user lingering is a remote operator prerequisite
@@ -115,7 +117,9 @@ container is attached only to the internal network.
 - **Zero Exposed Database Ports**: Database container listens exclusively on container-internal bridge network (`lemans-net`). Host cannot access port 5432 directly.
 - **Loopback App Port Binding**: Application container binds exclusively to `127.0.0.1:3000` locally; on VPS, only the Caddy bridge container binds the public proxy port.
 - **Unprivileged Container Execution**: Application process runs as non-root `nextjs` user (UID 1001).
-- **No Compose**: All execution uses `podman run --rm` scripts or Quadlet units; no `docker.sock` or compose socket mounts.
+- **No Compose**: Validation uses disposable `podman run --rm` containers;
+  the local demo uses named project containers and remote environments use
+  Quadlet units. No `docker.sock` or compose socket mounts are allowed.
 
 ### Observability & Logging
 

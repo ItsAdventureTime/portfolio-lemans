@@ -64,7 +64,7 @@ Invalid or missing roles resolve to `ADMIN`.
 - `POST /admin/seed` (DEMO_MODE only) – seed database
 - `/api/customers/*`, `/api/quotations/*`, `/api/job-orders/*`, `/api/purchase-requests/*`, `/api/opex-requests/*`,
   `/api/supplier-invoices/*`, `/api/disbursements/*`, `/api/invoices/*`,
-  `/api/accounting/*`, `/api/dashboard`, `/attachments/*`
+  `/api/accounting/*`, `/api/dashboard`
 - `GET /api/accounting/exports/{csv|json}` – Admin-only deterministic export
   containing customers, derived vendors, bills, expenses, invoices,
   collections, and payments. The Next.js `/api/accounting/export/{format}`
@@ -91,10 +91,26 @@ parameter to a UUID internally.
 
 ## Attachment flow
 
-1. Frontend requests a presigned upload URL from `GET /attachments/presign-upload?objectName=...`
-2. Frontend uploads the file directly to Backblaze B2 using the URL.
-3. Frontend posts metadata to `POST /attachments`.
-4. Downloads use `GET /attachments/:id/url` to receive a short-lived presigned `GetObject` URL.
+### DCS proof of payment
+
+1. The frontend requests a presigned upload URL from
+   `GET /api/disbursements/{id}/proof-upload-url?fileName=...&contentType=...`.
+2. The frontend uploads the file directly to Backblaze B2 using the returned
+   URL.
+3. The frontend registers the key with
+   `POST /api/disbursements/{id}/attach-proof` using
+   `{ "storageKey": "..." }`.
+4. Authorized download requests use
+   `GET /api/disbursements/{id}/proof-download-url` to receive a short-lived
+   presigned `GetObject` URL, or `{ "url": null }` when no proof exists.
+
+### Job-order attachment metadata
+
+Job-order attachment records use `GET /api/job-orders/{id}/attachments` and
+`POST /api/job-orders/{id}/attachments`. The POST body records `fileName`,
+`contentType`, `size`, and `storageKey`. The current API does not expose a
+separate job-order presign route; clients must not document or call the removed
+`/attachments/presign-upload` or `/attachments/:id/url` paths.
 
 ## Build
 
