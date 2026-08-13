@@ -2,7 +2,12 @@ import { EmptyState } from './index';
 
 interface DataTableProps<T> {
   items: T[];
-  columns: { key: string; header: string; render: (item: T) => React.ReactNode }[];
+  columns: {
+    key: string;
+    header: string;
+    render: (item: T) => React.ReactNode;
+    className?: string;
+  }[];
   emptyTitle?: string;
   emptyDescription?: string;
   emptyAction?: React.ReactNode;
@@ -29,7 +34,10 @@ export default function DataTable<T>({
           <thead className="bg-slate-50">
             <tr>
               {columns.map((col) => (
-                <th key={col.key} className="text-left px-4 py-3 font-semibold whitespace-nowrap">
+                <th
+                  key={col.key}
+                  className={`text-left px-4 py-3 font-semibold whitespace-nowrap ${col.className ?? ''}`}
+                >
                   {col.header}
                 </th>
               ))}
@@ -39,7 +47,7 @@ export default function DataTable<T>({
             {items.map((item, idx) => (
               <tr key={idx} className="hover:bg-slate-50">
                 {columns.map((col) => (
-                  <td key={col.key} className="px-4 py-3 align-top">
+                  <td key={col.key} className={`px-4 py-3 align-top ${col.className ?? ''}`}>
                     {col.render(item)}
                   </td>
                 ))}

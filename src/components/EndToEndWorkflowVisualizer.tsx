@@ -209,7 +209,10 @@ export default function EndToEndWorkflowVisualizer({
                   ) : (
                     <span className="text-slate-500 truncate">{stage.statusText}</span>
                   )}
-                  <ArrowRight className="w-3 h-3 text-slate-400 group-hover:translate-x-0.5 transition-transform shrink-0" />
+                  <ArrowRight
+                    className="w-3 h-3 shrink-0 text-slate-400 transition-transform group-hover:translate-x-0.5"
+                    aria-hidden="true"
+                  />
                 </div>
               </Link>
             </li>

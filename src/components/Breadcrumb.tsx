@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { ChevronRight, Home } from 'lucide-react';
+import { stripBasePath } from '@/lib/base-path';
 
 const routeLabels: Record<string, string> = {
   customers: 'Customers',
@@ -20,7 +21,7 @@ export default function Breadcrumb() {
   const pathname = usePathname();
   if (!pathname || pathname === '/') return null;
 
-  const segments = pathname.split('/').filter(Boolean);
+  const segments = stripBasePath(pathname).split('/').filter(Boolean);
   if (segments.length === 0) return null;
 
   return (
@@ -31,9 +32,9 @@ export default function Breadcrumb() {
       <div className="w-full max-w-screen-2xl mx-auto flex items-center flex-wrap gap-1.5">
         <Link
           href="/"
-          className="inline-flex items-center gap-1 text-slate-500 hover:text-slate-900 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary rounded px-1 py-0.5"
+          className="inline-flex min-h-11 items-center gap-1 rounded px-2 py-2 text-slate-500 transition-colors hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
         >
-          <Home className="w-3.5 h-3.5" />
+          <Home className="w-3.5 h-3.5" aria-hidden="true" />
           <span>Overview</span>
         </Link>
 
@@ -52,7 +53,7 @@ export default function Breadcrumb() {
               ) : (
                 <Link
                   href={currentPath}
-                  className="text-slate-500 hover:text-slate-900 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary rounded px-1 py-0.5"
+                  className="inline-flex min-h-11 items-center rounded px-2 py-2 text-slate-500 transition-colors hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
                 >
                   {label}
                 </Link>

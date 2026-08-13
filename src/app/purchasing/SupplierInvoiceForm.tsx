@@ -7,6 +7,7 @@ import FormError from '@/components/FormError';
 import { FormResult } from '@/lib/form-result';
 import { Plus, Loader2 } from 'lucide-react';
 import MultiJoAllocationModal, { AllocationLine } from '@/components/multi-jo-allocation-modal';
+import { parsePesoToCents } from '@/lib/money';
 
 interface JobOrderOption {
   id: string;
@@ -23,7 +24,7 @@ interface SupplierInvoiceFormProps {
 export default function SupplierInvoiceForm({ jobOrders, action }: SupplierInvoiceFormProps) {
   const [allocations, setAllocations] = useState<AllocationLine[]>([]);
   const [showModal, setShowModal] = useState(false);
-  const [totalAmount, setTotalAmount] = useState(0);
+  const [totalAmountCents, setTotalAmountCents] = useState(0);
 
   const [result, submitAction, isPending] = useActionState(action, {
     success: false,
@@ -92,13 +93,12 @@ export default function SupplierInvoiceForm({ jobOrders, action }: SupplierInvoi
         <button
           type="button"
           onClick={() => {
-            const total = Number(
-              (document.getElementById('totalAmount') as HTMLInputElement)?.value || 0
-            );
-            setTotalAmount(total);
+            const totalInput =
+              (document.getElementById('totalAmount') as HTMLInputElement)?.value || '';
+            setTotalAmountCents(parsePesoToCents(totalInput) ?? 0);
             setShowModal(true);
           }}
-          className="inline-flex items-center h-12 px-4 rounded-xl bg-slate-100 text-slate-700 text-sm font-semibold hover:bg-slate-200 transition-colors focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2"
+          className="inline-flex h-12 items-center rounded-xl bg-slate-100 px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
         >
           Allocate Across JOs
         </button>
@@ -112,7 +112,7 @@ export default function SupplierInvoiceForm({ jobOrders, action }: SupplierInvoi
       <MultiJoAllocationModal
         open={showModal}
         onClose={() => setShowModal(false)}
-        invoiceAmount={totalAmount}
+        invoiceAmountCents={totalAmountCents}
         jobOrders={jobOrders}
         initialAllocations={allocations}
         onSave={setAllocations}

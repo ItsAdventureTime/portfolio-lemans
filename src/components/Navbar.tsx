@@ -48,7 +48,7 @@ export default function Navbar({ role }: { role: ProjectRole }) {
         <div className="flex items-center justify-between lg:justify-start">
           <button
             type="button"
-            className="lg:hidden p-2 text-slate-300 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary rounded"
+            className="lg:hidden inline-flex min-h-11 min-w-11 items-center justify-center rounded p-2 text-slate-300 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-nav-menu"

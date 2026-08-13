@@ -40,14 +40,23 @@ export default function StatusWorkflowStepper({ status }: StatusWorkflowStepperP
   const activeIndex = STEPS.indexOf(normalized);
 
   return (
-    <div className="w-full" aria-label={`Job order status: ${statusLabels[normalized]}`}>
+    <div
+      className="w-full"
+      role="group"
+      aria-label={`Job order status: ${statusLabels[normalized]}`}
+    >
       <ol className="flex items-center w-full">
         {STEPS.map((step, idx) => {
           const isCompleted = idx < activeIndex;
           const isActive = idx === activeIndex;
 
           return (
-            <li key={step} className="flex-1 relative">
+            <li
+              key={step}
+              className="relative flex-1"
+              aria-current={isActive ? 'step' : undefined}
+              aria-label={`${isActive ? 'Current' : isCompleted ? 'Completed' : 'Upcoming'}: ${statusLabels[step]}`}
+            >
               {idx > 0 && (
                 <div
                   className={`absolute top-1/2 left-0 w-full h-1 -translate-y-1/2 -translate-x-1/2 ${
@@ -65,7 +74,7 @@ export default function StatusWorkflowStepper({ status }: StatusWorkflowStepperP
                         : 'bg-white border-slate-300 text-slate-400'
                   }`}
                 >
-                  {isCompleted ? <CheckIcon className="h-4 w-4" /> : idx + 1}
+                  {isCompleted ? <CheckIcon className="h-4 w-4" aria-hidden="true" /> : idx + 1}
                 </div>
                 <span
                   className={`mt-2 text-xs font-semibold ${

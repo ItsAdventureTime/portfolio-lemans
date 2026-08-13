@@ -39,7 +39,7 @@ export async function apiPost(path: string, body: unknown, role?: string) {
   return apiFetch(path, { method: 'POST', body: JSON.stringify(body) }, role);
 }
 
-export { formatPeso, formatPesoAmount, pesoToCents, centsToPeso } from './money';
+export { formatPeso, formatPesoAmount, parsePesoToCents, pesoToCents, centsToPeso } from './money';
 
 export async function listCustomers(role?: string) {
   return apiGet('/api/customers/', role);

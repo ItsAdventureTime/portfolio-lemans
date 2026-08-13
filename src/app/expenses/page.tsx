@@ -6,6 +6,7 @@ import PageHeader from '@/components/PageHeader';
 import OpexForm from './OpexForm';
 import OpexList from './OpexList';
 import { errorResult, FormResult, okResult } from '@/lib/form-result';
+import { parsePesoToCents } from '@/lib/money';
 
 export default async function ExpensesPage() {
   const role = await getDemoRole();
@@ -17,17 +18,18 @@ export default async function ExpensesPage() {
     const currentRole = await (await import('@/lib/actor')).getDemoRole();
     const category = String(formData.get('category') ?? '').trim();
     const description = String(formData.get('description') ?? '').trim();
-    const amount = Number(formData.get('amount'));
+    const amountInput = String(formData.get('amount') ?? '').trim();
+    const amountCents = parsePesoToCents(amountInput);
     const notes = String(formData.get('notes') ?? '').trim();
 
     const fieldErrors: Record<string, string> = {};
     if (!category) fieldErrors.category = 'Category is required';
     if (!description) fieldErrors.description = 'Description is required';
-    if (Number.isNaN(amount) || amount <= 0) {
+    if (amountCents === null || amountCents <= 0) {
       fieldErrors.amount = 'Enter a positive amount';
     }
 
-    const values = { category, description, amount: Number.isNaN(amount) ? '' : amount, notes };
+    const values = { category, description, amount: amountInput, notes };
 
     if (Object.keys(fieldErrors).length > 0) {
       return errorResult('Review the highlighted fields and try again.', fieldErrors, values);
@@ -38,7 +40,7 @@ export default async function ExpensesPage() {
         {
           category,
           description,
-          amountCents: Math.round(amount * 100),
+          amountCents,
           notes,
         },
         await currentRole

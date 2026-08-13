@@ -3,6 +3,7 @@ import type { Metadata } from 'next';
 import Header from '@/components/Header';
 import Navbar from '@/components/Navbar';
 import Breadcrumb from '@/components/Breadcrumb';
+import RouteScrollReset from '@/components/RouteScrollReset';
 import { getDemoRole } from '@/lib/actor';
 
 export const metadata: Metadata = {
@@ -23,16 +24,18 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       <body className="min-h-screen bg-slate-50 text-slate-900 flex flex-col antialiased">
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:px-4 focus:py-2.5 focus:bg-slate-900 focus:text-white focus:font-semibold focus:rounded-lg focus:shadow-lg focus:ring-2 focus:ring-brand-primary"
+          className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50 focus:px-4 focus:py-2.5 focus:bg-slate-900 focus:text-white focus:font-semibold focus:rounded-lg focus:shadow-lg focus-visible:ring-2 focus-visible:ring-brand-primary"
         >
           Skip to main content
         </a>
         <Header />
         <Navbar role={role} />
         <Breadcrumb />
+        <RouteScrollReset />
         <main
           id="main-content"
-          className="flex-1 w-full max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-6"
+          tabIndex={-1}
+          className="flex-1 w-full max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-6 scroll-mt-4"
         >
           {children}
         </main>

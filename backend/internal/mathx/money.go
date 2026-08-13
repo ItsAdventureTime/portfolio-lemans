@@ -1,13 +1,13 @@
 package mathx
 
-import (
-	"math"
-)
-
-const VatRate = 0.12
+const vatNumerator int64 = 12
+const vatDenominator int64 = 100
 
 func VatFromSubtotal(subtotalCents int64) int64 {
-	return int64(math.Round(float64(subtotalCents) * VatRate))
+	if subtotalCents < 0 {
+		return -VatFromSubtotal(-subtotalCents)
+	}
+	return (subtotalCents*vatNumerator + vatDenominator/2) / vatDenominator
 }
 
 func TotalFromSubtotal(subtotalCents int64) int64 {

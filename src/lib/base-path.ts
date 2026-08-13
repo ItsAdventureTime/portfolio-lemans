@@ -1,9 +1,19 @@
+const CONFIGURED_BASE_PATH = (process.env.NEXT_PUBLIC_BASE_PATH || '').replace(/\/+$/, '');
+
 export function getBasePath(): string {
-  if (typeof window !== 'undefined') {
-    const path = window.location.pathname;
-    if (path.startsWith('/lemans/demo')) return '/lemans/demo';
-    if (path.startsWith('/lemans')) return '/lemans';
-    return '';
+  return CONFIGURED_BASE_PATH;
+}
+
+export function stripBasePath(pathname: string): string {
+  const normalizedPathname = pathname.startsWith('/') ? pathname : `/${pathname}`;
+
+  if (!CONFIGURED_BASE_PATH || normalizedPathname === CONFIGURED_BASE_PATH) {
+    return '/';
   }
-  return process.env.NEXT_PUBLIC_BASE_PATH || '';
+
+  if (normalizedPathname.startsWith(`${CONFIGURED_BASE_PATH}/`)) {
+    return normalizedPathname.slice(CONFIGURED_BASE_PATH.length) || '/';
+  }
+
+  return normalizedPathname;
 }

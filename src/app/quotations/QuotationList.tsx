@@ -37,20 +37,37 @@ export default function QuotationList({ quotes, role }: QuotationListProps) {
         {
           key: 'quoteNo',
           header: 'Quote No',
+          className: 'max-w-[136px] sm:max-w-none',
           render: (q) => (
             <a
-              href="#"
-              onClick={(e) => e.preventDefault()}
-              className="font-medium text-slate-900 hover:underline"
+              id={`quotation-${q.id}`}
+              href={`#quotation-${q.id}`}
+              aria-label={`View quotation ${q.quote_no}`}
+              className="inline-flex min-h-11 max-w-full items-center break-all font-medium text-slate-900 underline decoration-slate-300 underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 sm:break-normal"
             >
               {q.quote_no}
             </a>
           ),
         },
 
-        { key: 'customer', header: 'Customer', render: (q) => q.customer_name },
-        { key: 'vehicle', header: 'Vehicle', render: (q) => q.vehicle_plate },
-        { key: 'netTotal', header: 'Net Total', render: (q) => formatPeso(q.net_total_cents) },
+        {
+          key: 'customer',
+          header: 'Customer',
+          className: 'hidden sm:table-cell',
+          render: (q) => q.customer_name,
+        },
+        {
+          key: 'vehicle',
+          header: 'Vehicle',
+          className: 'hidden lg:table-cell',
+          render: (q) => q.vehicle_plate,
+        },
+        {
+          key: 'netTotal',
+          header: 'Net Total',
+          className: 'hidden sm:table-cell',
+          render: (q) => formatPeso(q.net_total_cents),
+        },
         {
           key: 'status',
           header: 'Status',
@@ -60,13 +77,13 @@ export default function QuotationList({ quotes, role }: QuotationListProps) {
           key: 'actions',
           header: 'Actions',
           render: (q) => (
-            <div className="flex items-center gap-2">
+            <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
               {q.status === 'DRAFT' && canApprove && (
                 <>
                   <button
                     onClick={() => run(() => approveQuotation(q.id, role))}
                     disabled={isPending}
-                    className="inline-flex items-center h-11 px-3 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-semibold hover:bg-emerald-100 transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-emerald-600 focus-visible:ring-offset-2"
+                    className="inline-flex h-11 items-center rounded-lg bg-emerald-50 px-3 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
                   >
                     {isPending ? (
                       <Loader2 className="h-3 w-3 animate-spin" />
@@ -78,7 +95,7 @@ export default function QuotationList({ quotes, role }: QuotationListProps) {
                   <button
                     onClick={() => run(() => rejectQuotation(q.id, role))}
                     disabled={isPending}
-                    className="inline-flex items-center h-11 px-3 rounded-lg bg-rose-50 text-rose-700 text-xs font-semibold hover:bg-rose-100 transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-rose-600 focus-visible:ring-offset-2"
+                    className="inline-flex h-11 items-center rounded-lg bg-rose-50 px-3 text-xs font-semibold text-rose-700 transition-colors hover:bg-rose-100 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
                   >
                     {isPending ? (
                       <Loader2 className="h-3 w-3 animate-spin" />

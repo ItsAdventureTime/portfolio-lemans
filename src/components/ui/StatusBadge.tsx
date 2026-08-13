@@ -21,12 +21,14 @@ export default function StatusBadge({ status }: StatusBadgeProps) {
   const s = status || '';
   const upper = s.toUpperCase();
   const variant = STATUS_VARIANTS[upper] || { bg: 'bg-slate-100', text: 'text-slate-700' };
+  const label = upper.replace(/_/g, ' ');
 
   return (
     <span
       className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${variant.bg} ${variant.text}`}
     >
-      {upper.replace(/_/g, ' ')}
+      <span className="sr-only">Status: </span>
+      {label}
     </span>
   );
 }

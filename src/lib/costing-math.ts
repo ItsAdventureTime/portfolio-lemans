@@ -1,42 +1,43 @@
-export function calculateVat(amount: number, isVatInclusive: boolean): number {
+export function calculateVat(amountCents: number, isVatInclusive: boolean): number {
   if (isVatInclusive) {
-    return amount - amount / 1.12;
+    return Math.floor((amountCents * 3 + 14) / 28);
   }
-  return amount * 0.12;
+  return Math.floor((amountCents * 12 + 50) / 100);
 }
 
-export function calculateInvoiceTotal(subtotal: number, isVatInclusive: boolean): number {
+export function calculateInvoiceTotal(subtotalCents: number, isVatInclusive: boolean): number {
   if (isVatInclusive) {
-    return subtotal;
+    return subtotalCents;
   }
-  return subtotal + calculateVat(subtotal, false);
+  return subtotalCents + calculateVat(subtotalCents, false);
 }
 
 export function calculateAllocationRemainder(
-  invoiceTotal: number,
-  allocations: Array<{ amount: number }>
+  invoiceTotalCents: number,
+  allocations: Array<{ amountCents: number }>
 ): number {
-  const allocated = allocations.reduce((sum, a) => sum + a.amount, 0);
-  return invoiceTotal - allocated;
+  const allocatedCents = allocations.reduce((sum, a) => sum + a.amountCents, 0);
+  return invoiceTotalCents - allocatedCents;
 }
 
 export function calculateJobCosting(params: {
-  billedAmount: number;
-  actualLaborCost: number;
-  actualPartsCost: number;
-  allocatedExpenses: number;
+  billedCents: number;
+  actualLaborCents: number;
+  actualPartsCents: number;
+  allocatedExpensesCents: number;
   isVatInclusive: boolean;
 }) {
-  const totalActualCost =
-    params.actualLaborCost + params.actualPartsCost + params.allocatedExpenses;
-  const netProfit = params.billedAmount - totalActualCost;
-  const profitMarginPercent = params.billedAmount > 0 ? (netProfit / params.billedAmount) * 100 : 0;
-  const vatAmount = calculateVat(params.billedAmount, params.isVatInclusive);
+  const totalActualCostCents =
+    params.actualLaborCents + params.actualPartsCents + params.allocatedExpensesCents;
+  const netProfitCents = params.billedCents - totalActualCostCents;
+  const profitMarginPercent =
+    params.billedCents > 0 ? (netProfitCents / params.billedCents) * 100 : 0;
+  const vatAmountCents = calculateVat(params.billedCents, params.isVatInclusive);
 
   return {
-    totalActualCost,
-    netProfit,
+    totalActualCostCents,
+    netProfitCents,
     profitMarginPercent,
-    vatAmount,
+    vatAmountCents,
   };
 }

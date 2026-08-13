@@ -21,6 +21,24 @@ func TestVatFromSubtotal(t *testing.T) {
 	}
 }
 
+func TestVatFromSubtotalUsesCentIntegerRounding(t *testing.T) {
+	cases := []struct {
+		in   int64
+		want int64
+	}{
+		{1, 0},
+		{5, 1},
+		{50, 6},
+		{-5, -1},
+	}
+	for _, c := range cases {
+		got := VatFromSubtotal(c.in)
+		if got != c.want {
+			t.Errorf("VatFromSubtotal(%d) = %d, want %d", c.in, got, c.want)
+		}
+	}
+}
+
 func TestTotalFromSubtotal(t *testing.T) {
 	got := TotalFromSubtotal(10000)
 	if got != 11200 {

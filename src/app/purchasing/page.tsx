@@ -17,6 +17,7 @@ import PurchaseList from './PurchaseList';
 import SupplierInvoiceForm from './SupplierInvoiceForm';
 import SupplierInvoiceList from './SupplierInvoiceList';
 import { errorResult, FormResult, okResult } from '@/lib/form-result';
+import { parsePesoToCents } from '@/lib/money';
 import EndToEndWorkflowVisualizer from '@/components/EndToEndWorkflowVisualizer';
 
 export default async function PurchasingPage() {
@@ -35,7 +36,8 @@ export default async function PurchasingPage() {
     const supplier = String(formData.get('supplier') ?? '').trim();
     const description = String(formData.get('description') ?? '').trim();
     const quantity = Number(formData.get('quantity'));
-    const unitCost = Number(formData.get('unitCost'));
+    const unitCostInput = String(formData.get('unitCost') ?? '').trim();
+    const unitCostCents = parsePesoToCents(unitCostInput);
     const notes = String(formData.get('notes') ?? '').trim();
 
     const fieldErrors: Record<string, string> = {};
@@ -44,7 +46,7 @@ export default async function PurchasingPage() {
     if (Number.isNaN(quantity) || quantity <= 0) {
       fieldErrors.quantity = 'Enter a positive quantity';
     }
-    if (Number.isNaN(unitCost) || unitCost <= 0) {
+    if (unitCostCents === null || unitCostCents <= 0) {
       fieldErrors.unitCost = 'Enter a positive unit cost';
     }
 
@@ -52,7 +54,7 @@ export default async function PurchasingPage() {
       supplier,
       description,
       quantity: Number.isNaN(quantity) ? '' : quantity,
-      unitCost: Number.isNaN(unitCost) ? '' : unitCost,
+      unitCost: unitCostInput,
       notes,
     };
 
@@ -69,7 +71,7 @@ export default async function PurchasingPage() {
             {
               description,
               quantity,
-              unitCostCents: Math.round(unitCost * 100),
+              unitCostCents,
             },
           ],
         },
@@ -96,7 +98,8 @@ export default async function PurchasingPage() {
     'use server';
     const r = await (await import('@/lib/actor')).getDemoRole();
     const supplier = String(formData.get('supplier') ?? '').trim();
-    const totalAmount = Number(formData.get('totalAmount'));
+    const totalAmountInput = String(formData.get('totalAmount') ?? '').trim();
+    const totalAmountCents = parsePesoToCents(totalAmountInput);
     const invoiceDate = String(formData.get('invoiceDate') ?? '').trim();
     const dueDate = String(formData.get('dueDate') ?? '').trim();
     const notes = String(formData.get('notes') ?? '').trim();
@@ -108,7 +111,7 @@ export default async function PurchasingPage() {
           .filter((item) => item && typeof item.joId === 'string')
           .map((item) => ({
             joId: item.joId,
-            amountCents: Math.round(Number(item.amount || 0) * 100),
+            amountCents: Number(item.amountCents ?? 0),
             description: String(item.description || '').trim(),
           }));
       }
@@ -118,20 +121,20 @@ export default async function PurchasingPage() {
 
     const fieldErrors: Record<string, string> = {};
     if (!supplier) fieldErrors.supplier = 'Supplier is required';
-    if (Number.isNaN(totalAmount) || totalAmount <= 0) {
+    if (totalAmountCents === null || totalAmountCents <= 0) {
       fieldErrors.totalAmount = 'Enter a positive total amount';
     }
     if (!invoiceDate) fieldErrors.invoiceDate = 'Invoice date is required';
     if (allocations.length > 0) {
       const allocatedCents = allocations.reduce((sum, item) => sum + item.amountCents, 0);
-      if (allocatedCents !== Math.round(totalAmount * 100)) {
+      if (allocatedCents !== totalAmountCents) {
         fieldErrors.allocations = 'Allocations must equal the invoice total';
       }
     }
 
     const values = {
       supplier,
-      totalAmount: Number.isNaN(totalAmount) ? '' : totalAmount,
+      totalAmount: totalAmountInput,
       invoiceDate,
       dueDate,
       notes,
@@ -145,7 +148,7 @@ export default async function PurchasingPage() {
       await createSupplierInvoice(
         {
           supplier,
-          totalAmountCents: Math.round(totalAmount * 100),
+          totalAmountCents,
           invoiceDate,
           dueDate,
           notes,

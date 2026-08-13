@@ -91,7 +91,7 @@ export default function CascadingCustomerVehicleSelector({
           value={selectedCustomerId}
           onChange={(e) => handleCustomerChange(e.target.value)}
           aria-controls={`${vehicleName}-select`}
-          className="w-full px-3 py-2 rounded-xl border border-slate-300 text-base focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+          className="min-h-11 w-full rounded-xl border border-slate-300 px-3 py-2 text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
         >
           <option value="">Select Customer</option>
           {customers.map((c) => (
@@ -127,7 +127,7 @@ export default function CascadingCustomerVehicleSelector({
           disabled={!selectedCustomerId}
           value={selectedVehicleId}
           onChange={(e) => handleVehicleChange(e.target.value)}
-          className="w-full px-3 py-2 rounded-xl border border-slate-300 text-base disabled:bg-slate-100 disabled:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-primary focus:border-brand-primary"
+          className="min-h-11 w-full rounded-xl border border-slate-300 px-3 py-2 text-base disabled:bg-slate-100 disabled:text-slate-400 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
         >
           <option value="">
             {selectedCustomerId ? 'Select Vehicle' : 'Select Customer First'}
@@ -154,14 +154,21 @@ export function QuickAddModal({ title, open, onClose, children }: QuickAddModalP
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-      <div className="w-full max-w-lg bg-white rounded-2xl border border-slate-200 shadow-lg p-6 space-y-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
+      <div
+        className="w-full max-w-lg space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-lg"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="quick-add-modal-title"
+      >
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-bold text-slate-900">{title}</h3>
+          <h3 id="quick-add-modal-title" className="text-lg font-bold text-slate-900">
+            {title}
+          </h3>
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex items-center justify-center h-11 w-11 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
             aria-label="Close"
           >
             <X className="h-4 w-4" />

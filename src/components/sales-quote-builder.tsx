@@ -2,7 +2,7 @@
 
 import React, { useState, useCallback, useMemo } from 'react';
 import { Trash2, Plus } from 'lucide-react';
-import { formatPesoAmount } from '@/lib/money';
+import { centsToPeso, formatPeso, parsePesoToCents } from '@/lib/money';
 
 export type QuoteItemType = 'LABOR' | 'PARTS' | 'MISC';
 
@@ -11,16 +11,16 @@ export interface QuoteItem {
   itemType: QuoteItemType;
   description: string;
   quantity: number;
-  unitPrice: number;
-  discount: number;
+  unitPriceCents: number;
+  discountCents: number;
 }
 
 export interface SalesQuoteBuilderValue {
-  totalLabor: number;
-  totalParts: number;
-  totalMisc: number;
-  totalDiscounts: number;
-  grandTotal: number;
+  totalLaborCents: number;
+  totalPartsCents: number;
+  totalMiscCents: number;
+  totalDiscountsCents: number;
+  grandTotalCents: number;
   items: QuoteItem[];
 }
 
@@ -56,8 +56,8 @@ export default function SalesQuoteBuilder({
             itemType: 'LABOR',
             description: '',
             quantity: 1,
-            unitPrice: 0,
-            discount: 0,
+            unitPriceCents: 0,
+            discountCents: 0,
           },
         ]
   );
@@ -65,23 +65,23 @@ export default function SalesQuoteBuilder({
   const updateItems = useCallback(
     (nextItems: QuoteItem[]) => {
       setItems(nextItems);
-      const totalLabor = nextItems
+      const totalLaborCents = nextItems
         .filter((i) => i.itemType === 'LABOR')
-        .reduce((sum, i) => sum + i.quantity * i.unitPrice - i.discount, 0);
-      const totalParts = nextItems
+        .reduce((sum, i) => sum + Math.round(i.quantity * i.unitPriceCents) - i.discountCents, 0);
+      const totalPartsCents = nextItems
         .filter((i) => i.itemType === 'PARTS')
-        .reduce((sum, i) => sum + i.quantity * i.unitPrice - i.discount, 0);
-      const totalMisc = nextItems
+        .reduce((sum, i) => sum + Math.round(i.quantity * i.unitPriceCents) - i.discountCents, 0);
+      const totalMiscCents = nextItems
         .filter((i) => i.itemType === 'MISC')
-        .reduce((sum, i) => sum + i.quantity * i.unitPrice - i.discount, 0);
-      const totalDiscounts = nextItems.reduce((sum, i) => sum + i.discount, 0);
-      const grandTotal = totalLabor + totalParts + totalMisc;
+        .reduce((sum, i) => sum + Math.round(i.quantity * i.unitPriceCents) - i.discountCents, 0);
+      const totalDiscountsCents = nextItems.reduce((sum, i) => sum + i.discountCents, 0);
+      const grandTotalCents = totalLaborCents + totalPartsCents + totalMiscCents;
       onChange?.({
-        totalLabor,
-        totalParts,
-        totalMisc,
-        totalDiscounts,
-        grandTotal,
+        totalLaborCents,
+        totalPartsCents,
+        totalMiscCents,
+        totalDiscountsCents,
+        grandTotalCents,
         items: nextItems,
       });
     },
@@ -92,7 +92,14 @@ export default function SalesQuoteBuilder({
     (type: QuoteItemType) => {
       updateItems([
         ...items,
-        { id: createId(), itemType: type, description: '', quantity: 1, unitPrice: 0, discount: 0 },
+        {
+          id: createId(),
+          itemType: type,
+          description: '',
+          quantity: 1,
+          unitPriceCents: 0,
+          discountCents: 0,
+        },
       ]);
     },
     [items, updateItems]
@@ -113,18 +120,24 @@ export default function SalesQuoteBuilder({
   );
 
   const summary = useMemo(() => {
-    const totalLabor = items
+    const totalLaborCents = items
       .filter((i) => i.itemType === 'LABOR')
-      .reduce((sum, i) => sum + i.quantity * i.unitPrice - i.discount, 0);
-    const totalParts = items
+      .reduce((sum, i) => sum + Math.round(i.quantity * i.unitPriceCents) - i.discountCents, 0);
+    const totalPartsCents = items
       .filter((i) => i.itemType === 'PARTS')
-      .reduce((sum, i) => sum + i.quantity * i.unitPrice - i.discount, 0);
-    const totalMisc = items
+      .reduce((sum, i) => sum + Math.round(i.quantity * i.unitPriceCents) - i.discountCents, 0);
+    const totalMiscCents = items
       .filter((i) => i.itemType === 'MISC')
-      .reduce((sum, i) => sum + i.quantity * i.unitPrice - i.discount, 0);
-    const totalDiscounts = items.reduce((sum, i) => sum + i.discount, 0);
-    const grandTotal = totalLabor + totalParts + totalMisc;
-    return { totalLabor, totalParts, totalMisc, totalDiscounts, grandTotal };
+      .reduce((sum, i) => sum + Math.round(i.quantity * i.unitPriceCents) - i.discountCents, 0);
+    const totalDiscountsCents = items.reduce((sum, i) => sum + i.discountCents, 0);
+    const grandTotalCents = totalLaborCents + totalPartsCents + totalMiscCents;
+    return {
+      totalLaborCents,
+      totalPartsCents,
+      totalMiscCents,
+      totalDiscountsCents,
+      grandTotalCents,
+    };
   }, [items]);
 
   return (
@@ -133,7 +146,7 @@ export default function SalesQuoteBuilder({
 
       <div className="overflow-x-auto border border-slate-200 rounded-xl">
         <table className="w-full text-left text-base">
-          <thead className="bg-slate-100/80 text-slate-700 border-b border-slate-200 sticky top-0 z-10">
+          <thead className="bg-slate-100/80 text-slate-700 border-b border-slate-200">
             <tr>
               <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider">Type</th>
               <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider">Description</th>
@@ -156,7 +169,7 @@ export default function SalesQuoteBuilder({
           </thead>
           <tbody className="divide-y divide-slate-200 text-slate-700">
             {items.map((item) => {
-              const net = item.quantity * item.unitPrice - item.discount;
+              const net = Math.round(item.quantity * item.unitPriceCents) - item.discountCents;
               return (
                 <tr key={item.id} className="align-top">
                   <td className="px-4 py-3">
@@ -165,7 +178,7 @@ export default function SalesQuoteBuilder({
                       onChange={(e) =>
                         updateRow(item.id, { itemType: e.target.value as QuoteItemType })
                       }
-                      className="min-h-11 w-full px-2 py-2 rounded-lg border border-slate-300 text-sm"
+                      className="min-h-11 w-full rounded-lg border border-slate-300 px-2 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
                     >
                       {itemTypeOptions.map((opt) => (
                         <option key={opt.value} value={opt.value}>
@@ -179,7 +192,7 @@ export default function SalesQuoteBuilder({
                       value={item.description}
                       onChange={(e) => updateRow(item.id, { description: e.target.value })}
                       placeholder="Item description"
-                      className="min-h-11 w-full px-2 py-2 rounded-lg border border-slate-300 text-sm"
+                      className="min-h-11 w-full rounded-lg border border-slate-300 px-2 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
                     />
                   </td>
                   <td className="px-4 py-3">
@@ -189,7 +202,7 @@ export default function SalesQuoteBuilder({
                       step="0.01"
                       value={item.quantity}
                       onChange={(e) => updateRow(item.id, { quantity: Number(e.target.value) })}
-                      className="min-h-11 w-20 px-2 py-2 rounded-lg border border-slate-300 text-sm text-right"
+                      className="min-h-11 w-20 rounded-lg border border-slate-300 px-2 py-2 text-right text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
                     />
                   </td>
                   <td className="px-4 py-3">
@@ -201,9 +214,13 @@ export default function SalesQuoteBuilder({
                         type="number"
                         min="0"
                         step="0.01"
-                        value={item.unitPrice}
-                        onChange={(e) => updateRow(item.id, { unitPrice: Number(e.target.value) })}
-                        className="min-h-11 w-28 pl-6 pr-2 py-2 rounded-lg border border-slate-300 text-sm text-right"
+                        value={centsToPeso(item.unitPriceCents)}
+                        onChange={(e) =>
+                          updateRow(item.id, {
+                            unitPriceCents: parsePesoToCents(e.target.value) ?? 0,
+                          })
+                        }
+                        className="min-h-11 w-28 rounded-lg border border-slate-300 py-2 pl-6 pr-2 text-right text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
                       />
                     </div>
                   </td>
@@ -216,20 +233,24 @@ export default function SalesQuoteBuilder({
                         type="number"
                         min="0"
                         step="0.01"
-                        value={item.discount}
-                        onChange={(e) => updateRow(item.id, { discount: Number(e.target.value) })}
-                        className="min-h-11 w-24 pl-6 pr-2 py-2 rounded-lg border border-slate-300 text-sm text-right"
+                        value={centsToPeso(item.discountCents)}
+                        onChange={(e) =>
+                          updateRow(item.id, {
+                            discountCents: parsePesoToCents(e.target.value) ?? 0,
+                          })
+                        }
+                        className="min-h-11 w-24 rounded-lg border border-slate-300 py-2 pl-6 pr-2 text-right text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
                       />
                     </div>
                   </td>
                   <td className="px-4 py-3 text-right font-mono font-semibold text-slate-900">
-                    {formatPesoAmount(net)}
+                    {formatPeso(net)}
                   </td>
                   <td className="px-4 py-3 text-center">
                     <button
                       type="button"
                       onClick={() => removeRow(item.id)}
-                      className="inline-flex items-center justify-center h-11 w-11 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                      className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
                       aria-label="Remove row"
                     >
                       <Trash2 className="h-4 w-4" />
@@ -246,7 +267,7 @@ export default function SalesQuoteBuilder({
         <button
           type="button"
           onClick={() => addRow('LABOR')}
-          className="inline-flex items-center justify-center h-12 px-4 rounded-xl bg-slate-100 text-slate-700 text-sm font-semibold hover:bg-slate-200 transition-colors whitespace-nowrap"
+          className="inline-flex h-12 items-center justify-center whitespace-nowrap rounded-xl bg-slate-100 px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
         >
           <Plus className="h-4 w-4 mr-1.5" />
           Add Labor Row
@@ -254,7 +275,7 @@ export default function SalesQuoteBuilder({
         <button
           type="button"
           onClick={() => addRow('PARTS')}
-          className="inline-flex items-center justify-center h-12 px-4 rounded-xl bg-slate-100 text-slate-700 text-sm font-semibold hover:bg-slate-200 transition-colors whitespace-nowrap"
+          className="inline-flex h-12 items-center justify-center whitespace-nowrap rounded-xl bg-slate-100 px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
         >
           <Plus className="h-4 w-4 mr-1.5" />
           Add Parts Row
@@ -264,28 +285,28 @@ export default function SalesQuoteBuilder({
       <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-2">
         <div className="flex justify-between text-sm">
           <span className="text-slate-600">Labor Subtotal</span>
-          <span className="font-mono font-semibold">{formatPesoAmount(summary.totalLabor)}</span>
+          <span className="font-mono font-semibold">{formatPeso(summary.totalLaborCents)}</span>
         </div>
         <div className="flex justify-between text-sm">
           <span className="text-slate-600">Parts Subtotal</span>
-          <span className="font-mono font-semibold">{formatPesoAmount(summary.totalParts)}</span>
+          <span className="font-mono font-semibold">{formatPeso(summary.totalPartsCents)}</span>
         </div>
-        {summary.totalMisc > 0 && (
+        {summary.totalMiscCents > 0 && (
           <div className="flex justify-between text-sm">
             <span className="text-slate-600">Misc Subtotal</span>
-            <span className="font-mono font-semibold">{formatPesoAmount(summary.totalMisc)}</span>
+            <span className="font-mono font-semibold">{formatPeso(summary.totalMiscCents)}</span>
           </div>
         )}
         <div className="flex justify-between text-sm">
           <span className="text-slate-600">Total Discounts</span>
           <span className="font-mono font-semibold text-rose-600">
-            -{formatPesoAmount(summary.totalDiscounts)}
+            -{formatPeso(summary.totalDiscountsCents)}
           </span>
         </div>
         <div className="flex justify-between items-center pt-2 border-t border-slate-200">
           <span className="text-base font-bold text-slate-900">Quote Grand Total</span>
           <span className="text-lg font-bold font-mono text-brand-primary">
-            {formatPesoAmount(summary.grandTotal)}
+            {formatPeso(summary.grandTotalCents)}
           </span>
         </div>
       </div>

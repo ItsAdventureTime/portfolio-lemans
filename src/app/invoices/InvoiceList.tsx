@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import { DataTable, StatusBadge, FormField } from '@/components/ui';
-import { formatPeso } from '@/lib/money';
+import { formatPeso, parsePesoToCents } from '@/lib/money';
 import { hasPermission, ProjectRole } from '@/lib/roles';
 import { recordInvoicePayment } from '@/lib/api';
 import { Loader2, CreditCard } from 'lucide-react';
@@ -29,9 +29,8 @@ export default function InvoiceList({ invoices, role }: InvoiceListProps) {
   const [isPending, startTransition] = useTransition();
 
   function handlePay(inv: Invoice, formData: FormData) {
-    const amount = Number(formData.get('amount'));
-    if (Number.isNaN(amount) || amount <= 0) return;
-    const amountCents = Math.round(amount * 100);
+    const amountCents = parsePesoToCents(String(formData.get('amount') ?? ''));
+    if (amountCents === null || amountCents <= 0) return;
     const remaining = inv.total_cents - inv.amount_paid_cents;
     if (amountCents > remaining) return;
     startTransition(async () => {
@@ -59,18 +58,29 @@ export default function InvoiceList({ invoices, role }: InvoiceListProps) {
         {
           key: 'invoiceNo',
           header: 'Invoice No',
+          className: 'max-w-[112px] sm:max-w-none',
           render: (inv) => (
             <Link
               href={`/invoices/${inv.id}`}
-              className="inline-flex items-center min-h-11 text-brand-primary hover:underline focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 rounded px-1 -mx-1"
+              className="inline-flex min-h-11 max-w-full items-center break-all text-brand-primary hover:underline focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 rounded px-1 -mx-1 sm:break-normal"
             >
               {inv.invoice_no}
             </Link>
           ),
         },
-        { key: 'customer', header: 'Customer', render: (inv) => inv.customer_name },
+        {
+          key: 'customer',
+          header: 'Customer',
+          className: 'hidden sm:table-cell',
+          render: (inv) => inv.customer_name,
+        },
         { key: 'total', header: 'Total', render: (inv) => formatPeso(inv.total_cents) },
-        { key: 'paid', header: 'Paid', render: (inv) => formatPeso(inv.amount_paid_cents) },
+        {
+          key: 'paid',
+          header: 'Paid',
+          className: 'hidden sm:table-cell',
+          render: (inv) => formatPeso(inv.amount_paid_cents),
+        },
         {
           key: 'status',
           header: 'Status',

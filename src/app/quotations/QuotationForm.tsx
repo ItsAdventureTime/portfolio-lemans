@@ -82,8 +82,8 @@ export default function QuotationForm({ customers, vehicles, action }: Quotation
               itemType: it.itemType,
               description: it.description,
               quantity: it.quantity,
-              unitPriceCents: Math.round(it.unitPrice * 100),
-              discountCents: Math.round(it.discount * 100),
+              unitPriceCents: it.unitPriceCents,
+              discountCents: it.discountCents,
             }))
           )}
         />

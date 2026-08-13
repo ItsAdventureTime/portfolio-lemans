@@ -1,6 +1,6 @@
 # Current repository state
 
-- **Updated**: 2026-08-12 (implementation audit)
+- **Updated**: 2026-08-13 (implementation audit and validation)
 - **Authority**: Current implementation and the demo rules in
   [`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md)
 - **Documentation index**: [`DOCUMENTATION-INDEX.md`](./DOCUMENTATION-INDEX.md)
@@ -47,6 +47,19 @@ export PATH="/opt/podman/bin:$PATH"
 `./scripts/reset-local.sh` removes the demo database volume; the next
 `run-local.sh` invocation recreates migrations and seed data. The database never
 publishes port 5432 to the host.
+
+The current demo validation baseline is complete in rootless Podman:
+
+- `verify-local.sh`: Prettier, ESLint, TypeScript, Next.js production build,
+  and Go tests pass.
+- `verify-vertical-slice.sh`: all health and module routes return 200; the API
+  is reachable on the internal network; PostgreSQL has no published host port.
+- `verify-e2e.sh`: all 33 Playwright tests pass across desktop, mobile, and
+  reduced-motion projects.
+
+The UI keeps the configured `NEXT_PUBLIC_BASE_PATH` at runtime, uses integer
+centavos for monetary values, exposes keyboard-visible focus states and 44px
+minimum targets, and preserves the demo role policy through `X-Demo-Role`.
 
 Remote deployment is separate: the workstation stages a clean committed source
 tree to the stable `current` path and syncs it with rsync, the VPS builds and
