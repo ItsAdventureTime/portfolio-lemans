@@ -14,6 +14,9 @@ import type { Disbursement } from '@/lib/types';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
+import PageHeader from '@/components/PageHeader';
+import EndToEndWorkflowVisualizer from '@/components/EndToEndWorkflowVisualizer';
+
 export default async function DcsPage() {
   const role = await getDemoRole();
   const disbursements = await listDisbursements(role);
@@ -22,7 +25,12 @@ export default async function DcsPage() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">Disbursements & Payments (DCS)</h1>
+      <PageHeader
+        title="Disbursements & Cashier Services (DCS)"
+        description="Execute approved payments, upload proof receipts, and record disbursements."
+      />
+
+      <EndToEndWorkflowVisualizer currentStage="BILLING" />
 
       <DataTable<Disbursement>
         items={disbursements}

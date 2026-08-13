@@ -138,7 +138,7 @@ deployment no longer creates external `.env` files.
 | `B2_ACCESS_KEY_ID`     | Backblaze application key ID                                                                    | Generated `Environment=` entry |
 | `B2_SECRET_ACCESS_KEY` | Backblaze application key secret                                                                | Generated `Environment=` entry |
 | `B2_BUCKET_NAME`       | Target bucket name per environment                                                              | Quadlet `Environment=` entry   |
-| `B2_KEY_PREFIX`        | Profile object-key prefix (`lemans/demo` demo; `lemans` production)                            | Quadlet `Environment=` entry   |
+| `B2_KEY_PREFIX`        | Profile object-key prefix (`lemans/demo` demo; `lemans` production)                             | Quadlet `Environment=` entry   |
 
 ## 7. Deployment Scripts
 

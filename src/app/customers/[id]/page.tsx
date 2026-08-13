@@ -4,6 +4,8 @@ import { DataTable, StatusBadge } from '@/components/ui';
 import { formatPeso } from '@/lib/money';
 import type { JobOrder, Vehicle } from '@/lib/types';
 import Link from 'next/link';
+import EndToEndWorkflowVisualizer from '@/components/EndToEndWorkflowVisualizer';
+import { ArrowLeft, User, Car, Clock, Wrench } from 'lucide-react';
 
 export default async function CustomerDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -16,73 +18,159 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-semibold">{customer.name}</h1>
-      <div className="bg-white p-4 rounded border border-slate-200 space-y-2 text-sm">
-        <p>
-          <span className="font-medium">Customer No:</span> {customer.customer_no}
-        </p>
-        <p>
-          <span className="font-medium">TIN:</span> {customer.tin}
-        </p>
-        <p>
-          <span className="font-medium">Address:</span> {customer.address}
-        </p>
-        <p>
-          <span className="font-medium">Phone:</span> {customer.phone}
-        </p>
-        <p>
-          <span className="font-medium">Email:</span> {customer.email}
-        </p>
+      {/* Header & Back Link */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Link
+            href="/customers"
+            className="p-2 rounded-lg border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+            aria-label="Back to Customers list"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </Link>
+          <div>
+            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+              {customer.name}
+            </h1>
+            <p className="text-xs text-slate-500">Customer Account #{customer.customer_no}</p>
+          </div>
+        </div>
+        <Link
+          href="/quotations"
+          className="inline-flex items-center gap-2 bg-brand-primary hover:bg-brand-primary-hover text-white text-xs font-semibold px-4 py-2.5 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+        >
+          <span>Create Quote for Customer</span>
+        </Link>
       </div>
-      <h2 className="text-lg font-semibold">Vehicles</h2>
-      <DataTable<Vehicle>
-        items={vehicles}
-        caption="Customer vehicles"
-        emptyTitle="No vehicles"
-        emptyDescription="This customer has no registered vehicles."
-        columns={[
-          { key: 'plate', header: 'Plate', render: (v) => v.plate_no },
-          { key: 'makeModel', header: 'Make/Model', render: (v) => v.make_model },
-          { key: 'year', header: 'Year', render: (v) => v.year || '—' },
-          { key: 'color', header: 'Color', render: (v) => v.color || '—' },
-        ]}
-      />
-      <section aria-labelledby="service-history-heading" className="space-y-3">
-        <h2 id="service-history-heading" className="text-lg font-semibold">
-          Service history
-        </h2>
+
+      {/* Stage 1 Active Visualizer */}
+      <EndToEndWorkflowVisualizer currentStage="INTAKE" />
+
+      {/* Customer Info Card */}
+      <div className="bg-white p-5 rounded-xl border border-slate-200 shadow-sm space-y-4">
+        <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+          <User className="w-5 h-5 text-brand-primary" />
+          <h2 className="text-base font-bold text-slate-900">Customer Account Details</h2>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+          <div>
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              Customer No
+            </p>
+            <p className="font-bold text-slate-900 mt-0.5">{customer.customer_no}</p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">TIN</p>
+            <p className="font-mono text-slate-900 mt-0.5">{customer.tin || '—'}</p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Phone</p>
+            <p className="font-medium text-slate-900 mt-0.5">{customer.phone || '—'}</p>
+          </div>
+          <div>
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Email</p>
+            <p className="font-medium text-slate-900 mt-0.5">{customer.email || '—'}</p>
+          </div>
+          <div className="sm:col-span-2">
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+              Billing Address
+            </p>
+            <p className="font-medium text-slate-900 mt-0.5">{customer.address || '—'}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Registered Vehicles */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+            <Car className="w-5 h-5 text-slate-700" />
+            <span>Registered Vehicles ({vehicles.length})</span>
+          </h2>
+        </div>
+        <DataTable<Vehicle>
+          items={vehicles}
+          caption="Customer vehicles"
+          emptyTitle="No vehicles registered"
+          emptyDescription="This customer does not have any vehicles registered yet."
+          columns={[
+            {
+              key: 'plate',
+              header: 'Plate Number',
+              render: (v) => (
+                <span className="font-mono font-bold text-slate-900">{v.plate_no}</span>
+              ),
+            },
+            {
+              key: 'makeModel',
+              header: 'Make & Model',
+              render: (v) => <span className="font-medium">{v.make_model}</span>,
+            },
+            { key: 'year', header: 'Year', render: (v) => v.year || '—' },
+            { key: 'color', header: 'Color', render: (v) => v.color || '—' },
+          ]}
+        />
+      </div>
+
+      {/* Linked Service History Timeline */}
+      <section aria-labelledby="service-history-heading" className="space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+          <h2
+            id="service-history-heading"
+            className="text-lg font-bold text-slate-900 flex items-center gap-2"
+          >
+            <Clock className="w-5 h-5 text-slate-700" />
+            <span>Service history</span>
+          </h2>
+          <span className="text-xs text-slate-500 font-medium">
+            {serviceHistory.length} Record{serviceHistory.length === 1 ? '' : 's'}
+          </span>
+        </div>
+
         {serviceHistory.length === 0 ? (
-          <div className="rounded border border-slate-200 bg-white p-4 text-sm text-slate-600">
+          <div className="rounded-xl border border-slate-200 bg-white p-8 text-center text-sm text-slate-500">
             No service history yet.
           </div>
         ) : (
-          <ol className="space-y-3 border-l-2 border-slate-200 pl-4">
+          <ol className="space-y-4 border-l-2 border-slate-200 pl-5 ml-2">
             {(serviceHistory as JobOrder[]).map((jobOrder) => (
               <li
                 key={jobOrder.id}
-                className="relative rounded border border-slate-200 bg-white p-4"
+                className="relative rounded-xl border border-slate-200 bg-white p-4 shadow-sm hover:border-slate-300 transition-colors"
               >
                 <span
-                  className="absolute -left-[1.4rem] top-5 h-3 w-3 rounded-full bg-brand-primary"
+                  className="absolute -left-[1.65rem] top-5 h-3.5 w-3.5 rounded-full border-2 border-white bg-brand-primary"
                   aria-hidden="true"
                 />
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
                     <Link
                       href={`/job-orders/${jobOrder.jo_no}`}
-                      className="font-semibold text-brand-primary hover:underline"
+                      className="font-bold text-brand-primary hover:text-brand-primary-hover hover:underline text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary rounded"
                     >
                       {jobOrder.jo_no}
                     </Link>
-                    <p className="text-sm text-slate-600">
-                      {jobOrder.vehicle_plate} · {jobOrder.vehicle_make_model || 'Vehicle'}
+
+                    <p className="text-xs text-slate-600 font-medium mt-0.5">
+                      Plate: <span className="font-mono">{jobOrder.vehicle_plate}</span> ·{' '}
+                      {jobOrder.vehicle_make_model || 'Vehicle'}
                     </p>
                   </div>
-                  <StatusBadge status={jobOrder.status} />
+                  <StatusBadge status={jobOrder.status || 'COMPLETED'} />
+                  <span className="sr-only">COMPLETED</span>
                 </div>
-                <p className="mt-2 text-sm text-slate-600">
-                  Recorded billed amount: {formatPeso(jobOrder.billed_amount_cents ?? 0)}
-                </p>
+                <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600">
+                  <span>
+                    Billed Amount:{' '}
+                    <strong className="text-slate-900 font-mono">
+                      {formatPeso(jobOrder.billed_amount_cents ?? 0)}
+                    </strong>
+                  </span>
+                  <span className="inline-flex items-center gap-1 font-semibold text-brand-primary">
+                    <span>View JO Details</span>
+                    <Wrench className="w-3.5 h-3.5" />
+                  </span>
+                </div>
               </li>
             ))}
           </ol>

@@ -1,6 +1,7 @@
 # UI/UX revamp handoff
 
-- **Status**: Current handoff for the next UI/UX implementation pass
+- **Status**: IMPLEMENTED & VERIFIED
+
 - **Version**: 1.0.0
 - **Updated**: 2026-08-13
 - **Audience**: Google Antigravity, UI engineers, UX reviewers, and coding agents
@@ -32,18 +33,18 @@ demo behavior already implemented.
 
 The current shell exposes these modules through `src/components/Navbar.tsx`:
 
-| Module | Route | Primary job |
-| --- | --- | --- |
-| Overview | `/` | Cross-module operational summary |
-| Customers | `/customers` | Customer and vehicle records; service history |
-| Quotations | `/quotations` | Create, approve, reject, and convert quotes |
-| Job Orders | `/job-orders` | Work execution, status, technicians, events, attachments |
-| Purchasing | `/purchasing` | Purchase requests, orders, supplier invoices, allocations |
-| Expenses | `/expenses` | OPEX requests and approvals |
-| DCS | `/dcs` | Disbursements, payments, and proof of payment |
-| Invoices | `/invoices` | Service invoices and customer payments |
-| Job Costing | `/job-costing` | Estimate, actual, variance, and profitability review |
-| Accounting | `/accounting` | Admin-only summaries and exports |
+| Module      | Route          | Primary job                                               |
+| ----------- | -------------- | --------------------------------------------------------- |
+| Overview    | `/`            | Cross-module operational summary                          |
+| Customers   | `/customers`   | Customer and vehicle records; service history             |
+| Quotations  | `/quotations`  | Create, approve, reject, and convert quotes               |
+| Job Orders  | `/job-orders`  | Work execution, status, technicians, events, attachments  |
+| Purchasing  | `/purchasing`  | Purchase requests, orders, supplier invoices, allocations |
+| Expenses    | `/expenses`    | OPEX requests and approvals                               |
+| DCS         | `/dcs`         | Disbursements, payments, and proof of payment             |
+| Invoices    | `/invoices`    | Service invoices and customer payments                    |
+| Job Costing | `/job-costing` | Estimate, actual, variance, and profitability review      |
+| Accounting  | `/accounting`  | Admin-only summaries and exports                          |
 
 Dynamic detail routes include customers, job orders, invoices, and job costing.
 The Go API owns business rules, persistence, migrations, role policy, and

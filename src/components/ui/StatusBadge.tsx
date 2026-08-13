@@ -14,18 +14,19 @@ const STATUS_VARIANTS: Record<string, { bg: string; text: string }> = {
 };
 
 interface StatusBadgeProps {
-  status: string;
+  status?: string;
 }
 
 export default function StatusBadge({ status }: StatusBadgeProps) {
-  const upper = status.toUpperCase();
+  const s = status || '';
+  const upper = s.toUpperCase();
   const variant = STATUS_VARIANTS[upper] || { bg: 'bg-slate-100', text: 'text-slate-700' };
 
   return (
     <span
       className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold ${variant.bg} ${variant.text}`}
     >
-      {status.replace(/_/g, ' ')}
+      {upper.replace(/_/g, ' ')}
     </span>
   );
 }

@@ -17,6 +17,7 @@ import PurchaseList from './PurchaseList';
 import SupplierInvoiceForm from './SupplierInvoiceForm';
 import SupplierInvoiceList from './SupplierInvoiceList';
 import { errorResult, FormResult, okResult } from '@/lib/form-result';
+import EndToEndWorkflowVisualizer from '@/components/EndToEndWorkflowVisualizer';
 
 export default async function PurchasingPage() {
   const role = await getDemoRole();
@@ -176,6 +177,8 @@ export default async function PurchasingPage() {
         title="Purchasing"
         description="Manage purchase requests, supplier invoices, and cost allocations."
       />
+
+      <EndToEndWorkflowVisualizer currentStage="PURCHASING" />
 
       <SectionCard title="Purchase Requests">
         {canCreatePR && <PurchaseRequestForm action={createPRAction} />}

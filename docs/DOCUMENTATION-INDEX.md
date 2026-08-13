@@ -18,33 +18,35 @@ the authority order below.
 4. [`REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`](./REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md) —
    remote-only deployment contract; remote operations require explicit user
    authorization.
-5. [`UI-UX-REVAMP-HANDOFF.md`](./UI-UX-REVAMP-HANDOFF.md) — current handoff for
-   the planned complete demo UI/UX and workflow-navigation revamp.
-6. [`ARCHITECTURE.md`](./ARCHITECTURE.md),
+5. [`UI-UX-REVAMP-HANDOFF.md`](./UI-UX-REVAMP-HANDOFF.md) — handoff record for the completed UI/UX revamp and workflow visualizer navigation.
+6. [`CODEX-REVIEW-HANDOFF.md`](./CODEX-REVIEW-HANDOFF.md) — ChatGPT Codex handoff document for code review, inspection, evaluation, and ready-to-use copy-and-paste prompt.
+7. [`ARCHITECTURE.md`](./ARCHITECTURE.md),
+
    [`GO-BACKEND-ARCHITECTURE.md`](./GO-BACKEND-ARCHITECTURE.md),
    [`ENVIRONMENTS-AND-PATHS.md`](./ENVIRONMENTS-AND-PATHS.md), and the ADRs —
    architecture and future-profile decisions.
-7. [`GOOGLE-ANTIGRAVITY-UI-UX-PROMPT.md`](./GOOGLE-ANTIGRAVITY-UI-UX-PROMPT.md)
+
+8. [`GOOGLE-ANTIGRAVITY-UI-UX-PROMPT.md`](./GOOGLE-ANTIGRAVITY-UI-UX-PROMPT.md)
    — copy-and-paste execution prompt for the next UI/UX agent.
-8. [`README.md`](../README.md) — quickstart and navigation index.
-9. [`WRITING-STYLE.md`](./WRITING-STYLE.md) — US-English voice, tone, and
-   proofreading standard for active content.
+9. [`README.md`](../README.md) — quickstart and navigation index.
+10. [`WRITING-STYLE.md`](./WRITING-STYLE.md) — US-English voice, tone, and
+    proofreading standard for active content.
 
 ## Document status
 
-| Document group                                                                                                                    | Status                                  | How to use it                                                                                                      |
-| --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `CURRENT-STATE.md`, `DEMO-IMPLEMENTATION-PLAYBOOK.md`, `README.md`                                                                | Current                                 | Use for implementation and verification decisions.                                                                 |
-| `ARCHITECTURE.md`, `GO-BACKEND-ARCHITECTURE.md`, `ENVIRONMENTS-AND-PATHS.md`, `DESIGN-SYSTEM.md`, `PROJECT-SPEC.md`, and the ADRs | Current contract/specification          | Use for design, domain, and architecture constraints; confirm runtime facts against `CURRENT-STATE.md`.            |
-| `REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`, `REMOTE-OPERATIONS.md`                                                                      | Current but remote-only                 | Do not execute without explicit authorization and required host/Caddy context.                                     |
-| `AGENT-EXECUTION-PROMPTS.md`, `GOOGLE-ANTIGRAVITY-UI-UX-PROMPT.md`                                                                  | Current operational prompts             | Keep commands synchronized with scripts and the current demo boundary.                                             |
-| `UI-UX-REVAMP-HANDOFF.md`                                                                                                          | Current future-work handoff             | Use for the complete UI/UX and workflow-navigation revamp; confirm implementation facts against `CURRENT-STATE.md`. |
-| `WRITING-STYLE.md`                                                                                                                | Current editorial standard              | Apply to active app copy, documentation, guides, and commit messages.                                              |
-| `DELIVERY-PLAN.md`                                                                                                                | Current roadmap                         | Use for roadmap boundaries only; implementation and verification claims come from `CURRENT-STATE.md`.              |
-| `to-review-and-delete/historical-docs/`, `to-review-and-delete/historical-reviews/`                                               | Review candidates / historical evidence | Preserve only for user review; never use as current proof, operating instructions, or implementation authority.    |
-| `adr/0001*`, `adr/0002*`, `adr/0004*`                                                                                             | Current architecture decisions          | Apply to the current source unless superseded in the document.                                                     |
-| `adr/0003*`                                                                                                                       | Future production design                | Do not add its authentication/session requirements to the demo profile.                                            |
-| `references/` and `_intake/originals/`                                                                                            | Source reference / archival material    | Preserve provenance; use only to interpret original business intent, never as current implementation instructions. |
+| Document group                                                                                                                    | Status                                  | How to use it                                                                                                       |
+| --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| `CURRENT-STATE.md`, `DEMO-IMPLEMENTATION-PLAYBOOK.md`, `README.md`                                                                | Current                                 | Use for implementation and verification decisions.                                                                  |
+| `ARCHITECTURE.md`, `GO-BACKEND-ARCHITECTURE.md`, `ENVIRONMENTS-AND-PATHS.md`, `DESIGN-SYSTEM.md`, `PROJECT-SPEC.md`, and the ADRs | Current contract/specification          | Use for design, domain, and architecture constraints; confirm runtime facts against `CURRENT-STATE.md`.             |
+| `REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`, `REMOTE-OPERATIONS.md`                                                                      | Current but remote-only                 | Do not execute without explicit authorization and required host/Caddy context.                                      |
+| `AGENT-EXECUTION-PROMPTS.md`, `GOOGLE-ANTIGRAVITY-UI-UX-PROMPT.md`                                                                | Current operational prompts             | Keep commands synchronized with scripts and the current demo boundary.                                              |
+| `UI-UX-REVAMP-HANDOFF.md`                                                                                                         | Current future-work handoff             | Use for the complete UI/UX and workflow-navigation revamp; confirm implementation facts against `CURRENT-STATE.md`. |
+| `WRITING-STYLE.md`                                                                                                                | Current editorial standard              | Apply to active app copy, documentation, guides, and commit messages.                                               |
+| `DELIVERY-PLAN.md`                                                                                                                | Current roadmap                         | Use for roadmap boundaries only; implementation and verification claims come from `CURRENT-STATE.md`.               |
+| `to-review-and-delete/historical-docs/`, `to-review-and-delete/historical-reviews/`                                               | Review candidates / historical evidence | Preserve only for user review; never use as current proof, operating instructions, or implementation authority.     |
+| `adr/0001*`, `adr/0002*`, `adr/0004*`                                                                                             | Current architecture decisions          | Apply to the current source unless superseded in the document.                                                      |
+| `adr/0003*`                                                                                                                       | Future production design                | Do not add its authentication/session requirements to the demo profile.                                             |
+| `references/` and `_intake/originals/`                                                                                            | Source reference / archival material    | Preserve provenance; use only to interpret original business intent, never as current implementation instructions.  |
 
 ## Keep documentation in sync
 

@@ -37,8 +37,17 @@ export default function QuotationList({ quotes, role }: QuotationListProps) {
         {
           key: 'quoteNo',
           header: 'Quote No',
-          render: (q) => <span className="font-medium text-slate-900">{q.quote_no}</span>,
+          render: (q) => (
+            <a
+              href="#"
+              onClick={(e) => e.preventDefault()}
+              className="font-medium text-slate-900 hover:underline"
+            >
+              {q.quote_no}
+            </a>
+          ),
         },
+
         { key: 'customer', header: 'Customer', render: (q) => q.customer_name },
         { key: 'vehicle', header: 'Vehicle', render: (q) => q.vehicle_plate },
         { key: 'netTotal', header: 'Net Total', render: (q) => formatPeso(q.net_total_cents) },

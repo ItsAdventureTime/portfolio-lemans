@@ -28,8 +28,10 @@ We use **Backblaze B2 Cloud Storage via its S3-Compatible API** as the object st
 3. **Object Keys**: one shared private bucket, `bridge-ph`, with profile prefixes
    `lemans/demo` for demo and `lemans` for production, followed by
    `attachments/<entity>/<entityId>/<uuid>-<filename>`.
+
 - Examples: `lemans/demo/attachments/job-order/RA0003973/<uuid>-engine-photo.jpg`,
   `lemans/attachments/dcs-payment/<id>/<uuid>-receipt.jpg`.
+
 4. **Metadata**: File records are stored in PostgreSQL via the `attachments`
    table, including `id`, `entity_type`, `entity_id`, `file_name`,
    `content_type`, `size_bytes`, `storage_key`, `created_by_role`, and
@@ -39,8 +41,10 @@ We use **Backblaze B2 Cloud Storage via its S3-Compatible API** as the object st
    - `B2_REGION`
    - `B2_ACCESS_KEY_ID`
    - `B2_SECRET_ACCESS_KEY`
+
 - `B2_BUCKET_NAME`
 - `B2_KEY_PREFIX` (`lemans/demo` for demo; `lemans` for production)
+
 6. **Security & Lifecycle**:
    - Bucket is private; presigned URLs expire in 15 minutes.
    - Object keys are non-guessable UUID-based.

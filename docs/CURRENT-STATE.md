@@ -96,12 +96,15 @@ cryptographically random suffix to avoid collisions.
   a dedicated quotation detail view, and production authentication remain
   future work until the playbook adds implementation and verification
   requirements.
-- Customer detail pages now load `/api/customers/{id}/service-history` and show
-  a linked service-history timeline of the customer's job orders.
-- A complete UI/UX and workflow-navigation revamp is planned from
-  [`UI-UX-REVAMP-HANDOFF.md`](./UI-UX-REVAMP-HANDOFF.md). The handoff is a
-  future-work contract; current route and behavior facts remain here and in the
-  demo playbook until that work is implemented and verified.
+- Customer detail pages load `/api/customers/{id}/service-history` and present
+  an accessible linked service-history timeline of the customer's job orders.
+- Completed full UI/UX and visual workflow navigation revamp from
+  [`UI-UX-REVAMP-HANDOFF.md`](./UI-UX-REVAMP-HANDOFF.md):
+  - Accessible `<Breadcrumb>` dynamic routing bar across all modules.
+  - Connected 7-stage operational visualizer (`EndToEndWorkflowVisualizer`) across Overview, Quotations, Job Orders, Purchasing, DCS, Invoices, Job Costing, and Accounting.
+  - Enhanced Header with brand logo, live actor pill, and responsive Navbar drawer.
+  - High-contrast WCAG 2.2 compliant typography, touch targets (min 44x44px), focus-visible outlines, and reduced motion safety.
+
 - Remote deployment is intentionally not part of local verification and requires
   explicit user authorization.
 

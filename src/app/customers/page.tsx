@@ -46,7 +46,7 @@ export default async function CustomersPage() {
     };
 
     if (Object.keys(fieldErrors).length > 0) {
-      return errorResult('Review the highlighted fields and try again.', fieldErrors, values);
+      return errorResult('Please correct the highlighted fields.', fieldErrors, values);
     }
 
     try {

@@ -13,6 +13,7 @@ import QuotationForm from './QuotationForm';
 import QuotationList from './QuotationList';
 import { errorResult, FormResult, okResult } from '@/lib/form-result';
 import type { Customer, Vehicle } from '@/lib/types';
+import EndToEndWorkflowVisualizer from '@/components/EndToEndWorkflowVisualizer';
 
 export default async function QuotationsPage() {
   const role = await getDemoRole();
@@ -93,6 +94,8 @@ export default async function QuotationsPage() {
         title="Sales Quotations"
         description="Create, approve, and convert quotations into job orders."
       />
+
+      <EndToEndWorkflowVisualizer currentStage="QUOTATION" />
 
       {canCreate && (
         <QuotationForm customers={customers} vehicles={vehicles} action={createAction} />

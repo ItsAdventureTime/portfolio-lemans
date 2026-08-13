@@ -6,8 +6,8 @@ import { SectionCard, StatusBadge } from '@/components/ui';
 import AccessDenied from '@/components/AccessDenied';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import { RefreshCw } from 'lucide-react';
-import PageHeader from '@/components/PageHeader';
+import { RefreshCw, ArrowLeft, Wrench } from 'lucide-react';
+import EndToEndWorkflowVisualizer from '@/components/EndToEndWorkflowVisualizer';
 
 export default async function JobCostingPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -52,31 +52,41 @@ export default async function JobCostingPage({ params }: { params: Promise<{ id:
 
   return (
     <div className="max-w-screen-lg space-y-6">
-      <PageHeader
-        title={`Job Costing: ${c.jobOrder.jo_no}`}
-        description={`${c.jobOrder.customer_name} · ${c.jobOrder.vehicle_plate}${
-          c.jobOrder.vehicle_make_model ? ` · ${c.jobOrder.vehicle_make_model}` : ''
-        }`}
-      >
-        <StatusBadge status={c.jobOrder.status} />
-      </PageHeader>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <Link
+            href="/job-costing"
+            className="p-2 rounded-lg border border-slate-200 text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+            aria-label="Back to Job Costing list"
+          >
+            <ArrowLeft className="w-4 h-4" />
+          </Link>
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+                Job Costing: #{c.jobOrder.jo_no}
+              </h1>
+              <StatusBadge status={c.jobOrder.status} />
+            </div>
+            <p className="text-xs text-slate-500 mt-0.5">
+              {c.jobOrder.customer_name} ·{' '}
+              <span className="font-mono">{c.jobOrder.vehicle_plate}</span>
+            </p>
+          </div>
+        </div>
 
-      <div className="flex flex-wrap gap-3">
         <Link
           href={`/job-orders/${c.jobOrder.jo_no}`}
-          className="inline-flex min-h-11 items-center rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+          className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2.5 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
         >
-          Open job order
-        </Link>
-        <Link
-          href="/job-costing"
-          className="inline-flex min-h-11 items-center rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
-        >
-          Back to costing
+          <Wrench className="w-4 h-4" />
+          <span>Open Source Job Order</span>
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <EndToEndWorkflowVisualizer currentStage="COSTING" />
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         <CostCard label="Estimated Labor" cents={c.totalEstimatedLaborCents} />
         <CostCard label="Estimated Parts" cents={c.totalEstimatedPartsCents} />
         <CostCard label="Recorded Actual Labor" cents={c.actualLaborCostCents} />
@@ -85,9 +95,11 @@ export default async function JobCostingPage({ params }: { params: Promise<{ id:
         <CostCard label="Total Actual Cost (incl. allocated)" cents={c.totalActualCostCents} />
         <CostCard label="Billed Amount" cents={c.billedAmountCents} />
         <CostCard label="Net Profit" cents={c.netProfitCents} />
-        <div className="rounded-xl border border-slate-200 bg-white p-4">
-          <p className="text-sm text-slate-500">Margin</p>
-          <p className="text-xl font-semibold">{c.profitMarginPercent.toFixed(1)}%</p>
+        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Margin</p>
+          <p className="text-2xl font-extrabold text-slate-900 tabular-nums mt-1">
+            {c.profitMarginPercent.toFixed(1)}%
+          </p>
           <p className="mt-1 text-xs text-slate-500">
             Billed revenue after actual and allocated costs.
           </p>
@@ -95,13 +107,16 @@ export default async function JobCostingPage({ params }: { params: Promise<{ id:
       </div>
 
       <section
-        className="rounded-xl border border-slate-200 bg-white p-4"
+        className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm space-y-4"
         aria-labelledby="variance-heading"
       >
-        <h2 id="variance-heading" className="text-lg font-semibold text-slate-900">
-          Estimate vs. actual
+        <h2
+          id="variance-heading"
+          className="text-base font-bold text-slate-900 border-b border-slate-100 pb-3"
+        >
+          Estimate vs. Actual Variance Analysis
         </h2>
-        <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2">
           <VarianceRow
             label="Labor"
             estimated={c.totalEstimatedLaborCents}
@@ -121,7 +136,7 @@ export default async function JobCostingPage({ params }: { params: Promise<{ id:
 function CostCard({ label, cents }: { label: string; cents: number }) {
   return (
     <SectionCard title={label}>
-      <p className="text-xl font-semibold">{formatPeso(cents)}</p>
+      <p className="text-xl font-extrabold text-slate-900 font-mono mt-1">{formatPeso(cents)}</p>
     </SectionCard>
   );
 }
@@ -137,18 +152,19 @@ function VarianceRow({
 }) {
   const variance = actual - estimated;
   return (
-    <div className="rounded-lg bg-slate-50 p-3">
+    <div className="rounded-lg bg-slate-50 p-4 border border-slate-200">
       <div className="flex items-baseline justify-between gap-3">
-        <p className="font-medium text-slate-900">{label}</p>
+        <p className="font-bold text-slate-900 text-sm">{label}</p>
         <p
-          className={`text-sm font-semibold ${variance > 0 ? 'text-rose-700' : 'text-emerald-700'}`}
+          className={`text-sm font-extrabold font-mono ${variance > 0 ? 'text-rose-700' : 'text-emerald-700'}`}
         >
           {variance > 0 ? '+' : ''}
           {formatPeso(variance)}
         </p>
       </div>
-      <p className="mt-1 text-sm text-slate-600">
-        Estimated {formatPeso(estimated)} · Actual (recorded + allocated) {formatPeso(actual)}
+      <p className="mt-1.5 text-xs text-slate-600">
+        Estimated <strong className="font-mono text-slate-800">{formatPeso(estimated)}</strong> ·
+        Actual <strong className="font-mono text-slate-800">{formatPeso(actual)}</strong>
       </p>
     </div>
   );
