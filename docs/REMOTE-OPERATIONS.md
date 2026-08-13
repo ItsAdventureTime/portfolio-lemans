@@ -108,14 +108,15 @@ variables still take precedence, which keeps the scripts usable in non-macOS or
 automated environments.
 
 The deployment writes current `Environment=` entries directly into the
-profile's Go API `.container` file. The active file contains values such as:
+profile's Go API `.container` file. The following shape-only example keeps
+secrets redacted; do not copy credentials from documentation or shell history:
 
 ```ini
-Environment=DATABASE_URL=postgresql://postgres:<generated>@lemans-demo-db:5432/lemans_demo_db
+Environment=DATABASE_URL=postgresql://postgres:[generated]@lemans-demo-db:5432/lemans_demo_db
 Environment=B2_ENDPOINT=https://s3.us-west-004.backblazeb2.com
 Environment=B2_REGION=us-west-004
-Environment=B2_ACCESS_KEY_ID=<Backblaze key ID>
-Environment=B2_SECRET_ACCESS_KEY=<Backblaze key secret>
+Environment=B2_ACCESS_KEY_ID=[redacted]
+Environment=B2_SECRET_ACCESS_KEY=[redacted]
 Environment=B2_BUCKET_NAME=bridge-ph
 Environment=B2_KEY_PREFIX=lemans/demo
 ```
@@ -188,13 +189,9 @@ script selects the correct demo or production defaults.
 # Later deployments require no exported deployment variables.
 ./scripts/deploy-remote-prod.sh
 
-# For non-macOS or automation, provide values as environment variables instead.
-export REMOTE_HOST=<vps-host-or-ip>
-# Set PUBLIC_URL to the production HTTPS URL when it differs from REMOTE_HOST.
-export PUBLIC_URL=https://<production-public-host>/lemans
-export REMOTE_USER=jk
-export B2_ACCESS_KEY_ID=<your-b2-key-id>
-export B2_SECRET_ACCESS_KEY=<your-b2-key-secret>
+# For non-macOS or automation, inject REMOTE_HOST, PUBLIC_URL, REMOTE_USER,
+# and B2_* values from a secret manager or protected CI environment. Do not
+# paste credentials into this file, shell history, or a committed .env file.
 ./scripts/deploy-remote-prod.sh
 ```
 
