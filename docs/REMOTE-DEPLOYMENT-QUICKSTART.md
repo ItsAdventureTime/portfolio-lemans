@@ -4,16 +4,17 @@
 - **Updated**: 2026-08-14
 - **Scope**: macOS workstation → existing VPS demo or production profile
 
-Use this guide after a change has been reviewed and committed on `main`. It
-does not connect to the VPS automatically from this documentation task.
+Use this guide after Codex has reviewed the change, committed it locally, and
+synchronized `main` with GitHub. You do not need to run Git staging, commit, or
+push commands. This guide does not connect to the VPS automatically from the
+documentation task.
 
 ## Normal demo update
 
-Run these commands from the repository root:
+After Codex reports that the change is synchronized, run this from the repository
+root to update the demo VPS:
 
 ```bash
-gh auth setup-git --hostname github.com
-git push origin main
 ./scripts/deploy-remote-demo.sh
 ```
 
@@ -42,8 +43,6 @@ You can also run the setup explicitly:
 Use the same flow with the production wrapper:
 
 ```bash
-gh auth setup-git --hostname github.com
-git push origin main
 ./scripts/deploy-remote-prod.sh
 ```
 
