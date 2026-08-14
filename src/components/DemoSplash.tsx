@@ -1,33 +1,42 @@
 'use client';
 
-import { useState } from 'react';
+import { type FormEvent, useState } from 'react';
 import { getApiUrl } from '@/lib/api-url';
 import { getBasePath } from '@/lib/base-path';
+import { enterDemoAction } from '@/lib/demo-entry.action';
 import Image from 'next/image';
 import { Activity, ArrowRight, CircleCheck } from 'lucide-react';
 
 const DEMO_ENTRY_ERROR = "We couldn't open the demo. Please try again.";
+const DEMO_ENTRY_TIMEOUT_MS = 8000;
 const LOGO_SRC = `${getBasePath()}/lemans-service-plus-logo.jpg`;
 
 export default function DemoSplash() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  async function enter() {
+  async function enter(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
     setError(null);
     setBusy(true);
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), DEMO_ENTRY_TIMEOUT_MS);
+
     try {
       const res = await fetch(getApiUrl('/api/enter-demo'), {
         method: 'POST',
         credentials: 'same-origin',
+        signal: controller.signal,
       });
       if (!res.ok) {
         throw new Error(DEMO_ENTRY_ERROR);
       }
       window.location.assign(getBasePath() || '/');
     } catch (err) {
-      setError(err instanceof Error ? err.message : DEMO_ENTRY_ERROR);
+      setError(err instanceof Error && err.name !== 'AbortError' ? err.message : DEMO_ENTRY_ERROR);
       setBusy(false);
+    } finally {
+      window.clearTimeout(timeout);
     }
   }
 
@@ -73,10 +82,13 @@ export default function DemoSplash() {
             One view for every vehicle, job, purchase, invoice, and payment in the service center.
           </p>
 
-          <div className="mt-8 flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+          <form
+            action={enterDemoAction}
+            onSubmit={enter}
+            className="mt-8 flex flex-col items-start gap-4 sm:flex-row sm:items-center"
+          >
             <button
-              type="button"
-              onClick={enter}
+              type="submit"
               disabled={busy}
               aria-busy={busy}
               className="action-primary w-full text-base disabled:cursor-wait disabled:opacity-60 sm:w-auto sm:px-6"
@@ -85,7 +97,7 @@ export default function DemoSplash() {
               {!busy && <ArrowRight className="h-4 w-4" aria-hidden="true" />}
             </button>
             <span className="text-sm text-slate-500">No password or account required</span>
-          </div>
+          </form>
 
           {error && (
             <p

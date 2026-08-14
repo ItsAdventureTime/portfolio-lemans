@@ -1,6 +1,6 @@
 # Current repository state
 
-- **Updated**: 2026-08-14 (branded UI/UX redesign, documentation, and validation)
+- **Updated**: 2026-08-15 (reliable simulated entry and validation)
 - **Authority**: Current implementation and the demo rules in
   [`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md)
 - **Documentation index**: [`DOCUMENTATION-INDEX.md`](./DOCUMENTATION-INDEX.md)
@@ -14,6 +14,8 @@ implementation or operations.
 - Next.js 16.3 App Router frontend in `src/`.
 - Go 1.26 API in `backend/`; it owns PostgreSQL access, Goose migrations,
   business rules, and Backblaze B2 presigned URLs.
+- Browser-side API mutations use the base-path-aware Next.js
+  `/api/proxy/[...path]` route; the Go API hostname stays server-side.
 - PostgreSQL `postgres:alpine` on an internal rootless Podman network.
 - `Dockerfile.web` builds `lemans-bridge-dashboard:{demo,prod}-web`.
 - `Dockerfile.go` builds `lemans-bridge-dashboard-go:{demo,prod}-go`.
@@ -44,9 +46,12 @@ Before simulated entry, direct module URLs render the branded splash without the
 dashboard header, navigation, breadcrumbs, footer, or module data surface.
 After entry, the footer uses the same centered shell container on every route and
 the primary navigation prefetches complete dynamic sections for faster changes.
-The entry action performs one base-path document navigation after writing the
-demo cookie so the persistent root layout reevaluates the shell gate; ordinary
-section changes remain soft, prefetched client navigations.
+The entry action uses a base-path-aware server-action form, with a client-side
+fetch enhancement, timeout, and inline error state. The server action provides a
+no-hydration fallback; successful entry returns to the base-path overview so the
+persistent root layout reevaluates the shell gate. The page-transition wrapper
+is server-rendered and does not add a client-only visibility gate. Ordinary section
+changes remain soft, prefetched client navigations.
 
 ## Run the demo locally
 
@@ -76,11 +81,10 @@ The current demo validation baseline is complete in rootless Podman:
   and Go tests pass.
 - `verify-vertical-slice.sh`: all health and module routes return 200; the API
   is reachable on the internal network; PostgreSQL has no published host port.
-- `verify-e2e.sh`: runs 42 Playwright tests across desktop, mobile, and
-  reduced-motion projects. Final project-isolated desktop and mobile runs passed
-  14/14 each, and focused reduced-motion checks for the changed entry/navigation
-  behavior passed. Combined runs can hit host-level Podman browser startup or
-  navigation timeouts when other workspaces are consuming the VM.
+- `verify-e2e.sh`: runs 48 Playwright tests across desktop, mobile, and
+  reduced-motion projects. The final full matrix passed 48/48, including
+  hydrated-client, no-hydration form submission, nested-base-path, entry-error,
+  browser API proxy, and reduced-motion coverage.
 - `npm audit --omit=dev`: no reported vulnerabilities after pinning the
   transitive `nanoid` dependency to the patched `3.3.18` release.
 

@@ -2,7 +2,7 @@
 
 - **Status**: Authoritative for demo-build work
 - **Version**: 1.1.0
-- **Updated**: 2026-08-14
+- **Updated**: 2026-08-15
 - **Audience**: Coding agents, implementation agents, reviewers, and operators
 
 Use this guide for demo work. It takes precedence over older phase-completion
@@ -36,9 +36,14 @@ or production authorization. The entry cookie is a UX gate only:
 - Before entry, the shared dashboard shell and direct module routes render only
   the branded splash. After entry, the header, navigation, breadcrumbs, footer,
   and dashboard content become available.
-- The entry action performs one base-path document navigation after writing the
-  UX cookie so the persistent root layout reevaluates the shell gate. Ordinary
-  section navigation remains a soft, prefetched client transition.
+- The entry action is a base-path-aware server-action form, so it still works if
+  client hydration is unavailable. Hydrated clients use a same-origin fetch
+  enhancement with an eight-second timeout, inline error feedback, and a return
+  to the base-path overview after success. The shared cookie helper uses the
+  configured base path for both the server action and API route. Ordinary
+  section navigation remains a soft, prefetched client transition. Browser-side
+  API mutations use the same-origin `/api/proxy/[...path]` route so internal API
+  container names never reach the user’s browser.
 - There is no account, password flow, or production authentication redirect in
   the demo profile.
 - The user can change the active simulated role from a visible role switcher.

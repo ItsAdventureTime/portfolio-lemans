@@ -3,7 +3,7 @@
 - **Status**: IMPLEMENTED & VERIFIED
 
 - **Version**: 1.2.0
-- **Updated**: 2026-08-14
+- **Updated**: 2026-08-15
 - **Audience**: Google Antigravity, UI engineers, UX reviewers, and coding agents
 - **Product**: Le Mans Operations & Job Cost Management System demo
 
@@ -52,6 +52,13 @@ The current shell and overview pass implements the following bounded changes:
 - The entry cookie gates the complete dashboard shell: before entry, direct
   module URLs show only the branded splash; after entry, Header, Navbar,
   Breadcrumb, footer, and dashboard content render together.
+- `DemoSplash` submits through a base-path-aware server-action form when client
+  hydration is unavailable. The hydrated enhancement uses an eight-second
+  timeout, same-origin request, actionable inline error, and a return to the
+  base-path overview after success.
+- Browser-side API mutations use the base-path-aware same-origin proxy, keeping
+  internal Go API service names out of browser requests while preserving the
+  shared API contract.
 - The overview now has a branded operating-picture header, decision-oriented
   count and finance sections, and a quieter recent-job-order surface. The
   active demo role filters workflow links, sensitive dashboard records, and
@@ -73,7 +80,7 @@ The current shell and overview pass implements the following bounded changes:
   utility header uses a non-heading brand label so each route retains one clear
   page-level `h1`.
 
-### Guidance review — 2026-08-14
+### Guidance review — 2026-08-15
 
 This pass checked the current implementation against the [WCAG 2.2 W3C
 Recommendation](https://www.w3.org/TR/WCAG22/), the [WAI-ARIA Authoring
@@ -92,12 +99,10 @@ major framework migration into a visual refinement.
   image tags.
 - `./scripts/build.sh prod` passes and produces the required production web and
   Go image tags from the same source.
-- `./scripts/verify-e2e.sh` covers all 42 desktop, mobile, and reduced-motion
+- `./scripts/verify-e2e.sh` covers all 48 desktop, mobile, and reduced-motion
   Playwright tests, including focus rings, 44px targets, role switching,
-  workflow mutations, and seeded data. Final project-isolated desktop and mobile
-  runs passed 14/14 each; focused reduced-motion checks for the changed
-  entry/navigation behavior also passed. Combined browser runs can hit
-  host-level Podman startup timeouts when other workspaces are consuming the VM.
+  workflow mutations, seeded data, no-hydration form submission, the browser API
+  proxy, and entry-error handling. The final full matrix passed 48/48.
 - Browser spot checks confirm both logo instances resolve under
   `/lemans/demo/`, mobile grouped navigation opens, Overview remains available
   to the DCS simulated role, and the DCS overview shows only its permitted
@@ -192,9 +197,10 @@ useful on a small screen and with a keyboard or screen reader.
 - Keep the root `loading.tsx` boundary quiet during section navigation; use
   nested Suspense or local busy states only where asynchronous content needs
   immediate, layout-preserving feedback instead of a full-page overlay.
-- `SmoothPageTransition` adds a short Motion-based transform enter transition.
-  Content remains visible while it moves a few pixels, and it honors
-  `prefers-reduced-motion`.
+- `SmoothPageTransition` is a server-rendered wrapper with a short CSS
+  transform/opacity enter transition. Content remains visible while it moves a
+  few pixels, it honors `prefers-reduced-motion`, and it does not hide
+  server-rendered content when client JavaScript is unavailable.
 - Keep `scrollbar-gutter: stable` and the shared footer container so centered
   footer copy does not shift when route height changes.
 - Primary navigation keeps a stable inset keyboard-focus outline and avoids the

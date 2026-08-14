@@ -1,7 +1,7 @@
 # Design system
 
 - **Document Version**: 2.3.0
-- **Updated**: 2026-08-14
+- **Updated**: 2026-08-15
 - **Audience**: UI engineers, reviewers, and mobile developers (SwiftUI / Jetpack Compose)
 - **Client Brand**: Le Mans Service Plus OPC (Angeles City, Pampanga)
 
@@ -34,13 +34,16 @@ This design system draws from these sources:
      use a quiet route boundary, full prefetching for the small grouped primary
      navigation, clear error/not-found UI, optimized metadata, static image
      handling, and accessibility linting in the App Router shell. The simulated
-     entry action uses one base-path document navigation after setting its UX
-     cookie so the persistent root layout reevaluates the shell gate; ordinary
-     section changes remain soft client navigations.
+     entry action uses a base-path-aware server-action form with a hydrated
+     fetch enhancement, explicit timeout/error feedback, and a return to the
+     base-path overview after setting its UX cookie; ordinary section changes
+     remain soft client navigations.
+     Browser-side mutations use the same-origin `/api/proxy/[...path]` route;
+     the internal Go API hostname remains server-only.
    - **SmoothUI / Motion**: Use the requested SmoothUI collection as a motion
-     reference, with Motion-based compositor-friendly transform transitions (and
-     opacity only when it clarifies continuity). Honor user reduced-motion
-     preferences and never make animation a prerequisite for task completion.
+     reference, with compositor-friendly CSS transform/opacity transitions.
+     Honor user reduced-motion preferences, keep the wrapper server-rendered,
+     and never make animation a prerequisite for task completion.
    - **Tailwind compatibility**: Tailwind CSS v4 is the current major release,
      but this focused redesign retains the pinned Tailwind CSS 3.4.10 stack. A
      v4 migration changes CSS configuration and browser support and must be a

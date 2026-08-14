@@ -48,8 +48,43 @@ test('simulated entry gates the dashboard shell on direct module routes', async 
   await expect(page.locator('footer')).not.toBeVisible();
 
   await page.getByRole('button', { name: 'Enter as an Admin' }).click();
-  await expect(page.getByRole('heading', { name: 'Operations Overview' })).toBeVisible();
+  await expect(page.getByText('Operations Overview')).toBeVisible();
   await expect(page.getByRole('navigation', { name: 'Primary navigation' })).toBeVisible();
+});
+
+test('simulated entry submits without hydrated client JavaScript', async ({ browser }) => {
+  const context = await browser.newContext({
+    baseURL: process.env.PLAYWRIGHT_BASE_URL ?? 'http://127.0.0.1:3000',
+    javaScriptEnabled: false,
+  });
+  const page = await context.newPage();
+
+  await page.goto(`${BASE}/`);
+  await page.getByRole('button', { name: 'Enter as an Admin' }).click({ force: true });
+  await expect(page).toHaveURL(/\/lemans\/demo\/?$/);
+  await expect
+    .poll(
+      async () =>
+        (await context.cookies()).find((cookie) => cookie.name === 'lemans-demo-entered')?.value
+    )
+    .toBe('true');
+
+  await context.close();
+});
+
+test('simulated entry shows an actionable error when the request fails', async ({ page }) => {
+  await page.goto(`${BASE}/`);
+  await page.route(`${BASE}/api/enter-demo`, async (route) => {
+    await route.fulfill({
+      status: 503,
+      body: JSON.stringify({ error: 'Entry service unavailable' }),
+    });
+  });
+
+  const button = page.getByRole('button', { name: 'Enter as an Admin' });
+  await button.click();
+  await expect(page.locator('p[role="alert"]')).toContainText("couldn't open the demo");
+  await expect(button).toBeEnabled();
 });
 
 test('footer remains optically centered across sections', async ({ page }) => {

@@ -6,19 +6,18 @@
 - **Domain**: Auto Service Center Operations, Job Costing, Procurement, Billing, and Financial Accounting
 - **Repository Architecture**: Next.js 16.3 App Router (`src/`), Go 1.26 API (`backend/`), PostgreSQL on rootless Podman network
 - **Demo URL**: `http://127.0.0.1:3000/lemans/demo` (Base Path: `/lemans/demo`)
-- **Updated**: 2026-08-14
+- **Updated**: 2026-08-15
 
 ---
 
 ## 1. Overview of Completed UI/UX Revamp
 
-The UI/UX revamp has been fully implemented and validated with the 42-test
+The UI/UX revamp has been fully implemented and validated with the 48-test
 Playwright E2E matrix (`./scripts/verify-e2e.sh`), 200 OK vertical slice probes
 (`./scripts/verify-vertical-slice.sh`), ESLint, TypeScript `tsc`, and Prettier
-format checks. The final project-isolated desktop and mobile runs passed 14/14;
-focused reduced-motion checks for the changed entry and navigation behavior also
-passed. Combined browser runs can hit host-level Podman startup timeouts when
-other workspaces are consuming the VM.
+format checks. The final full Playwright matrix passed 48/48 across Chromium,
+mobile, and reduced-motion projects, including the simulated entry form,
+base-path API proxy, workflow mutations, and accessibility checks.
 
 ### Key Functional & Visual Components Added
 
@@ -91,7 +90,7 @@ The team has completed a full UI/UX overhaul of the Le Mans demo dashboard. The 
 4. Run validation checks inside rootless Podman containers:
    - `./scripts/verify-local.sh` (Prettier, ESLint, TypeScript tsc, Next.js build, Go tests)
    - `./scripts/verify-vertical-slice.sh` (Health checks and database isolation)
-   - `./scripts/verify-e2e.sh` (Playwright 42-test E2E suite)
+   - `./scripts/verify-e2e.sh` (Playwright 48-test E2E suite)
 
 Provide concise feedback, highlight any performance or UX improvement opportunities, and output diffs for any proposed code revisions.
 ```

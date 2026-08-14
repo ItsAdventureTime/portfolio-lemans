@@ -1,4 +1,7 @@
+import { getApiUrl } from './api-url';
+
 function getApiBaseUrl(): string {
+  if (typeof window !== 'undefined') return getApiUrl('/api/proxy');
   if (process.env.API_BASE_URL) return process.env.API_BASE_URL;
   if (process.env.NODE_ENV === 'production') {
     // Inside the Next.js container, the Go API is reachable by its container name.
