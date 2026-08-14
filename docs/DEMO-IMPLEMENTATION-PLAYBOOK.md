@@ -198,7 +198,7 @@ like one product across every module.
 
 Use the existing tokens in `docs/DESIGN-SYSTEM.md`:
 
-- LeMans Racing Red `#d32f2f` for brand accents and primary actions only.
+- Le Mans Racing Red `#d32f2f` for brand accents and primary actions only.
 - Deep Slate `#0f172a` for primary text.
 - Off-white application canvas `#f8fafc` and white elevated surfaces.
 - Functional success, warning, danger, and info colors only for their semantic

@@ -2,7 +2,7 @@
 
 - **Target Audience**: ChatGPT Codex / AI Code Reviewer
 - **Project**: Le Mans Operations & Job Cost Management System (`lemans-bridge-dashboard`)
-- **Client**: LeMans Service Plus OPC
+- **Client**: Le Mans Service Plus OPC
 - **Domain**: Auto Service Center Operations, Job Costing, Procurement, Billing, and Financial Accounting
 - **Repository Architecture**: Next.js 16.3 App Router (`src/`), Go 1.26 API (`backend/`), PostgreSQL on rootless Podman network
 - **Demo URL**: `http://127.0.0.1:3000/lemans/demo` (Base Path: `/lemans/demo`)
@@ -12,7 +12,7 @@
 
 ## 1. Overview of Completed UI/UX Revamp
 
-The UI/UX revamp has been fully implemented and verified against the 33-test Playwright E2E suite (`./scripts/verify-e2e.sh`), 200 OK vertical slice probes (`./scripts/verify-vertical-slice.sh`), ESLint, TypeScript `tsc`, and Prettier format checks.
+The UI/UX revamp has been fully implemented and verified against the 36-test Playwright E2E suite (`./scripts/verify-e2e.sh`), 200 OK vertical slice probes (`./scripts/verify-vertical-slice.sh`), ESLint, TypeScript `tsc`, and Prettier format checks.
 
 ### Key Functional & Visual Components Added
 
@@ -24,7 +24,7 @@ The UI/UX revamp has been fully implemented and verified against the 33-test Pla
      this handoff is not itself a conformance certificate.
 
 2. **Connected 7-Stage Operational Visualizer (`src/components/EndToEndWorkflowVisualizer.tsx`)**:
-   - Embedded across all major operational screens (`/`, `/customers`, `/quotations`, `/job-orders`, `/purchasing`, `/dcs`, `/invoices`, `/job-costing`, `/accounting`).
+   - Embedded on Overview (`/`) as the orientation surface; module and detail pages stay focused on their records, forms, and contextual status controls.
    - Receives the active simulated role and renders only permitted workflow links;
      the overview and Go dashboard handler apply the same role policy to
      dashboard records and sensitive counts.
@@ -82,7 +82,7 @@ The team has completed a full UI/UX overhaul of the Le Mans demo dashboard. The 
 4. Run validation checks inside rootless Podman containers:
    - `./scripts/verify-local.sh` (Prettier, ESLint, TypeScript tsc, Next.js build, Go tests)
    - `./scripts/verify-vertical-slice.sh` (Health checks and database isolation)
-   - `./scripts/verify-e2e.sh` (Playwright 33-test E2E suite)
+   - `./scripts/verify-e2e.sh` (Playwright 36-test E2E suite)
 
 Provide concise feedback, highlight any performance or UX improvement opportunities, and output diffs for any proposed code revisions.
 ```

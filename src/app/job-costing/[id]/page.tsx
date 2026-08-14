@@ -7,7 +7,6 @@ import AccessDenied from '@/components/AccessDenied';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { RefreshCw, ArrowLeft, Wrench } from 'lucide-react';
-import EndToEndWorkflowVisualizer from '@/components/EndToEndWorkflowVisualizer';
 
 export default async function JobCostingPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -83,8 +82,6 @@ export default async function JobCostingPage({ params }: { params: Promise<{ id:
           <span>Open Source Job Order</span>
         </Link>
       </div>
-
-      <EndToEndWorkflowVisualizer role={role} currentStage="COSTING" />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
         <CostCard label="Estimated Labor" cents={c.totalEstimatedLaborCents} />

@@ -14,7 +14,7 @@ export default async function Header() {
         <div className="flex min-w-0 items-center gap-3.5">
           <Image
             src={logoSrc}
-            alt="LeMans Service Plus OPC logo"
+            alt="Le Mans Service Plus OPC logo"
             width={48}
             height={48}
             sizes="48px"
@@ -24,7 +24,7 @@ export default async function Header() {
           />
           <div className="brand-lockup min-w-0">
             <p className="utility-label text-brand-primary">Service center cockpit</p>
-            <p className="truncate text-lg font-extrabold text-slate-950">LeMans Service Plus</p>
+            <p className="truncate text-lg font-extrabold text-slate-950">Le Mans Service Plus</p>
             <p className="truncate text-xs font-medium text-slate-500">Operations workspace</p>
           </div>
         </div>

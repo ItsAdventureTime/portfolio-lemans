@@ -46,7 +46,7 @@ export default function DemoSplash() {
           <div className="mb-8 flex items-center gap-4">
             <Image
               src={LOGO_SRC}
-              alt="LeMans Service Plus OPC logo"
+              alt="Le Mans Service Plus OPC logo"
               width={144}
               height={144}
               sizes="144px"
@@ -55,7 +55,7 @@ export default function DemoSplash() {
               priority
             />
             <div>
-              <p className="utility-label text-brand-primary">LeMans Service Plus OPC</p>
+              <p className="utility-label text-brand-primary">Le Mans Service Plus OPC</p>
               <p className="mt-1 text-base font-bold tracking-tight text-slate-900">
                 Operations workspace
               </p>

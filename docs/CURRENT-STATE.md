@@ -23,7 +23,7 @@ implementation or operations.
 
 ### Runtime branding
 
-The canonical LeMans Service Plus logo is tracked at
+The canonical Le Mans Service Plus logo is tracked at
 `public/lemans-service-plus-logo.jpg` (copied byte-for-byte from
 `references/branding/logo.jpg`). Next Image renders it in the persistent
 `Header` and `DemoSplash` with explicit dimensions; the same asset supplies
@@ -36,6 +36,9 @@ shell.
 Module visibility is centralized in `src/lib/roles.ts`; navigation and every
 primary module/detail route use the same policy and render a branded
 `AccessDenied` surface before fetching restricted data.
+The connected seven-stage visualizer is intentionally an Overview-only
+orientation surface; module and detail pages stay focused on their records,
+forms, and contextual status controls.
 
 ## Run the demo locally
 
@@ -65,7 +68,7 @@ The current demo validation baseline is complete in rootless Podman:
   and Go tests pass.
 - `verify-vertical-slice.sh`: all health and module routes return 200; the API
   is reachable on the internal network; PostgreSQL has no published host port.
-- `verify-e2e.sh`: all 33 Playwright tests pass across desktop, mobile, and
+- `verify-e2e.sh`: all 36 Playwright tests pass across desktop, mobile, and
   reduced-motion projects.
 - `npm audit --omit=dev`: no reported vulnerabilities after pinning the
   transitive `nanoid` dependency to the patched `3.3.18` release.
@@ -142,13 +145,13 @@ cryptographically random suffix to avoid collisions.
 - Completed full UI/UX and visual workflow navigation revamp from
   [`UI-UX-REVAMP-HANDOFF.md`](./UI-UX-REVAMP-HANDOFF.md):
   - Accessible `<Breadcrumb>` dynamic routing bar across all modules.
-  - Connected 7-stage operational visualizer (`EndToEndWorkflowVisualizer`) across Overview, Quotations, Job Orders, Purchasing, DCS, Invoices, Job Costing, and Accounting.
+  - Connected 7-stage operational visualizer (`EndToEndWorkflowVisualizer`) on Overview only; module pages keep their focused record and form surfaces.
   - Enhanced Header with brand logo, live actor pill, and responsive Navbar drawer.
   - High-contrast, WCAG 2.2-targeted typography, touch targets (min 44x44px), focus-visible outlines, and reduced-motion safety.
-  - Shared route-level loading, error, not-found, and access-denied surfaces use
-    branded recovery actions; loading preserves the overview shape with
-    motion-safe skeletons and error boundaries keep diagnostic details out of
-    user-facing copy.
+  - Shared route-level error, not-found, and access-denied surfaces use branded
+    recovery actions. The route boundary is intentionally quiet during section
+    navigation so the shared shell remains responsive; mutation-level busy
+    states remain inline and accessible.
   - The 2026-08-14 branded pass extends the shared surface treatment through
     detail pages and forms, removes static status live-region semantics, adds
     share metadata, and keeps workflow links, dashboard records, and overview

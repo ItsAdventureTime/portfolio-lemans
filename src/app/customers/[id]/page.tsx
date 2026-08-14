@@ -6,7 +6,6 @@ import type { JobOrder, Vehicle } from '@/lib/types';
 import { canAccessModule, hasPermission } from '@/lib/roles';
 import AccessDenied from '@/components/AccessDenied';
 import Link from 'next/link';
-import EndToEndWorkflowVisualizer from '@/components/EndToEndWorkflowVisualizer';
 import { ArrowLeft, User, Car, Clock, Wrench } from 'lucide-react';
 
 export default async function CustomerDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -50,9 +49,6 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
           </Link>
         )}
       </div>
-
-      {/* Stage 1 Active Visualizer */}
-      <EndToEndWorkflowVisualizer role={role} currentStage="INTAKE" />
 
       {/* Customer Info Card */}
       <div className="surface-card space-y-4 p-5">

@@ -62,11 +62,13 @@ The current shell and overview pass implements the following bounded changes:
   treatment, motion-safe skeletons, reduced-motion support, and reusable action
   and surface classes. The visual foundation remains Racing Red `#d32f2f`,
   Deep Slate `#0f172a`, and Off-White `#f8fafc`.
-- Route-level loading, error, not-found, and access-restricted surfaces now use
-  the same branded surface/action language. Loading preserves the page shape
-  with reduced-motion-safe skeletons; error boundaries keep diagnostic details
-  in logs while showing plain recovery copy to users. The utility header uses a
-  non-heading brand label so each route retains one clear page-level `h1`.
+- Route-level error, not-found, and access-restricted surfaces use the same
+  branded surface/action language. The route loading boundary is intentionally
+  quiet during section navigation so the shared shell stays responsive; form
+  and mutation busy states remain inline and accessible. Error boundaries keep
+  diagnostic details in logs while showing plain recovery copy to users. The
+  utility header uses a non-heading brand label so each route retains one clear
+  page-level `h1`.
 
 ### Guidance review — 2026-08-14
 
@@ -87,7 +89,7 @@ major framework migration into a visual refinement.
   image tags.
 - `./scripts/build.sh prod` passes and produces the required production web and
   Go image tags from the same source.
-- `./scripts/verify-e2e.sh` passes all 33 desktop, mobile, and reduced-motion
+- `./scripts/verify-e2e.sh` passes all 36 desktop, mobile, and reduced-motion
   Playwright tests, including focus rings, 44px targets, role switching,
   workflow mutations, and seeded data.
 - Browser spot checks confirm both logo instances resolve under
@@ -123,7 +125,7 @@ Backblaze presigned URLs. Do not duplicate those rules in the UI.
 
 ### Shell and navigation
 
-- Keep the branded LeMans Service Plus logo visible in the header and splash.
+- Keep the branded Le Mans Service Plus logo visible in the header and splash.
 - Use the grouped primary navigation rail (Workspace, Control, and Finance) as
   the compact active-workflow command surface. Keep the breadcrumb as the
   secondary context trail on non-overview routes.
@@ -167,7 +169,7 @@ Invoice → collection
 Job costing + accounting review
 ```
 
-The implemented visualizer represents that flow with a reusable stepper that
+The implemented Overview visualizer represents that flow with a reusable stepper that
 shows completed, current, blocked, and future stages. Do not infer business
 state only from color. Each stage must expose text, status, timestamp or amount
 when available, and a link to the relevant record. The visualization must remain
@@ -177,8 +179,9 @@ useful on a small screen and with a keyboard or screen reader.
 
 - Use `next/link` for internal navigation so App Router prefetching and client
   transitions remain available.
-- Use route-level `loading.tsx` or nested Suspense boundaries for dynamic pages;
-  show lightweight, layout-preserving feedback instead of a full gray overlay.
+- Keep the root `loading.tsx` boundary quiet during section navigation; use
+  nested Suspense or local busy states only where asynchronous content needs
+  immediate, layout-preserving feedback instead of a full-page overlay.
 - Preserve the shared shell during transitions and keep navigation interruptible.
 - Use inline success, error, empty, and loading states near the affected content.
 - After role changes or server mutations, refresh the server-rendered data and
@@ -225,8 +228,8 @@ ambiguous labels. Preserve domain identifiers and status values exactly.
 ## 6. Delivered components and maintenance checks
 
 1. Revised shell and grouped navigation model with a route/state map.
-2. Reusable workflow visualization used on Overview and the relevant detail
-   pages, not a one-off illustration.
+2. Reusable workflow visualization used on Overview as the orientation surface;
+   module and detail pages use focused contextual status controls instead.
 3. Redesigned list, detail, create, approve, payment, and costing experiences.
 4. Responsive behavior for phone, tablet, and desktop widths.
 5. Explicit loading, empty, error, success, and access-denied states.
@@ -248,7 +251,7 @@ ambiguous labels. Preserve domain identifiers and status values exactly.
   without requiring a manual reload.
 - The app remains usable without hover, with keyboard only, and with reduced
   motion enabled.
-- No page relies on a gray full-screen loading mask or an icon without a label.
+- No page relies on a full-screen loading mask or an icon without a label.
 - Route-level loading, error, not-found, and access-denied states preserve the
   shared brand language, recovery action, and safe user-facing copy.
 - Each route maintains a clear page-level heading hierarchy; utility branding is

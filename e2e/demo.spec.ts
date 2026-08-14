@@ -69,6 +69,30 @@ test('restricted routes return to the base-path overview', async ({ page }) => {
   await expect(page.getByText('Operations Overview')).toBeVisible();
 });
 
+test('overview keeps the workflow map while modules stay focused', async ({ page }) => {
+  await enterAsAdmin(page);
+  await expect(page.getByRole('region', { name: 'End-to-end workflow' })).toBeVisible();
+
+  const openNavigation = page.getByRole('button', { name: 'Open navigation menu' });
+  if (await openNavigation.isVisible()) {
+    await openNavigation.click();
+    await page
+      .getByRole('group', { name: 'Finance' })
+      .getByRole('link', { name: 'Invoices', exact: true })
+      .click();
+  } else {
+    await page
+      .getByRole('list', { name: 'Finance' })
+      .getByRole('link', { name: 'Invoices', exact: true })
+      .click();
+  }
+  await expect(page.getByRole('heading', { name: 'Invoices & Collections' })).toBeVisible();
+  await expect(
+    page.getByRole('region', { name: 'End-to-End Operational Workflow' })
+  ).not.toBeVisible();
+  await expect(page.getByRole('status', { name: 'Loading workspace' })).not.toBeVisible();
+});
+
 test('customer form validation shows field errors and preserves values', async ({ page }) => {
   await page.goto(`${BASE}/`);
   await page.getByRole('main').getByRole('button', { name: 'Enter as an Admin' }).click();

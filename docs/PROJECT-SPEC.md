@@ -63,10 +63,11 @@ require production credentials to run a walkthrough.
 The platform includes server-side rendering for official printable receipts and operational forms based directly on client reference materials:
 
 1. **OPEX Budget Request Template (`photo_2026-08-03_00-36-03.jpg`)**:
-   - Header: LeMans Service Plus badge, `BUDGET REQUEST OPEX`.
+   - Header: Le Mans Service Plus badge, `BUDGET REQUEST OPEX`.
    - Identification: `OPEX- GJOB [MONTH] / [YEAR]-[ID]` (e.g. `OPEX- GJOB JULY / 2026-007`).
    - Line Columns: `PERIOD COVERED`, `PAYMENT TERMS`, `CHARGE INVOICE NO.`, `PAYEE`, `DUE DATE`, `AMOUNT`.
    - Summary & Sign-offs: `GRAND TOTAL: [AMOUNT]`, `PREPARED BY: [NAME] (AP)`, `REQUEST BY: [NAME] (OPERATION MANAGER)`.
+
 2. **Service Invoice Print Template (`photo_2026-08-03_00-36-09.jpg`)**:
    - Header: Le Mans Service Plus OPC, Highway Pampang, Angeles City, Pampanga, Email/Tel, `SERVICE INVOICE`.
    - Fields: RO No. (RA0003973), Customer No., Customer Name & Address, TIN, Advisor, Year/Make/Model, Plate, Chassis/VIN, Engine, Date.

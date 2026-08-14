@@ -1,4 +1,4 @@
-# Update the deployed LeMans app
+# Update the deployed Le Mans app
 
 - **Status**: Current operator quickstart
 - **Updated**: 2026-08-14

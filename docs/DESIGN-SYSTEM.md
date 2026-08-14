@@ -3,7 +3,7 @@
 - **Document Version**: 2.3.0
 - **Updated**: 2026-08-14
 - **Audience**: UI engineers, reviewers, and mobile developers (SwiftUI / Jetpack Compose)
-- **Client Brand**: LeMans Service Plus OPC (Angeles City, Pampanga)
+- **Client Brand**: Le Mans Service Plus OPC (Angeles City, Pampanga)
 
 ---
 
@@ -11,7 +11,7 @@
 
 This design system draws from these sources:
 
-1. **Client Brand Identity**: Official logo for **LeMans Service Plus OPC** (`references/branding/logo.jpg`), featuring a racing-inspired shield badge with LeMans Racing Red (`#d32f2f`), Crisp White (`#ffffff`), and Dark Slate (`#0f172a`). The runtime copy is `public/lemans-service-plus-logo.jpg`, rendered in `Header` and `DemoSplash` with base-path-aware direct asset delivery and registered as the app icon.
+1. **Client Brand Identity**: Official logo for **Le Mans Service Plus OPC** (`references/branding/logo.jpg`), featuring a racing-inspired shield badge with Le Mans Racing Red (`#d32f2f`), Crisp White (`#ffffff`), and Dark Slate (`#0f172a`). The runtime copy is `public/lemans-service-plus-logo.jpg`, rendered in `Header` and `DemoSplash` with base-path-aware direct asset delivery and registered as the app icon.
 2. **UI Architecture Inspiration**: ColdTrace Operations Dashboard (`references/design-inspiration/coldtrace-ui-mockup.webp`), featuring a modern light interface, elevated cards, subtle borders, high-visibility metric displays, and data-dense tables.
 3. **UI context guides**: Blueprints in `references/prompts/` define reusable interface patterns, four visual states, and cross-platform alignment for web, iOS (SwiftUI), and Android (Jetpack Compose).
 4. **Current web standards and framework guidance (reviewed 2026-08-14)**:
@@ -30,9 +30,9 @@ This design system draws from these sources:
      ARIA, expose the accessible name, state, relationship, and keyboard path;
      the grouped navigation uses `aria-expanded`, `aria-controls`, and
      `aria-current` for its disclosure and route state.
-   - **Next.js App Router**: Keep route-level loading, error, and not-found UI,
-     optimized metadata, static image handling, and accessibility linting in the
-     App Router shell.
+   - **Next.js App Router**: Keep the shared shell interactive during navigation;
+     use a quiet route boundary, clear error/not-found UI, optimized metadata,
+     static image handling, and accessibility linting in the App Router shell.
    - **Tailwind compatibility**: Tailwind CSS v4 is the current major release,
      but this focused redesign retains the pinned Tailwind CSS 3.4.10 stack. A
      v4 migration changes CSS configuration and browser support and must be a
@@ -50,14 +50,14 @@ This design system draws from these sources:
 ## Visual identity and semantic palette
 
 > [!IMPORTANT]
-> **Prohibited Interpretation Rule**: Words like "internal", "demo", "confidential", or "not for production" MUST NOT be used to justify a harsh red danger theme across the interface. LeMans Racing Red (`#d32f2f`) is a **brand accent** for key primary actions, active tabs, and logo accents. Red alert/danger colors MUST be reserved strictly for real validation errors, stock shortages, system alerts, or destructive actions (e.g., voiding a JO).
+> **Prohibited Interpretation Rule**: Words like "internal", "demo", "confidential", or "not for production" MUST NOT be used to justify a harsh red danger theme across the interface. Le Mans Racing Red (`#d32f2f`) is a **brand accent** for key primary actions, active tabs, and logo accents. Red alert/danger colors MUST be reserved strictly for real validation errors, stock shortages, system alerts, or destructive actions (e.g., voiding a JO).
 
 ### Color Token Palette
 
 ```css
 :root {
   /* Brand Tokens (Derived from Logo) */
-  --brand-primary: #d32f2f; /* LeMans Racing Red */
+  --brand-primary: #d32f2f; /* Le Mans Racing Red */
   --brand-primary-hover: #b71c1c; /* Dark Red Hover */
   --brand-primary-light: #ffebee; /* Light Red Tint for Badges */
   /* Implementation note: applied across src/app/page.tsx, src/components/DemoSplash.tsx,
@@ -109,7 +109,7 @@ quiet contrast field for the logo-derived red accent. Logo URLs use
 `getBasePath()` and `unoptimized` image delivery so the branded asset remains
 valid under both `/lemans/demo` and `/lemans` deployments.
 
-The seven-stage workflow is a responsive card rail: it uses readable cards at
+The seven-stage workflow is an Overview-only responsive card rail: it uses readable cards at
 desktop widths and a single-column stack on narrow screens. Titles and
 descriptions must wrap; truncation is not allowed when it removes the meaning
 of a workflow stage. The visualizer receives the active demo role and renders
@@ -134,12 +134,12 @@ asset URLs.
 
 ### Accessible Typography Scale
 
-- `text-3xl` / `text-4xl` (32px-36px, font-extrabold): Primary KPI metric numbers.
-- `text-2xl` (24px, font-bold): Main page headers and section titles.
-- `text-xl` (20px, font-bold): Card container titles and modal headers.
-- `text-base` (16px, font-medium/semibold): Baseline body text, form input text, table cell primary values.
-- `text-sm` (14px, font-semibold): Navigation tabs, table column headers, form field labels.
-- `text-xs` (12px, font-bold): Status pills, metadata tags.
+- `text-3xl` / `text-4xl` (32px-36px, font-bold): Primary KPI metric numbers.
+- `text-2xl` (24px, font-semibold): Main page headers and section titles.
+- `text-xl` (20px, font-semibold): Card container titles and modal headers.
+- `text-base` (16px, font-medium): Baseline body text, form input text, table cell primary values.
+- `text-sm` (14px, font-medium): Navigation tabs, table column headers, form field labels.
+- `text-xs` (12px, font-medium): Status pills, metadata tags.
 
 ### Spacing Grid & Readable Container Constraints
 
@@ -157,7 +157,7 @@ asset URLs.
    - Links for un-permitted modules (e.g. `Accounting` for `ROLE-GM`) MUST be filtered out of the navigation menu.
    - The same centralized module policy in `src/lib/roles.ts` MUST guard direct
      module and detail URLs before their data-fetching calls.
-   - Navigation implementation: `src/components/Navbar.tsx` accepts a `role` prop, keeps Overview visible as the shared landing surface, filters grouped workspaces by permission, and uses `stripBasePath()` for active-route state. Active tab uses LeMans Red (`#d32f2f`).
+   - Navigation implementation: `src/components/Navbar.tsx` accepts a `role` prop, keeps Overview visible as the shared landing surface, filters grouped workspaces by permission, and uses `stripBasePath()` for active-route state. Active tab uses Le Mans Red (`#d32f2f`).
 2. **Explicit 403 Access Restricted View**:
    - When an un-permitted user attempts to access a restricted URL directly, the page MUST render a dedicated `<AccessDenied />` component.
    - Component location: `src/components/AccessDenied.tsx`.
@@ -178,8 +178,9 @@ asset URLs.
   description, focus state, and inline error association.
 - `Skeleton` uses `motion-safe:animate-pulse`; reduced-motion users see no
   continuous loading animation.
-- Route-level `loading.tsx`, error, not-found, and access-denied surfaces use
-  the same branded shell language and safe plain-language recovery copy.
+- Route-level `loading.tsx` is intentionally quiet during section navigation;
+  error, not-found, and access-denied surfaces use the same branded shell
+  language and safe plain-language recovery copy.
 - `StatusBadge` uses compact bordered status labels. Red remains reserved for
   rejected/error semantics; the brand red is not used as a general alert theme.
 
@@ -187,7 +188,7 @@ asset URLs.
 
 Every dynamic component MUST explicitly implement four discrete visual UI states:
 
-1. **LOADING STATE**: Use a lightweight, layout-preserving loading boundary. Motion is optional (`motion-safe`) and must honor reduced-motion preferences; do not cover the shell with a full gray skeleton.
+1. **LOADING STATE**: Use a lightweight, layout-preserving loading boundary. Motion is optional (`motion-safe`) and must honor reduced-motion preferences; do not cover the shell with a full-page skeleton during section navigation.
 2. **EMPTY STATE**: Render an accessible container displaying instructional copy, icon, and a primary call-to-action button.
 3. **ERROR STATE**: Render clear error boundary notifications with action retry triggers (`onClick={retry}`).
 4. **SUCCESS / DEFAULT STATE**: Render the fully hydrated, populated user interface.

@@ -6,7 +6,6 @@ import { StatusBadge } from '@/components/ui';
 import AccessDenied from '@/components/AccessDenied';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
-import EndToEndWorkflowVisualizer from '@/components/EndToEndWorkflowVisualizer';
 import { ArrowLeft, Receipt, CreditCard, ShieldAlert } from 'lucide-react';
 
 export default async function InvoiceDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -44,9 +43,6 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
           </div>
         </div>
       </div>
-
-      {/* Stage 5 Active Visualizer */}
-      <EndToEndWorkflowVisualizer role={role} currentStage="BILLING" />
 
       {/* Invoice Card Template */}
       <div className="surface-card space-y-6 p-6">

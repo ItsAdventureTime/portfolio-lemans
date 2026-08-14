@@ -7,7 +7,6 @@ import AccessDenied from '@/components/AccessDenied';
 import InvoiceForm from './InvoiceForm';
 import InvoiceList from './InvoiceList';
 import { errorResult, FormResult, okResult } from '@/lib/form-result';
-import EndToEndWorkflowVisualizer from '@/components/EndToEndWorkflowVisualizer';
 
 export default async function InvoicesPage() {
   const role = await getDemoRole();
@@ -56,8 +55,6 @@ export default async function InvoicesPage() {
         title="Invoices & Collections"
         description="Create invoices from job orders and record customer payments."
       />
-
-      <EndToEndWorkflowVisualizer role={role} currentStage="BILLING" />
 
       {canCreate && <InvoiceForm action={createAction} />}
 

@@ -4,7 +4,7 @@
 
 - **Role**: Lead Software Architect & AI Engineering Agent
 - **Project**: Le Mans Operations & Job Cost Management System (`lemans-bridge-dashboard`)
-- **Client**: LeMans Service Plus OPC
+- **Client**: Le Mans Service Plus OPC
 - **Domain**: Auto Service Center Operations, Job Costing, Procurement, Billing, and Reporting
 
 ## Writing and proofreading

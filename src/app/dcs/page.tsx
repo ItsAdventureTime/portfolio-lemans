@@ -15,7 +15,6 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 import PageHeader from '@/components/PageHeader';
-import EndToEndWorkflowVisualizer from '@/components/EndToEndWorkflowVisualizer';
 import AccessDenied from '@/components/AccessDenied';
 
 export default async function DcsPage() {
@@ -35,8 +34,6 @@ export default async function DcsPage() {
         title="Disbursements & Cashier Services (DCS)"
         description="Execute approved payments, upload proof receipts, and record disbursements."
       />
-
-      <EndToEndWorkflowVisualizer role={role} currentStage="BILLING" />
 
       <DataTable<Disbursement>
         items={disbursements}

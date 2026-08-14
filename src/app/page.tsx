@@ -40,8 +40,8 @@ export default async function DashboardOverview() {
               Operations Overview
             </h1>
             <p className="mt-2 max-w-2xl text-base leading-7 text-slate-600">
-              See the work moving through LeMans Service Plus and take the next action from one calm
-              operating view.
+              See the work moving through Le Mans Service Plus and take the next action from one
+              calm operating view.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2.5">

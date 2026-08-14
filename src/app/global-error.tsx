@@ -29,7 +29,7 @@ export default function GlobalError({
         >
           <Image
             src={LOGO_SRC}
-            alt="LeMans Service Plus OPC logo"
+            alt="Le Mans Service Plus OPC logo"
             width={56}
             height={56}
             sizes="56px"
@@ -43,7 +43,7 @@ export default function GlobalError({
             <AlertOctagon className="h-6 w-6 text-rose-600" aria-hidden="true" />
           </div>
           <div className="space-y-2">
-            <p className="utility-label text-brand-primary">LeMans operations</p>
+            <p className="utility-label text-brand-primary">Le Mans operations</p>
             <h1 className="text-2xl font-bold tracking-tight text-slate-950">
               We couldn&apos;t load the application
             </h1>

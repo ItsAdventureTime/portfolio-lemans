@@ -3,7 +3,6 @@ import { listJobOrders } from '@/lib/api';
 import { canAccessModule } from '@/lib/roles';
 import PageHeader from '@/components/PageHeader';
 import JobOrderList from './JobOrderList';
-import EndToEndWorkflowVisualizer from '@/components/EndToEndWorkflowVisualizer';
 import AccessDenied from '@/components/AccessDenied';
 
 export default async function JobOrdersPage() {
@@ -16,7 +15,6 @@ export default async function JobOrdersPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Job Orders" description="Track active and completed service job orders." />
-      <EndToEndWorkflowVisualizer role={role} currentStage="JOB_ORDER" />
       <JobOrderList jobOrders={jobOrders} />
     </div>
   );

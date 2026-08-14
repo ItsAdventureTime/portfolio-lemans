@@ -6,7 +6,6 @@ import { DataTable, StatusBadge } from '@/components/ui';
 import AccessDenied from '@/components/AccessDenied';
 import { getApiUrl } from '@/lib/api-url';
 import PageHeader from '@/components/PageHeader';
-import EndToEndWorkflowVisualizer from '@/components/EndToEndWorkflowVisualizer';
 import type { Customer, Invoice } from '@/lib/types';
 import { Download, FileSpreadsheet, FileCode } from 'lucide-react';
 
@@ -23,8 +22,6 @@ export default async function AccountingPage() {
         title="Accounting & Export Interchange"
         description="Admin-only operational GL/AP ledgers and QuickBooks-ready export files."
       />
-
-      <EndToEndWorkflowVisualizer role={role} currentStage="ACCOUNTING" />
 
       <section className="surface-card space-y-4 p-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

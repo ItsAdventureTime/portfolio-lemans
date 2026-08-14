@@ -166,8 +166,9 @@ textarea {
     background: rgba(248, 250, 252, 0.92);
     color: var(--text-secondary);
     font-size: 0.6875rem;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: none;
   }
 
   .data-table tbody tr:last-child td {
@@ -211,10 +212,9 @@ textarea {
   .utility-label {
     color: var(--text-tertiary);
     font-size: 0.6875rem;
-    font-weight: 700;
-    letter-spacing: 0.12em;
+    font-weight: 600;
+    letter-spacing: 0.025em;
     line-height: 1rem;
-    text-transform: uppercase;
   }
 
   .action-primary,
@@ -227,7 +227,7 @@ textarea {
     border-radius: 0.625rem;
     padding: 0.625rem 0.875rem;
     font-size: 0.8125rem;
-    font-weight: 700;
+    font-weight: 600;
     line-height: 1.25rem;
   }
 
@@ -293,5 +293,20 @@ textarea {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
+  }
+}
+
+@layer utilities {
+  /* Keep hierarchy legible without making every label feel like a headline. */
+  .font-semibold {
+    font-weight: 500;
+  }
+
+  .font-bold {
+    font-weight: 600;
+  }
+
+  .font-extrabold {
+    font-weight: 700;
   }
 }

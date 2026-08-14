@@ -16,7 +16,6 @@ import { notFound } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import Link from 'next/link';
 import StatusWorkflowStepper from '@/components/status-workflow-stepper';
-import EndToEndWorkflowVisualizer from '@/components/EndToEndWorkflowVisualizer';
 import {
   ArrowLeft,
   Calculator,
@@ -89,9 +88,6 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
           </Link>
         )}
       </div>
-
-      {/* Stage 3 Active Visualizer */}
-      <EndToEndWorkflowVisualizer role={role} currentStage="JOB_ORDER" />
 
       {/* Job Order Status Stepper */}
       <div className="surface-card space-y-3 p-5">

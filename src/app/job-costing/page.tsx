@@ -7,7 +7,6 @@ import { hasPermission } from '@/lib/roles';
 import { DataTable, StatusBadge } from '@/components/ui';
 import AccessDenied from '@/components/AccessDenied';
 import PageHeader from '@/components/PageHeader';
-import EndToEndWorkflowVisualizer from '@/components/EndToEndWorkflowVisualizer';
 import type { JobOrder } from '@/lib/types';
 
 export default async function JobCostingIndexPage({
@@ -78,8 +77,6 @@ export default async function JobCostingIndexPage({
         title="Job Costing"
         description="Compare planned costs with recorded spend and billed revenue."
       />
-
-      <EndToEndWorkflowVisualizer role={role} currentStage="COSTING" />
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <SummaryCard label="Estimated" cents={totals.estimated} />

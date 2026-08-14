@@ -21,7 +21,7 @@ export default function AccessDenied({ role, requiredCapability }: AccessDeniedP
       <section className="recovery-shell surface-card w-full max-w-md space-y-5 p-6 text-center sm:p-8">
         <Image
           src={LOGO_SRC}
-          alt="LeMans Service Plus OPC logo"
+          alt="Le Mans Service Plus OPC logo"
           width={56}
           height={56}
           sizes="56px"
@@ -35,7 +35,7 @@ export default function AccessDenied({ role, requiredCapability }: AccessDeniedP
           <ShieldAlert className="h-6 w-6 text-rose-600" aria-hidden="true" />
         </div>
         <div className="space-y-2">
-          <p className="utility-label text-brand-primary">LeMans operations</p>
+          <p className="utility-label text-brand-primary">Le Mans operations</p>
           <h1 className="text-2xl font-bold tracking-tight text-slate-950">Access restricted</h1>
           <p className="text-sm leading-6 text-slate-600">
             The simulated <strong>{ROLES[role]}</strong> role does not have access to this module.

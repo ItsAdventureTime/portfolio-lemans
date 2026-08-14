@@ -9,7 +9,7 @@ import { getBasePath } from '@/lib/base-path';
 
 const logoPath = `${getBasePath()}/lemans-service-plus-logo.jpg`;
 const siteOrigin = 'https://delegateops.business';
-const brandTitle = 'LeMans Service Plus - Operations & Job Cost Management';
+const brandTitle = 'Le Mans Service Plus - Operations & Job Cost Management';
 const brandDescription =
   'Enterprise operational dashboard and job costing platform for auto service centers.';
 
@@ -17,14 +17,14 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteOrigin),
   title: brandTitle,
   description: brandDescription,
-  applicationName: 'LeMans Operations',
+  applicationName: 'Le Mans Operations',
   alternates: {
     canonical: getBasePath() || '/',
   },
   openGraph: {
     type: 'website',
     locale: 'en_PH',
-    siteName: 'LeMans Service Plus',
+    siteName: 'Le Mans Service Plus',
     title: brandTitle,
     description: brandDescription,
     url: getBasePath() || '/',
@@ -33,7 +33,7 @@ export const metadata: Metadata = {
         url: logoPath,
         width: 512,
         height: 512,
-        alt: 'LeMans Service Plus OPC logo',
+        alt: 'Le Mans Service Plus OPC logo',
       },
     ],
   },
@@ -77,7 +77,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           {children}
         </main>
         <footer className="border-t border-slate-200/80 bg-white/65 px-4 py-5 text-center text-xs text-slate-500 backdrop-blur">
-          <span className="font-semibold text-slate-700">LeMans Service Plus OPC</span> © 2026 ·
+          <span className="font-semibold text-slate-700">Le Mans Service Plus OPC</span> © 2026 ·
           Operations and job cost management
         </footer>
       </body>
