@@ -167,6 +167,9 @@ cryptographically random suffix to avoid collisions.
     transform content transition keeps the shared shell responsive.
     Mutation-level busy states remain inline and accessible, and reduced-motion
     users receive no non-essential movement.
+  - Primary navigation links scope keyboard focus to a stable inset outline and
+    skip the global animated focus shadow, preventing a transient vertical edge
+    from flashing beside the active item during route changes.
   - The 2026-08-14 branded pass extends the shared surface treatment through
     detail pages and forms, removes static status live-region semantics, adds
     share metadata, and keeps workflow links, dashboard records, and overview

@@ -202,7 +202,7 @@ test('reduced-motion media emulation disables non-essential motion', async ({ pa
   expect(transition).toMatch(/0\.01ms|0s|1e-05s|0\.00001s/);
 });
 
-test('focus-visible rings are visible with keyboard navigation', async ({ page }) => {
+test('focus-visible rings are visible with keyboard navigation', async ({ page }, testInfo) => {
   await page.goto(`${BASE}/`);
   await page.keyboard.press('Tab');
   const focused = page.locator(':focus-visible');
@@ -219,6 +219,27 @@ test('focus-visible rings are visible with keyboard navigation', async ({ page }
     style.boxShadow !== 'none' ||
     (style.outlineStyle !== 'none' && style.outlineStyle !== '' && style.outlineWidth !== '0px');
   expect(hasVisibleFocus).toBe(true);
+
+  if (testInfo.project.name !== 'mobile') {
+    await page.getByRole('button', { name: 'Enter as an Admin' }).click();
+    const accountingLink = page
+      .getByRole('navigation', { name: 'Primary navigation' })
+      .getByRole('link', { name: 'Accounting', exact: true });
+    await accountingLink.focus();
+
+    const navStyle = await accountingLink.evaluate((el) => {
+      const computed = window.getComputedStyle(el);
+      return {
+        boxShadow: computed.boxShadow,
+        outlineOffset: computed.outlineOffset,
+        outlineStyle: computed.outlineStyle,
+      };
+    });
+
+    expect(navStyle.boxShadow).toBe('none');
+    expect(navStyle.outlineOffset).toBe('-2px');
+    expect(navStyle.outlineStyle).toBe('solid');
+  }
 });
 
 test('seeded local data is available', async ({ page }) => {

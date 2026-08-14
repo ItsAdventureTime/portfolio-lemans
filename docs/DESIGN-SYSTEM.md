@@ -195,6 +195,9 @@ asset URLs.
   shell.
 - `html { scrollbar-gutter: stable; }` and the shared footer container preserve
   optical horizontal alignment when routes differ in scroll height.
+- Primary navigation links use a stable inset outline for keyboard focus. They
+  do not inherit the global animated focus shadow, which prevents a transient
+  vertical edge from flashing beside the active item during route changes.
 - `StatusBadge` uses compact bordered status labels. Red remains reserved for
   rejected/error semantics; the brand red is not used as a general alert theme.
 

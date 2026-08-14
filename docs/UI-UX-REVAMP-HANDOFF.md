@@ -197,6 +197,9 @@ useful on a small screen and with a keyboard or screen reader.
   `prefers-reduced-motion`.
 - Keep `scrollbar-gutter: stable` and the shared footer container so centered
   footer copy does not shift when route height changes.
+- Primary navigation keeps a stable inset keyboard-focus outline and avoids the
+  global animated focus shadow during route changes, preventing a transient
+  vertical edge beside the active item.
 - Preserve the shared shell during transitions and keep navigation interruptible.
 - Use inline success, error, empty, and loading states near the affected content.
 - After role changes or server mutations, refresh the server-rendered data and

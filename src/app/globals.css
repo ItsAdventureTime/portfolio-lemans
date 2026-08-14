@@ -125,6 +125,13 @@ textarea {
     letter-spacing: -0.025em;
   }
 
+  .nav-link:focus-visible {
+    /* Keep keyboard focus visible without animating a shadow during routing. */
+    outline: 2px solid var(--brand-primary);
+    outline-offset: -2px;
+    box-shadow: none;
+  }
+
   .surface-card {
     border: 1px solid rgba(226, 232, 240, 0.92);
     border-radius: 1rem;
