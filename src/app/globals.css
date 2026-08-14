@@ -80,16 +80,18 @@ body {
   color: var(--text-primary);
 }
 
-a:focus-visible,
-button:focus-visible,
-input:focus-visible,
-select:focus-visible,
-textarea:focus-visible,
-[tabindex]:focus-visible {
-  outline: none;
-  box-shadow: var(--shadow-focus);
-  outline: 2px solid transparent;
-  outline-offset: 2px;
+@layer base {
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  [tabindex]:focus-visible {
+    outline: none;
+    box-shadow: var(--shadow-focus);
+    outline: 2px solid transparent;
+    outline-offset: 2px;
+  }
 }
 
 button,

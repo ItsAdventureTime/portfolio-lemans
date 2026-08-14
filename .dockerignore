@@ -22,3 +22,4 @@ quadlet/**
 scripts
 sqlc.yaml
 Dockerfile*
+.DS_Store

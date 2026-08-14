@@ -1,6 +1,6 @@
 # Design system
 
-- **Document Version**: 2.3.0
+- **Document Version**: 2.3.1
 - **Updated**: 2026-08-15
 - **Audience**: UI engineers, reviewers, and mobile developers (SwiftUI / Jetpack Compose)
 - **Client Brand**: Le Mans Service Plus OPC (Angeles City, Pampanga)
@@ -14,47 +14,48 @@ This design system draws from these sources:
 1. **Client Brand Identity**: Official logo for **Le Mans Service Plus OPC** (`references/branding/logo.jpg`), featuring a racing-inspired shield badge with Le Mans Racing Red (`#d32f2f`), Crisp White (`#ffffff`), and Dark Slate (`#0f172a`). The runtime copy is `public/lemans-service-plus-logo.jpg`, rendered in `Header` and `DemoSplash` with base-path-aware direct asset delivery and registered as the app icon.
 2. **UI Architecture Inspiration**: ColdTrace Operations Dashboard (`references/design-inspiration/coldtrace-ui-mockup.webp`), featuring a modern light interface, elevated cards, subtle borders, high-visibility metric displays, and data-dense tables.
 3. **UI context guides**: Blueprints in `references/prompts/` define reusable interface patterns, four visual states, and cross-platform alignment for web, iOS (SwiftUI), and Android (Jetpack Compose).
-4. **Current web standards and framework guidance (reviewed 2026-08-14)**:
-   - **Readable Density**: Context-aware centered shells (`max-w-screen-2xl` for the app frame, narrower wrappers for forms and error states) with horizontal scrolling for genuinely wide tables.
-   - **High-Readability Typography**: 16px baseline body text and high-contrast typography designed for users wearing glasses or viewing under shop lighting.
-   - **Role-Aware RBAC Navigation**: Navigation items filtered by active role; explicit 403 "Access Restricted" views instead of silent redirects.
-   - **Accessible Target Sizing**: Minimum 44x44px touch/click targets with focus ring states.
-   - **Workflow clarity**: The completed end-to-end workflow visualization and
-     navigation hierarchy are recorded in
-     [`UI-UX-REVAMP-HANDOFF.md`](./UI-UX-REVAMP-HANDOFF.md); implementation must
-     preserve current route, role, and API contracts.
-   - **WCAG 2.2 AA baseline**: Use the current W3C Recommendation as the
-     accessibility baseline. The product policy intentionally keeps 44x44px
-     controls, visible focus, clear status text, and reduced-motion support.
-   - **ARIA APG patterns**: Prefer native HTML controls. When behavior needs
-     ARIA, expose the accessible name, state, relationship, and keyboard path;
-     the grouped navigation uses `aria-expanded`, `aria-controls`, and
-     `aria-current` for its disclosure and route state.
-   - **Next.js App Router**: Keep the shared shell interactive during navigation;
-     use a quiet route boundary, full prefetching for the small grouped primary
-     navigation, clear error/not-found UI, optimized metadata, static image
-     handling, and accessibility linting in the App Router shell. The simulated
-     entry action uses a base-path-aware server-action form with a hydrated
-     fetch enhancement, explicit timeout/error feedback, and a return to the
-     base-path overview after setting its UX cookie; ordinary section changes
-     remain soft client navigations.
-     Browser-side mutations use the same-origin `/api/proxy/[...path]` route;
-     the internal Go API hostname remains server-only.
-   - **SmoothUI / Motion**: Use the requested SmoothUI collection as a motion
-     reference, with compositor-friendly CSS transform/opacity transitions.
-     Honor user reduced-motion preferences, keep the wrapper server-rendered,
-     and never make animation a prerequisite for task completion.
-   - **Tailwind compatibility**: Tailwind CSS v4 is the current major release,
-     but this focused redesign retains the pinned Tailwind CSS 3.4.10 stack. A
-     v4 migration changes CSS configuration and browser support and must be a
-     separately planned, compatibility-tested work item.
+4. **Current web standards and framework guidance (reviewed 2026-08-15)**:
 
-   Official references: [WCAG 2.2](https://www.w3.org/TR/WCAG22/), [ARIA
-   Authoring Practices Guide](https://www.w3.org/WAI/ARIA/apg/), [ARIA disclosure
-   pattern](https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/), [ARIA keyboard
-   interface guidance](https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/),
-   [Next.js production checklist](https://nextjs.org/docs/app/guides/production-checklist),
-   and [Tailwind CSS v3-to-v4 upgrade guide](https://tailwindcss.com/docs/upgrade-guide).
+- **Readable Density**: Context-aware centered shells (`max-w-screen-2xl` for the app frame, narrower wrappers for forms and error states) with horizontal scrolling for genuinely wide tables.
+- **High-Readability Typography**: 16px baseline body text and high-contrast typography designed for users wearing glasses or viewing under shop lighting.
+- **Role-Aware RBAC Navigation**: Navigation items filtered by active role; explicit 403 "Access Restricted" views instead of silent redirects.
+- **Accessible Target Sizing**: Minimum 44x44px touch/click targets with focus ring states.
+- **Workflow clarity**: The completed end-to-end workflow visualization and
+  navigation hierarchy are recorded in
+  [`UI-UX-REVAMP-HANDOFF.md`](./UI-UX-REVAMP-HANDOFF.md); implementation must
+  preserve current route, role, and API contracts.
+- **WCAG 2.2 AA baseline**: Use the current W3C Recommendation as the
+  accessibility baseline. The product policy intentionally keeps 44x44px
+  controls, visible focus, clear status text, and reduced-motion support.
+- **ARIA APG patterns**: Prefer native HTML controls. When behavior needs
+  ARIA, expose the accessible name, state, relationship, and keyboard path;
+  the grouped navigation uses `aria-expanded`, `aria-controls`, and
+  `aria-current` for its disclosure and route state.
+- **Next.js App Router**: Keep the shared shell interactive during navigation;
+  use a quiet route boundary, full prefetching for the small grouped primary
+  navigation, clear error/not-found UI, optimized metadata, static image
+  handling, and accessibility linting in the App Router shell. The simulated
+  entry action uses a base-path-aware server-action form with a hydrated
+  fetch enhancement, explicit timeout/error feedback, and a return to the
+  base-path overview after setting its UX cookie; ordinary section changes
+  remain soft client navigations.
+  Browser-side mutations use the same-origin `/api/proxy/[...path]` route;
+  the internal Go API hostname remains server-only.
+- **SmoothUI / Motion**: Use the requested SmoothUI collection as a motion
+  reference, with compositor-friendly CSS transform/opacity transitions.
+  Honor user reduced-motion preferences, keep the wrapper server-rendered,
+  and never make animation a prerequisite for task completion.
+- **Tailwind compatibility**: Tailwind CSS v4 is the current major release,
+  but this focused redesign retains the pinned Tailwind CSS 3.4.10 stack. A
+  v4 migration changes CSS configuration and browser support and must be a
+  separately planned, compatibility-tested work item.
+
+Official references: [WCAG 2.2](https://www.w3.org/TR/WCAG22/), [ARIA
+Authoring Practices Guide](https://www.w3.org/WAI/ARIA/apg/), [ARIA disclosure
+pattern](https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/), [ARIA keyboard
+interface guidance](https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/),
+[Next.js production checklist](https://nextjs.org/docs/app/guides/production-checklist),
+and [Tailwind CSS v3-to-v4 upgrade guide](https://tailwindcss.com/docs/upgrade-guide).
 
 ---
 
@@ -192,15 +193,17 @@ asset URLs.
 - Route-level `loading.tsx` is intentionally quiet during section navigation;
   error, not-found, and access-denied surfaces use the same branded shell
   language and safe plain-language recovery copy.
-- `SmoothPageTransition` provides a short route/content enter motion using
-  Motion's React integration. It keeps content visible and animates a small
-  transform only, uses `useReducedMotion`, and lives inside the entry-gated
-  shell.
+- `SmoothPageTransition` provides a short server-rendered CSS route/content
+  enter motion guided by Motion and SmoothUI principles. It keeps content
+  visible, animates only a small transform/opacity change, and lives inside the
+  entry-gated shell.
 - `html { scrollbar-gutter: stable; }` and the shared footer container preserve
   optical horizontal alignment when routes differ in scroll height.
-- Primary navigation links use a stable inset outline for keyboard focus. They
-  do not inherit the global animated focus shadow, which prevents a transient
-  vertical edge from flashing beside the active item during route changes.
+- Primary navigation links use a stable inset outline for keyboard focus. The
+  shared `:focus-visible` treatment lives in `@layer base`, while the
+  `.nav-link` override remains in `@layer components`; this cascade order keeps
+  the visible inset outline and prevents the white outer focus shadow from
+  flashing beside the active item during route changes.
 - `StatusBadge` uses compact bordered status labels. Red remains reserved for
   rejected/error semantics; the brand red is not used as a general alert theme.
 

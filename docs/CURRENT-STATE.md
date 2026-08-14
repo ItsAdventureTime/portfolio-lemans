@@ -1,6 +1,6 @@
 # Current repository state
 
-- **Updated**: 2026-08-15 (reliable simulated entry and validation)
+- **Updated**: 2026-08-15 (navigation focus artifact repair and validation)
 - **Authority**: Current implementation and the demo rules in
   [`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md)
 - **Documentation index**: [`DOCUMENTATION-INDEX.md`](./DOCUMENTATION-INDEX.md)
@@ -88,7 +88,7 @@ The current demo validation baseline is complete in rootless Podman:
 - `npm audit --omit=dev`: no reported vulnerabilities after pinning the
   transitive `nanoid` dependency to the patched `3.3.18` release.
 
-The 2026-08-14 branded redesign and responsiveness refinement were additionally checked with fresh rootless
+The 2026-08-15 navigation focus repair and branded responsiveness refinement were additionally checked with fresh rootless
 Podman frontend validation (`format:check`, `lint`, `typecheck`, and
 production build), a successful demo web/API image build, and browser checks at
 desktop and 390x844 mobile widths. Those checks covered role-aware overview
@@ -96,7 +96,8 @@ actions, seven readable workflow cards, mobile navigation disclosure, no
 overview horizontal overflow, role-filtered workflow and dashboard surfaces,
 branded logo rendering, a stable centered footer across routes, the entry gate
 on direct module URLs, a horizontally contained accounting table, and a
-reduced-motion-safe route/content transition.
+reduced-motion-safe route/content transition, and the navigation focus cascade
+after repeated route changes.
 
 The UI keeps the configured `NEXT_PUBLIC_BASE_PATH` at runtime, uses integer
 centavos for monetary values, exposes keyboard-visible focus states and 44px
@@ -172,8 +173,9 @@ cryptographically random suffix to avoid collisions.
     Mutation-level busy states remain inline and accessible, and reduced-motion
     users receive no non-essential movement.
   - Primary navigation links scope keyboard focus to a stable inset outline and
-    skip the global animated focus shadow, preventing a transient vertical edge
-    from flashing beside the active item during route changes.
+    skip the global focus shadow, preventing a transient vertical edge from
+    flashing beside the active item during route changes. The shared focus rule
+    is in `@layer base`, and the navigation override is in `@layer components`.
   - The 2026-08-14 branded pass extends the shared surface treatment through
     detail pages and forms, removes static status live-region semantics, adds
     share metadata, and keeps workflow links, dashboard records, and overview

@@ -232,9 +232,12 @@ Use the existing tokens in `docs/DESIGN-SYSTEM.md`:
 - Primary grouped navigation uses complete Next.js Link prefetching for the
   small set of role-filtered module routes. Do not add timers or blocking client
   work to simulate responsiveness.
-- `SmoothPageTransition` uses Motion and the SmoothUI motion principles for a
-  short transform enter transition. Keep it interruptible and disable
-  non-essential movement for reduced-motion users.
+- `SmoothPageTransition` is a server-rendered CSS wrapper guided by Motion and
+  SmoothUI principles for a short transform/opacity enter transition. Keep it
+  interruptible and disable non-essential movement for reduced-motion users.
+- Keep the shared focus treatment in `@layer base` and the `.nav-link` override
+  in `@layer components`; this preserves the visible inset keyboard outline
+  without flashing the global white outer shadow beside the active nav item.
 - Reserve scrollbar space globally and keep footer content inside the same
   max-width/padding shell on every route.
 - Always honor `prefers-reduced-motion: reduce`; remove non-essential movement,

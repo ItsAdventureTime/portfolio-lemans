@@ -2,7 +2,7 @@
 
 - **Status**: IMPLEMENTED & VERIFIED
 
-- **Version**: 1.2.0
+- **Version**: 1.2.1
 - **Updated**: 2026-08-15
 - **Audience**: Google Antigravity, UI engineers, UX reviewers, and coding agents
 - **Product**: Le Mans Operations & Job Cost Management System demo
@@ -72,6 +72,11 @@ The current shell and overview pass implements the following bounded changes:
   treatment, motion-safe skeletons, reduced-motion support, and reusable action
   and surface classes. The visual foundation remains Racing Red `#d32f2f`,
   Deep Slate `#0f172a`, and Off-White `#f8fafc`.
+- Shared focus treatment is layered deliberately: the global `:focus-visible`
+  rule is in `@layer base`, and `.nav-link` keeps its component-layer override.
+  This preserves a visible inset keyboard outline without the white outer ring
+  appearing beside Accounting or another primary navigation item after a route
+  change.
 - Route-level error, not-found, and access-restricted surfaces use the same
   branded surface/action language. The route loading boundary is intentionally
   quiet during section navigation so the shared shell stays responsive; form
@@ -204,8 +209,9 @@ useful on a small screen and with a keyboard or screen reader.
 - Keep `scrollbar-gutter: stable` and the shared footer container so centered
   footer copy does not shift when route height changes.
 - Primary navigation keeps a stable inset keyboard-focus outline and avoids the
-  global animated focus shadow during route changes, preventing a transient
-  vertical edge beside the active item.
+  global focus shadow during route changes, preventing a transient vertical edge
+  beside the active item. Keep the shared rule in `@layer base` and the nav
+  override in `@layer components` so the cascade remains deterministic.
 - Preserve the shared shell during transitions and keep navigation interruptible.
 - Use inline success, error, empty, and loading states near the affected content.
 - After role changes or server mutations, refresh the server-rendered data and

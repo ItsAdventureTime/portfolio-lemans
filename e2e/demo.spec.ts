@@ -261,17 +261,26 @@ test('focus-visible rings are visible with keyboard navigation', async ({ page }
       .getByRole('navigation', { name: 'Primary navigation' })
       .getByRole('link', { name: 'Accounting', exact: true });
     await accountingLink.focus();
+    await accountingLink.press('Enter');
+    await expect(page).toHaveURL(/\/lemans\/demo\/accounting\/?$/);
 
-    const navStyle = await accountingLink.evaluate((el) => {
+    const navigatedAccountingLink = page
+      .getByRole('navigation', { name: 'Primary navigation' })
+      .getByRole('link', { name: 'Accounting', exact: true });
+    await navigatedAccountingLink.focus();
+
+    const navStyle = await navigatedAccountingLink.evaluate((el) => {
       const computed = window.getComputedStyle(el);
       return {
         boxShadow: computed.boxShadow,
+        outlineColor: computed.outlineColor,
         outlineOffset: computed.outlineOffset,
         outlineStyle: computed.outlineStyle,
       };
     });
 
     expect(navStyle.boxShadow).toBe('none');
+    expect(navStyle.outlineColor).toBe('rgb(211, 47, 47)');
     expect(navStyle.outlineOffset).toBe('-2px');
     expect(navStyle.outlineStyle).toBe('solid');
   }
