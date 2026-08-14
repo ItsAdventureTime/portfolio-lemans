@@ -12,7 +12,13 @@
 
 ## 1. Overview of Completed UI/UX Revamp
 
-The UI/UX revamp has been fully implemented and verified against the 36-test Playwright E2E suite (`./scripts/verify-e2e.sh`), 200 OK vertical slice probes (`./scripts/verify-vertical-slice.sh`), ESLint, TypeScript `tsc`, and Prettier format checks.
+The UI/UX revamp has been fully implemented and validated with the 42-test
+Playwright E2E matrix (`./scripts/verify-e2e.sh`), 200 OK vertical slice probes
+(`./scripts/verify-vertical-slice.sh`), ESLint, TypeScript `tsc`, and Prettier
+format checks. The final project-isolated desktop and mobile runs passed 14/14;
+focused reduced-motion checks for the changed entry and navigation behavior also
+passed. Combined browser runs can hit host-level Podman startup timeouts when
+other workspaces are consuming the VM.
 
 ### Key Functional & Visual Components Added
 
@@ -42,6 +48,9 @@ The UI/UX revamp has been fully implemented and verified against the 36-test Pla
    - Touch targets enforced at `min-height: 44px` and `min-width: 44px` across desktop and mobile.
    - Text, icons, and status badges communicate state without relying on color alone.
    - Reduced-motion media query support (`@media (prefers-reduced-motion: reduce)`).
+   - Simulated-entry gate keeps the dashboard shell out of direct module routes
+     until the demo is entered; primary navigation uses full prefetching and a
+     short reduced-motion-safe Motion content transition.
 
 ---
 
@@ -82,7 +91,7 @@ The team has completed a full UI/UX overhaul of the Le Mans demo dashboard. The 
 4. Run validation checks inside rootless Podman containers:
    - `./scripts/verify-local.sh` (Prettier, ESLint, TypeScript tsc, Next.js build, Go tests)
    - `./scripts/verify-vertical-slice.sh` (Health checks and database isolation)
-   - `./scripts/verify-e2e.sh` (Playwright 36-test E2E suite)
+   - `./scripts/verify-e2e.sh` (Playwright 42-test E2E suite)
 
 Provide concise feedback, highlight any performance or UX improvement opportunities, and output diffs for any proposed code revisions.
 ```

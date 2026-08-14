@@ -35,10 +35,12 @@
 
 html {
   overflow-x: hidden;
+  scrollbar-gutter: stable;
   scroll-behavior: smooth;
 }
 
 body {
+  min-height: 100dvh;
   overflow-x: hidden;
   background-color: var(--bg-app);
   color: var(--text-primary);
@@ -65,6 +67,11 @@ body {
     'tnum' 1,
     'ss01' 1;
   text-rendering: optimizeLegibility;
+}
+
+.page-transition {
+  width: 100%;
+  will-change: transform;
 }
 
 ::selection {

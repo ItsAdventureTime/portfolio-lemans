@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import { getApiUrl } from '@/lib/api-url';
 import { getBasePath } from '@/lib/base-path';
 import Image from 'next/image';
@@ -11,7 +10,6 @@ const DEMO_ENTRY_ERROR = "We couldn't open the demo. Please try again.";
 const LOGO_SRC = `${getBasePath()}/lemans-service-plus-logo.jpg`;
 
 export default function DemoSplash() {
-  const router = useRouter();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -26,7 +24,7 @@ export default function DemoSplash() {
       if (!res.ok) {
         throw new Error(DEMO_ENTRY_ERROR);
       }
-      router.push('/');
+      window.location.assign(getBasePath() || '/');
     } catch (err) {
       setError(err instanceof Error ? err.message : DEMO_ENTRY_ERROR);
       setBusy(false);
@@ -35,7 +33,7 @@ export default function DemoSplash() {
 
   return (
     <section
-      className="relative isolate flex min-h-[calc(100dvh-15rem)] items-center overflow-hidden py-8 sm:py-12"
+      className="relative isolate flex min-h-[100dvh] items-center overflow-hidden py-8 sm:py-12"
       aria-labelledby="demo-splash-heading"
     >
       <div className="pointer-events-none absolute -right-24 top-8 -z-10 h-64 w-64 rounded-full bg-brand-primary/10 blur-3xl" />

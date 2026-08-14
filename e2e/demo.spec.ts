@@ -37,6 +37,35 @@ test('splash entry and role switching persist across routes', async ({ page }) =
   await expect(switcher).toHaveValue('ROLE_DCS');
 });
 
+test('simulated entry gates the dashboard shell on direct module routes', async ({ page }) => {
+  await page.context().clearCookies();
+  await page.goto(`${BASE}/invoices`);
+
+  await expect(page.getByRole('heading', { name: 'Le Mans Operations' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Enter as an Admin' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Invoices & Collections' })).not.toBeVisible();
+  await expect(page.getByRole('navigation', { name: 'Primary navigation' })).not.toBeVisible();
+  await expect(page.locator('footer')).not.toBeVisible();
+
+  await page.getByRole('button', { name: 'Enter as an Admin' }).click();
+  await expect(page.getByRole('heading', { name: 'Operations Overview' })).toBeVisible();
+  await expect(page.getByRole('navigation', { name: 'Primary navigation' })).toBeVisible();
+});
+
+test('footer remains optically centered across sections', async ({ page }) => {
+  await enterAsAdmin(page);
+  const footerBrand = page.locator('footer span').first();
+  const overviewPosition = await footerBrand.boundingBox();
+  expect(overviewPosition).not.toBeNull();
+
+  await page.goto(`${BASE}/invoices`);
+  await expect(page.getByRole('heading', { name: 'Invoices & Collections' })).toBeVisible();
+  const invoicesPosition = await footerBrand.boundingBox();
+  expect(invoicesPosition).not.toBeNull();
+
+  expect(Math.abs((overviewPosition?.x ?? 0) - (invoicesPosition?.x ?? 0))).toBeLessThanOrEqual(1);
+});
+
 test('role switching renders accessible error on failure', async ({ page }) => {
   await page.goto(`${BASE}/`);
   await page.getByRole('main').getByRole('button', { name: 'Enter as an Admin' }).click();

@@ -31,8 +31,16 @@ This design system draws from these sources:
      the grouped navigation uses `aria-expanded`, `aria-controls`, and
      `aria-current` for its disclosure and route state.
    - **Next.js App Router**: Keep the shared shell interactive during navigation;
-     use a quiet route boundary, clear error/not-found UI, optimized metadata,
-     static image handling, and accessibility linting in the App Router shell.
+     use a quiet route boundary, full prefetching for the small grouped primary
+     navigation, clear error/not-found UI, optimized metadata, static image
+     handling, and accessibility linting in the App Router shell. The simulated
+     entry action uses one base-path document navigation after setting its UX
+     cookie so the persistent root layout reevaluates the shell gate; ordinary
+     section changes remain soft client navigations.
+   - **SmoothUI / Motion**: Use the requested SmoothUI collection as a motion
+     reference, with Motion-based compositor-friendly transform transitions (and
+     opacity only when it clarifies continuity). Honor user reduced-motion
+     preferences and never make animation a prerequisite for task completion.
    - **Tailwind compatibility**: Tailwind CSS v4 is the current major release,
      but this focused redesign retains the pinned Tailwind CSS 3.4.10 stack. A
      v4 migration changes CSS configuration and browser support and must be a
@@ -181,6 +189,12 @@ asset URLs.
 - Route-level `loading.tsx` is intentionally quiet during section navigation;
   error, not-found, and access-denied surfaces use the same branded shell
   language and safe plain-language recovery copy.
+- `SmoothPageTransition` provides a short route/content enter motion using
+  Motion's React integration. It keeps content visible and animates a small
+  transform only, uses `useReducedMotion`, and lives inside the entry-gated
+  shell.
+- `html { scrollbar-gutter: stable; }` and the shared footer container preserve
+  optical horizontal alignment when routes differ in scroll height.
 - `StatusBadge` uses compact bordered status labels. Red remains reserved for
   rejected/error semantics; the brand red is not used as a general alert theme.
 
@@ -211,12 +225,12 @@ Every dynamic component MUST explicitly implement four discrete visual UI states
 
 ## 8. Demo Shell, Motion, and Role Simulation
 
-The current demo profile has no real authentication. A login-like splash may
-offer `Enter as an Admin` as demo theatre; that action enters the `Admin`
-simulated actor without passwords, sessions, or authentication redirects. The
-application exposes a visible role switcher for all six business roles. The
-shell MUST show a persistent `Demo mode` indicator and the active role. Role
-simulation changes navigation and available workflow actions, but is not a
+The current demo profile has no real authentication. A login-like splash offers
+`Enter as an Admin` as demo theatre; the entry cookie gates the dashboard shell
+and direct module URLs until that action completes, without passwords, sessions,
+or authentication redirects. The application exposes a visible role switcher
+for all six business roles. The shell MUST show a persistent `Demo mode`
+indicator and the active role. Role simulation and the entry cookie are not a
 production security boundary.
 
 Motion is functional and restrained:

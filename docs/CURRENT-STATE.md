@@ -17,9 +17,10 @@ implementation or operations.
 - PostgreSQL `postgres:alpine` on an internal rootless Podman network.
 - `Dockerfile.web` builds `lemans-bridge-dashboard:{demo,prod}-web`.
 - `Dockerfile.go` builds `lemans-bridge-dashboard-go:{demo,prod}-go`.
-- The demo has no real authentication. It starts with the simulated splash,
-  enters as Admin, and uses the `lemans-demo-role` cookie plus `X-Demo-Role`
-  header for role simulation. This is not a security boundary.
+- The demo has no real authentication or production security boundary. It starts
+  with the simulated splash; the `lemans-demo-entered` cookie gates the shared
+  dashboard shell, and the `lemans-demo-role` cookie plus `X-Demo-Role` header
+  provide role simulation after entry.
 
 ### Runtime branding
 
@@ -39,6 +40,13 @@ primary module/detail route use the same policy and render a branded
 The connected seven-stage visualizer is intentionally an Overview-only
 orientation surface; module and detail pages stay focused on their records,
 forms, and contextual status controls.
+Before simulated entry, direct module URLs render the branded splash without the
+dashboard header, navigation, breadcrumbs, footer, or module data surface.
+After entry, the footer uses the same centered shell container on every route and
+the primary navigation prefetches complete dynamic sections for faster changes.
+The entry action performs one base-path document navigation after writing the
+demo cookie so the persistent root layout reevaluates the shell gate; ordinary
+section changes remain soft, prefetched client navigations.
 
 ## Run the demo locally
 
@@ -68,18 +76,23 @@ The current demo validation baseline is complete in rootless Podman:
   and Go tests pass.
 - `verify-vertical-slice.sh`: all health and module routes return 200; the API
   is reachable on the internal network; PostgreSQL has no published host port.
-- `verify-e2e.sh`: all 36 Playwright tests pass across desktop, mobile, and
-  reduced-motion projects.
+- `verify-e2e.sh`: runs 42 Playwright tests across desktop, mobile, and
+  reduced-motion projects. Final project-isolated desktop and mobile runs passed
+  14/14 each, and focused reduced-motion checks for the changed entry/navigation
+  behavior passed. Combined runs can hit host-level Podman browser startup or
+  navigation timeouts when other workspaces are consuming the VM.
 - `npm audit --omit=dev`: no reported vulnerabilities after pinning the
   transitive `nanoid` dependency to the patched `3.3.18` release.
 
-The 2026-08-14 branded redesign was additionally checked with fresh rootless
+The 2026-08-14 branded redesign and responsiveness refinement were additionally checked with fresh rootless
 Podman frontend validation (`format:check`, `lint`, `typecheck`, and
 production build), a successful demo web/API image build, and browser checks at
 desktop and 390x844 mobile widths. Those checks covered role-aware overview
 actions, seven readable workflow cards, mobile navigation disclosure, no
 overview horizontal overflow, role-filtered workflow and dashboard surfaces,
-branded logo rendering, and a horizontally contained accounting table.
+branded logo rendering, a stable centered footer across routes, the entry gate
+on direct module URLs, a horizontally contained accounting table, and a
+reduced-motion-safe route/content transition.
 
 The UI keeps the configured `NEXT_PUBLIC_BASE_PATH` at runtime, uses integer
 centavos for monetary values, exposes keyboard-visible focus states and 44px
@@ -150,8 +163,10 @@ cryptographically random suffix to avoid collisions.
   - High-contrast, WCAG 2.2-targeted typography, touch targets (min 44x44px), focus-visible outlines, and reduced-motion safety.
   - Shared route-level error, not-found, and access-denied surfaces use branded
     recovery actions. The route boundary is intentionally quiet during section
-    navigation so the shared shell remains responsive; mutation-level busy
-    states remain inline and accessible.
+    navigation; primary links use full Next.js prefetching and a short
+    transform content transition keeps the shared shell responsive.
+    Mutation-level busy states remain inline and accessible, and reduced-motion
+    users receive no non-essential movement.
   - The 2026-08-14 branded pass extends the shared surface treatment through
     detail pages and forms, removes static status live-region semantics, adds
     share metadata, and keeps workflow links, dashboard records, and overview

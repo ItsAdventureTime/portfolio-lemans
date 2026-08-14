@@ -49,6 +49,9 @@ The current shell and overview pass implements the following bounded changes:
 - `DemoSplash` uses a responsive two-column entry surface with the existing
   `Enter as an Admin` demo-theatre action, a visible no-auth explanation, and a
   non-interactive workflow preview. Entry errors and busy state remain inline.
+- The entry cookie gates the complete dashboard shell: before entry, direct
+  module URLs show only the branded splash; after entry, Header, Navbar,
+  Breadcrumb, footer, and dashboard content render together.
 - The overview now has a branded operating-picture header, decision-oriented
   count and finance sections, and a quieter recent-job-order surface. The
   active demo role filters workflow links, sensitive dashboard records, and
@@ -89,13 +92,19 @@ major framework migration into a visual refinement.
   image tags.
 - `./scripts/build.sh prod` passes and produces the required production web and
   Go image tags from the same source.
-- `./scripts/verify-e2e.sh` passes all 36 desktop, mobile, and reduced-motion
+- `./scripts/verify-e2e.sh` covers all 42 desktop, mobile, and reduced-motion
   Playwright tests, including focus rings, 44px targets, role switching,
-  workflow mutations, and seeded data.
+  workflow mutations, and seeded data. Final project-isolated desktop and mobile
+  runs passed 14/14 each; focused reduced-motion checks for the changed
+  entry/navigation behavior also passed. Combined browser runs can hit
+  host-level Podman startup timeouts when other workspaces are consuming the VM.
 - Browser spot checks confirm both logo instances resolve under
   `/lemans/demo/`, mobile grouped navigation opens, Overview remains available
   to the DCS simulated role, and the DCS overview shows only its permitted
-  workflow stage without recent job-order records.
+  workflow stage without recent job-order records. The entry gate hides the
+  dashboard shell before entry, footer copy stays aligned between Overview and
+  Invoices, and route content enters with reduced-motion-safe transform
+  motion.
 - The full Go/API `verify-local.sh` pass remains the broader repository
   validation step and has been rerun because the dashboard handler now applies
   role policy before returning role-sensitive data.
@@ -178,10 +187,16 @@ useful on a small screen and with a keyboard or screen reader.
 ### Interaction quality
 
 - Use `next/link` for internal navigation so App Router prefetching and client
-  transitions remain available.
+  transitions remain available. The small grouped primary navigation opts into
+  full prefetching for dynamic sections.
 - Keep the root `loading.tsx` boundary quiet during section navigation; use
   nested Suspense or local busy states only where asynchronous content needs
   immediate, layout-preserving feedback instead of a full-page overlay.
+- `SmoothPageTransition` adds a short Motion-based transform enter transition.
+  Content remains visible while it moves a few pixels, and it honors
+  `prefers-reduced-motion`.
+- Keep `scrollbar-gutter: stable` and the shared footer container so centered
+  footer copy does not shift when route height changes.
 - Preserve the shared shell during transitions and keep navigation interruptible.
 - Use inline success, error, empty, and loading states near the affected content.
 - After role changes or server mutations, refresh the server-rendered data and
@@ -213,6 +228,8 @@ ambiguous labels. Preserve domain identifiers and status values exactly.
 
 - Keep the demo no-auth theatre: splash entry, Admin default, visible role
   switcher, and simulated policy behavior remain.
+- Keep the entry gate as a UX boundary only: direct module URLs show the splash
+  before entry and the full shell after entry; this is not production auth.
 - Keep `NEXT_PUBLIC_BASE_PATH` behavior for `/lemans/demo` and `/lemans`.
   Internal links must remain base-path safe.
 - Do not add a separate production source tree, login system, external `.env`,
@@ -252,6 +269,8 @@ ambiguous labels. Preserve domain identifiers and status values exactly.
 - The app remains usable without hover, with keyboard only, and with reduced
   motion enabled.
 - No page relies on a full-screen loading mask or an icon without a label.
+- The entry splash is the only pre-entry surface; direct module URLs cannot
+  expose the dashboard shell before simulated entry.
 - Route-level loading, error, not-found, and access-denied states preserve the
   shared brand language, recovery action, and safe user-facing copy.
 - Each route maintains a clear page-level heading hierarchy; utility branding is

@@ -1,20 +1,13 @@
 import Link from 'next/link';
 import { getDemoRole } from '@/lib/actor';
-import { isDemoEntered } from '@/lib/demo-entry.server';
 import { getDashboard } from '@/lib/api';
 import { formatPeso } from '@/lib/money';
 import { hasPermission, ROLES } from '@/lib/roles';
 import { StatusBadge } from '@/components/ui';
-import DemoSplash from '@/components/DemoSplash';
 import EndToEndWorkflowVisualizer from '@/components/EndToEndWorkflowVisualizer';
 import { ArrowUpRight, Plus, Wrench, Users } from 'lucide-react';
 
 export default async function DashboardOverview() {
-  const entered = await isDemoEntered();
-  if (!entered) {
-    return <DemoSplash />;
-  }
-
   const role = await getDemoRole();
   const data = await getDashboard(role);
   const canViewJobOrders = hasPermission(role, 'joChangeStatus');

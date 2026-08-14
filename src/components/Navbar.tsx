@@ -158,6 +158,7 @@ export default function Navbar({ role }: { role: ProjectRole }) {
                       <li key={item.href}>
                         <Link
                           href={item.href}
+                          prefetch={true}
                           className={`group flex min-h-11 items-center gap-2 whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium transition-[background-color,color,border-color,transform] active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-inset ${
                             active
                               ? 'border-brand-primary bg-charcoal-soft font-semibold text-white'
@@ -198,6 +199,7 @@ export default function Navbar({ role }: { role: ProjectRole }) {
                         <li key={item.href}>
                           <Link
                             href={item.href}
+                            prefetch={true}
                             onClick={() => setMobileMenuOpen(false)}
                             className={`flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-[background-color,color,transform] active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary ${
                               active

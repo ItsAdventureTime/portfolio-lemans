@@ -25,16 +25,22 @@ configuration enabled.
 The demo must be easy to open, easy to reset, and easy to use during a live
 walkthrough.
 
-The demo has **no real authentication**. It may present a simulated entry
+The demo has **no real authentication**. It presents a simulated entry
 experience for a walkthrough, but it must not implement accounts, passwords,
-sessions, or an authorization boundary:
+or production authorization. The entry cookie is a UX gate only:
 
 - Opening `/lemans/demo/` starts at a branded splash/landing state.
 - The splash presents an `Enter as an Admin` action. This is demo theatre, not a
-  login screen or security control.
+  security control.
 - Activating the action enters the dashboard as the `Admin` simulated actor.
-- There is no login requirement, session check, password flow, or
-  authentication redirect in the demo profile.
+- Before entry, the shared dashboard shell and direct module routes render only
+  the branded splash. After entry, the header, navigation, breadcrumbs, footer,
+  and dashboard content become available.
+- The entry action performs one base-path document navigation after writing the
+  UX cookie so the persistent root layout reevaluates the shell gate. Ordinary
+  section navigation remains a soft, prefetched client transition.
+- There is no account, password flow, or production authentication redirect in
+  the demo profile.
 - The user can change the active simulated role from a visible role switcher.
 - The simulated role affects navigation, available actions, labels, empty states,
   and workflow explanations.
@@ -74,8 +80,9 @@ Rules:
 5. Every role-sensitive action must use the shared demo actor/policy helper.
 6. Do not call production `requireSession` or redirect to `/login` in demo mode.
 
-The splash entry state must not prevent direct deterministic navigation to
-internal demo routes used by verification and walkthroughs.
+Direct module navigation before entry must remain deterministic by showing the
+splash; verification and walkthrough helpers must enter the demo before
+asserting module content.
 
 ## 2. Authority and implementation order
 
@@ -217,6 +224,14 @@ Use the existing tokens in `docs/DESIGN-SYSTEM.md`:
 - Prefer opacity/transform over large positional movement.
 - Use progressive-enhancement View Transitions for route or record transitions
   only when supported; the app must work normally without the API.
+- Primary grouped navigation uses complete Next.js Link prefetching for the
+  small set of role-filtered module routes. Do not add timers or blocking client
+  work to simulate responsiveness.
+- `SmoothPageTransition` uses Motion and the SmoothUI motion principles for a
+  short transform enter transition. Keep it interruptible and disable
+  non-essential movement for reduced-motion users.
+- Reserve scrollbar space globally and keep footer content inside the same
+  max-width/padding shell on every route.
 - Always honor `prefers-reduced-motion: reduce`; remove non-essential movement,
   large scaling, and parallax. Verify this with a browser media-emulation test,
   not CSS inspection alone.
@@ -352,6 +367,9 @@ Review these sources before implementation and again before handoff:
 - [Playwright projects and device emulation](https://playwright.dev/docs/test-projects)
 - [systemd timers](https://man7.org/linux/man-pages/man5/systemd.timer.5.html)
 - [MDN View Transition API](https://developer.mozilla.org/en-US/docs/Web/API/View_Transition_API)
+- [SmoothUI](https://github.com/educlopez/smoothui)
+- [Motion for React installation](https://motion.dev/docs/react-installation)
+- [Motion `useReducedMotion`](https://motion.dev/docs/react-use-reduced-motion)
 - [Tailwind CSS v3-to-v4 upgrade guide](https://tailwindcss.com/docs/upgrade-guide)
 - [goose migrations](https://github.com/pressly/goose)
 - [Podman Quadlet](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html)
