@@ -181,7 +181,7 @@ export default async function PurchasingPage() {
         description="Manage purchase requests, supplier invoices, and cost allocations."
       />
 
-      <EndToEndWorkflowVisualizer currentStage="PURCHASING" />
+      <EndToEndWorkflowVisualizer role={role} currentStage="PURCHASING" />
 
       <SectionCard title="Purchase Requests">
         {canCreatePR && <PurchaseRequestForm action={createPRAction} />}

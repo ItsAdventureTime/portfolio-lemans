@@ -47,7 +47,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
       </div>
 
       {/* Stage 1 Active Visualizer */}
-      <EndToEndWorkflowVisualizer currentStage="INTAKE" />
+      <EndToEndWorkflowVisualizer role={role} currentStage="INTAKE" />
 
       {/* Customer Info Card */}
       <div className="surface-card space-y-4 p-5">

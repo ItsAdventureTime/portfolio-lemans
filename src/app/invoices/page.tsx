@@ -53,7 +53,7 @@ export default async function InvoicesPage() {
         description="Create invoices from job orders and record customer payments."
       />
 
-      <EndToEndWorkflowVisualizer currentStage="BILLING" />
+      <EndToEndWorkflowVisualizer role={role} currentStage="BILLING" />
 
       {canCreate && <InvoiceForm action={createAction} />}
 

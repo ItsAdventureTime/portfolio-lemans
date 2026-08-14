@@ -84,7 +84,7 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
       </div>
 
       {/* Stage 3 Active Visualizer */}
-      <EndToEndWorkflowVisualizer currentStage="JOB_ORDER" />
+      <EndToEndWorkflowVisualizer role={role} currentStage="JOB_ORDER" />
 
       {/* Job Order Status Stepper */}
       <div className="surface-card space-y-3 p-5">

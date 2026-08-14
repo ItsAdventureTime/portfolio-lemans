@@ -87,7 +87,7 @@ const navGroups: { label: string; items: NavItem[] }[] = [
         href: '/invoices',
         label: 'Invoices',
         icon: FileCheck,
-        action: 'invoiceCreate',
+        action: 'invoiceRecordPayment',
       },
       {
         href: '/job-costing',

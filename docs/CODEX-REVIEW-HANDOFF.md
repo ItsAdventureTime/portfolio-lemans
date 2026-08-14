@@ -25,6 +25,9 @@ The UI/UX revamp has been fully implemented and verified against the 33-test Pla
 
 2. **Connected 7-Stage Operational Visualizer (`src/components/EndToEndWorkflowVisualizer.tsx`)**:
    - Embedded across all major operational screens (`/`, `/customers`, `/quotations`, `/job-orders`, `/purchasing`, `/dcs`, `/invoices`, `/job-costing`, `/accounting`).
+   - Receives the active simulated role and renders only permitted workflow links;
+     the overview and Go dashboard handler apply the same role policy to
+     dashboard records and sensitive counts.
    - Represents the complete 7-stage operational lifecycle:
      1. **INTAKE** (Customer & Vehicle Check-in)
      2. **QUOTATION** (SQ Estimation & Conversion)

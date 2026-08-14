@@ -24,7 +24,7 @@ export default async function AccountingPage() {
         description="Admin-only operational GL/AP ledgers and QuickBooks-ready export files."
       />
 
-      <EndToEndWorkflowVisualizer currentStage="ACCOUNTING" />
+      <EndToEndWorkflowVisualizer role={role} currentStage="ACCOUNTING" />
 
       <section className="surface-card space-y-4 p-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">

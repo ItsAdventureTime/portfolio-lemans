@@ -48,8 +48,10 @@ The current shell and overview pass implements the following bounded changes:
   `Enter as an Admin` demo-theatre action, a visible no-auth explanation, and a
   non-interactive workflow preview. Entry errors and busy state remain inline.
 - The overview now has a branded operating-picture header, decision-oriented
-  count and finance sections, and a quieter recent-job-order surface. Existing
-  data fetches, links, role behavior, and status values are unchanged.
+  count and finance sections, and a quieter recent-job-order surface. The
+  active demo role filters workflow links, sensitive dashboard records, and
+  available actions while preserving the existing route contracts and status
+  values.
 - Shared `SectionCard`, `DataTable`, `EmptyState`, `FormField`, `Skeleton`, and
   `StatusBadge` primitives now share the same surface, spacing, focus, state,
   table-header, and semantic-markup conventions. `DataTable` also exposes
@@ -87,11 +89,12 @@ major framework migration into a visual refinement.
   Playwright tests, including focus rings, 44px targets, role switching,
   workflow mutations, and seeded data.
 - Browser spot checks confirm both logo instances resolve under
-  `/lemans/demo/`, mobile grouped navigation opens, and Overview remains
-  available to the DCS simulated role.
+  `/lemans/demo/`, mobile grouped navigation opens, Overview remains available
+  to the DCS simulated role, and the DCS overview shows only its permitted
+  workflow stage without recent job-order records.
 - The full Go/API `verify-local.sh` pass remains the broader repository
-  validation step when backend changes are included; this UI-only pass did not
-  change backend sources.
+  validation step and has been rerun because the dashboard handler now applies
+  role policy before returning role-sensitive data.
 
 ## 2. Current product map
 

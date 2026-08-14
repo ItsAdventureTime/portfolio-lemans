@@ -112,8 +112,11 @@ valid under both `/lemans/demo` and `/lemans` deployments.
 The seven-stage workflow is a responsive card rail: it uses readable cards at
 desktop widths and a single-column stack on narrow screens. Titles and
 descriptions must wrap; truncation is not allowed when it removes the meaning
-of a workflow stage. Data tables keep genuinely wide records inside their own
-horizontal scroll region so the page itself remains stable on mobile.
+of a workflow stage. The visualizer receives the active demo role and renders
+only permitted stage links; the dashboard applies the same policy to metrics,
+financial summaries, and recent job-order records. Data tables keep genuinely
+wide records inside their own horizontal scroll region so the page itself
+remains stable on mobile.
 
 Overview calls to action and detail-page actions are permission-aware. The
 active simulated role appears in the overview eyebrow, and actions that the

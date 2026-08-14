@@ -11,6 +11,7 @@ import {
   Landmark,
   ArrowRight,
 } from 'lucide-react';
+import { hasPermission, ProjectRole, ROLES } from '@/lib/roles';
 
 export type WorkflowStageKey =
   'INTAKE' | 'QUOTATION' | 'JOB_ORDER' | 'PURCHASING' | 'BILLING' | 'COSTING' | 'ACCOUNTING';
@@ -22,22 +23,26 @@ export interface WorkflowStageInfo {
   subtitle: string;
   href: string;
   icon: React.ElementType;
+  permission: Parameters<typeof hasPermission>[1];
   primaryMetricLabel?: string;
   primaryMetricValue?: string | number;
   statusText?: string;
 }
 
 interface EndToEndWorkflowVisualizerProps {
+  role: ProjectRole;
   currentStage?: WorkflowStageKey;
   counts?: {
     activeJobOrders?: number;
     partsPendingJobOrders?: number;
     completedJobOrders?: number;
+    billedJobOrders?: number;
     pendingPurchaseRequests?: number;
   };
 }
 
 export default function EndToEndWorkflowVisualizer({
+  role,
   currentStage,
   counts,
 }: EndToEndWorkflowVisualizerProps) {
@@ -49,6 +54,7 @@ export default function EndToEndWorkflowVisualizer({
       subtitle: 'Check-in & profile creation',
       href: '/customers',
       icon: Users,
+      permission: 'customerCreate',
       statusText: 'Fleet intake active',
     },
     {
@@ -58,6 +64,7 @@ export default function EndToEndWorkflowVisualizer({
       subtitle: 'SQ estimation & conversion',
       href: '/quotations',
       icon: FileText,
+      permission: 'salesQuotationCreate',
       statusText: 'Estimates & conversions',
     },
     {
@@ -67,6 +74,7 @@ export default function EndToEndWorkflowVisualizer({
       subtitle: 'Technicians, status & events',
       href: '/job-orders',
       icon: Wrench,
+      permission: 'joChangeStatus',
       primaryMetricLabel: 'Active JOs',
       primaryMetricValue: counts?.activeJobOrders ?? undefined,
       statusText: counts?.partsPendingJobOrders
@@ -80,6 +88,7 @@ export default function EndToEndWorkflowVisualizer({
       subtitle: 'PRs, POs & supplier invoices',
       href: '/purchasing',
       icon: ShoppingCart,
+      permission: 'prCreate',
       primaryMetricLabel: 'Pending PRs',
       primaryMetricValue: counts?.pendingPurchaseRequests ?? undefined,
       statusText: 'Cost allocation active',
@@ -91,8 +100,9 @@ export default function EndToEndWorkflowVisualizer({
       subtitle: 'Service invoices & AR payment',
       href: '/invoices',
       icon: Receipt,
-      primaryMetricLabel: 'Completed JOs',
-      primaryMetricValue: counts?.completedJobOrders ?? undefined,
+      permission: 'invoiceRecordPayment',
+      primaryMetricLabel: 'Billed JOs',
+      primaryMetricValue: counts?.billedJobOrders ?? undefined,
       statusText: 'Billed & Collections',
     },
     {
@@ -102,6 +112,7 @@ export default function EndToEndWorkflowVisualizer({
       subtitle: 'Est. vs Actual labor/parts variance',
       href: '/job-costing',
       icon: Calculator,
+      permission: 'viewJobCosting',
       statusText: 'Margin analysis',
     },
     {
@@ -111,11 +122,15 @@ export default function EndToEndWorkflowVisualizer({
       subtitle: 'QBO CSV/JSON interchange',
       href: '/accounting',
       icon: Landmark,
+      permission: 'viewAccounting',
       statusText: 'Admin summaries & exports',
     },
   ];
 
-  const currentStageIndex = currentStage ? STAGES.findIndex((s) => s.key === currentStage) : -1;
+  const visibleStages = STAGES.filter((stage) => hasPermission(role, stage.permission));
+  const currentStageIndex = currentStage
+    ? visibleStages.findIndex((s) => s.key === currentStage)
+    : -1;
 
   return (
     <section
@@ -129,17 +144,18 @@ export default function EndToEndWorkflowVisualizer({
             <span>End-to-End Operational Lifecycle</span>
           </h2>
           <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
-            One Job Order is the single source of truth from intake to financial accounting.
+            Showing the stages available to {ROLES[role]}. One Job Order remains the single source
+            of truth from intake to financial accounting.
           </p>
         </div>
         <div className="inline-flex min-h-9 items-center gap-2 self-start rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800 sm:self-auto">
           <span className="h-2 w-2 rounded-full bg-emerald-600" aria-hidden="true" />
-          <span>Workflow connected</span>
+          <span>{ROLES[role]} workflow view</span>
         </div>
       </div>
 
-      <ol className="workflow-grid relative" aria-label="Seven-stage operational workflow">
-        {STAGES.map((stage, idx) => {
+      <ol className="workflow-grid relative" aria-label="Available workflow stages">
+        {visibleStages.map((stage, idx) => {
           const Icon = stage.icon;
           const isCurrent = currentStage ? stage.key === currentStage : false;
           const isCompleted = currentStageIndex >= 0 && idx < currentStageIndex;

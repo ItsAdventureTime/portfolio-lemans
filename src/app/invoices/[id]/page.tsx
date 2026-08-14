@@ -41,7 +41,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
       </div>
 
       {/* Stage 5 Active Visualizer */}
-      <EndToEndWorkflowVisualizer currentStage="BILLING" />
+      <EndToEndWorkflowVisualizer role={role} currentStage="BILLING" />
 
       {/* Invoice Card Template */}
       <div className="surface-card space-y-6 p-6">

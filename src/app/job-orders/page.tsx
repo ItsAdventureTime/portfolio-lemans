@@ -11,7 +11,7 @@ export default async function JobOrdersPage() {
   return (
     <div className="space-y-6">
       <PageHeader title="Job Orders" description="Track active and completed service job orders." />
-      <EndToEndWorkflowVisualizer currentStage="JOB_ORDER" />
+      <EndToEndWorkflowVisualizer role={role} currentStage="JOB_ORDER" />
       <JobOrderList jobOrders={jobOrders} />
     </div>
   );

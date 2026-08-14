@@ -79,7 +79,7 @@ export default async function JobCostingIndexPage({
         description="Compare planned costs with recorded spend and billed revenue."
       />
 
-      <EndToEndWorkflowVisualizer currentStage="COSTING" />
+      <EndToEndWorkflowVisualizer role={role} currentStage="COSTING" />
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
         <SummaryCard label="Estimated" cents={totals.estimated} />

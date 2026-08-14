@@ -30,7 +30,7 @@ export default async function DcsPage() {
         description="Execute approved payments, upload proof receipts, and record disbursements."
       />
 
-      <EndToEndWorkflowVisualizer currentStage="BILLING" />
+      <EndToEndWorkflowVisualizer role={role} currentStage="BILLING" />
 
       <DataTable<Disbursement>
         items={disbursements}

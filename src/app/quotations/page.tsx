@@ -95,7 +95,7 @@ export default async function QuotationsPage() {
         description="Create, approve, and convert quotations into job orders."
       />
 
-      <EndToEndWorkflowVisualizer currentStage="QUOTATION" />
+      <EndToEndWorkflowVisualizer role={role} currentStage="QUOTATION" />
 
       {canCreate && (
         <QuotationForm customers={customers} vehicles={vehicles} action={createAction} />

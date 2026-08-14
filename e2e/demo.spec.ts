@@ -188,7 +188,7 @@ test('customer service history is customer-specific, ordered, and renders empty 
   await expect(historyLinks).toHaveCount(1);
   await expect(historyLinks.first()).toHaveText('RA0003973');
   await expect(historyLinks.first()).toHaveAttribute('href', /\/job-orders\/RA0003973$/);
-  await expect(historySection.getByText('COMPLETED', { exact: true })).toBeVisible();
+  await expect(historySection.getByLabel('Status: BILLED')).toBeVisible();
 
   await page.goto(`${BASE}/customers`);
   const unique = Date.now().toString();
@@ -343,7 +343,7 @@ test('quote-to-payment workflow creates records and updates statuses', async ({ 
   const joLink = joRow.locator('a');
   const joNo = (await joLink.textContent()) ?? '';
   await joLink.click();
-  await expect(page.getByText(`Job Order ${joNo}`)).toBeVisible();
+  await expect(page.getByRole('heading', { name: `Job Order ${joNo}` })).toBeVisible();
   await page.locator('select[name="nextStatus"]').selectOption('COMPLETED');
   await page.locator('button', { hasText: 'Change Status' }).click();
   await expect(page.getByRole('cell', { name: 'Status changed to COMPLETED' })).toBeVisible();

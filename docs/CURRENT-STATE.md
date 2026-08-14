@@ -30,8 +30,9 @@ The canonical LeMans Service Plus logo is tracked at
 the app icon, Open Graph, Twitter summary, and canonical metadata. The shared
 shell uses the logo-derived red accent with a charcoal navigation rail and
 responsive workflow cards. The overview labels the active simulated role and
-only renders actions allowed by that role; detail forms and cards use the same
-`.surface-card` treatment as the shell.
+only renders workflow links, dashboard records, and actions allowed by that
+role; detail forms and cards use the same `.surface-card` treatment as the
+shell.
 
 ## Run the demo locally
 
@@ -63,14 +64,16 @@ The current demo validation baseline is complete in rootless Podman:
   is reachable on the internal network; PostgreSQL has no published host port.
 - `verify-e2e.sh`: all 33 Playwright tests pass across desktop, mobile, and
   reduced-motion projects.
+- `npm audit --omit=dev`: no reported vulnerabilities after pinning the
+  transitive `nanoid` dependency to the patched `3.3.18` release.
 
 The 2026-08-14 branded redesign was additionally checked with fresh rootless
 Podman frontend validation (`format:check`, `lint`, `typecheck`, and
 production build), a successful demo web/API image build, and browser checks at
 desktop and 390x844 mobile widths. Those checks covered role-aware overview
 actions, seven readable workflow cards, mobile navigation disclosure, no
-overview horizontal overflow, branded logo rendering, and a horizontally
-contained accounting table.
+overview horizontal overflow, role-filtered workflow and dashboard surfaces,
+branded logo rendering, and a horizontally contained accounting table.
 
 The UI keeps the configured `NEXT_PUBLIC_BASE_PATH` at runtime, uses integer
 centavos for monetary values, exposes keyboard-visible focus states and 44px
@@ -145,7 +148,9 @@ cryptographically random suffix to avoid collisions.
     user-facing copy.
   - The 2026-08-14 branded pass extends the shared surface treatment through
     detail pages and forms, removes static status live-region semantics, adds
-    share metadata, and keeps overview actions accurate for the active role.
+    share metadata, and keeps workflow links, dashboard records, and overview
+    actions accurate for the active role. The Go dashboard handler now applies
+    the same role policy before returning role-sensitive counts and records.
 
 - Remote deployment is intentionally not part of local verification and requires
   explicit user authorization.
