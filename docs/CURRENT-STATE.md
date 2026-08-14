@@ -33,6 +33,9 @@ responsive workflow cards. The overview labels the active simulated role and
 only renders workflow links, dashboard records, and actions allowed by that
 role; detail forms and cards use the same `.surface-card` treatment as the
 shell.
+Module visibility is centralized in `src/lib/roles.ts`; navigation and every
+primary module/detail route use the same policy and render a branded
+`AccessDenied` surface before fetching restricted data.
 
 ## Run the demo locally
 

@@ -1,8 +1,9 @@
 import { getDemoRole } from '@/lib/actor';
 import { listOpexRequests, createOpexRequest, ApiError } from '@/lib/api';
-import { hasPermission } from '@/lib/roles';
+import { canAccessModule, hasPermission } from '@/lib/roles';
 import { revalidatePath } from 'next/cache';
 import PageHeader from '@/components/PageHeader';
+import AccessDenied from '@/components/AccessDenied';
 import OpexForm from './OpexForm';
 import OpexList from './OpexList';
 import { errorResult, FormResult, okResult } from '@/lib/form-result';
@@ -10,6 +11,9 @@ import { parsePesoToCents } from '@/lib/money';
 
 export default async function ExpensesPage() {
   const role = await getDemoRole();
+  if (!canAccessModule(role, 'expenses')) {
+    return <AccessDenied role={role} requiredCapability="opexCreate or opexApprove" />;
+  }
   const opexRequests = await listOpexRequests(role);
   const canCreate = hasPermission(role, 'opexCreate');
 

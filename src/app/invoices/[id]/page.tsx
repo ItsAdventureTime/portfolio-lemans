@@ -1,7 +1,9 @@
 import { getDemoRole } from '@/lib/actor';
 import { getInvoice } from '@/lib/api';
 import { formatPeso } from '@/lib/money';
+import { canAccessModule } from '@/lib/roles';
 import { StatusBadge } from '@/components/ui';
+import AccessDenied from '@/components/AccessDenied';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import EndToEndWorkflowVisualizer from '@/components/EndToEndWorkflowVisualizer';
@@ -10,6 +12,9 @@ import { ArrowLeft, Receipt, CreditCard, ShieldAlert } from 'lucide-react';
 export default async function InvoiceDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const role = await getDemoRole();
+  if (!canAccessModule(role, 'invoices')) {
+    return <AccessDenied role={role} requiredCapability="invoiceCreate or invoiceRecordPayment" />;
+  }
   const { invoice, payments } = await getInvoice(id, role);
   if (!invoice) return notFound();
 

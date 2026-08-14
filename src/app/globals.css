@@ -14,19 +14,19 @@
   --bg-charcoal-soft: #22252b;
 
   --text-primary: #0f172a;
-  --text-secondary: #475569;
+  --text-secondary: #334155;
   --text-tertiary: #64748b;
   --border-subtle: #e2e8f0;
   --border-strong: #cbd5e1;
 
   --status-success-bg: #ecfdf5;
-  --status-success-text: #059669;
+  --status-success-text: #047857;
   --status-warning-bg: #fffbeb;
-  --status-warning-text: #d97706;
+  --status-warning-text: #b45309;
   --status-danger-bg: #fef2f2;
-  --status-danger-text: #dc2626;
+  --status-danger-text: #b91c1c;
   --status-info-bg: #eff6ff;
-  --status-info-text: #2563eb;
+  --status-info-text: #1d4ed8;
 
   --shadow-surface: 0 18px 42px -30px rgba(35, 43, 54, 0.52);
   --shadow-raised: 0 14px 30px -24px rgba(211, 47, 47, 0.45);
@@ -105,16 +105,6 @@ select {
 
 textarea {
   min-height: 44px;
-}
-
-button,
-a,
-select,
-input,
-textarea {
-  transition-duration: 180ms;
-  transition-property: color, background-color, border-color, box-shadow, opacity, transform;
-  transition-timing-function: ease-out;
 }
 
 @layer components {

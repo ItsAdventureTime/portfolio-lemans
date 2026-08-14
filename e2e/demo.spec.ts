@@ -53,8 +53,16 @@ test('role switching renders accessible error on failure', async ({ page }) => {
 test('restricted routes return to the base-path overview', async ({ page }) => {
   await enterAsAdmin(page);
   await switchRole(page, 'ROLE_DCS');
-  await page.goto(`${BASE}/accounting`);
-  await expect(page.getByRole('heading', { name: 'Access restricted' })).toBeVisible();
+  for (const path of ['/accounting', '/customers', '/job-orders', '/purchasing', '/expenses']) {
+    await page.goto(`${BASE}${path}`);
+    await expect(page.getByRole('heading', { name: 'Access restricted' })).toBeVisible();
+  }
+
+  await switchRole(page, 'ROLE_SALES');
+  for (const path of ['/job-orders', '/purchasing', '/dcs', '/job-costing']) {
+    await page.goto(`${BASE}${path}`);
+    await expect(page.getByRole('heading', { name: 'Access restricted' })).toBeVisible();
+  }
 
   await page.getByRole('button', { name: 'Return to overview' }).click();
   await expect(page).toHaveURL(/\/lemans\/demo\/?$/);
@@ -318,8 +326,7 @@ test('quote-to-payment workflow creates records and updates statuses', async ({ 
   // Locate the new quotation row by customer name (the list renders name, not number).
   const quoteRow = page.locator('table tbody tr', { hasText: workflowCustomerName }).first();
   await expect(quoteRow).toBeVisible();
-  const quoteLink = quoteRow.locator('a');
-  const quoteNo = (await quoteLink.textContent()) ?? '';
+  const quoteNo = (await quoteRow.getByText(/^SQ-/).textContent()) ?? '';
   expect(quoteNo).toMatch(/^SQ-/);
 
   // Approve and convert to JO as Admin (also tests approve permission).

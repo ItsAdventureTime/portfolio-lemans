@@ -17,14 +17,14 @@ import {
   Menu,
   X,
 } from 'lucide-react';
-import { hasPermission, ProjectRole } from '@/lib/roles';
+import { canAccessModule, ProjectRole, WorkspaceModule } from '@/lib/roles';
 import { stripBasePath } from '@/lib/base-path';
 
 type NavItem = {
   href: string;
   label: string;
   icon: React.ElementType;
-  action: Parameters<typeof hasPermission>[1];
+  module?: WorkspaceModule;
 };
 
 const navGroups: { label: string; items: NavItem[] }[] = [
@@ -35,25 +35,24 @@ const navGroups: { label: string; items: NavItem[] }[] = [
         href: '/',
         label: 'Overview',
         icon: LayoutDashboard,
-        action: 'customerCreate',
       },
       {
         href: '/customers',
         label: 'Customers',
         icon: Users,
-        action: 'customerCreate',
+        module: 'customers',
       },
       {
         href: '/quotations',
         label: 'Quotations',
         icon: FileText,
-        action: 'salesQuotationCreate',
+        module: 'quotations',
       },
       {
         href: '/job-orders',
         label: 'Job Orders',
         icon: Wrench,
-        action: 'joChangeStatus',
+        module: 'jobOrders',
       },
     ],
   },
@@ -64,19 +63,19 @@ const navGroups: { label: string; items: NavItem[] }[] = [
         href: '/purchasing',
         label: 'Purchasing',
         icon: ShoppingCart,
-        action: 'prCreate',
+        module: 'purchasing',
       },
       {
         href: '/expenses',
         label: 'Expenses',
         icon: Receipt,
-        action: 'opexCreate',
+        module: 'expenses',
       },
       {
         href: '/dcs',
         label: 'DCS',
         icon: Wallet,
-        action: 'disburseRecordPayment',
+        module: 'dcs',
       },
     ],
   },
@@ -87,19 +86,19 @@ const navGroups: { label: string; items: NavItem[] }[] = [
         href: '/invoices',
         label: 'Invoices',
         icon: FileCheck,
-        action: 'invoiceRecordPayment',
+        module: 'invoices',
       },
       {
         href: '/job-costing',
         label: 'Job Costing',
         icon: Calculator,
-        action: 'viewJobCosting',
+        module: 'jobCosting',
       },
       {
         href: '/accounting',
         label: 'Accounting',
         icon: Landmark,
-        action: 'viewAccounting',
+        module: 'accounting',
       },
     ],
   },
@@ -118,8 +117,8 @@ export default function Navbar({ role }: { role: ProjectRole }) {
 
   function canSeeItem(item: NavItem) {
     // Overview is the shared landing surface for every simulated role. The
-    // mutation permission still filters the role-specific workspaces.
-    return item.href === '/' || hasPermission(role, item.action);
+    // module policy still filters the role-specific workspaces.
+    return item.href === '/' || (item.module ? canAccessModule(role, item.module) : false);
   }
 
   return (

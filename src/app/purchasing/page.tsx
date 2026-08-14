@@ -7,9 +7,10 @@ import {
   listJobOrders,
   ApiError,
 } from '@/lib/api';
-import { hasPermission } from '@/lib/roles';
+import { canAccessModule, hasPermission } from '@/lib/roles';
 import { revalidatePath } from 'next/cache';
 import PageHeader from '@/components/PageHeader';
+import AccessDenied from '@/components/AccessDenied';
 import { SectionCard } from '@/components/ui';
 import type { JobOrder } from '@/lib/types';
 import PurchaseRequestForm from './PurchaseRequestForm';
@@ -22,6 +23,9 @@ import EndToEndWorkflowVisualizer from '@/components/EndToEndWorkflowVisualizer'
 
 export default async function PurchasingPage() {
   const role = await getDemoRole();
+  if (!canAccessModule(role, 'purchasing')) {
+    return <AccessDenied role={role} requiredCapability="prCreate or supplierInvoiceCreate" />;
+  }
   const [purchaseRequests, supplierInvoices] = await Promise.all([
     listPurchaseRequests(role),
     listSupplierInvoices(role),

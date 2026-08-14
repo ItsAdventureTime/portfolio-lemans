@@ -8,7 +8,7 @@ import {
   getProofDownloadUrl,
 } from '@/lib/api';
 import { formatPeso } from '@/lib/money';
-import { hasPermission } from '@/lib/roles';
+import { canAccessModule, hasPermission } from '@/lib/roles';
 import { DataTable, StatusBadge, FormField } from '@/components/ui';
 import type { Disbursement } from '@/lib/types';
 import { revalidatePath } from 'next/cache';
@@ -16,9 +16,15 @@ import { redirect } from 'next/navigation';
 
 import PageHeader from '@/components/PageHeader';
 import EndToEndWorkflowVisualizer from '@/components/EndToEndWorkflowVisualizer';
+import AccessDenied from '@/components/AccessDenied';
 
 export default async function DcsPage() {
   const role = await getDemoRole();
+  if (!canAccessModule(role, 'dcs')) {
+    return (
+      <AccessDenied role={role} requiredCapability="disburseApprove or disburseRecordPayment" />
+    );
+  }
   const disbursements = await listDisbursements(role);
   const canApprove = hasPermission(role, 'disburseApprove');
   const canPay = hasPermission(role, 'disburseRecordPayment');
@@ -64,7 +70,10 @@ export default async function DcsPage() {
                       revalidatePath('/dcs');
                     }}
                   >
-                    <button className="inline-flex items-center h-11 px-3 rounded-lg bg-brand-primary text-white text-xs font-semibold hover:bg-brand-hover transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2">
+                    <button
+                      type="submit"
+                      className="inline-flex items-center h-11 px-3 rounded-lg bg-brand-primary text-white text-xs font-semibold hover:bg-brand-hover transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+                    >
                       Approve
                     </button>
                   </form>
@@ -126,7 +135,10 @@ export default async function DcsPage() {
                         className="min-h-11 text-xs w-40 file:mr-2 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-xs file:font-semibold focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
                       />
                     </div>
-                    <button className="inline-flex items-center h-11 px-3 rounded-lg bg-brand-primary text-white text-xs font-semibold hover:bg-brand-hover transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2">
+                    <button
+                      type="submit"
+                      className="inline-flex items-center h-11 px-3 rounded-lg bg-brand-primary text-white text-xs font-semibold hover:bg-brand-hover transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+                    >
                       Pay
                     </button>
                   </form>
@@ -142,7 +154,10 @@ export default async function DcsPage() {
                       }
                     }}
                   >
-                    <button className="inline-flex h-11 items-center rounded-lg bg-slate-100 px-3 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2">
+                    <button
+                      type="submit"
+                      className="inline-flex h-11 items-center rounded-lg bg-slate-100 px-3 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+                    >
                       Proof
                     </button>
                   </form>

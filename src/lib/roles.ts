@@ -56,12 +56,41 @@ const PERMISSIONS: Record<string, ProjectRole[]> = {
   viewJobCosting: ['ROLE_ADMIN', 'ROLE_GM'],
 };
 
-export function hasPermission(role: ProjectRole, action: keyof typeof PERMISSIONS): boolean {
+export type Permission = keyof typeof PERMISSIONS;
+
+export type WorkspaceModule =
+  | 'customers'
+  | 'quotations'
+  | 'jobOrders'
+  | 'purchasing'
+  | 'expenses'
+  | 'dcs'
+  | 'invoices'
+  | 'jobCosting'
+  | 'accounting';
+
+const MODULE_PERMISSIONS: Record<WorkspaceModule, Permission[]> = {
+  customers: ['customerCreate'],
+  quotations: ['salesQuotationCreate', 'quoteApprove', 'quoteConvert'],
+  jobOrders: ['joChangeStatus'],
+  purchasing: ['prCreate', 'supplierInvoiceCreate'],
+  expenses: ['opexCreate', 'opexApprove'],
+  dcs: ['disburseApprove', 'disburseRecordPayment'],
+  invoices: ['invoiceCreate', 'invoiceRecordPayment'],
+  jobCosting: ['viewJobCosting'],
+  accounting: ['viewAccounting'],
+};
+
+export function hasPermission(role: ProjectRole, action: Permission): boolean {
   const allowed = PERMISSIONS[action] ?? [];
   return allowed.includes(role);
 }
 
-export function ensurePermission(role: ProjectRole, action: keyof typeof PERMISSIONS): void {
+export function canAccessModule(role: ProjectRole, module: WorkspaceModule): boolean {
+  return MODULE_PERMISSIONS[module].some((permission) => hasPermission(role, permission));
+}
+
+export function ensurePermission(role: ProjectRole, action: Permission): void {
   if (!hasPermission(role, action)) {
     throw new Error(`Forbidden: role ${role} lacks permission ${action}`);
   }

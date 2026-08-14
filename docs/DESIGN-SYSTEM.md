@@ -155,11 +155,13 @@ asset URLs.
 1. **Role-Aware Navigation**:
    - `Navbar` components MUST inspect the active user's permissions via `hasPermission(role, permission)`.
    - Links for un-permitted modules (e.g. `Accounting` for `ROLE-GM`) MUST be filtered out of the navigation menu.
+   - The same centralized module policy in `src/lib/roles.ts` MUST guard direct
+     module and detail URLs before their data-fetching calls.
    - Navigation implementation: `src/components/Navbar.tsx` accepts a `role` prop, keeps Overview visible as the shared landing surface, filters grouped workspaces by permission, and uses `stripBasePath()` for active-route state. Active tab uses LeMans Red (`#d32f2f`).
 2. **Explicit 403 Access Restricted View**:
    - When an un-permitted user attempts to access a restricted URL directly, the page MUST render a dedicated `<AccessDenied />` component.
    - Component location: `src/components/AccessDenied.tsx`.
-   - Usage example: `src/app/accounting/page.tsx` renders `<AccessDenied />` for non-Admin users instead of calling `redirect('/')`.
+   - Usage example: `src/app/accounting/page.tsx` renders `<AccessDenied />` for non-Admin users instead of calling `redirect('/')`; the same branded guard pattern applies to every restricted module and detail route.
    - **Prohibited**: Silent `redirect('/')` without user feedback is strictly forbidden.
 
 ---

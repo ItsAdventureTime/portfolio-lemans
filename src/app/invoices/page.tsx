@@ -1,8 +1,9 @@
 import { getDemoRole } from '@/lib/actor';
 import { listInvoices, createInvoiceFromJO, ApiError } from '@/lib/api';
-import { hasPermission } from '@/lib/roles';
+import { canAccessModule, hasPermission } from '@/lib/roles';
 import { revalidatePath } from 'next/cache';
 import PageHeader from '@/components/PageHeader';
+import AccessDenied from '@/components/AccessDenied';
 import InvoiceForm from './InvoiceForm';
 import InvoiceList from './InvoiceList';
 import { errorResult, FormResult, okResult } from '@/lib/form-result';
@@ -10,6 +11,9 @@ import EndToEndWorkflowVisualizer from '@/components/EndToEndWorkflowVisualizer'
 
 export default async function InvoicesPage() {
   const role = await getDemoRole();
+  if (!canAccessModule(role, 'invoices')) {
+    return <AccessDenied role={role} requiredCapability="invoiceCreate or invoiceRecordPayment" />;
+  }
   const invoices = await listInvoices(role);
   const canCreate = hasPermission(role, 'invoiceCreate');
 

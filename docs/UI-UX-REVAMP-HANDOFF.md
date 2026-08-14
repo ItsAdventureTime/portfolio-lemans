@@ -42,8 +42,10 @@ The current shell and overview pass implements the following bounded changes:
 - `Navbar` keeps the existing role-filtered route map, but presents it as three
   keyboard-accessible groups: Workspace, Control, and Finance. Active styling
   is calculated after removing the configured base path, so `/lemans/demo` and
-  `/lemans` retain the same route state. Overview remains available as the
-  shared landing surface for every simulated role.
+  `/lemans` retain the same route state. Its module policy is shared with the
+  primary route and detail guards, so direct URLs render a branded
+  `AccessDenied` surface instead of loading restricted data. Overview remains
+  available as the shared landing surface for every simulated role.
 - `DemoSplash` uses a responsive two-column entry surface with the existing
   `Enter as an Admin` demo-theatre action, a visible no-auth explanation, and a
   non-interactive workflow preview. Entry errors and busy state remain inline.

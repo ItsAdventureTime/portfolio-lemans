@@ -3,7 +3,8 @@ import { getCustomer, listCustomerServiceHistory, listVehiclesByCustomer } from 
 import { DataTable, StatusBadge } from '@/components/ui';
 import { formatPeso } from '@/lib/money';
 import type { JobOrder, Vehicle } from '@/lib/types';
-import { hasPermission } from '@/lib/roles';
+import { canAccessModule, hasPermission } from '@/lib/roles';
+import AccessDenied from '@/components/AccessDenied';
 import Link from 'next/link';
 import EndToEndWorkflowVisualizer from '@/components/EndToEndWorkflowVisualizer';
 import { ArrowLeft, User, Car, Clock, Wrench } from 'lucide-react';
@@ -11,6 +12,10 @@ import { ArrowLeft, User, Car, Clock, Wrench } from 'lucide-react';
 export default async function CustomerDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const role = await getDemoRole();
+  if (!canAccessModule(role, 'customers')) {
+    return <AccessDenied role={role} requiredCapability="customerCreate" />;
+  }
+  const canViewJobOrders = canAccessModule(role, 'jobOrders');
   const [customer, vehicles, serviceHistory] = await Promise.all([
     getCustomer(id, role),
     listVehiclesByCustomer(id, role),
@@ -147,12 +152,16 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
                 />
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
-                    <Link
-                      href={`/job-orders/${jobOrder.jo_no}`}
-                      className="font-bold text-brand-primary hover:text-brand-primary-hover hover:underline text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary rounded"
-                    >
-                      {jobOrder.jo_no}
-                    </Link>
+                    {canViewJobOrders ? (
+                      <Link
+                        href={`/job-orders/${jobOrder.jo_no}`}
+                        className="font-bold text-brand-primary hover:text-brand-primary-hover hover:underline text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary rounded"
+                      >
+                        {jobOrder.jo_no}
+                      </Link>
+                    ) : (
+                      <span className="font-bold text-slate-800 text-base">{jobOrder.jo_no}</span>
+                    )}
 
                     <p className="text-xs text-slate-600 font-medium mt-0.5">
                       Plate: <span className="font-mono">{jobOrder.vehicle_plate}</span> ·{' '}
@@ -168,10 +177,12 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
                       {formatPeso(jobOrder.billed_amount_cents ?? 0)}
                     </strong>
                   </span>
-                  <span className="inline-flex items-center gap-1 font-semibold text-brand-primary">
-                    <span>View JO Details</span>
-                    <Wrench className="w-3.5 h-3.5" />
-                  </span>
+                  {canViewJobOrders && (
+                    <span className="inline-flex items-center gap-1 font-semibold text-brand-primary">
+                      <span>View JO Details</span>
+                      <Wrench className="w-3.5 h-3.5" />
+                    </span>
+                  )}
                 </div>
               </li>
             ))}

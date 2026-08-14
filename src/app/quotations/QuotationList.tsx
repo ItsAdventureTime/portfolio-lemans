@@ -39,14 +39,12 @@ export default function QuotationList({ quotes, role }: QuotationListProps) {
           header: 'Quote No',
           className: 'max-w-[136px] sm:max-w-none',
           render: (q) => (
-            <a
+            <span
               id={`quotation-${q.id}`}
-              href={`#quotation-${q.id}`}
-              aria-label={`View quotation ${q.quote_no}`}
-              className="inline-flex min-h-11 max-w-full items-center break-all font-medium text-slate-900 underline decoration-slate-300 underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 sm:break-normal"
+              className="inline-flex min-h-11 max-w-full items-center break-all font-medium text-slate-900 sm:break-normal"
             >
               {q.quote_no}
-            </a>
+            </span>
           ),
         },
 
@@ -81,6 +79,7 @@ export default function QuotationList({ quotes, role }: QuotationListProps) {
               {q.status === 'DRAFT' && canApprove && (
                 <>
                   <button
+                    type="button"
                     onClick={() => run(() => approveQuotation(q.id, role))}
                     disabled={isPending}
                     className="inline-flex h-11 items-center rounded-lg bg-emerald-50 px-3 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
@@ -93,6 +92,7 @@ export default function QuotationList({ quotes, role }: QuotationListProps) {
                     Approve
                   </button>
                   <button
+                    type="button"
                     onClick={() => run(() => rejectQuotation(q.id, role))}
                     disabled={isPending}
                     className="inline-flex h-11 items-center rounded-lg bg-rose-50 px-3 text-xs font-semibold text-rose-700 transition-colors hover:bg-rose-100 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
@@ -108,6 +108,7 @@ export default function QuotationList({ quotes, role }: QuotationListProps) {
               )}
               {q.status === 'APPROVED' && canConvert && (
                 <button
+                  type="button"
                   onClick={() => run(() => convertQuotation(q.id, role))}
                   disabled={isPending}
                   className="inline-flex items-center h-11 px-3 rounded-lg bg-brand-primary text-white text-xs font-semibold hover:bg-brand-hover transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
