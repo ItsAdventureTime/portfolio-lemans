@@ -26,7 +26,7 @@ export default async function AccountingPage() {
 
       <EndToEndWorkflowVisualizer currentStage="ACCOUNTING" />
 
-      <section className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
+      <section className="surface-card space-y-4 p-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
@@ -58,7 +58,7 @@ export default async function AccountingPage() {
         </div>
       </section>
 
-      <section className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-3">
+      <section className="surface-card space-y-3 p-5">
         <h2 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-2">
           Customer Ledger ({data.customers.length})
         </h2>
@@ -87,7 +87,7 @@ export default async function AccountingPage() {
         />
       </section>
 
-      <section className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-3">
+      <section className="surface-card space-y-3 p-5">
         <h2 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-2">
           Service Invoice Ledger ({data.invoices.length})
         </h2>

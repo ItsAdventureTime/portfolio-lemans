@@ -2,6 +2,10 @@
 
 import { useEffect } from 'react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
+import Image from 'next/image';
+import { getBasePath } from '@/lib/base-path';
+
+const LOGO_SRC = `${getBasePath()}/lemans-service-plus-logo.jpg`;
 
 export default function Error({
   error,
@@ -20,15 +24,27 @@ export default function Error({
       role="alert"
       aria-live="assertive"
     >
-      <section className="surface-card w-full max-w-md space-y-5 p-6 text-center sm:p-8">
+      <section className="recovery-shell surface-card w-full max-w-md space-y-5 p-6 text-center sm:p-8">
+        <Image
+          src={LOGO_SRC}
+          alt="LeMans Service Plus OPC logo"
+          width={56}
+          height={56}
+          sizes="56px"
+          unoptimized
+          className="recovery-mark mx-auto h-14 w-14 object-contain"
+        />
         <div
-          className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-rose-50"
+          className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-rose-50"
           aria-hidden="true"
         >
-          <AlertTriangle className="w-7 h-7 text-rose-600" aria-hidden="true" />
+          <AlertTriangle className="h-6 w-6 text-rose-600" aria-hidden="true" />
         </div>
         <div className="space-y-2">
-          <h1 className="text-2xl font-bold text-slate-900">We couldn&apos;t load this page</h1>
+          <p className="utility-label text-brand-primary">LeMans operations</p>
+          <h1 className="text-2xl font-bold tracking-tight text-slate-950">
+            We couldn&apos;t load this page
+          </h1>
           <p className="text-sm leading-6 text-slate-600">
             We couldn&apos;t load this page. Please try again.
           </p>

@@ -37,11 +37,7 @@ export default function SupplierInvoiceForm({ jobOrders, action }: SupplierInvoi
   const fieldErrors = result?.fieldErrors ?? {};
 
   return (
-    <form
-      action={submitAction}
-      noValidate
-      className="bg-white p-4 rounded-xl border border-slate-200 space-y-4"
-    >
+    <form action={submitAction} noValidate className="surface-card space-y-4 p-4">
       <FormError message={result?.message} fieldErrors={fieldErrors} />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <FormField

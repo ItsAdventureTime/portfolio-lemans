@@ -8,8 +8,10 @@ export default function Loading() {
       aria-busy="true"
       aria-label="Loading workspace"
     >
-      <section className="surface-card relative overflow-hidden p-5 sm:p-7" aria-hidden="true">
-        <div className="absolute inset-y-0 left-0 w-1 bg-brand-primary" />
+      <section
+        className="surface-card relative overflow-hidden border-l-4 border-l-brand-primary p-5 sm:p-7"
+        aria-hidden="true"
+      >
         <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
           <div className="w-full">
             <Skeleton className="h-3 w-40 bg-brand-primary/20" />
@@ -27,7 +29,7 @@ export default function Loading() {
         {Array.from({ length: 4 }, (_, index) => (
           <div
             key={index}
-            className="surface-card flex min-h-32 flex-col justify-between border-t-2 border-t-slate-300 p-4 sm:p-5"
+            className="surface-card flex min-h-32 flex-col justify-between border-t-2 border-t-brand-primary/50 p-4 sm:p-5"
           >
             <Skeleton className="h-3 w-24" />
             <Skeleton className="mt-4 h-9 w-20" />

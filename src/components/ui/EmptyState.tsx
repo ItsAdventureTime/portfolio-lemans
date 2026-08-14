@@ -16,11 +16,12 @@ export default function EmptyState({
       className="surface-card flex flex-col items-center justify-center p-8 text-center sm:p-10"
       aria-label={title}
     >
-      <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-slate-100 ring-1 ring-slate-200">
-        <Inbox className="h-7 w-7 text-slate-500" aria-hidden="true" />
+      <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-xl bg-brand-light ring-1 ring-brand-primary/15">
+        <Inbox className="h-7 w-7 text-brand-primary" aria-hidden="true" />
       </div>
+      <p className="utility-label mb-1 text-brand-primary">Nothing in this view</p>
       <h3 className="text-lg font-bold tracking-tight text-slate-950">{title}</h3>
-      <p className="mt-1 max-w-xs text-sm text-slate-600">{description}</p>
+      <p className="mt-2 max-w-md text-sm leading-6 text-slate-600">{description}</p>
       {action && <div className="mt-4">{action}</div>}
     </section>
   );

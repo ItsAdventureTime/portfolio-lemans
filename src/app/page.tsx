@@ -3,6 +3,7 @@ import { getDemoRole } from '@/lib/actor';
 import { isDemoEntered } from '@/lib/demo-entry.server';
 import { getDashboard } from '@/lib/api';
 import { formatPeso } from '@/lib/money';
+import { hasPermission, ROLES } from '@/lib/roles';
 import { StatusBadge } from '@/components/ui';
 import DemoSplash from '@/components/DemoSplash';
 import EndToEndWorkflowVisualizer from '@/components/EndToEndWorkflowVisualizer';
@@ -20,33 +21,38 @@ export default async function DashboardOverview() {
   return (
     <div className="space-y-8 sm:space-y-10">
       <section
-        className="surface-card relative overflow-hidden p-5 sm:p-7"
+        className="surface-card relative overflow-hidden border-l-4 border-l-brand-primary p-5 sm:p-7"
         aria-labelledby="overview-heading"
       >
-        <div className="absolute inset-y-0 left-0 w-1 bg-brand-primary" aria-hidden="true" />
         <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-end">
           <div>
-            <p className="utility-label mb-2 text-brand-primary">Today&apos;s operating picture</p>
+            <p className="utility-label mb-2 text-brand-primary">
+              Today&apos;s operating picture · {ROLES[role]} view
+            </p>
             <h1
               id="overview-heading"
-              className="text-3xl font-extrabold tracking-[-0.03em] text-slate-950 sm:text-4xl"
+              className="text-balance text-3xl font-extrabold tracking-[-0.04em] text-slate-950 sm:text-4xl"
             >
               Operations Overview
             </h1>
-            <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-600 sm:text-base">
+            <p className="mt-2 max-w-2xl text-base leading-7 text-slate-600">
               See the work moving through LeMans Service Plus and take the next action from one calm
               operating view.
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2.5">
-            <Link href="/customers" className="action-secondary">
-              <Users className="h-4 w-4" aria-hidden="true" />
-              <span>New customer / vehicle</span>
-            </Link>
-            <Link href="/quotations" className="action-primary">
-              <Plus className="h-4 w-4" aria-hidden="true" />
-              <span>New sales quote</span>
-            </Link>
+            {hasPermission(role, 'customerCreate') && (
+              <Link href="/customers" className="action-secondary">
+                <Users className="h-4 w-4" aria-hidden="true" />
+                <span>New customer / vehicle</span>
+              </Link>
+            )}
+            {hasPermission(role, 'salesQuotationCreate') && (
+              <Link href="/quotations" className="action-primary">
+                <Plus className="h-4 w-4" aria-hidden="true" />
+                <span>New sales quote</span>
+              </Link>
+            )}
           </div>
         </div>
       </section>
@@ -70,7 +76,7 @@ export default async function DashboardOverview() {
             </p>
           </div>
         </div>
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 sm:gap-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:grid-cols-4">
           <StatCard
             label="Active Job Orders"
             value={data.counts.activeJobOrders}
@@ -101,7 +107,7 @@ export default async function DashboardOverview() {
             Revenue and cost position
           </h2>
         </div>
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-3 sm:gap-4">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 sm:gap-4">
           <MoneyCard label="Total Billed Revenue" value={formatPeso(data.financials.billedCents)} />
           <MoneyCard
             label="Total Actual Cost"
@@ -116,7 +122,7 @@ export default async function DashboardOverview() {
       </section>
 
       <section className="surface-card overflow-hidden" aria-labelledby="recent-orders-heading">
-        <div className="flex items-center justify-between gap-4 border-b border-slate-200 bg-slate-50/70 px-5 py-4 sm:px-6">
+        <div className="flex items-center justify-between gap-4 border-b border-slate-200/80 bg-slate-50/70 px-5 py-4 sm:px-6">
           <div>
             <h2 id="recent-orders-heading" className="text-base font-bold text-slate-950">
               Recent job orders
@@ -125,14 +131,14 @@ export default async function DashboardOverview() {
           </div>
           <Link
             href="/job-orders"
-            className="inline-flex min-h-11 items-center gap-1 rounded-md px-2 text-xs font-bold text-brand-primary transition-colors hover:bg-brand-light hover:text-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+            className="inline-flex min-h-11 items-center gap-1 rounded-lg px-2.5 text-xs font-bold text-brand-primary transition-colors hover:bg-brand-light hover:text-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
           >
             <span>View all</span>
             <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
           </Link>
         </div>
 
-        <div className="divide-y divide-slate-200">
+        <div className="divide-y divide-slate-200/80">
           {data.recentJobOrders.length === 0 ? (
             <div className="p-8 text-center text-sm text-slate-500">
               No recent job orders found.
@@ -149,10 +155,10 @@ export default async function DashboardOverview() {
                 <Link
                   key={jo.id}
                   href={`/job-orders/${jo.jo_no}`}
-                  className="flex items-center justify-between px-5 py-3.5 hover:bg-slate-50/80 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-inset min-h-11"
+                  className="flex min-h-16 items-center justify-between px-5 py-3.5 transition-colors hover:bg-slate-50/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-inset sm:px-6"
                 >
                   <div className="flex items-center gap-3">
-                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-slate-100 text-slate-700">
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-light text-brand-primary ring-1 ring-brand-primary/10">
                       <Wrench className="h-4 w-4" aria-hidden="true" />
                     </div>
                     <div>
@@ -175,7 +181,7 @@ export default async function DashboardOverview() {
 
 function StatCard({ label, value, hint }: { label: string; value: number; hint?: string }) {
   return (
-    <article className="surface-card flex min-h-32 flex-col justify-between border-t-2 border-t-slate-300 p-4 sm:p-5">
+    <article className="surface-card flex min-h-32 flex-col justify-between border-t-2 border-t-brand-primary/70 p-4 sm:p-5">
       <div>
         <p className="utility-label">{label}</p>
         <p className="mt-2 text-2xl font-extrabold tracking-tight text-slate-950 tabular-nums sm:text-3xl">

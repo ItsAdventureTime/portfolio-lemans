@@ -95,7 +95,7 @@ export default async function JobCostingIndexPage({
 
       <form
         method="get"
-        className="flex flex-col gap-3 rounded-xl border border-slate-200 bg-white p-4 sm:flex-row sm:items-end"
+        className="surface-card flex flex-col gap-3 p-4 sm:flex-row sm:items-end"
         role="search"
       >
         <div className="min-w-0 flex-1 space-y-1">
@@ -208,7 +208,7 @@ export default async function JobCostingIndexPage({
 
 function SummaryCard({ label, cents }: { label: string; cents: number }) {
   return (
-    <section className="rounded-xl border border-slate-200 bg-white p-4">
+    <section className="surface-card p-4">
       <p className="text-sm text-slate-600">{label}</p>
       <p className="mt-1 text-lg font-semibold text-slate-900">{formatPeso(cents)}</p>
     </section>

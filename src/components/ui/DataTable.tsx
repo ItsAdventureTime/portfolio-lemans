@@ -1,5 +1,6 @@
 import EmptyState from './EmptyState';
 import Skeleton from './Skeleton';
+import { AlertTriangle } from 'lucide-react';
 
 interface DataTableProps<T> {
   items: T[];
@@ -47,8 +48,15 @@ export default function DataTable<T>({
 
   if (error) {
     return (
-      <section className="surface-card p-6" role="alert" aria-label="Table error">
-        <p className="text-sm font-semibold text-rose-800">{error}</p>
+      <section
+        className="surface-card border-l-4 border-l-rose-500 bg-rose-50/40 p-5 sm:p-6"
+        role="alert"
+        aria-label="Table error"
+      >
+        <div className="flex items-start gap-3">
+          <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-rose-700" aria-hidden="true" />
+          <p className="text-sm font-semibold leading-6 text-rose-900">{error}</p>
+        </div>
         {errorAction && <div className="mt-4">{errorAction}</div>}
       </section>
     );
@@ -61,28 +69,28 @@ export default function DataTable<T>({
   return (
     <div className="surface-card overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full text-sm" aria-label={caption}>
+        <table className="data-table min-w-full text-sm" aria-label={caption}>
           {caption && <caption className="sr-only">{caption}</caption>}
-          <thead className="bg-slate-50/80 text-slate-700">
+          <thead>
             <tr>
               {columns.map((col) => (
                 <th
                   key={col.key}
                   scope="col"
-                  className={`whitespace-nowrap px-4 py-3 text-left text-xs font-bold tracking-wide ${col.className ?? ''}`}
+                  className={`whitespace-nowrap border-b border-slate-200/80 px-4 py-3.5 text-left font-bold ${col.className ?? ''}`}
                 >
                   {col.header}
                 </th>
               ))}
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-200">
+          <tbody className="divide-y divide-slate-200/80">
             {items.map((item, idx) => (
               <tr key={idx} className="transition-colors hover:bg-slate-50/80">
                 {columns.map((col) => (
                   <td
                     key={col.key}
-                    className={`px-4 py-3 align-top text-slate-700 ${col.className ?? ''}`}
+                    className={`border-b border-slate-200/70 px-4 py-3.5 align-top text-slate-700 ${col.className ?? ''}`}
                   >
                     {col.render(item)}
                   </td>

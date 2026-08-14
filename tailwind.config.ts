@@ -14,6 +14,15 @@ const config: Config = {
           hover: '#b71c1c',
           light: '#ffebee',
         },
+        canvas: '#f8fafc',
+        surface: '#ffffff',
+        charcoal: {
+          DEFAULT: '#17191d',
+          soft: '#22252b',
+          line: '#343840',
+        },
+        ink: '#0f172a',
+        line: '#e2e8f0',
         slate: {
           950: '#020617',
           900: '#0F172A',

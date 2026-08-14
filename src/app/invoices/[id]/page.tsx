@@ -44,7 +44,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
       <EndToEndWorkflowVisualizer currentStage="BILLING" />
 
       {/* Invoice Card Template */}
-      <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm space-y-6">
+      <div className="surface-card space-y-6 p-6">
         <div className="flex items-center justify-between border-b border-slate-100 pb-4">
           <div className="flex items-center gap-3">
             <Receipt className="w-6 h-6 text-brand-primary" />
@@ -110,11 +110,11 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
           <span>Recorded Customer Payments ({payments.length})</span>
         </h2>
         {payments.length === 0 ? (
-          <div className="bg-white p-6 rounded-xl border border-slate-200 text-center text-sm text-slate-500">
+          <div className="surface-card p-6 text-center text-sm text-slate-500">
             No payments recorded yet for this invoice.
           </div>
         ) : (
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm divide-y divide-slate-100 overflow-hidden">
+          <div className="surface-card divide-y divide-slate-100 overflow-hidden">
             {payments.map(
               (p: {
                 id: string;

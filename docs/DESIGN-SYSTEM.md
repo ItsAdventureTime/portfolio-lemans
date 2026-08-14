@@ -1,6 +1,6 @@
 # Design system
 
-- **Document Version**: 2.2.0
+- **Document Version**: 2.3.0
 - **Updated**: 2026-08-14
 - **Audience**: UI engineers, reviewers, and mobile developers (SwiftUI / Jetpack Compose)
 - **Client Brand**: LeMans Service Plus OPC (Angeles City, Pampanga)
@@ -39,8 +39,10 @@ This design system draws from these sources:
      separately planned, compatibility-tested work item.
 
    Official references: [WCAG 2.2](https://www.w3.org/TR/WCAG22/), [ARIA
-   Authoring Practices Guide](https://www.w3.org/WAI/ARIA/apg/), [Next.js
-   production checklist](https://nextjs.org/docs/app/guides/production-checklist),
+   Authoring Practices Guide](https://www.w3.org/WAI/ARIA/apg/), [ARIA disclosure
+   pattern](https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/), [ARIA keyboard
+   interface guidance](https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/),
+   [Next.js production checklist](https://nextjs.org/docs/app/guides/production-checklist),
    and [Tailwind CSS v3-to-v4 upgrade guide](https://tailwindcss.com/docs/upgrade-guide).
 
 ---
@@ -99,10 +101,29 @@ This design system draws from these sources:
 The current implementation uses the same tokens in `src/app/globals.css` and
 adds a restrained dot texture to the Off-White canvas. Texture is decorative
 only and never carries status meaning. Reusable `.surface-card`,
-`.surface-card-muted`, `.action-primary`, `.action-secondary`, and
-`.utility-label` classes are available to shared shell and overview surfaces.
-Logo URLs use `getBasePath()` and `unoptimized` image delivery so the branded
-asset remains valid under both `/lemans/demo` and `/lemans` deployments.
+`.surface-card-muted`, `.surface-card-inset`, `.action-primary`,
+`.action-secondary`, `.nav-rail`, `.workflow-grid`, and `.utility-label` classes
+are available to the shell, overview, forms, tables, and detail surfaces.
+The charcoal navigation colors (`#17191d`, `#22252b`, and `#343840`) provide a
+quiet contrast field for the logo-derived red accent. Logo URLs use
+`getBasePath()` and `unoptimized` image delivery so the branded asset remains
+valid under both `/lemans/demo` and `/lemans` deployments.
+
+The seven-stage workflow is a responsive card rail: it uses readable cards at
+desktop widths and a single-column stack on narrow screens. Titles and
+descriptions must wrap; truncation is not allowed when it removes the meaning
+of a workflow stage. Data tables keep genuinely wide records inside their own
+horizontal scroll region so the page itself remains stable on mobile.
+
+Overview calls to action and detail-page actions are permission-aware. The
+active simulated role appears in the overview eyebrow, and actions that the
+role cannot perform are not rendered. `StatusBadge` is a static semantic badge;
+live-region semantics belong only to real asynchronous status changes.
+
+The app shell also publishes `metadataBase`, Open Graph, Twitter summary, and
+canonical metadata using the tracked logo asset. This keeps the public demo’s
+brand identity intact when links are shared while preserving base-path-aware
+asset URLs.
 
 ---
 

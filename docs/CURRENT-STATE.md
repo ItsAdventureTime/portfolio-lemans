@@ -1,6 +1,6 @@
 # Current repository state
 
-- **Updated**: 2026-08-14 (implementation, documentation, and validation audit)
+- **Updated**: 2026-08-14 (branded UI/UX redesign, documentation, and validation)
 - **Authority**: Current implementation and the demo rules in
   [`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md)
 - **Documentation index**: [`DOCUMENTATION-INDEX.md`](./DOCUMENTATION-INDEX.md)
@@ -27,7 +27,11 @@ The canonical LeMans Service Plus logo is tracked at
 `public/lemans-service-plus-logo.jpg` (copied byte-for-byte from
 `references/branding/logo.jpg`). Next Image renders it in the persistent
 `Header` and `DemoSplash` with explicit dimensions; the same asset supplies
-the app icon metadata.
+the app icon, Open Graph, Twitter summary, and canonical metadata. The shared
+shell uses the logo-derived red accent with a charcoal navigation rail and
+responsive workflow cards. The overview labels the active simulated role and
+only renders actions allowed by that role; detail forms and cards use the same
+`.surface-card` treatment as the shell.
 
 ## Run the demo locally
 
@@ -59,6 +63,14 @@ The current demo validation baseline is complete in rootless Podman:
   is reachable on the internal network; PostgreSQL has no published host port.
 - `verify-e2e.sh`: all 33 Playwright tests pass across desktop, mobile, and
   reduced-motion projects.
+
+The 2026-08-14 branded redesign was additionally checked with fresh rootless
+Podman frontend validation (`format:check`, `lint`, `typecheck`, and
+production build), a successful demo web/API image build, and browser checks at
+desktop and 390x844 mobile widths. Those checks covered role-aware overview
+actions, seven readable workflow cards, mobile navigation disclosure, no
+overview horizontal overflow, branded logo rendering, and a horizontally
+contained accounting table.
 
 The UI keeps the configured `NEXT_PUBLIC_BASE_PATH` at runtime, uses integer
 centavos for monetary values, exposes keyboard-visible focus states and 44px
@@ -131,6 +143,9 @@ cryptographically random suffix to avoid collisions.
     branded recovery actions; loading preserves the overview shape with
     motion-safe skeletons and error boundaries keep diagnostic details out of
     user-facing copy.
+  - The 2026-08-14 branded pass extends the shared surface treatment through
+    detail pages and forms, removes static status live-region semantics, adds
+    share metadata, and keeps overview actions accurate for the active role.
 
 - Remote deployment is intentionally not part of local verification and requires
   explicit user authorization.

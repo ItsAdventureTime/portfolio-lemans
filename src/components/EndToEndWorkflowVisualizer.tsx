@@ -120,24 +120,25 @@ export default function EndToEndWorkflowVisualizer({
   return (
     <section
       aria-label="End-to-End Operational Workflow"
-      className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 sm:p-6 space-y-4"
+      className="surface-card space-y-5 p-4 sm:p-6"
     >
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+      <div className="flex flex-col justify-between gap-3 border-b border-slate-200/80 pb-4 sm:flex-row sm:items-center">
         <div>
-          <h2 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
+          <p className="utility-label mb-1 text-brand-primary">Connected workflow</p>
+          <h2 className="flex items-center gap-2 text-lg font-bold tracking-tight text-slate-950">
             <span>End-to-End Operational Lifecycle</span>
           </h2>
-          <p className="text-xs sm:text-sm text-slate-500">
+          <p className="mt-1 max-w-3xl text-sm leading-6 text-slate-600">
             One Job Order is the single source of truth from intake to financial accounting.
           </p>
         </div>
-        <div className="flex items-center gap-2 text-xs font-semibold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-lg self-start sm:self-auto">
-          <span className="w-2 h-2 rounded-full bg-emerald-500" aria-hidden="true" />
-          <span>Live Workflow Connectivity</span>
+        <div className="inline-flex min-h-9 items-center gap-2 self-start rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800 sm:self-auto">
+          <span className="h-2 w-2 rounded-full bg-emerald-600" aria-hidden="true" />
+          <span>Workflow connected</span>
         </div>
       </div>
 
-      <ol className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-7 gap-3 relative">
+      <ol className="workflow-grid relative" aria-label="Seven-stage operational workflow">
         {STAGES.map((stage, idx) => {
           const Icon = stage.icon;
           const isCurrent = currentStage ? stage.key === currentStage : false;
@@ -147,20 +148,20 @@ export default function EndToEndWorkflowVisualizer({
             <li key={stage.key} className="relative flex flex-col h-full">
               <Link
                 href={stage.href}
-                className={`group flex-1 flex flex-col justify-between p-3.5 rounded-lg border transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary min-h-[140px] ${
+                className={`workflow-card group flex flex-col justify-between rounded-xl border p-4 transition-[background-color,border-color,box-shadow,transform] hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary ${
                   isCurrent
-                    ? 'border-brand-primary bg-red-50/30 ring-1 ring-brand-primary/30 shadow-sm'
+                    ? 'border-brand-primary bg-brand-light/55 ring-1 ring-brand-primary/30 shadow-[0_16px_30px_-24px_rgba(211,47,47,0.8)]'
                     : isCompleted
-                      ? 'border-emerald-200 bg-emerald-50/20 hover:border-emerald-300'
-                      : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/50'
+                      ? 'border-emerald-200 bg-emerald-50/30 hover:border-emerald-300 hover:bg-emerald-50/55'
+                      : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/80'
                 }`}
                 aria-current={isCurrent ? 'step' : undefined}
               >
                 <div>
-                  <div className="flex items-center justify-between gap-2 mb-2">
+                  <div className="mb-3 flex items-center justify-between gap-2">
                     <div className="flex items-center gap-1.5">
                       <span
-                        className={`text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center ${
+                        className={`flex h-7 w-7 items-center justify-center rounded-lg text-xs font-bold ${
                           isCurrent
                             ? 'bg-brand-primary text-white'
                             : isCompleted
@@ -171,7 +172,7 @@ export default function EndToEndWorkflowVisualizer({
                         {stage.stepNumber}
                       </span>
                       <span
-                        className={`text-[11px] font-semibold tracking-wide uppercase ${
+                        className={`text-[11px] font-semibold uppercase tracking-[0.08em] ${
                           isCurrent
                             ? 'text-brand-primary'
                             : isCompleted
@@ -194,23 +195,25 @@ export default function EndToEndWorkflowVisualizer({
                     />
                   </div>
 
-                  <h3 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-brand-primary transition-colors line-clamp-1">
+                  <h3 className="break-words text-base font-bold leading-5 text-slate-950 transition-colors group-hover:text-brand-primary">
                     {stage.title}
                   </h3>
-                  <p className="text-[11px] text-slate-500 mt-0.5 line-clamp-2">{stage.subtitle}</p>
+                  <p className="mt-1 break-words text-sm leading-5 text-slate-600">
+                    {stage.subtitle}
+                  </p>
                 </div>
 
-                <div className="mt-3 pt-2 border-t border-slate-100/80 flex items-center justify-between gap-1 text-[11px]">
+                <div className="mt-5 flex min-h-9 items-center justify-between gap-2 border-t border-slate-200/80 pt-3 text-xs">
                   {stage.primaryMetricValue !== undefined ? (
                     <span className="font-bold text-slate-900">
                       {stage.primaryMetricLabel}:{' '}
                       <span className="text-brand-primary">{stage.primaryMetricValue}</span>
                     </span>
                   ) : (
-                    <span className="text-slate-500 truncate">{stage.statusText}</span>
+                    <span className="break-words text-slate-600">{stage.statusText}</span>
                   )}
                   <ArrowRight
-                    className="w-3 h-3 shrink-0 text-slate-400 transition-transform group-hover:translate-x-0.5"
+                    className="h-4 w-4 shrink-0 text-slate-400 transition-transform group-hover:translate-x-0.5"
                     aria-hidden="true"
                   />
                 </div>

@@ -32,7 +32,7 @@ export default function CustomerForm({ action }: CustomerFormProps) {
         }
       }}
       noValidate
-      className="bg-white p-4 rounded-xl border border-slate-200 space-y-4"
+      className="surface-card space-y-4 p-4"
     >
       <FormError message={result?.message} fieldErrors={fieldErrors} />
 

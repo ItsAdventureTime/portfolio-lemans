@@ -124,31 +124,32 @@ export default function Navbar({ role }: { role: ProjectRole }) {
 
   return (
     <nav
-      className="border-b border-slate-800 bg-slate-900 text-white"
+      className="nav-rail border-b border-charcoal-line text-white"
       aria-label="Primary navigation"
     >
       <div className="mx-auto w-full max-w-screen-2xl px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between lg:justify-start">
           <button
             type="button"
-            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg p-2 text-slate-300 transition-colors hover:bg-slate-800 hover:text-white active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-slate-900 lg:hidden"
+            className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg p-2 text-slate-300 transition-colors hover:bg-charcoal-soft hover:text-white active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-charcoal lg:hidden"
             onClick={() => setMobileMenuOpen((open) => !open)}
             aria-expanded={mobileMenuOpen}
             aria-controls="mobile-nav-menu"
             aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+            <span className="sr-only">Primary navigation</span>
           </button>
 
           <div className="hidden items-center gap-3 overflow-x-auto lg:flex">
-            {navGroups.map((group, groupIndex) => {
+            {navGroups.map((group) => {
               const visibleItems = group.items.filter(canSeeItem);
               if (visibleItems.length === 0) return null;
 
               return (
                 <ul
                   key={group.label}
-                  className={`flex items-center gap-1 ${groupIndex > 0 ? 'border-l border-slate-700 pl-3' : ''}`}
+                  className="nav-group flex items-center gap-1"
                   aria-label={group.label}
                 >
                   {visibleItems.map((item) => {
@@ -160,8 +161,8 @@ export default function Navbar({ role }: { role: ProjectRole }) {
                           href={item.href}
                           className={`group flex min-h-11 items-center gap-2 whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium transition-[background-color,color,border-color,transform] active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-inset ${
                             active
-                              ? 'border-brand-primary bg-slate-800/80 font-semibold text-white'
-                              : 'border-transparent text-slate-300 hover:bg-slate-800 hover:text-white'
+                              ? 'border-brand-primary bg-charcoal-soft font-semibold text-white'
+                              : 'border-transparent text-slate-300 hover:bg-charcoal-soft hover:text-white'
                           }`}
                           aria-current={active ? 'page' : undefined}
                         >
@@ -178,14 +179,18 @@ export default function Navbar({ role }: { role: ProjectRole }) {
         </div>
 
         {mobileMenuOpen && (
-          <div id="mobile-nav-menu" className="space-y-3 border-t border-slate-800 py-3 lg:hidden">
+          <div
+            id="mobile-nav-menu"
+            className="space-y-3 border-t border-charcoal-line py-3 lg:hidden"
+            aria-label="Mobile navigation menu"
+          >
             {navGroups.map((group) => {
               const visibleItems = group.items.filter(canSeeItem);
               if (visibleItems.length === 0) return null;
 
               return (
                 <div key={group.label} role="group" aria-label={group.label}>
-                  <p className="utility-label px-3 pb-1 text-slate-500">{group.label}</p>
+                  <p className="utility-label px-3 pb-1 text-slate-400">{group.label}</p>
                   <ul className="space-y-1">
                     {visibleItems.map((item) => {
                       const Icon = item.icon;
@@ -198,7 +203,7 @@ export default function Navbar({ role }: { role: ProjectRole }) {
                             className={`flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-[background-color,color,transform] active:translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary ${
                               active
                                 ? 'bg-brand-primary font-semibold text-white'
-                                : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+                                : 'text-slate-300 hover:bg-charcoal-soft hover:text-white'
                             }`}
                             aria-current={active ? 'page' : undefined}
                           >

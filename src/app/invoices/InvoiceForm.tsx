@@ -22,7 +22,7 @@ export default function InvoiceForm({ action }: InvoiceFormProps) {
     <form
       action={submitAction}
       noValidate
-      className="bg-white p-4 rounded-xl border border-slate-200 flex flex-wrap items-end gap-3"
+      className="surface-card flex flex-wrap items-end gap-3 p-4"
     >
       <FormError message={result?.message} fieldErrors={result?.fieldErrors} />
       <FormField

@@ -95,7 +95,7 @@ export default async function JobCostingPage({ params }: { params: Promise<{ id:
         <CostCard label="Total Actual Cost (incl. allocated)" cents={c.totalActualCostCents} />
         <CostCard label="Billed Amount" cents={c.billedAmountCents} />
         <CostCard label="Net Profit" cents={c.netProfitCents} />
-        <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+        <div className="surface-card p-4">
           <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Margin</p>
           <p className="text-2xl font-extrabold text-slate-900 tabular-nums mt-1">
             {c.profitMarginPercent.toFixed(1)}%
@@ -106,10 +106,7 @@ export default async function JobCostingPage({ params }: { params: Promise<{ id:
         </div>
       </div>
 
-      <section
-        className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm space-y-4"
-        aria-labelledby="variance-heading"
-      >
+      <section className="surface-card space-y-4 p-5" aria-labelledby="variance-heading">
         <h2
           id="variance-heading"
           className="text-base font-bold text-slate-900 border-b border-slate-100 pb-3"

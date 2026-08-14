@@ -37,11 +37,7 @@ export default function QuotationForm({ customers, vehicles, action }: Quotation
   const selectedVehicleId = (typeof values.vehicleId === 'string' && values.vehicleId) || vehicleId;
 
   return (
-    <form
-      action={submitAction}
-      noValidate
-      className="bg-white p-4 rounded-xl border border-slate-200 space-y-4"
-    >
+    <form action={submitAction} noValidate className="surface-card space-y-4 p-4">
       <FormError message={result?.message} fieldErrors={fieldErrors} />
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <input type="hidden" name="customerId" value={selectedCustomerId} />

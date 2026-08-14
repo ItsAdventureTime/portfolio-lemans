@@ -10,6 +10,8 @@
   --bg-app: #f8fafc;
   --bg-surface: #ffffff;
   --bg-subtle: #f1f5f9;
+  --bg-charcoal: #17191d;
+  --bg-charcoal-soft: #22252b;
 
   --text-primary: #0f172a;
   --text-secondary: #475569;
@@ -26,15 +28,18 @@
   --status-info-bg: #eff6ff;
   --status-info-text: #2563eb;
 
-  --shadow-surface: 0 18px 42px -30px rgba(15, 23, 42, 0.48);
+  --shadow-surface: 0 18px 42px -30px rgba(35, 43, 54, 0.52);
   --shadow-raised: 0 14px 30px -24px rgba(211, 47, 47, 0.45);
+  --shadow-focus: 0 0 0 3px rgba(211, 47, 47, 0.22), 0 0 0 5px rgba(255, 255, 255, 0.96);
 }
 
 html {
+  overflow-x: hidden;
   scroll-behavior: smooth;
 }
 
 body {
+  overflow-x: hidden;
   background-color: var(--bg-app);
   color: var(--text-primary);
   font-family:
@@ -49,9 +54,11 @@ body {
     Cantarell,
     sans-serif;
   background-image:
-    radial-gradient(circle at 8% 0%, rgba(211, 47, 47, 0.08), transparent 25rem),
+    radial-gradient(circle at 8% 0%, rgba(211, 47, 47, 0.075), transparent 25rem),
+    radial-gradient(circle at 92% 18%, rgba(15, 23, 42, 0.045), transparent 22rem),
     radial-gradient(rgba(15, 23, 42, 0.035) 0.7px, transparent 0.7px);
   background-size:
+    auto,
     auto,
     18px 18px;
   font-feature-settings:
@@ -72,7 +79,7 @@ select:focus-visible,
 textarea:focus-visible,
 [tabindex]:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.35);
+  box-shadow: var(--shadow-focus);
   outline: 2px solid transparent;
   outline-offset: 2px;
 }
@@ -111,17 +118,104 @@ textarea {
 }
 
 @layer components {
+  .app-header {
+    box-shadow:
+      0 1px 0 rgba(15, 23, 42, 0.04),
+      0 12px 30px -28px rgba(35, 43, 54, 0.7);
+  }
+
+  .brand-lockup {
+    letter-spacing: -0.025em;
+  }
+
   .surface-card {
-    border: 1px solid var(--border-subtle);
+    border: 1px solid rgba(226, 232, 240, 0.92);
     border-radius: 1rem;
     background: var(--bg-surface);
     box-shadow: var(--shadow-surface);
   }
 
   .surface-card-muted {
-    border: 1px solid rgba(203, 213, 225, 0.8);
+    border: 1px solid rgba(203, 213, 225, 0.78);
     border-radius: 0.875rem;
-    background: rgba(255, 255, 255, 0.72);
+    background: rgba(248, 250, 252, 0.82);
+  }
+
+  .surface-card-inset {
+    border: 1px solid rgba(226, 232, 240, 0.82);
+    border-radius: 0.75rem;
+    background: rgba(248, 250, 252, 0.68);
+  }
+
+  .nav-rail {
+    background: var(--bg-charcoal);
+    box-shadow: 0 12px 26px -24px rgba(15, 23, 42, 0.82);
+  }
+
+  .nav-group + .nav-group {
+    border-left: 1px solid rgba(148, 163, 184, 0.22);
+    padding-left: 0.75rem;
+  }
+
+  .workflow-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr));
+    gap: 0.75rem;
+  }
+
+  .workflow-card {
+    min-height: 12rem;
+  }
+
+  .data-table {
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .data-table th {
+    background: rgba(248, 250, 252, 0.92);
+    color: var(--text-secondary);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .data-table tbody tr:last-child td {
+    border-bottom: 0;
+  }
+
+  .status-badge {
+    box-shadow: 0 1px 2px rgba(35, 43, 54, 0.06);
+  }
+
+  .skeleton-block {
+    background-image: linear-gradient(
+      105deg,
+      rgba(226, 232, 240, 0.86) 0%,
+      rgba(255, 255, 255, 0.72) 45%,
+      rgba(226, 232, 240, 0.86) 100%
+    );
+    background-size: 200% 100%;
+  }
+
+  .recovery-shell {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+  }
+
+  .recovery-shell::before {
+    position: absolute;
+    inset: 0 0 auto;
+    height: 0.25rem;
+    background: var(--brand-primary);
+    content: '';
+  }
+
+  .recovery-mark {
+    border: 1px solid rgba(211, 47, 47, 0.18);
+    border-radius: 0.875rem;
+    box-shadow: 0 12px 28px -22px rgba(211, 47, 47, 0.62);
   }
 
   .utility-label {
@@ -163,6 +257,13 @@ textarea {
     transform: translateY(1px) scale(0.99);
   }
 
+  .action-primary:disabled,
+  .action-secondary:disabled {
+    cursor: not-allowed;
+    opacity: 0.58;
+    transform: none;
+  }
+
   .action-secondary {
     border: 1px solid var(--border-strong);
     background: rgba(255, 255, 255, 0.84);
@@ -172,6 +273,13 @@ textarea {
   .action-secondary:hover {
     border-color: var(--brand-primary);
     background: var(--brand-primary-light);
+  }
+
+  .skip-link {
+    border-radius: 0.625rem;
+    background: var(--bg-charcoal);
+    color: white;
+    box-shadow: 0 12px 24px -16px rgba(15, 23, 42, 0.85);
   }
 }
 
