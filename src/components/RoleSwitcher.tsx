@@ -56,16 +56,14 @@ export default function RoleSwitcher({ currentRole }: { currentRole: ProjectRole
       <select
         id="role-switcher"
         value={displayRole}
-        disabled={isSwitching}
         onChange={(e) => {
+          if (isSwitching) return;
           const role = e.currentTarget.value as ProjectRole;
-          const activeElement = document.activeElement;
-          if (activeElement instanceof HTMLElement) activeElement.blur();
-          e.currentTarget.blur();
           window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
           void switchRole(role);
         }}
-        className="min-h-11 min-w-11 rounded-lg border border-slate-300 bg-white px-3 py-0 text-sm font-medium text-slate-800 shadow-sm transition-colors hover:border-brand-primary disabled:cursor-wait disabled:opacity-70 focus-visible:border-brand-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+        aria-disabled={isSwitching}
+        className="min-h-11 min-w-11 rounded-lg border border-slate-300 bg-white px-3 py-0 text-sm font-medium text-slate-800 shadow-sm transition-colors hover:border-brand-primary disabled:cursor-wait disabled:opacity-70 aria-disabled:cursor-wait aria-disabled:opacity-70 focus-visible:border-brand-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
         aria-describedby={error ? 'role-switcher-error' : undefined}
       >
         {ROLE_ORDER.map((role) => (

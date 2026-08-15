@@ -247,9 +247,11 @@ Use the existing tokens in `docs/DESIGN-SYSTEM.md`:
   widths while clipping vertical overflow. Pressed-link feedback may still use
   a one-pixel transform without creating a transient scrollbar at the rail's
   right edge.
-- `SmoothPageTransition` is a server-rendered CSS wrapper guided by Motion and
-  SmoothUI principles for a short transform/opacity enter transition. Keep it
-  interruptible and disable non-essential movement for reduced-motion users.
+- `SmoothPageTransition` is a pathname-keyed client wrapper using the existing
+  `motion/react` dependency, guided by Motion and SmoothUI principles for a
+  short 180ms opacity/4px transform enter transition. Keep it interruptible,
+  avoid exit waits or artificial delays, and disable non-essential movement for
+  reduced-motion users. CSS remains the no-JavaScript fallback.
 - Keep the shared focus treatment in `@layer base` and the `.nav-link` override
   in `@layer components`; this preserves the visible inset keyboard outline
   without flashing the global white outer shadow beside the active nav item.

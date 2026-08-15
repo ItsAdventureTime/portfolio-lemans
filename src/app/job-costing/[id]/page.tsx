@@ -83,25 +83,40 @@ export default async function JobCostingPage({ params }: { params: Promise<{ id:
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        <CostCard label="Estimated Labor" cents={c.totalEstimatedLaborCents} />
-        <CostCard label="Estimated Parts" cents={c.totalEstimatedPartsCents} />
-        <CostCard label="Recorded Actual Labor" cents={c.actualLaborCostCents} />
-        <CostCard label="Recorded Actual Parts" cents={c.actualPartsCostCents} />
-        <CostCard label="Allocated Parts" cents={c.partsAllocatedCents} />
-        <CostCard label="Total Actual Cost (incl. allocated)" cents={c.totalActualCostCents} />
-        <CostCard label="Billed Amount" cents={c.billedAmountCents} />
-        <CostCard label="Net Profit" cents={c.netProfitCents} />
-        <div className="surface-card-muted p-5">
-          <p className="text-sm font-medium text-slate-500">Margin</p>
-          <p className="mt-2 text-2xl font-semibold tabular-nums text-slate-900">
-            {c.profitMarginPercent.toFixed(1)}%
-          </p>
-          <p className="mt-2 text-sm leading-5 text-slate-500">
-            Billed revenue after actual and allocated costs.
-          </p>
+      <section className="space-y-3" aria-labelledby="cost-summary-heading">
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <div>
+            <p className="utility-label text-brand-primary">Financial snapshot</p>
+            <h2 id="cost-summary-heading" className="text-lg font-semibold text-slate-900">
+              Cost summary
+            </h2>
+          </div>
+          <p className="text-sm text-slate-500">Amounts shown in Philippine pesos</p>
         </div>
-      </div>
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3">
+          <CostCard label="Estimated Labor" cents={c.totalEstimatedLaborCents} />
+          <CostCard label="Estimated Parts" cents={c.totalEstimatedPartsCents} />
+          <CostCard label="Recorded Actual Labor" cents={c.actualLaborCostCents} />
+          <CostCard label="Recorded Actual Parts" cents={c.actualPartsCostCents} />
+          <CostCard label="Allocated Parts" cents={c.partsAllocatedCents} />
+          <CostCard
+            label="Total Actual Cost (incl. allocated)"
+            cents={c.totalActualCostCents}
+            featured
+          />
+          <CostCard label="Billed Amount" cents={c.billedAmountCents} />
+          <CostCard label="Net Profit" cents={c.netProfitCents} />
+          <div className="surface-card-muted p-5">
+            <p className="text-sm font-medium text-slate-500">Margin</p>
+            <p className="mt-2 text-2xl font-semibold tabular-nums text-slate-900">
+              {c.profitMarginPercent.toFixed(1)}%
+            </p>
+            <p className="mt-2 text-sm leading-5 text-slate-500">
+              Billed revenue after actual and allocated costs.
+            </p>
+          </div>
+        </div>
+      </section>
 
       <section className="surface-card space-y-5 p-5 sm:p-6" aria-labelledby="variance-heading">
         <h2
@@ -110,6 +125,10 @@ export default async function JobCostingPage({ params }: { params: Promise<{ id:
         >
           Estimate vs. Actual Variance Analysis
         </h2>
+        <p className="max-w-2xl text-sm leading-6 text-slate-600">
+          Compare recorded labor and parts costs with the original estimate. Positive variance
+          indicates spend above estimate.
+        </p>
         <div className="grid gap-4 sm:grid-cols-2">
           <VarianceRow
             label="Labor"
@@ -127,10 +146,26 @@ export default async function JobCostingPage({ params }: { params: Promise<{ id:
   );
 }
 
-function CostCard({ label, cents }: { label: string; cents: number }) {
+function CostCard({
+  label,
+  cents,
+  featured = false,
+}: {
+  label: string;
+  cents: number;
+  featured?: boolean;
+}) {
   return (
-    <article className="surface-card-muted flex min-h-[9.5rem] flex-col p-5">
-      <p className="text-base font-medium text-slate-600">{label}</p>
+    <article
+      className={`flex min-h-[9.5rem] flex-col p-5 ${
+        featured
+          ? 'surface-card border-brand-primary/25 bg-brand-light/45 shadow-[0_14px_30px_-24px_rgba(211,47,47,0.45)]'
+          : 'surface-card-muted'
+      }`}
+    >
+      <p className={`text-base font-medium ${featured ? 'text-slate-800' : 'text-slate-600'}`}>
+        {label}
+      </p>
       <p className="mt-auto pt-6 font-mono text-xl font-semibold tabular-nums text-slate-900">
         {formatPeso(cents)}
       </p>

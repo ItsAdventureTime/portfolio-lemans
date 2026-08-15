@@ -1,7 +1,16 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Plus, X } from 'lucide-react';
+
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+function getFocusableElements(container: HTMLElement) {
+  return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
+    (element) => element.getClientRects().length > 0
+  );
+}
 
 export interface CustomerOption {
   id: string;
@@ -151,25 +160,84 @@ interface QuickAddModalProps {
 }
 
 export function QuickAddModal({ title, open, onClose, children }: QuickAddModalProps) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const restoreFocusRef = useRef<HTMLElement | null>(null);
+  const titleId = useId();
+
+  useEffect(() => {
+    if (!open) return;
+
+    restoreFocusRef.current =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+
+    const firstFocusable = getFocusableElements(dialog)[0];
+    (firstFocusable ?? dialog).focus({ preventScroll: true });
+
+    return () => {
+      const trigger = restoreFocusRef.current;
+      restoreFocusRef.current = null;
+      if (trigger?.isConnected) trigger.focus({ preventScroll: true });
+    };
+  }, [open]);
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      onClose();
+      return;
+    }
+
+    if (event.key !== 'Tab') return;
+
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    const focusable = getFocusableElements(dialog);
+    if (focusable.length === 0) {
+      event.preventDefault();
+      dialog.focus({ preventScroll: true });
+      return;
+    }
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    const activeElement = document.activeElement;
+    const focusIsInsideDialog = activeElement instanceof Node && dialog.contains(activeElement);
+
+    if (
+      (event.shiftKey &&
+        (activeElement === first || activeElement === dialog || !focusIsInsideDialog)) ||
+      (!event.shiftKey &&
+        (activeElement === last || activeElement === dialog || !focusIsInsideDialog))
+    ) {
+      event.preventDefault();
+      (event.shiftKey ? last : first).focus({ preventScroll: true });
+    }
+  };
+
   if (!open) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
       <div
+        ref={dialogRef}
         className="w-full max-w-lg space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-lg"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="quick-add-modal-title"
+        aria-labelledby={titleId}
+        tabIndex={-1}
+        onKeyDown={handleKeyDown}
       >
         <div className="flex items-center justify-between">
-          <h3 id="quick-add-modal-title" className="text-lg font-bold text-slate-900">
+          <h3 id={titleId} className="text-lg font-bold text-slate-900">
             {title}
           </h3>
           <button
             type="button"
             onClick={onClose}
             className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
-            aria-label="Close"
+            aria-label="Close quick add dialog"
           >
             <X className="h-4 w-4" />
           </button>

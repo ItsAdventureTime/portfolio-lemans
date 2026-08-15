@@ -1,6 +1,6 @@
 # Current repository state
 
-- **Updated**: 2026-08-15 (shared table alignment and compact action refinement)
+- **Updated**: 2026-08-15 (Motion route transitions and focus refinement)
 - **Authority**: Current implementation and the demo rules in
   [`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md)
 - **Documentation index**: [`DOCUMENTATION-INDEX.md`](./DOCUMENTATION-INDEX.md)
@@ -52,9 +52,18 @@ no-hydration fallback; successful entry returns to the base-path overview so the
 persistent root layout reevaluates the shell gate. At the canonical base-path
 root, the client explicitly reloads after the POST instead of assigning the
 already-current URL; direct module routes still assign the base-path overview.
-The page-transition wrapper is server-rendered and does not add a client-only
-visibility gate. Ordinary section changes remain soft, prefetched client
-navigations.
+The page-transition wrapper is a small client-side `motion/react` boundary
+keyed by pathname. It settles new content with 180ms opacity/4px transform
+motion, skips exit waits and artificial delays, and disables movement for
+reduced-motion users. A CSS fallback remains available without scripting.
+Ordinary section changes remain soft, prefetched client navigations.
+
+Route focus is deliberate: `RouteScrollReset` preserves the role switcher's
+focus and focuses `#main-content` after a route change only when focus was in
+navigation, route content, or the document body. Quick-add and supplier-invoice
+allocation dialogs trap keyboard focus, dismiss on Escape, and restore focus to
+their triggers. The root `loading.tsx` boundary is a compact layout-preserving
+skeleton rather than a blocking full-page spinner.
 
 ## Run the demo locally
 
@@ -117,9 +126,9 @@ layout, explicit column widths, middle-aligned cells, right-aligned numeric
 values, tabular numerals, and centered status badges. Compact action controls keep
 the WCAG-sized 44px hit area while drawing a quieter visual surface, so approval
 and form buttons do not dominate the page. Headings, labels, status text, and
-identifiers now use a calmer medium/semibold hierarchy. The existing CSS
-transform/opacity transitions remain Motion- and SmoothUI-aligned and continue to
-honor `prefers-reduced-motion`.
+identifiers now use a calmer medium/semibold hierarchy. The pathname-keyed Motion
+route transition remains Motion- and SmoothUI-aligned and honors
+`prefers-reduced-motion` without delaying navigation.
 
 Remote deployment is separate: the workstation stages an exact `HEAD` source
 tree to the stable `current` path and syncs it with rsync, the VPS builds and

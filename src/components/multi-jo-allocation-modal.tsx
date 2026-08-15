@@ -1,8 +1,17 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { X, CheckCircle, AlertCircle } from 'lucide-react';
 import { centsToPeso, formatPeso, parsePesoToCents } from '@/lib/money';
+
+const FOCUSABLE_SELECTOR =
+  'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+function getFocusableElements(container: HTMLElement) {
+  return Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
+    (element) => element.getClientRects().length > 0
+  );
+}
 
 export interface JobOrderOption {
   id: string;
@@ -34,6 +43,10 @@ export default function MultiJoAllocationModal({
   initialAllocations = [],
   onSave,
 }: MultiJoAllocationModalProps) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const restoreFocusRef = useRef<HTMLElement | null>(null);
+  const titleId = useId();
+
   const [lines, setLines] = useState<AllocationLine[]>(
     initialAllocations.length > 0
       ? initialAllocations
@@ -54,6 +67,58 @@ export default function MultiJoAllocationModal({
   const isBalanced = remainingCents === 0;
   const isOverAllocated = remainingCents < 0;
 
+  useEffect(() => {
+    if (!open) return;
+
+    restoreFocusRef.current =
+      document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+
+    const firstFocusable = getFocusableElements(dialog)[0];
+    (firstFocusable ?? dialog).focus({ preventScroll: true });
+
+    return () => {
+      const trigger = restoreFocusRef.current;
+      restoreFocusRef.current = null;
+      if (trigger?.isConnected) trigger.focus({ preventScroll: true });
+    };
+  }, [open]);
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      onClose();
+      return;
+    }
+
+    if (event.key !== 'Tab') return;
+
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    const focusable = getFocusableElements(dialog);
+    if (focusable.length === 0) {
+      event.preventDefault();
+      dialog.focus({ preventScroll: true });
+      return;
+    }
+
+    const first = focusable[0];
+    const last = focusable[focusable.length - 1];
+    const activeElement = document.activeElement;
+    const focusIsInsideDialog = activeElement instanceof Node && dialog.contains(activeElement);
+
+    if (
+      (event.shiftKey &&
+        (activeElement === first || activeElement === dialog || !focusIsInsideDialog)) ||
+      (!event.shiftKey &&
+        (activeElement === last || activeElement === dialog || !focusIsInsideDialog))
+    ) {
+      event.preventDefault();
+      (event.shiftKey ? last : first).focus({ preventScroll: true });
+    }
+  };
+
   const handleSave = () => {
     if (isOverAllocated) return;
     const valid = lines.filter((l) => l.joId && l.amountCents > 0);
@@ -66,14 +131,17 @@ export default function MultiJoAllocationModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
       <div
+        ref={dialogRef}
         className="w-full max-w-3xl space-y-4 rounded-2xl border border-slate-200 bg-white p-6 shadow-lg"
         role="dialog"
         aria-modal="true"
-        aria-labelledby="allocation-modal-title"
+        aria-labelledby={titleId}
+        tabIndex={-1}
+        onKeyDown={handleKeyDown}
       >
         <div className="flex items-center justify-between">
           <div>
-            <h3 id="allocation-modal-title" className="text-lg font-bold text-slate-900">
+            <h3 id={titleId} className="text-lg font-bold text-slate-900">
               Allocate Supplier Invoice Across Job Orders
             </h3>
             <p className="text-sm text-slate-500">
@@ -85,7 +153,7 @@ export default function MultiJoAllocationModal({
             type="button"
             onClick={onClose}
             className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
-            aria-label="Close"
+            aria-label="Close allocation dialog"
           >
             <X className="h-4 w-4" />
           </button>
@@ -162,7 +230,7 @@ export default function MultiJoAllocationModal({
                       onClick={() => removeLine(idx)}
                       disabled={lines.length === 1}
                       className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 disabled:opacity-30"
-                      aria-label="Remove allocation"
+                      aria-label={`Remove allocation line ${idx + 1}`}
                     >
                       <X className="h-4 w-4" />
                     </button>

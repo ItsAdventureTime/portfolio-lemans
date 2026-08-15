@@ -2,7 +2,7 @@
 
 - **Status**: IMPLEMENTED & VERIFIED
 
-- **Version**: 1.2.4
+- **Version**: 1.2.5
 - **Updated**: 2026-08-15
 - **Audience**: Google Antigravity, UI engineers, UX reviewers, and coding agents
 - **Product**: Le Mans Operations & Job Cost Management System demo
@@ -107,10 +107,10 @@ The current shell and overview pass implements the following bounded changes:
 - The type hierarchy now favors regular body text and medium/semibold labels;
   bold weight is reserved for page titles and high-value emphasis. This keeps
   tables scannable without making every label compete for attention.
-- The existing CSS transition layer remains the implementation boundary for the
-  Motion/SmoothUI-inspired interaction language. It uses short opacity and
-  transform transitions and honors `prefers-reduced-motion` without adding a
-  new dependency or delaying navigation.
+- The existing `motion` dependency is the implementation boundary for the
+  Motion/SmoothUI-inspired route interaction. It uses a short opacity and
+  transform transition, honors `prefers-reduced-motion`, and does not delay
+  navigation.
 
 ### Detail-view typography refinement — 2026-08-15
 
@@ -123,13 +123,37 @@ The current shell and overview pass implements the following bounded changes:
 - `DataTable` uses a readable 16px body with 14px medium headers and preserves
   stable alignment for identifiers, quantities, statuses, and monetary values.
 
+### Motion and focus refinement — 2026-08-15
+
+- `SmoothPageTransition` is now a client component using the existing
+  `motion/react` dependency. A pathname key replays a 180ms opacity/4px
+  transform settle for each route without an exit phase, mode wait, or
+  artificial navigation delay. A CSS enter fallback remains available when
+  scripting is disabled.
+- `MotionConfig` and `useReducedMotion` honor the user's reduced-motion
+  preference. The reduced path removes route movement; CSS also disables
+  non-essential animation. Hover, focus, pressed, and status states remain
+  understandable without motion.
+- `RouteScrollReset` no longer blurs the active element on every render. After
+  a route change it focuses `#main-content` only when focus was in navigation,
+  route content, or the document body, preserving role-switcher continuity.
+- Quick-add and supplier-invoice allocation dialogs now provide initial focus,
+  Tab containment, Escape dismissal, and focus restoration. Their controls
+  expose accessible names for icon-only actions.
+- The root `loading.tsx` boundary now uses a quiet, layout-preserving skeleton;
+  it does not block the shell or introduce a one-second navigation delay.
+
 ### Guidance review — 2026-08-15
 
 This pass checked the current implementation against the [WCAG 2.2 W3C
 Recommendation](https://www.w3.org/TR/WCAG22/), the [WAI-ARIA Authoring
 Practices Guide](https://www.w3.org/WAI/ARIA/apg/), the [Next.js production
 checklist](https://nextjs.org/docs/app/guides/production-checklist), and the
-[Tailwind CSS v3-to-v4 upgrade guide](https://tailwindcss.com/docs/upgrade-guide).
+[Next.js Linking and Navigating guide](https://nextjs.org/docs/app/getting-started/linking-and-navigating),
+[W3C reduced-motion technique C39](https://www.w3.org/WAI/WCAG22/Techniques/css/C39),
+[Motion for React](https://motion.dev/docs/react), the [SmoothUI
+collection](https://github.com/educlopez/smoothui), and the [Tailwind CSS
+v3-to-v4 upgrade guide](https://tailwindcss.com/docs/upgrade-guide).
 The app keeps its pinned Next.js 16.3 and Tailwind CSS 3.4 stack; the review
 applies current accessibility and App Router guidance without introducing a
 major framework migration into a visual refinement.
@@ -244,10 +268,11 @@ useful on a small screen and with a keyboard or screen reader.
 - Keep the root `loading.tsx` boundary quiet during section navigation; use
   nested Suspense or local busy states only where asynchronous content needs
   immediate, layout-preserving feedback instead of a full-page overlay.
-- `SmoothPageTransition` is a server-rendered wrapper with a short CSS
-  transform/opacity enter transition. Content remains visible while it moves a
-  few pixels, it honors `prefers-reduced-motion`, and it does not hide
-  server-rendered content when client JavaScript is unavailable.
+- `SmoothPageTransition` is a pathname-keyed client wrapper using
+  `motion/react` with a short transform/opacity enter transition. Content
+  remains visible while it moves a few pixels, it honors
+  `prefers-reduced-motion`, and its CSS fallback does not hide server-rendered
+  content when client JavaScript is unavailable.
 - Keep `scrollbar-gutter: stable` and the shared footer container so centered
   footer copy does not shift when route height changes.
 - Primary navigation keeps a stable inset keyboard-focus outline and avoids the

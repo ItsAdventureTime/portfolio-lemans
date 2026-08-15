@@ -1,6 +1,6 @@
 # Design system
 
-- **Document Version**: 2.3.2
+- **Document Version**: 2.3.3
 - **Updated**: 2026-08-15
 - **Audience**: UI engineers, reviewers, and mobile developers (SwiftUI / Jetpack Compose)
 - **Client Brand**: Le Mans Service Plus OPC (Angeles City, Pampanga)
@@ -42,9 +42,11 @@ This design system draws from these sources:
   Browser-side mutations use the same-origin `/api/proxy/[...path]` route;
   the internal Go API hostname remains server-only.
 - **SmoothUI / Motion**: Use the requested SmoothUI collection as a motion
-  reference, with compositor-friendly CSS transform/opacity transitions.
-  Honor user reduced-motion preferences, keep the wrapper server-rendered,
-  and never make animation a prerequisite for task completion.
+  reference. The existing `motion` dependency is used through `motion/react`
+  for a pathname-keyed, compositor-friendly opacity/transform transition.
+  Honor user reduced-motion preferences, keep navigation interruptible, and
+  never make animation a prerequisite for task completion. Do not add GSAP or
+  anime.js unless a future interaction needs their distinct capabilities.
 - **Tailwind compatibility**: Tailwind CSS v4 is the current major release,
   but this focused redesign retains the pinned Tailwind CSS 3.4.10 stack. A
   v4 migration changes CSS configuration and browser support and must be a
@@ -210,10 +212,11 @@ asset URLs.
 - Route-level `loading.tsx` is intentionally quiet during section navigation;
   error, not-found, and access-denied surfaces use the same branded shell
   language and safe plain-language recovery copy.
-- `SmoothPageTransition` provides a short server-rendered CSS route/content
-  enter motion guided by Motion and SmoothUI principles. It keeps content
-  visible, animates only a small transform/opacity change, and lives inside the
-  entry-gated shell.
+- `SmoothPageTransition` provides a short pathname-keyed Motion route/content
+  enter transition guided by Motion and SmoothUI principles. It keeps content
+  visible, animates only a 4px opacity/transform change, avoids exit waits or
+  artificial delays, honors reduced motion, and lives inside the entry-gated
+  shell. CSS remains a no-JavaScript fallback.
 - `html { scrollbar-gutter: stable; }` and the shared footer container preserve
   optical horizontal alignment when routes differ in scroll height.
 - Primary navigation links use a stable inset outline for keyboard focus. The
@@ -261,13 +264,24 @@ production security boundary.
 
 Motion is functional and restrained:
 
+- `motion/react` owns the route transition because Motion is already pinned in
+  the app and fits the React App Router architecture. The transition is keyed
+  by pathname and uses 180ms opacity plus a 4px vertical settle; it has no exit
+  animation, mode wait, or navigation delay.
 - Use short transitions for color, opacity, border, and elevation changes.
 - Prefer opacity and transform over large movement or layout animation.
-- Use View Transition API features only as progressive enhancement with a normal
-  navigation fallback.
 - Honor `prefers-reduced-motion: reduce` by removing non-essential movement,
   large scaling, parallax, and continuous animation.
 - Do not use motion as the only signal for status, success, failure, or focus.
+
+Focus and loading behavior are equally deliberate:
+
+- Route changes move focus to `#main-content` only when focus was in route
+  content, navigation, or the document body; role-switcher focus is preserved.
+- Quick-add and allocation dialogs focus their first usable control, trap Tab,
+  close on Escape, and restore focus to the invoking control.
+- The root route boundary uses a compact layout-preserving skeleton; mutation
+  busy states remain local to the affected control or form.
 
 Every page and data-dependent component must visibly support loading, empty,
 error, and success/default states. The full interaction and acceptance contract
