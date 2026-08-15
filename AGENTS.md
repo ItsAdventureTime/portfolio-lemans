@@ -116,7 +116,10 @@ The remote demo is deployed through rootless Quadlets. The preferred workflow is
 two-stage: run `./scripts/sync-remote-demo.sh` on macOS, then log in to the VPS
 and run the printed `scripts/activate-remote-demo.sh` command. The sync step
 uses `rsync` over SSH; do not use `scp`. It transfers a temporary tree created
-from the clean committed source and never transfers a `.tar` archive. The VPS
+from the exact committed `HEAD` source and never transfers a `.tar` archive. The
+preflight reports uncommitted deployable paths and allows only local Serena
+metadata at `.serena/project.yml` to remain modified; that file is excluded from
+the snapshot. The VPS
 activation script builds stable profile-tagged images with rootless `podman build` and
 smoke-tests them with disposable `podman run --rm` containers. The original
 `./scripts/deploy-remote-demo.sh` remains available as an automated wrapper that

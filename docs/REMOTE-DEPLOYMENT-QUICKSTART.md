@@ -18,11 +18,21 @@ root to update the demo VPS:
 ./scripts/deploy-remote-demo.sh
 ```
 
-The deployment script refuses a dirty worktree, stages the committed source,
-transfers it with resumable `rsync`, builds the web and Go images on the VPS,
+The deployment script refuses uncommitted deployable changes, stages the exact
+committed `HEAD` source, transfers it with resumable `rsync`, builds the web and
+Go images on the VPS,
 updates the rootless Quadlets, runs smoke checks, and verifies the public URL.
 The VPS transfer uses SSH because it is the transport to the server; GitHub
 continues to use the HTTPS credential helper configured by `gh`.
+
+Before syncing, the script checks stable `git status --porcelain=v1` output and
+prints the exact paths that block deployment. Changes outside the application
+source are not silently staged. Serena may refresh the tracked
+`.serena/project.yml` metadata locally; that one file is treated as local-only
+and is excluded from the deployment guard. The transfer snapshot is taken from
+`HEAD`, so staged-but-uncommitted application changes cannot be deployed by
+accident. If another path is listed, have the intended change committed before
+rerunning the command and leave unrelated work untouched.
 
 ### First run only
 

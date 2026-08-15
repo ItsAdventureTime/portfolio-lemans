@@ -144,9 +144,11 @@ secret, which may belong to another application.
 
 This will:
 
-1. Stage the clean committed source in a temporary local directory; it does not
-   build or execute the application on the workstation and creates no transfer
-   archive.
+1. Stage an exact `HEAD` source snapshot in a temporary local directory; it does
+   not build or execute the application on the workstation and creates no
+   transfer archive. The preflight uses stable `git status --porcelain=v1`
+   output, reports blocking paths, and permits only the local Serena metadata
+   file `.serena/project.yml` to remain modified.
 2. Transfer the source tree with resumable `rsync --partial --delete` over SSH;
    do not use `scp`. The temporary tree is removed when the sync command exits.
 3. Build stable profile-tagged web and Go API images on the VPS with rootless Podman.

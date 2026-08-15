@@ -1,6 +1,6 @@
 # Current repository state
 
-- **Updated**: 2026-08-15 (navigation focus artifact repair and validation)
+- **Updated**: 2026-08-15 (deployment preflight guard and documentation)
 - **Authority**: Current implementation and the demo rules in
   [`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md)
 - **Documentation index**: [`DOCUMENTATION-INDEX.md`](./DOCUMENTATION-INDEX.md)
@@ -103,12 +103,15 @@ The UI keeps the configured `NEXT_PUBLIC_BASE_PATH` at runtime, uses integer
 centavos for monetary values, exposes keyboard-visible focus states and 44px
 minimum targets, and preserves the demo role policy through `X-Demo-Role`.
 
-Remote deployment is separate: the workstation stages a clean committed source
+Remote deployment is separate: the workstation stages an exact `HEAD` source
 tree to the stable `current` path and syncs it with rsync, the VPS builds and
-smoke-tests stable profile images with
-rootless Podman, and the existing Quadlets under
+smoke-tests stable profile images with rootless Podman, and the existing
+Quadlets under
 `/home/jk/.config/containers/systemd/bridge-ph/lemans-demo` activate those
-images. Remote operations require explicit authorization.
+images. The deployment preflight reports blocking paths using stable Git
+porcelain output and permits only the tracked Serena metadata file
+`.serena/project.yml` to remain modified; it is excluded from the `HEAD`
+snapshot. Remote operations require explicit authorization.
 
 The normal macOS operator path is documented in
 [`REMOTE-DEPLOYMENT-QUICKSTART.md`](./REMOTE-DEPLOYMENT-QUICKSTART.md). The

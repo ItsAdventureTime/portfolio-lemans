@@ -99,15 +99,35 @@ if [[ "$PROFILE" == prod && "$RESET_FLAG" == true ]]; then
   exit 1
 fi
 
-for tool in git ssh rsync mktemp; do
+for tool in git ssh rsync mktemp tar; do
   command -v "$tool" >/dev/null 2>&1 || {
     echo "Error: required local tool not found: $tool" >&2
     exit 1
   }
 done
-if [[ -n "$(git status --porcelain)" ]]; then
-  echo "Error: worktree must be clean; commit the source before syncing." >&2
+
+# Serena refreshes this tracked project metadata locally. It does not affect
+# the application or deployment and is intentionally excluded from the
+# deployable-source guard. All other tracked, staged, and untracked changes
+# must be committed before a remote sync is allowed.
+DEPLOYABLE_STATUS="$(
+  git -c core.quotePath=false status --porcelain=v1 --untracked-files=all -- \
+    . ':(exclude).serena/project.yml'
+)"
+LOCAL_METADATA_STATUS="$(
+  git -c core.quotePath=false status --porcelain=v1 --untracked-files=all -- \
+    .serena/project.yml
+)"
+if [[ -n "$DEPLOYABLE_STATUS" ]]; then
+  echo "Error: deployment requires a clean committed source tree." >&2
+  echo "Uncommitted deployable changes:" >&2
+  printf '%s\n' "$DEPLOYABLE_STATUS" >&2
+  echo "Commit those changes, then rerun this command." >&2
   exit 1
+fi
+if [[ -n "$LOCAL_METADATA_STATUS" ]]; then
+  echo "Note: excluding local Serena metadata from the deployment snapshot:" >&2
+  printf '%s\n' "$LOCAL_METADATA_STATUS" >&2
 fi
 
 SOURCE_COMMIT="$(git rev-parse HEAD)"
@@ -128,9 +148,11 @@ cleanup() {
 }
 trap cleanup EXIT
 
-# Export the clean index into a temporary directory; no archive file is created
-# or transferred. The temporary tree is removed on every exit path.
-git checkout-index --all --force --prefix="$STAGING_DIR/"
+# Export HEAD into a temporary directory; this avoids accidentally syncing
+# staged-but-uncommitted content. The tar stream is not retained or transferred
+# as an archive, and the temporary tree is removed on every exit path.
+git archive --format=tar HEAD -- . ':(exclude).serena/project.yml' |
+  tar -xf - -C "$STAGING_DIR"
 printf '%s\n' "$SOURCE_COMMIT" > "$STAGING_DIR/.lemans-source-commit"
 printf '%s\n' "$PUBLIC_URL" > "$STAGING_DIR/.lemans-public-url"
 

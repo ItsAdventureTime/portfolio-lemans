@@ -1,8 +1,8 @@
 # Remote Demo Deployment Playbook
 
 - **Status**: Authoritative for the remote demo deployment profile
-- **Version**: 1.6.0
-- **Updated**: 2026-08-14
+- **Version**: 1.7.0
+- **Updated**: 2026-08-15
 - **Target URL**: `https://delegateops.business/lemans/demo`
 - **Remote user**: `jk`
 - **Current evidence**: Local image/runtime verification is complete; remote
@@ -23,9 +23,9 @@ The SSH references in this playbook are only for the explicitly authorized VPS
 source transfer and activation; they must never be used as GitHub transport.
 
 The workstation does not deploy, build, compile, or execute the application as
-part of remote deployment. It creates a temporary tree from the committed
-source and transfers that tree with resumable `rsync` over SSH. No `.tar` archive
-is transferred or retained. Do not use `scp` for deployment transfers. Local
+part of remote deployment. It creates a temporary tree from `HEAD` and transfers
+that tree with resumable `rsync` over SSH. No `.tar` archive is transferred or
+retained. Do not use `scp` for deployment transfers. Local
 Podman-based verification is an optional, separate activity; if it is needed,
 it must use disposable `podman run --rm` containers and leave no project
 containers, volumes, or images running afterward.
@@ -217,10 +217,13 @@ ssh jk@216.75.75.136
 # Run the single activation command printed by sync-remote-demo.sh.
 ```
 
-The sync command validates the clean committed worktree, uses `rsync --partial`
-to transfer only the committed source tree, writes small deployment metadata
-(source commit and public URL) into that tree, and prints one short activation
-command. The command is always:
+The sync command validates stable `git status --porcelain=v1` output, uses
+`rsync --partial` to transfer only a `HEAD` source tree, writes small deployment
+metadata (source commit and public URL) into that tree, and prints one short
+activation command. The guard reports every blocking path instead of asking the
+operator to guess what is dirty. Serena's tracked `.serena/project.yml` metadata
+is the one local-only exception; it is never included from the working tree.
+The command is always:
 
 ```bash
 cd '/home/jk/bridge-ph/lemans-demo/current' && ./scripts/activate-remote-demo.sh
@@ -259,8 +262,9 @@ Environment variables remain supported and take precedence for non-macOS and
 automated environments. The deployment script may accept `REMOTE_USER`, but it
 defaults to `jk`. It must:
 
-1. Require a clean committed `main` worktree and collect the source commit.
-2. Create a temporary committed source tree locally; do not invoke local image
+1. Require a clean committed `main` source tree, apart from local Serena
+   metadata, and collect the source commit.
+2. Create a temporary `HEAD` source tree locally; do not invoke local image
    builds or app execution and do not create a transfer archive.
 3. Transfer the source tree with resumable `rsync --partial --delete` over SSH.
 4. Build both stable profile-tagged images on the VPS with rootless `podman build`.
