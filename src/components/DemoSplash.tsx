@@ -31,7 +31,15 @@ export default function DemoSplash() {
       if (!res.ok) {
         throw new Error(DEMO_ENTRY_ERROR);
       }
-      window.location.assign(getBasePath() || '/');
+      const basePath = getBasePath() || '/';
+      const currentPath = window.location.pathname.replace(/\/+$/, '') || '/';
+      const targetPath = basePath.replace(/\/+$/, '') || '/';
+
+      if (currentPath === targetPath) {
+        window.location.reload();
+      } else {
+        window.location.assign(basePath);
+      }
     } catch (err) {
       setError(err instanceof Error && err.name !== 'AbortError' ? err.message : DEMO_ENTRY_ERROR);
       setBusy(false);

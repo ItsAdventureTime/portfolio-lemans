@@ -37,6 +37,20 @@ test('splash entry and role switching persist across routes', async ({ page }) =
   await expect(switcher).toHaveValue('ROLE_DCS');
 });
 
+test('root entry replaces the splash without a manual reload', async ({ page }) => {
+  await page.context().clearCookies();
+  await page.goto(BASE);
+
+  await expect(page).toHaveURL(new RegExp(`${BASE}$`));
+  await expect(page.getByRole('button', { name: 'Enter as an Admin' })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Enter as an Admin' }).click();
+
+  await expect(page.getByText('Operations Overview')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Enter as an Admin' })).not.toBeVisible();
+  await expect(page).toHaveURL(new RegExp(`${BASE}$`));
+});
+
 test('simulated entry gates the dashboard shell on direct module routes', async ({ page }) => {
   await page.context().clearCookies();
   await page.goto(`${BASE}/invoices`);

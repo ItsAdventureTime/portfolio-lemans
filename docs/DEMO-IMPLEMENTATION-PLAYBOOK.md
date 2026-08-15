@@ -39,9 +39,11 @@ or production authorization. The entry cookie is a UX gate only:
 - The entry action is a base-path-aware server-action form, so it still works if
   client hydration is unavailable. Hydrated clients use a same-origin fetch
   enhancement with an eight-second timeout, inline error feedback, and a return
-  to the base-path overview after success. The shared cookie helper uses the
-  configured base path for both the server action and API route. Ordinary
-  section navigation remains a soft, prefetched client transition. Browser-side
+  to the base-path overview after success. When the splash is already at the
+  canonical base-path root, the client performs a full reload after the POST so
+  the cookie-gated root layout is reevaluated; direct module routes still return
+  to the base-path overview. The shared cookie helper uses the configured base
+  path for both the server action and API route. Ordinary section navigation remains a soft, prefetched client transition. Browser-side
   API mutations use the same-origin `/api/proxy/[...path]` route so internal API
   container names never reach the user’s browser.
 - There is no account, password flow, or production authentication redirect in

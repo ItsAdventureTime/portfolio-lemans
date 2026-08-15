@@ -49,9 +49,12 @@ the primary navigation prefetches complete dynamic sections for faster changes.
 The entry action uses a base-path-aware server-action form, with a client-side
 fetch enhancement, timeout, and inline error state. The server action provides a
 no-hydration fallback; successful entry returns to the base-path overview so the
-persistent root layout reevaluates the shell gate. The page-transition wrapper
-is server-rendered and does not add a client-only visibility gate. Ordinary section
-changes remain soft, prefetched client navigations.
+persistent root layout reevaluates the shell gate. At the canonical base-path
+root, the client explicitly reloads after the POST instead of assigning the
+already-current URL; direct module routes still assign the base-path overview.
+The page-transition wrapper is server-rendered and does not add a client-only
+visibility gate. Ordinary section changes remain soft, prefetched client
+navigations.
 
 ## Run the demo locally
 
