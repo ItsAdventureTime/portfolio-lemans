@@ -286,6 +286,45 @@ test('focus-visible rings are visible with keyboard navigation', async ({ page }
   }
 });
 
+test('pressed desktop navigation links do not create a vertical scrollbar', async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name === 'mobile', 'Desktop navigation rail only');
+  await enterAsAdmin(page);
+
+  const desktopScroller = page
+    .getByRole('navigation', { name: 'Primary navigation' })
+    .locator('.overflow-x-auto')
+    .first();
+  const labels = await desktopScroller.getByRole('link').allTextContents();
+
+  for (const label of labels) {
+    await page.goto(`${BASE}/`);
+    await expect(desktopScroller).toBeVisible();
+    const link = desktopScroller.getByRole('link', { name: label.trim(), exact: true });
+    const box = await link.boundingBox();
+    expect(box).not.toBeNull();
+
+    await page.mouse.move(
+      (box?.x ?? 0) + (box?.width ?? 0) / 2,
+      (box?.y ?? 0) + (box?.height ?? 0) / 2
+    );
+    await page.mouse.down();
+
+    const pressedState = await desktopScroller.evaluate((element) => {
+      const style = window.getComputedStyle(element);
+      return {
+        overflowX: style.overflowX,
+        overflowY: style.overflowY,
+      };
+    });
+
+    expect(pressedState.overflowX).toBe('auto');
+    expect(pressedState.overflowY).toBe('hidden');
+    await page.mouse.up();
+  }
+});
+
 test('seeded local data is available', async ({ page }) => {
   await page.goto(`${BASE}/`);
   await page.getByRole('main').getByRole('button', { name: 'Enter as an Admin' }).click();

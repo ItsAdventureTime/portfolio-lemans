@@ -140,7 +140,7 @@ export default function Navbar({ role }: { role: ProjectRole }) {
             <span className="sr-only">Primary navigation</span>
           </button>
 
-          <div className="hidden items-center gap-3 overflow-x-auto lg:flex">
+          <div className="hidden items-center gap-3 overflow-x-auto overflow-y-hidden lg:flex">
             {navGroups.map((group) => {
               const visibleItems = group.items.filter(canSeeItem);
               if (visibleItems.length === 0) return null;

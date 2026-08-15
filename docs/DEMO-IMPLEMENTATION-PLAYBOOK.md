@@ -232,6 +232,10 @@ Use the existing tokens in `docs/DESIGN-SYSTEM.md`:
 - Primary grouped navigation uses complete Next.js Link prefetching for the
   small set of role-filtered module routes. Do not add timers or blocking client
   work to simulate responsiveness.
+- The desktop navigation rail keeps horizontal scrolling available for narrow
+  widths while clipping vertical overflow. Pressed-link feedback may still use
+  a one-pixel transform without creating a transient scrollbar at the rail's
+  right edge.
 - `SmoothPageTransition` is a server-rendered CSS wrapper guided by Motion and
   SmoothUI principles for a short transform/opacity enter transition. Keep it
   interruptible and disable non-essential movement for reduced-motion users.

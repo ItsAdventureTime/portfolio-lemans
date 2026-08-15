@@ -2,7 +2,7 @@
 
 - **Status**: IMPLEMENTED & VERIFIED
 
-- **Version**: 1.2.1
+- **Version**: 1.2.2
 - **Updated**: 2026-08-15
 - **Audience**: Google Antigravity, UI engineers, UX reviewers, and coding agents
 - **Product**: Le Mans Operations & Job Cost Management System demo
@@ -77,6 +77,10 @@ The current shell and overview pass implements the following bounded changes:
   This preserves a visible inset keyboard outline without the white outer ring
   appearing beside Accounting or another primary navigation item after a route
   change.
+- The desktop nav scroller keeps `overflow-x-auto` for narrow layouts and
+  explicitly clips vertical overflow. The pressed `translate-y-px` feedback
+  therefore cannot create a transient scrollbar beside Accounting while the
+  pointer is held.
 - Route-level error, not-found, and access-restricted surfaces use the same
   branded surface/action language. The route loading boundary is intentionally
   quiet during section navigation so the shared shell stays responsive; form
@@ -118,6 +122,9 @@ major framework migration into a visual refinement.
 - The full Go/API `verify-local.sh` pass remains the broader repository
   validation step and has been rerun because the dashboard handler now applies
   role policy before returning role-sensitive data.
+- The desktop Playwright regression holds the pointer down on every primary nav
+  link and verifies the rail remains vertically clipped while preserving its
+  keyboard focus styles.
 
 ## 2. Current product map
 
@@ -212,6 +219,8 @@ useful on a small screen and with a keyboard or screen reader.
   global focus shadow during route changes, preventing a transient vertical edge
   beside the active item. Keep the shared rule in `@layer base` and the nav
   override in `@layer components` so the cascade remains deterministic.
+- Keep the desktop nav rail's `overflow-y-hidden` paired with
+  `overflow-x-auto`; pressed-state transforms must not create a scrollable edge.
 - Preserve the shared shell during transitions and keep navigation interruptible.
 - Use inline success, error, empty, and loading states near the affected content.
 - After role changes or server mutations, refresh the server-rendered data and
@@ -303,3 +312,5 @@ ambiguous labels. Preserve domain identifiers and status values exactly.
 - [Next.js production checklist](https://nextjs.org/docs/app/guides/production-checklist)
 - [Next.js loading UI and streaming](https://nextjs.org/docs/app/getting-started/linking-and-navigating#streaming)
 - [Tailwind CSS v3-to-v4 upgrade guide](https://tailwindcss.com/docs/upgrade-guide)
+- [MDN `:active` pseudo-class](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Selectors/:active)
+- [MDN `scrollbar-gutter`](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Properties/scrollbar-gutter)

@@ -1,6 +1,6 @@
 # Current repository state
 
-- **Updated**: 2026-08-15 (deployment preflight guard and documentation)
+- **Updated**: 2026-08-15 (navigation pressed-state overflow repair)
 - **Authority**: Current implementation and the demo rules in
   [`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md)
 - **Documentation index**: [`DOCUMENTATION-INDEX.md`](./DOCUMENTATION-INDEX.md)
@@ -102,6 +102,11 @@ after repeated route changes.
 The UI keeps the configured `NEXT_PUBLIC_BASE_PATH` at runtime, uses integer
 centavos for monetary values, exposes keyboard-visible focus states and 44px
 minimum targets, and preserves the demo role policy through `X-Demo-Role`.
+
+The desktop primary navigation preserves horizontal scrolling but clips vertical
+overflow. This keeps the one-pixel pressed-link feedback from creating a transient
+scrollbar beside Accounting while the pointer is held; the regression is covered
+by the Playwright navigation test.
 
 Remote deployment is separate: the workstation stages an exact `HEAD` source
 tree to the stable `current` path and syncs it with rsync, the VPS builds and
