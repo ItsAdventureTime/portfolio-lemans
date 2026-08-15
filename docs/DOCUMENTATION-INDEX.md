@@ -1,6 +1,6 @@
 # Documentation index
 
-- **Updated**: 2026-08-14 (active-document quality audit)
+- **Updated**: 2026-08-16 (post-change workflow standard)
 - **Repository branch policy**: `main` only; no feature or review branches
 - **Repository**: [`ItsAdventureTime/bridge-lemans`](https://github.com/ItsAdventureTime/bridge-lemans)
 
@@ -16,24 +16,27 @@ tutorial, how-to guide, reference, or explanation.
    workflow, and verification facts.
 3. [`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md) —
    demo product, UX, role-simulation, and acceptance contract.
-4. [`REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`](./REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md) —
+4. [`POST-CHANGE-COMPLETION-GUIDE.md`](./POST-CHANGE-COMPLETION-GUIDE.md) —
+   required research, documentation, validation, commit, HTTPS synchronization,
+   and SHA-parity workflow after every change.
+5. [`REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`](./REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md) —
    remote-only deployment contract; remote operations require explicit user
    authorization.
-5. [`REMOTE-DEPLOYMENT-QUICKSTART.md`](./REMOTE-DEPLOYMENT-QUICKSTART.md) —
+6. [`REMOTE-DEPLOYMENT-QUICKSTART.md`](./REMOTE-DEPLOYMENT-QUICKSTART.md) —
    concise macOS operator workflow for updating the already deployed profiles
    without exported environment variables.
-6. [`UI-UX-REVAMP-HANDOFF.md`](./UI-UX-REVAMP-HANDOFF.md) — implementation handoff for the completed UI/UX revamp and workflow visualizer navigation.
-7. [`CODEX-REVIEW-HANDOFF.md`](./CODEX-REVIEW-HANDOFF.md) — ChatGPT Codex handoff document for code review, inspection, evaluation, and ready-to-use copy-and-paste prompt.
-8. [`ARCHITECTURE.md`](./ARCHITECTURE.md),
+7. [`UI-UX-REVAMP-HANDOFF.md`](./UI-UX-REVAMP-HANDOFF.md) — implementation handoff for the completed UI/UX revamp and workflow visualizer navigation.
+8. [`CODEX-REVIEW-HANDOFF.md`](./CODEX-REVIEW-HANDOFF.md) — ChatGPT Codex handoff document for code review, inspection, evaluation, and ready-to-use copy-and-paste prompt.
+9. [`ARCHITECTURE.md`](./ARCHITECTURE.md),
 
    [`GO-BACKEND-ARCHITECTURE.md`](./GO-BACKEND-ARCHITECTURE.md),
    [`ENVIRONMENTS-AND-PATHS.md`](./ENVIRONMENTS-AND-PATHS.md), and the ADRs —
    architecture and future-profile decisions.
 
-9. [`GOOGLE-ANTIGRAVITY-UI-UX-PROMPT.md`](./GOOGLE-ANTIGRAVITY-UI-UX-PROMPT.md)
+10. [`GOOGLE-ANTIGRAVITY-UI-UX-PROMPT.md`](./GOOGLE-ANTIGRAVITY-UI-UX-PROMPT.md)
    — copy-and-paste execution prompt for the next UI/UX agent.
-10. [`README.md`](../README.md) — quickstart and navigation index.
-11. [`WRITING-STYLE.md`](./WRITING-STYLE.md) — US-English voice, tone, and
+11. [`README.md`](../README.md) — quickstart and navigation index.
+12. [`WRITING-STYLE.md`](./WRITING-STYLE.md) — US-English voice, tone, and
     proofreading standard for active content.
 
 ## Document status
@@ -44,6 +47,7 @@ tutorial, how-to guide, reference, or explanation.
 | `ARCHITECTURE.md`, `GO-BACKEND-ARCHITECTURE.md`, `ENVIRONMENTS-AND-PATHS.md`, `DESIGN-SYSTEM.md`, `PROJECT-SPEC.md`, and the ADRs | Current contract/specification          | Use for design, domain, and architecture constraints; confirm runtime facts against `CURRENT-STATE.md`.              |
 | `REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`, `REMOTE-OPERATIONS.md`                                                                      | Current but remote-only                 | Do not execute without explicit authorization and required host/Caddy context.                                       |
 | `REMOTE-DEPLOYMENT-QUICKSTART.md`                                                                                                 | Current operator quickstart             | Use for the normal no-environment-variable update flow; follow the remote playbook for topology and rollback.        |
+| `POST-CHANGE-COMPLETION-GUIDE.md`                                                                                                 | Current repository operating standard  | Use after every change to research, update docs, validate, commit, synchronize HTTPS `main`, and verify SHA parity.    |
 | `AGENT-EXECUTION-PROMPTS.md`, `GOOGLE-ANTIGRAVITY-UI-UX-PROMPT.md`                                                                | Current operational prompts             | Keep commands synchronized with scripts and the current demo boundary.                                               |
 | `UI-UX-REVAMP-HANDOFF.md`                                                                                                         | Current implementation handoff          | Use for the completed UI/UX and workflow-navigation revamp; confirm implementation facts against `CURRENT-STATE.md`. |
 | `WRITING-STYLE.md`                                                                                                                | Current editorial standard              | Apply to active app copy, documentation, guides, and commit messages.                                                |
@@ -100,7 +104,7 @@ attached to `lemans-demo-net`. Record its exact pass/fail counts before running
 `./scripts/stop-local.sh`. The standard `verify-local.sh` script covers static
 frontend and Go checks only.
 
-## Official guidance checked 2026-08-14
+## Official guidance checked 2026-08-16
 
 - [Next.js 16 upgrade guidance](https://nextjs.org/docs/app/guides/upgrading/version-16)
 - [Next.js production checklist](https://nextjs.org/docs/app/guides/production-checklist)
@@ -123,6 +127,8 @@ frontend and Go checks only.
 - [systemd `loginctl` linger](https://www.freedesktop.org/software/systemd/man/252/loginctl.html)
 - [GitHub CLI `gh repo sync`](https://cli.github.com/manual/gh_repo_sync)
 - [GitHub CLI `gh auth setup-git`](https://cli.github.com/manual/gh_auth_setup-git)
+- [GitHub CLI `gh auth login`](https://cli.github.com/manual/gh_auth_login)
+- [GitHub CLI `gh auth status`](https://cli.github.com/manual/gh_auth_status)
 - [GitHub CLI `gh api`](https://cli.github.com/manual/gh_api)
 - [GitHub branch management](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/managing-branches-in-your-repository)
 - [Diátaxis documentation framework](https://diataxis.fr/)

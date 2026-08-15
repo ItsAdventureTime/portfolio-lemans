@@ -27,6 +27,8 @@ City, Pampanga.
   protection and unique commits, and update affected guides with each change.
   See
   [`docs/DOCUMENTATION-INDEX.md`](./docs/DOCUMENTATION-INDEX.md).
+  The required after-change sequence is documented in
+  [`docs/POST-CHANGE-COMPLETION-GUIDE.md`](./docs/POST-CHANGE-COMPLETION-GUIDE.md).
 - **Business record**: A Job Order (`JO` / `RA`) connects estimates,
   procurement, OPEX, billing, and job profitability.
 - **Runtime**: Use rootless Podman for every build, test, migration, and app

@@ -1,12 +1,14 @@
 # Update the deployed Le Mans app
 
 - **Status**: Current operator quickstart
-- **Updated**: 2026-08-15
+- **Updated**: 2026-08-16
 - **Scope**: macOS workstation → existing VPS demo or production profile
 
-Use this guide after Codex has reviewed the change, committed it locally, and
-synchronized `main` with GitHub. You do not need to run Git staging, commit, or
-push commands. This guide does not connect to the VPS automatically from the
+Use this guide after the change has completed
+[`POST-CHANGE-COMPLETION-GUIDE.md`](./POST-CHANGE-COMPLETION-GUIDE.md): the
+active documentation is updated, validation is complete, and local and remote
+`main` share one commit. You do not need to run Git staging, commit, or push
+commands. This guide does not connect to the VPS automatically from the
 documentation task.
 
 ## Normal demo update
