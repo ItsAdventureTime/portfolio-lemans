@@ -12,6 +12,7 @@ backend/bin
 backend/tmp
 backend/api
 .freebuff/
+/.deployment-artifacts/
 
 # Playwright / test artifacts
 e2e-results.json

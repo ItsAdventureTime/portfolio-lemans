@@ -27,8 +27,9 @@ the demo.
 The current deployment target is remote-only for the demo:
 
 - No persistent `local-demo` deployment is maintained.
-- Disposable local Podman execution is an optional validation exception only;
-  remote deployment never builds, compiles, or runs the app locally.
+- Local builds, compilation, tests, and demo execution run inside the initialized
+  Docker Sandbox with Docker; no local Podman machine is required. Remote
+  deployment never builds or compiles on the VPS.
 - Remote Quadlets install under
   `/home/jk/.config/containers/systemd/bridge-ph/lemans-demo`.
 - Remote demo data/config/database boundary is
@@ -39,56 +40,56 @@ The current deployment target is remote-only for the demo:
 
 ## Environment matrix
 
-| Environment Parameter   | 1. `local-demo`                                                          | 2. `local-prodlike`                                                      | 3. `remote-demo`                                   | 4. `remote-production`                             |
-| ----------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------ | -------------------------------------------------- | -------------------------------------------------- |
-| **Status**              | **Verified (200 OK)**                                                    | **Verified (200 OK)**                                                    | **Prepared (authorization-gated)**                 | **Prepared (Quadlets)**                            |
-| **Target Host**         | macOS (Apple Silicon arm64)                                              | macOS (Apple Silicon arm64)                                              | Remote Linux Server                                | Remote Linux Server                                |
-| **Podman Command**      | `podman machine start` + `podman run`                                    | `podman machine start` + `podman run`                                    | Systemd User Quadlet                               | Systemd User Quadlet                               |
-| **Web Image**           | `lemans-bridge-dashboard:demo-web`                                       | `lemans-bridge-dashboard:prod-web`                                       | `localhost/...:demo-web`                           | `localhost/...:prod-web`                           |
-| **Go API Image**        | `lemans-bridge-dashboard-go:demo-go`                                     | `lemans-bridge-dashboard-go:prod-go`                                     | `localhost/...:demo-go`                            | `localhost/...:prod-go`                            |
-| **Next.js Base Image**  | `node:lts-alpine`                                                        | `node:lts-alpine`                                                        | `node:lts-alpine`                                  | `node:lts-alpine`                                  |
-| **Go Base Image**       | `golang:alpine` / `alpine:latest`                                        | `golang:alpine` / `alpine:latest`                                        | `golang:alpine` / `alpine:latest`                  | `golang:alpine` / `alpine:latest`                  |
-| **Database Image**      | `postgres:alpine`                                                        | `postgres:alpine`                                                        | `postgres:alpine`                                  | `postgres:alpine`                                  |
-| **Source Mounting**     | **Named local containers; validation uses disposable `--rm` containers** | **Named local containers; validation uses disposable `--rm` containers** | **Synced `current` source; no runtime bind mount** | **Synced `current` source; no runtime bind mount** |
-| **Web Port Binding**    | `127.0.0.1:3000`                                                         | `127.0.0.1:3001` (build/verify only)                                     | `127.0.0.1:3002` (Behind Proxy)                    | `127.0.0.1:3003` (Behind Proxy)                    |
-| **Go API Port Binding** | NONE (internal net)                                                      | NONE (internal net)                                                      | NONE (internal net)                                | NONE (internal net)                                |
-| **DB Port Binding**     | `NONE` (Internal Podman Net)                                             | `NONE` (Internal Podman Net)                                             | `NONE` (Internal Podman Net)                       | `NONE` (Internal Podman Net)                       |
-| **Web Container Name**  | `lemans-demo-app`                                                        | `lemans-prodlike-app`                                                    | `lemans-demo-app`                                  | `lemans-prod-app`                                  |
-| **Go Container Name**   | `lemans-demo-go`                                                         | `lemans-prodlike-go`                                                     | `lemans-demo-go`                                   | `lemans-prod-go`                                   |
-| **DB Volume Name**      | `lemans-demo-db-data`                                                    | `lemans-prodlike-db-data`                                                | `lemans-demo-db-data`                              | `lemans-prod-db-data`                              |
-| **Podman Network**      | `lemans-demo-net`                                                        | `lemans-prodlike-net`                                                    | `lemans-demo-net`                                  | `lemans-prod-net`                                  |
-| **Auth Secret**         | Not used in demo (production-only planning value)                        | Production-only                                                          | Not used in demo                                   | Production-only                                    |
-| **Backblaze B2 Bucket** | `bridge-ph` (`lemans/demo`)                                              | `bridge-ph` (`lemans`)                                                   | `bridge-ph` (`lemans/demo`)                        | `bridge-ph` (`lemans`)                             |
-| **Reset Policy**        | Manual via `scripts/reset-local.sh`                                      | Manual only                                                              | Every 30 minutes plus manual trigger               | None (persistent)                                  |
+| Environment Parameter    | 1. `local-demo`                                                                 | 2. `local-prodlike`                                                             | 3. `remote-demo`                                   | 4. `remote-production`                             |
+| ------------------------ | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | -------------------------------------------------- | -------------------------------------------------- |
+| **Status**               | **Verified (200 OK)**                                                           | **Verified (200 OK)**                                                           | **Prepared (authorization-gated)**                 | **Prepared (Quadlets)**                            |
+| **Target Host**          | macOS (Apple Silicon arm64)                                                     | macOS (Apple Silicon arm64)                                                     | Remote Linux Server                                | Remote Linux Server                                |
+| **Local/Remote Runtime** | Docker Sandbox + Docker                                                         | Docker Sandbox + Docker                                                         | Systemd User Quadlet                               | Systemd User Quadlet                               |
+| **Web Image**            | `lemans-bridge-dashboard:demo-web`                                              | `lemans-bridge-dashboard:prod-web`                                              | `localhost/...:demo-web`                           | `localhost/...:prod-web`                           |
+| **Go API Image**         | `lemans-bridge-dashboard-go:demo-go`                                            | `lemans-bridge-dashboard-go:prod-go`                                            | `localhost/...:demo-go`                            | `localhost/...:prod-go`                            |
+| **Next.js Base Image**   | `node:lts-alpine`                                                               | `node:lts-alpine`                                                               | `node:lts-alpine`                                  | `node:lts-alpine`                                  |
+| **Go Base Image**        | `golang:alpine` / `alpine:latest`                                               | `golang:alpine` / `alpine:latest`                                               | `golang:alpine` / `alpine:latest`                  | `golang:alpine` / `alpine:latest`                  |
+| **Database Image**       | `postgres:alpine`                                                               | `postgres:alpine`                                                               | `postgres:alpine`                                  | `postgres:alpine`                                  |
+| **Source Mounting**      | **Named local Docker containers; validation uses disposable `--rm` containers** | **Named local Docker containers; validation uses disposable `--rm` containers** | **Synced `current` source; no runtime bind mount** | **Synced `current` source; no runtime bind mount** |
+| **Web Port Binding**     | `127.0.0.1:3000`                                                                | `127.0.0.1:3001` (build/verify only)                                            | `127.0.0.1:3002` (Behind Proxy)                    | `127.0.0.1:3003` (Behind Proxy)                    |
+| **Go API Port Binding**  | NONE (internal net)                                                             | NONE (internal net)                                                             | NONE (internal net)                                | NONE (internal net)                                |
+| **DB Port Binding**      | `NONE` (Internal Docker Net)                                                    | `NONE` (Internal Docker Net)                                                    | `NONE` (Internal Podman Net)                       | `NONE` (Internal Podman Net)                       |
+| **Web Container Name**   | `lemans-demo-app`                                                               | `lemans-prodlike-app`                                                           | `lemans-demo-app`                                  | `lemans-prod-app`                                  |
+| **Go Container Name**    | `lemans-demo-go`                                                                | `lemans-prodlike-go`                                                            | `lemans-demo-go`                                   | `lemans-prod-go`                                   |
+| **DB Volume Name**       | `lemans-demo-db-data`                                                           | `lemans-prodlike-db-data`                                                       | `lemans-demo-db-data`                              | `lemans-prod-db-data`                              |
+| **Container Network**    | `lemans-demo-net` (Docker)                                                      | `lemans-prodlike-net` (Docker)                                                  | `lemans-demo-net` (Podman)                         | `lemans-prod-net` (Podman)                         |
+| **Auth Secret**          | Not used in demo (production-only planning value)                               | Production-only                                                                 | Not used in demo                                   | Production-only                                    |
+| **Backblaze B2 Bucket**  | `bridge-ph` (`lemans/demo`)                                                     | `bridge-ph` (`lemans`)                                                          | `bridge-ph` (`lemans/demo`)                        | `bridge-ph` (`lemans`)                             |
+| **Reset Policy**         | Manual via `scripts/reset-local.sh`                                             | Manual only                                                                     | Every 30 minutes plus manual trigger               | None (persistent)                                  |
 
 ## Run local validation
 
 ```bash
-export PATH="/opt/homebrew/bin:$PATH"
-podman machine start
+jk-sbx-project ensure
 
 # Run local demo (database + Go API + web, loopback only)
-./scripts/run-local.sh
+jk-sbx-project publish 3000
+jk-sbx-project exec -- ./scripts/run-local.sh
 
 # Stop local demo
-./scripts/stop-local.sh
+jk-sbx-project exec -- ./scripts/stop-local.sh
 
 # Reset local demo to seeded state
-./scripts/reset-local.sh
+jk-sbx-project exec -- ./scripts/reset-local.sh
 
-# Optional local validation build (not used by remote deployment)
-./scripts/build.sh demo   # demo-web + demo-go
-./scripts/build.sh prod   # prod-web + prod-go
+# Local validation builds also provide the remote deployment image lineage.
+jk-sbx-project exec -- ./scripts/build.sh demo   # demo-web + demo-go
+jk-sbx-project exec -- ./scripts/build.sh prod   # prod-web + prod-go
 
 # Verify
-./scripts/verify-vertical-slice.sh
+jk-sbx-project exec -- ./scripts/verify-vertical-slice.sh
 ```
 
 ## Remote directories and Quadlet paths
 
 ### Remote Demo Environment
 
-- **Remote Demo Application Build Path**: `/home/jk/bridge-ph/lemans-demo`
+- **Remote Demo Application Source/Artifact Path**: `/home/jk/bridge-ph/lemans-demo`
 - **Remote Demo Systemd Quadlet Path**: `/home/jk/.config/containers/systemd/bridge-ph/lemans-demo`
 - **Remote Demo Backblaze Bucket**: `bridge-ph`, prefix `lemans/demo`
 - **Reset Service**: `/home/jk/.config/systemd/user/lemans-demo-reset.service`
@@ -96,7 +97,7 @@ podman machine start
 
 ### Remote Production Environment
 
-- **Remote Production Application Build Path**: `/home/jk/bridge-ph/lemans`
+- **Remote Production Application Source/Artifact Path**: `/home/jk/bridge-ph/lemans`
 - **Remote Production Systemd Quadlet Path**: `/home/jk/.config/containers/systemd/bridge-ph/lemans`
 - **Remote Production Backblaze Bucket**: `bridge-ph`, prefix `lemans`
 - **Backup Service**: `/home/jk/.config/systemd/user/lemans-backup.service`
@@ -128,8 +129,8 @@ environment's internal network.
 ## 6. Required Secrets / Environment Variables
 
 Values are injected at container runtime through `Environment=` entries in the
-generated Quadlet `.container` files or explicit `-e` flags in disposable
-`podman run` commands. Remote runtime `.container` files containing credentials
+generated Quadlet `.container` files or explicit `-e` flags in disposable local
+`docker run` commands. Remote runtime `.container` files containing credentials
 are written with mode `600` and are never committed to source control. The
 deployment no longer creates external `.env` files.
 
@@ -146,23 +147,24 @@ deployment no longer creates external `.env` files.
 
 ## 7. Deployment Scripts
 
-| Script                             | Purpose                                                       |
-| ---------------------------------- | ------------------------------------------------------------- |
-| `scripts/build.sh`                 | Optional local validation image build                         |
-| `scripts/build-multiarch.sh`       | Build and push multi-arch images to registry                  |
-| `scripts/run-local.sh`             | Start named local DB + Go API + web containers                |
-| `scripts/stop-local.sh`            | Stop local DB + Go API + web                                  |
-| `scripts/reset-local.sh`           | Reset local DB volume to empty / seeded state                 |
-| `scripts/verify-local.sh`          | Run format/lint/type-check/tests in `--rm` container          |
-| `scripts/verify-vertical-slice.sh` | Full local verification incl. HTTP health checks              |
-| `scripts/deploy-remote-profile.sh` | Sync source and optionally activate on the VPS                |
-| `scripts/sync-remote-demo.sh`      | Demo source sync; prints one no-flag activation command       |
-| `scripts/sync-remote-prod.sh`      | Production source sync; prints one no-flag activation command |
-| `scripts/activate-remote-demo.sh`  | VPS-side demo build, activation, and verification             |
-| `scripts/activate-remote-prod.sh`  | VPS-side production build, activation, and verification       |
-| `scripts/deploy-remote-demo.sh`    | Automated demo sync + activation wrapper                      |
-| `scripts/deploy-remote-prod.sh`    | Automated production sync + activation wrapper                |
-| `scripts/configure-remote-*.sh`    | One-time macOS Keychain setup for remote profiles             |
+| Script                             | Purpose                                                              |
+| ---------------------------------- | -------------------------------------------------------------------- |
+| `scripts/build.sh`                 | Build local Docker images inside the Sandbox                         |
+| `scripts/build-local-artifacts.sh` | Build target-platform images and export the remote image bundle      |
+| `scripts/build-multiarch.sh`       | Build and push multi-arch images to registry with Docker Buildx      |
+| `scripts/run-local.sh`             | Start named local Docker DB + Go API + web containers                |
+| `scripts/stop-local.sh`            | Stop local DB + Go API + web                                         |
+| `scripts/reset-local.sh`           | Reset local DB volume to empty / seeded state                        |
+| `scripts/verify-local.sh`          | Run format/lint/type-check/tests in Docker `--rm` containers         |
+| `scripts/verify-vertical-slice.sh` | Full local verification incl. HTTP health checks                     |
+| `scripts/deploy-remote-profile.sh` | Sync source and optionally activate on the VPS                       |
+| `scripts/sync-remote-demo.sh`      | Demo source + image-bundle sync; prints one activation command       |
+| `scripts/sync-remote-prod.sh`      | Production source + image-bundle sync; prints one activation command |
+| `scripts/activate-remote-demo.sh`  | VPS-side image import, activation, and verification                  |
+| `scripts/activate-remote-prod.sh`  | VPS-side image import, activation, and verification                  |
+| `scripts/deploy-remote-demo.sh`    | Automated demo sync + activation wrapper                             |
+| `scripts/deploy-remote-prod.sh`    | Automated production sync + activation wrapper                       |
+| `scripts/configure-remote-*.sh`    | One-time macOS Keychain setup for remote profiles                    |
 
 ## 8. Official Guidance
 
@@ -170,6 +172,10 @@ deployment no longer creates external `.env` files.
 - [Next.js `output: 'standalone'`](https://nextjs.org/docs/app/api-reference/config/next-config-js/output)
 - [Podman Quadlet rootless units](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html)
 - [Podman Quadlet basic usage](https://docs.podman.io/en/latest/markdown/podman-quadlet-basic-usage.7.html)
+- [Docker Sandboxes](https://docs.docker.com/ai/sandboxes/)
+- [Docker build best practices](https://docs.docker.com/build/building/best-practices/)
+- [`docker image save`](https://docs.docker.com/reference/cli/docker/image/save/)
+- [`podman load`](https://docs.podman.io/en/latest/markdown/podman-load.1.html)
 - [Caddy command line (`fmt`, `validate`, and `reload`)](https://caddyserver.com/docs/command-line)
 - [Caddy zero-downtime config reloads](https://caddyserver.com/docs/getting-started)
 - [systemd `loginctl` linger](https://www.freedesktop.org/software/systemd/man/252/loginctl.html)
@@ -178,11 +184,17 @@ deployment no longer creates external `.env` files.
 
 ## 9. Architecture Compliance
 
-- All application execution runs inside rootless Podman containers.
-- `podman compose` / `docker compose` are **not used** anywhere.
+- All local application execution runs inside the project Docker Sandbox; remote
+  application runtime runs inside rootless Podman Quadlets.
+- Compose is **not used** anywhere.
 - Database ports are never published to host interfaces.
 - Production-like and remote environments use immutable images (no source bind mounts).
-- Local builds/tests run in disposable `podman run --rm` containers.
+- Local builds/tests run through `jk-sbx-project exec` and use Docker `--rm`
+  containers where a disposable container is required.
+- Remote image packaging defaults to `linux/amd64`; the Dockerfiles use native
+  build stages so the ARM64 Sandbox can package the target runtime without
+  privileged emulation. Set `TARGET_PLATFORM` only after verifying a different
+  VPS architecture.
 - Quadlets place applications behind the upstream reverse proxy on loopback-only ports.
 - Remote demo resets every 30 minutes through its rootless user timer; an
   explicit manual reset remains available. `RESET=true` controls deployment

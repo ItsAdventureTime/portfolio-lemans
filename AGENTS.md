@@ -38,34 +38,44 @@ documentation, branch cleanup, or repository synchronization is outstanding.
 ## Architectural Mandates
 
 1. **Single Source Repository**: Single unified repository structure. No separate source code copies for demo and production.
-2. **Containerized Execution Only**: All application execution, dependency installation, builds, unit/integration tests, database migrations, databases, and dev servers MUST run inside rootless Podman containers.
-3. **Podman Machine Controls**:
-   - Local Podman machine on macOS is managed via `podman machine start`.
-   - Verified active rootless VM: `podman-machine-default` (`podman info` rootless = true).
-   - The agent MUST NOT initialize, reset, remove, resize, reconfigure, or convert `podman-machine-default` to rootful mode.
+2. **Docker Sandbox Execution**: All local application execution, dependency installation, builds, unit/integration tests, database migrations, databases, and dev servers MUST run through `jk-sbx-project exec` inside the initialized project Docker Sandbox. Local tooling uses Docker, not Podman.
+3. **Sandbox Controls**:
+   - Use `jk-sbx-project ensure` to initialize or resume the deterministic project Sandbox.
+   - Use `jk-sbx-project exec -- <command>` for single commands and `jk-sbx-project run '<command>'` for compound commands.
+   - Use `jk-sbx-project publish 3000` when a local web container must be reachable from the macOS host.
+   - Do not initialize, reset, remove, or reconfigure an unrelated Sandbox.
 4. **Image Tagging Standard**:
    - **Demo Builds**: Web image `lemans-bridge-dashboard:demo-web`, Go API image `lemans-bridge-dashboard-go:demo-go`.
    - **Production Builds**: Web image `lemans-bridge-dashboard:prod-web`, Go API image `lemans-bridge-dashboard-go:prod-go`.
 5. **Container Runtime Standard**:
    - Next.js web images use `node:lts-alpine` (Node.js Active LTS on latest Alpine); Go API images use `golang:alpine` (latest Go on latest Alpine) build stage and `alpine:latest` runtime; PostgreSQL uses `postgres:alpine` (latest PostgreSQL on latest Alpine) unless dependency compatibility explicitly requires a Debian-based image.
-   - Next.js runtime calls the Go API over the internal Podman network; the Go API owns migrations, business logic, persistence, and presigned attachment URLs.
-   - Never use `podman compose` or `docker compose` for local builds, tests, or execution.
-   - Local builds, linting, type-checking, and tests are validation-only
-     exceptions and must run inside disposable `podman run --rm` containers (or
-     a single combined container). Remote deployment must not build, compile,
-     or execute the application locally.
-   - Do not leave transient containers or images running; remove them immediately with `--rm` or targeted cleanup.
+   - Next.js runtime calls the Go API over the internal Docker network locally and the internal Podman network remotely; the Go API owns migrations, business logic, persistence, and presigned attachment URLs.
+   - Never use Compose for local builds, tests, or execution.
+   - Local Docker images and disposable containers are created inside the
+     Sandbox and must be removed with `--rm` or targeted cleanup. Remote
+     deployment must not build, compile, or run image smoke tests on the VPS.
+   - Build the verified VPS target platform inside the Sandbox before transfer
+     (the current remote target defaults to `linux/amd64`; `TARGET_PLATFORM`
+     is an explicit override); the VPS imports the images with rootless
+     `podman load`. Native build stages avoid target-CPU emulation.
 6. **Local Execution Standard**:
-   - Use `podman run --rm` to create short-lived containers for any required
-     local validation builds/tests; destroy them after validation.
-   - For local demo runtime, use `scripts/run-local.sh` which starts a PostgreSQL container, a Go API container, and a Next.js web container. Remove with `scripts/stop-local.sh` and reset to seeded state with `scripts/reset-local.sh`.
+   - Run `scripts/build.sh`, `scripts/verify-local.sh`, and the other local
+     scripts through `jk-sbx-project exec`; they use the Sandbox Docker engine.
+   - For local demo runtime, use `scripts/run-local.sh` inside the Sandbox. It
+     starts a PostgreSQL container, a Go API container, and a Next.js web
+     container. Stop with `scripts/stop-local.sh` and reset with
+     `scripts/reset-local.sh`.
    - Local demo database and uploaded files reset to seeded state on demand.
      The public remote demo must reset its fictional database and uploads every
      30 minutes through a rootless user-level timer; production never
      auto-resets.
    - The Go API container runs migrations on startup and serves the `/admin/seed` endpoint only when `DEMO_MODE=true`.
 7. **Remote Execution Standard**:
-   - VPS demo and production deployments use rootless Podman Quadlet files (`.container`, `.network`, `.volume`).
+   - VPS demo and production deployments use rootless Podman Quadlet files (`.container`, `.network`, `.volume`) for runtime only.
+   - The local deployment wrapper transfers a checksum-verified Docker image
+     archive. VPS activation imports it with `podman load`, installs the
+     Quadlets, starts services, and performs runtime health checks; it does not
+     compile or build images.
 
 - Join the existing Caddy reverse-proxy network through its `caddy.network`
   Quadlet reference. The supplied Caddy Quadlet sets `NetworkName=caddy`; use
@@ -107,21 +117,20 @@ The companion execution prompts are in [`docs/AGENT-EXECUTION-PROMPTS.md`](docs/
 
 ## Remote Demo Deployment Authority
 
-The current demo has no persistent local deployment target. Local Podman may be
-started with `podman machine start` only when disposable build, compile, test, or
-verification work needs it; use `podman run --rm` and clean up temporary runtime
-resources afterward.
+The current demo has no persistent local deployment target. Local builds,
+compilation, tests, and verification run through the initialized Docker Sandbox;
+do not start or use a local Podman machine.
 
 The remote demo is deployed through rootless Quadlets. The preferred workflow is
 two-stage: run `./scripts/sync-remote-demo.sh` on macOS, then log in to the VPS
 and run the printed `scripts/activate-remote-demo.sh` command. The sync step
-uses `rsync` over SSH; do not use `scp`. It transfers a temporary tree created
-from the exact committed `HEAD` source and never transfers a `.tar` archive. The
-preflight reports uncommitted deployable paths and allows only local Serena
-metadata at `.serena/project.yml` to remain modified; that file is excluded from
-the snapshot. The VPS
-activation script builds stable profile-tagged images with rootless `podman build` and
-smoke-tests them with disposable `podman run --rm` containers. The original
+uses the project Docker Sandbox for the local Linux image build, then uses
+`rsync` over SSH for the source tree and checksum-verified image bundle; do not
+use `scp`. The preflight reports uncommitted deployable paths and allows only
+local Serena metadata at `.serena/project.yml` to remain modified; that file is
+excluded from the snapshot. The VPS activation imports the profile-tagged images
+with rootless `podman load`, installs Quadlets, and starts the runtime. It does
+not build, compile, or run image smoke tests on the VPS. The original
 `./scripts/deploy-remote-demo.sh` remains available as an automated wrapper that
 performs both stages over one SSH control connection. On macOS, run
 `scripts/configure-remote-demo.sh` once to store remote settings and B2
@@ -158,26 +167,26 @@ and must not create backup files.
 
 ## Strict Sandbox Restrictions
 
-- **Rootless Execution**: Project tooling runs strictly in rootless Podman mode.
+- **Sandbox Execution**: Project tooling runs through the initialized Docker Sandbox. Remote runtime services remain rootless Podman Quadlets.
 - **No Privileged Containers**: `--privileged` flag is prohibited.
 - **No Host Networking**: Container networking must use isolated user networks (`--net` project bridges). `--net=host` is strictly forbidden.
-- **No Podman Socket Mount**: Mounting `/run/user/.../podman/podman.sock` or `/var/run/docker.sock` inside containers is prohibited.
+- **No Container Socket Mount**: Mounting `/run/user/.../podman/podman.sock` or `/var/run/docker.sock` inside project containers is prohibited.
 - **No Broad Mounts**: Mounts are strictly restricted to the project root directory (`/Users/jk.deguzman/dev/lemans-bridge-dashboard`). Mounting `$HOME`, `/`, `/etc`, `/usr`, or other host system directories is strictly prohibited.
 - **Loopback-Only Ports**: Exposed container ports must bind exclusively to loopback interface (`127.0.0.1:<port>`). Public binding (`0.0.0.0`) is prohibited.
-- **No Published Database Ports**: Database containers (PostgreSQL) must run entirely inside internal Podman container networks. Database ports (`5432`) MUST NOT be published or exposed to host interfaces in production/prodlike environments.
-- **No Broad Prune / Reset Commands**: `podman system prune -a`, `podman rm -fa`, `podman rmi -a`, `podman machine rm`, or `podman machine reset` commands are STRICTLY PROHIBITED.
+- **No Published Database Ports**: Database containers (PostgreSQL) must run entirely inside internal Docker networks locally and internal Podman networks remotely. Database ports (`5432`) MUST NOT be published or exposed to host interfaces in production/prodlike environments.
+- **No Broad Prune / Reset Commands**: `docker system prune -a`, `docker rm -fa`, `docker rmi -a`, `podman system prune -a`, `podman rm -fa`, and `podman rmi -a` commands are STRICTLY PROHIBITED.
 - **Exact Resource Cleanup**: Any container or volume cleanup must explicitly reference project specific names/labels (e.g., `lemans-demo-db`, `lemans-prodlike-app`).
 - **No Unsanctioned Remote Operations**: No SSH connection, remote file transfer, remote DB migration, remote container restart, DNS modification, reverse proxy setup, or remote deployment (demo or production) without explicit, direct user instructions. Do not connect to or modify any remote environment during Phase 2 or Phase 3.
 - **Verification commands for the next agent**:
   ```bash
-  export PATH="/opt/podman/bin:$PATH"
-  podman info --format '{{.Host.Security.Rootless}}'
-  ./scripts/build.sh demo
-  ./scripts/build.sh prod
-  ./scripts/verify-local.sh
-  ./scripts/run-local.sh
-  ./scripts/verify-vertical-slice.sh
+  jk-sbx-project ensure
+  jk-sbx-project exec -- ./scripts/build.sh demo
+  jk-sbx-project exec -- ./scripts/build.sh prod
+  jk-sbx-project exec -- ./scripts/verify-local.sh
+  jk-sbx-project publish 3000
+  jk-sbx-project exec -- ./scripts/run-local.sh
+  jk-sbx-project exec -- ./scripts/verify-vertical-slice.sh
   # Manual spot checks at http://127.0.0.1:3000/lemans/demo/...
-  ./scripts/stop-local.sh
+  jk-sbx-project exec -- ./scripts/stop-local.sh
   ```
 - **Review Mode**: Keep terminal execution in review/ask mode where the platform supports it.

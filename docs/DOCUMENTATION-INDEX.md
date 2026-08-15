@@ -31,31 +31,32 @@ tutorial, how-to guide, reference, or explanation.
 
    [`GO-BACKEND-ARCHITECTURE.md`](./GO-BACKEND-ARCHITECTURE.md),
    [`ENVIRONMENTS-AND-PATHS.md`](./ENVIRONMENTS-AND-PATHS.md), and the ADRs —
-   architecture and future-profile decisions.
+   architecture and future-profile decisions, including
+   [`adr/0005-docker-sandbox-local-build-and-vps-import.md`](./adr/0005-docker-sandbox-local-build-and-vps-import.md).
 
 10. [`GOOGLE-ANTIGRAVITY-UI-UX-PROMPT.md`](./GOOGLE-ANTIGRAVITY-UI-UX-PROMPT.md)
-   — copy-and-paste execution prompt for the next UI/UX agent.
+    — copy-and-paste execution prompt for the next UI/UX agent.
 11. [`README.md`](../README.md) — quickstart and navigation index.
 12. [`WRITING-STYLE.md`](./WRITING-STYLE.md) — US-English voice, tone, and
     proofreading standard for active content.
 
 ## Document status
 
-| Document group                                                                                                                    | Status                                  | How to use it                                                                                                        |
-| --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| `CURRENT-STATE.md`, `DEMO-IMPLEMENTATION-PLAYBOOK.md`, `README.md`                                                                | Current                                 | Use for implementation and verification decisions.                                                                   |
-| `ARCHITECTURE.md`, `GO-BACKEND-ARCHITECTURE.md`, `ENVIRONMENTS-AND-PATHS.md`, `DESIGN-SYSTEM.md`, `PROJECT-SPEC.md`, and the ADRs | Current contract/specification          | Use for design, domain, and architecture constraints; confirm runtime facts against `CURRENT-STATE.md`.              |
-| `REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`, `REMOTE-OPERATIONS.md`                                                                      | Current but remote-only                 | Do not execute without explicit authorization and required host/Caddy context.                                       |
-| `REMOTE-DEPLOYMENT-QUICKSTART.md`                                                                                                 | Current operator quickstart             | Use for the normal no-environment-variable update flow; follow the remote playbook for topology and rollback.        |
-| `POST-CHANGE-COMPLETION-GUIDE.md`                                                                                                 | Current repository operating standard  | Use after every change to research, update docs, validate, commit, synchronize HTTPS `main`, and verify SHA parity.    |
-| `AGENT-EXECUTION-PROMPTS.md`, `GOOGLE-ANTIGRAVITY-UI-UX-PROMPT.md`                                                                | Current operational prompts             | Keep commands synchronized with scripts and the current demo boundary.                                               |
-| `UI-UX-REVAMP-HANDOFF.md`                                                                                                         | Current implementation handoff          | Use for the completed UI/UX and workflow-navigation revamp; confirm implementation facts against `CURRENT-STATE.md`. |
-| `WRITING-STYLE.md`                                                                                                                | Current editorial standard              | Apply to active app copy, documentation, guides, and commit messages.                                                |
-| `DELIVERY-PLAN.md`                                                                                                                | Current roadmap                         | Use for roadmap boundaries only; implementation and verification claims come from `CURRENT-STATE.md`.                |
-| `to-review-and-delete/historical-docs/`, `to-review-and-delete/historical-reviews/`                                               | Review candidates / historical evidence | Preserve only for user review; never use as current proof, operating instructions, or implementation authority.      |
-| `adr/0001*`, `adr/0002*`, `adr/0004*`                                                                                             | Current architecture decisions          | Apply to the current source unless superseded in the document.                                                       |
-| `adr/0003*`                                                                                                                       | Future production design                | Do not add its authentication/session requirements to the demo profile.                                              |
-| `references/` and `_intake/originals/`                                                                                            | Source reference / archival material    | Preserve provenance; use only to interpret original business intent, never as current implementation instructions.   |
+| Document group                                                                                                                    | Status                                  | How to use it                                                                                                         |
+| --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `CURRENT-STATE.md`, `DEMO-IMPLEMENTATION-PLAYBOOK.md`, `README.md`                                                                | Current                                 | Use for implementation and verification decisions.                                                                    |
+| `ARCHITECTURE.md`, `GO-BACKEND-ARCHITECTURE.md`, `ENVIRONMENTS-AND-PATHS.md`, `DESIGN-SYSTEM.md`, `PROJECT-SPEC.md`, and the ADRs | Current contract/specification          | Use for design, domain, and architecture constraints; confirm runtime facts against `CURRENT-STATE.md`.               |
+| `REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`, `REMOTE-OPERATIONS.md`                                                                      | Current but remote-only                 | Do not execute without explicit authorization and required host/Caddy context.                                        |
+| `REMOTE-DEPLOYMENT-QUICKSTART.md`                                                                                                 | Current operator quickstart             | Use for the normal no-environment-variable update flow; follow the remote playbook for topology and rollback.         |
+| `POST-CHANGE-COMPLETION-GUIDE.md`                                                                                                 | Current repository operating standard   | Use after every change to research, update docs, validate, commit, synchronize HTTPS `main`, and verify SHA parity.   |
+| `AGENT-EXECUTION-PROMPTS.md`, `GOOGLE-ANTIGRAVITY-UI-UX-PROMPT.md`                                                                | Current operational prompts             | Keep commands synchronized with scripts and the current demo boundary.                                                |
+| `UI-UX-REVAMP-HANDOFF.md`                                                                                                         | Current implementation handoff          | Use for the completed UI/UX and workflow-navigation revamp; confirm implementation facts against `CURRENT-STATE.md`.  |
+| `WRITING-STYLE.md`                                                                                                                | Current editorial standard              | Apply to active app copy, documentation, guides, and commit messages.                                                 |
+| `DELIVERY-PLAN.md`                                                                                                                | Current roadmap                         | Use for roadmap boundaries only; implementation and verification claims come from `CURRENT-STATE.md`.                 |
+| `to-review-and-delete/historical-docs/`, `to-review-and-delete/historical-reviews/`                                               | Review candidates / historical evidence | Preserve only for user review; never use as current proof, operating instructions, or implementation authority.       |
+| `adr/0001*`, `adr/0002*`, `adr/0004*`, `adr/0005*`                                                                                | Current architecture decisions          | Apply to the current source unless superseded in the document; ADR 0005 governs local Sandbox builds and VPS imports. |
+| `adr/0003*`                                                                                                                       | Future production design                | Do not add its authentication/session requirements to the demo profile.                                               |
+| `references/` and `_intake/originals/`                                                                                            | Source reference / archival material    | Preserve provenance; use only to interpret original business intent, never as current implementation instructions.    |
 
 ## Keep documentation in sync
 
@@ -85,24 +86,26 @@ only.
 
 ## Verify changes
 
-When local validation is explicitly needed, run project execution inside
-rootless Podman. Remote deployment does not invoke this local workflow:
+When local validation is explicitly needed, run project execution inside the
+initialized Docker Sandbox. Remote deployment does not invoke this local
+workflow:
 
 ```bash
-export PATH="/opt/homebrew/bin:$PATH"
-./scripts/build.sh demo
-./scripts/build.sh prod
-./scripts/verify-local.sh
-./scripts/run-local.sh
-./scripts/verify-vertical-slice.sh
-./scripts/verify-e2e.sh
-./scripts/stop-local.sh
+jk-sbx-project ensure
+jk-sbx-project exec -- ./scripts/build.sh demo
+jk-sbx-project exec -- ./scripts/build.sh prod
+jk-sbx-project publish 3000
+jk-sbx-project exec -- ./scripts/run-local.sh
+jk-sbx-project exec -- ./scripts/verify-local.sh
+jk-sbx-project exec -- ./scripts/verify-vertical-slice.sh
+jk-sbx-project exec -- ./scripts/verify-e2e.sh
+jk-sbx-project exec -- ./scripts/stop-local.sh
 ```
 
 `verify-e2e.sh` runs the Playwright suite in a disposable Playwright container
-attached to `lemans-demo-net`. Record its exact pass/fail counts before running
-`./scripts/stop-local.sh`. The standard `verify-local.sh` script covers static
-frontend and Go checks only.
+attached to the local Docker `lemans-demo-net`. Record its exact pass/fail
+counts before running `jk-sbx-project exec -- ./scripts/stop-local.sh`. The
+standard `verify-local.sh` script covers static frontend and Go checks only.
 
 ## Official guidance checked 2026-08-16
 
@@ -121,7 +124,12 @@ frontend and Go checks only.
 - [Podman documentation](https://docs.podman.io/_/downloads/en/v5.8.1/pdf/)
 - [Podman Quadlet units](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html)
 - [Podman Quadlet basic usage](https://docs.podman.io/en/latest/markdown/podman-quadlet-basic-usage.7.html)
-- [Podman build units](https://docs.podman.io/en/latest/markdown/podman-build.unit.5.html)
+- [Docker Sandboxes](https://docs.docker.com/ai/sandboxes/)
+- [Docker Sandbox security model](https://docs.docker.com/ai/sandboxes/security/)
+- [Docker build best practices](https://docs.docker.com/build/building/best-practices/)
+- [Docker multi-platform builds and cross-compilation](https://docs.docker.com/build/building/multi-platform/)
+- [`docker image save`](https://docs.docker.com/reference/cli/docker/image/save/)
+- [`podman load`](https://docs.podman.io/en/latest/markdown/podman-load.1.html)
 - [Next.js standalone output](https://nextjs.org/docs/app/api-reference/config/next-config-js/output)
 - [Next.js deployment guidance](https://nextjs.org/docs/app/getting-started/deploying)
 - [systemd `loginctl` linger](https://www.freedesktop.org/software/systemd/man/252/loginctl.html)

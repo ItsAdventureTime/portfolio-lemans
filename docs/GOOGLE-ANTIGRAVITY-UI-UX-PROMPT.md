@@ -69,8 +69,9 @@ Non-negotiable boundaries:
   SSH/scp-based deployment behavior.
 - Keep Backblaze storage in bucket bridge-ph with demo prefix lemans/demo and
   production prefix lemans.
-- Run all builds, tests, and local execution in rootless Podman. Do not install
-  host dependencies as a workaround.
+- Run all builds, tests, and local execution through the initialized Docker
+  Sandbox with Docker. Do not install host dependencies or use a local Podman
+  machine as a workaround.
 - Preserve unrelated user changes. Do not reset or delete broad workspace data.
 
 Implementation sequence:
@@ -85,7 +86,7 @@ Implementation sequence:
    role switching, base paths, workflow links, loading/error states, and
    responsive accessibility.
 6. Run formatting, lint, typecheck, production build, Go tests, and the E2E suite
-   in disposable rootless Podman containers.
+   through `jk-sbx-project exec` inside the initialized Docker Sandbox.
 7. Review the diff for stale documentation, dead routes, hardcoded base paths,
    inaccessible controls, and inconsistent labels.
 

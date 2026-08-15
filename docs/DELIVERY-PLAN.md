@@ -1,6 +1,6 @@
 # Delivery plan
 
-- **Updated**: 2026-08-14
+- **Updated**: 2026-08-16
 - **Current delivery authority**: [`CURRENT-STATE.md`](./CURRENT-STATE.md)
 - **Demo acceptance authority**: [`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md)
 - **Branch policy**: `main` only
@@ -18,7 +18,8 @@ The current source replaces the former Prisma/Next.js monolith with:
   base paths.
 - Go API with Goose migrations, sqlc repository code, centralized demo actor
   policy, and PostgreSQL persistence.
-- Rootless Podman local demo topology: PostgreSQL, Go API, and Next.js web.
+- Docker Sandbox local demo topology: PostgreSQL, Go API, and Next.js web;
+  rootless Podman Quadlets remain the remote runtime topology.
 - Customer → quotation → job order → procurement → costing → billing → payment
   walkthrough, plus OPEX → approval → DCS payment/proof flow.
 - Transactional purchasing, supplier-invoice allocation and approval, service
@@ -30,18 +31,20 @@ The current source replaces the former Prisma/Next.js monolith with:
 
 ## Verify the current build
 
-When local validation is explicitly required, run from the repository root.
-Remote deployment does not execute this local workflow; it builds and smoke-tests
-on the VPS:
+When local validation is explicitly required, run from the repository root
+through the initialized Docker Sandbox. Remote deployment imports the local
+image bundle and activates the VPS runtime; it does not build or smoke-test
+images on the VPS:
 
 ```bash
-export PATH="/opt/podman/bin:$PATH"
-./scripts/build.sh demo
-./scripts/verify-local.sh
-./scripts/run-local.sh
-./scripts/verify-vertical-slice.sh
-./scripts/verify-e2e.sh
-./scripts/stop-local.sh
+jk-sbx-project ensure
+jk-sbx-project exec -- ./scripts/build.sh demo
+jk-sbx-project publish 3000
+jk-sbx-project exec -- ./scripts/run-local.sh
+jk-sbx-project exec -- ./scripts/verify-local.sh
+jk-sbx-project exec -- ./scripts/verify-vertical-slice.sh
+jk-sbx-project exec -- ./scripts/verify-e2e.sh
+jk-sbx-project exec -- ./scripts/stop-local.sh
 ```
 
 The browser gate runs the Playwright projects (Chromium, mobile, and

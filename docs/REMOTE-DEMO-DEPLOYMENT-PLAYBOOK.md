@@ -1,8 +1,8 @@
 # Remote Demo Deployment Playbook
 
 - **Status**: Authoritative for the remote demo deployment profile
-- **Version**: 1.8.0
-- **Updated**: 2026-08-15
+- **Version**: 1.10.0
+- **Updated**: 2026-08-16
 - **Target URL**: `https://delegateops.business/lemans/demo`
 - **Remote user**: `jk`
 - **Current evidence**: Local image/runtime verification is complete; remote
@@ -22,18 +22,18 @@ commit, and use the official `gh` HTTPS credential path for GitHub operations.
 The SSH references in this playbook are only for the explicitly authorized VPS
 source transfer and activation; they must never be used as GitHub transport.
 
-The workstation does not deploy, build, compile, or execute the application as
-part of remote deployment. It creates a temporary tree from `HEAD` and transfers
-that tree with resumable `rsync` over SSH. No `.tar` archive is transferred or
-retained. Do not use `scp` for deployment transfers. Local
-Podman-based verification is an optional, separate activity; if it is needed,
-it must use disposable `podman run --rm` containers and leave no project
-containers, volumes, or images running afterward.
+The workstation uses the initialized project Docker Sandbox to build, compile,
+test, and package the application. The deployment wrapper creates a temporary
+`HEAD` source tree and an ephemeral `docker save` image bundle, then transfers
+both with resumable `rsync` over SSH. The image bundle is checksum-verified on
+the VPS and removed from the local workspace after the wrapper exits. Do not
+use `scp` for deployment transfers. Local Podman is not required.
 
-The VPS is the build and execution environment. It uses rootless `podman build`
-for the web and Go images, `podman run --rm` for image smoke checks, and the
-existing rootless Quadlets for the persistent runtime. A Linux VPS does not
-need a Podman machine.
+The VPS is the runtime activation environment, not the build environment. It
+uses rootless `podman load` to import the locally built images, installs the
+existing rootless Quadlets, starts the persistent runtime, and performs
+deployment health checks. It does not run `podman build`, application
+compilation, or image smoke tests.
 
 The remote demo is a rootless Podman Quadlet deployment managed by the `jk`
 user's systemd user manager.
@@ -70,22 +70,27 @@ passwords use profile-scoped Podman secrets (`lemans_demo_db_password` or
 profile Go API `.container` file as required by this project. No external
 environment file is created.
 
-### Remote builder contract
+### Local image bundle contract
 
-Each deployment synchronizes the committed source to
-`/home/jk/bridge-ph/lemans-demo/current` and builds stable profile-scoped image
-tags:
+Each deployment builds stable profile-scoped image tags inside the project
+Docker Sandbox, retags them for the VPS's local Podman store, and exports both
+images to one temporary archive. The current VPS target is `linux/amd64`;
+`TARGET_PLATFORM` is available only as an explicit override after verifying a
+different remote architecture. The build stages run on the Sandbox's native
+platform and the runtime stages contain no target-architecture `RUN` steps, so
+the ARM64 Sandbox does not need privileged emulation.
 
 ```text
 localhost/lemans-bridge-dashboard:demo-web
 localhost/lemans-bridge-dashboard-go:demo-go
 ```
 
-The Quadlets use those exact local tags, so deployment does not depend on a
-registry or on a local `podman save`/`podman load` pipeline. The database volume
-is retained across deployments. After a successful health check, obsolete
-profile release directories and old profile image tags are removed with
-targeted commands; unrelated Podman resources are never pruned.
+The archive and `.sha256` checksum are transferred alongside the committed
+source to `/home/jk/bridge-ph/lemans-demo/current`. The VPS imports the archive
+with `podman load`; Quadlets use those exact local tags. The database volume is
+retained across deployments. After a successful health check, obsolete profile
+release directories and old profile image tags are removed with targeted
+commands; unrelated Podman resources are never pruned.
 
 ## 3. Required topology
 
@@ -231,12 +236,13 @@ ssh jk@216.75.75.136
 # Run the single activation command printed by sync-remote-demo.sh.
 ```
 
-The sync command validates stable `git status --porcelain=v1` output, uses
-`rsync --partial` to transfer only a `HEAD` source tree, writes small deployment
-metadata (source commit and public URL) into that tree, and prints one short
-activation command. The guard reports every blocking path instead of asking the
-operator to guess what is dirty. Serena's tracked `.serena/project.yml` metadata
-is the one local-only exception; it is never included from the working tree.
+The sync command validates stable `git status --porcelain=v1` output, builds the
+target-platform image bundle inside the Docker Sandbox, and uses `rsync
+--partial` to transfer the `HEAD` source tree, deployment metadata, and
+checksum-verified image bundle. It prints one short activation command. The
+guard reports every blocking path instead of asking the operator to guess what
+is dirty. Serena's tracked `.serena/project.yml` metadata is the one local-only
+exception; it is never included from the working tree.
 The command is always:
 
 ```bash
@@ -278,27 +284,30 @@ defaults to `jk`. It must:
 
 1. Require a clean committed `main` source tree, apart from local Serena
    metadata, and collect the source commit.
-2. Create a temporary `HEAD` source tree locally; do not invoke local image
-   builds or app execution and do not create a transfer archive.
-3. Transfer the source tree with resumable `rsync --partial --delete` over SSH.
-4. Build both stable profile-tagged images on the VPS with rootless `podman build`.
-5. Run disposable `podman run --rm` image smoke checks on the VPS.
-6. Install the tracked Quadlets, scripts, and current deployment manifest under
+2. Run the local Docker Sandbox build for the verified target Linux architecture
+   (currently `linux/amd64`) and export the profile image bundle with
+   `docker save`. The Dockerfiles use native build stages, so this ARM64
+   Sandbox does not need privileged QEMU/binfmt setup.
+3. Create a temporary `HEAD` source tree locally and transfer it with the image
+   bundle and checksum using resumable `rsync --partial --delete` over SSH.
+4. Verify the image checksum and import the bundle on the VPS with rootless
+   `podman load`; do not build or compile on the VPS.
+5. Install the tracked Quadlets, scripts, and current deployment manifest under
    the required remote paths.
-7. Install native timer units in `/home/jk/.config/systemd/user`, reload the user
+6. Install native timer units in `/home/jk/.config/systemd/user`, reload the user
    manager, and confirm every required unit is loaded before starting the
    selected profile.
-8. Seed the demo database on first install or with `RESET=true`; production
+7. Seed the demo database on first install or with `RESET=true`; production
    never seeds or resets. Migrations run in the Go API container.
-9. Check the internal Go health endpoint and loopback web endpoint on the VPS.
-10. Print the source commit, image IDs, service status, and URL. The public
-    check does not follow redirects; a non-200 response prints a redirect
-    inspection command so trailing-slash or proxy loops remain visible.
+8. Check the internal Go health endpoint and loopback web endpoint on the VPS.
+9. Print the source commit, imported image IDs, service status, and URL. The public
+   check does not follow redirects; a non-200 response prints a redirect
+   inspection command so trailing-slash or proxy loops remain visible.
 
 If a managed service fails to start or pass its health check, the script prints
 that unit's complete status and current-boot journal before it exits. The first
-Podman error in that output is the diagnostic to use; a `podman run` exit code
-of `125` means Podman could not start the container.
+Podman error in that output is the diagnostic to use. The activation path does
+not run disposable image smoke tests on the VPS.
 
 The script must not silently deploy to production, reset the database, or modify
 unrelated Caddy routes or systemd units. For the demo profile, it may manage the
@@ -410,17 +419,17 @@ schema changes.
 
 ## 10. Current implementation notes
 
-The deployment script now builds stable profile-tagged images on the VPS; it does not
-build or execute the application locally. The Next.js web container references
-`caddy.network` directly, which joins it to the `caddy` Podman network defined
-by that Quadlet.
+The deployment script now builds stable profile-tagged images inside the project
+Docker Sandbox and imports them on the VPS; the VPS does not build or compile
+the application. The Next.js web container references `caddy.network` directly,
+which joins it to the `caddy` Podman network defined by that Quadlet.
 
-- The sync script stages the committed source in a temporary local directory;
-  the activation script then builds both
+- The sync script builds both
   `localhost/lemans-bridge-dashboard:demo-web` and
-  `localhost/lemans-bridge-dashboard-go:demo-go` on the remote host.
-- Remote image checks use disposable `podman run --rm` containers. No local
-  deployment, local build, local compile, or local runtime is required.
+  `localhost/lemans-bridge-dashboard-go:demo-go` in the Docker Sandbox, then
+  transfers one checksum-verified image archive with the committed source.
+- Remote activation uses `podman load` and targeted runtime health checks. No
+  remote build, remote compile, or remote image smoke-test container is used.
 - The Go API container is attached only to `lemans-demo-net`; the web container
   references `caddy.network` (actual network: `caddy`) and
   `lemans-demo.network` (actual network: `lemans-demo-net`).
@@ -454,7 +463,11 @@ health checks are verified.
 
 - [Podman Quadlet rootless search paths and generator](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html)
 - [Podman Quadlet basic usage and verification](https://docs.podman.io/en/latest/markdown/podman-quadlet-basic-usage.7.html)
-- [Podman build units](https://docs.podman.io/en/latest/markdown/podman-build.unit.5.html)
+- [Docker Sandboxes](https://docs.docker.com/ai/sandboxes/)
+- [Docker Sandbox security model](https://docs.docker.com/ai/sandboxes/security/)
+- [Docker build best practices](https://docs.docker.com/build/building/best-practices/)
+- [`docker image save`](https://docs.docker.com/reference/cli/docker/image/save/)
+- [`podman load`](https://docs.podman.io/en/latest/markdown/podman-load.1.html)
 - [systemd `loginctl` linger](https://www.freedesktop.org/software/systemd/man/252/loginctl.html)
 - [systemd timer unit configuration](https://man7.org/linux/man-pages/man5/systemd.timer.5.html)
 - [Caddy reverse proxy and path handling](https://caddyserver.com/docs/caddyfile/directives/reverse_proxy)

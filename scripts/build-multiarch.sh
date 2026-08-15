@@ -2,15 +2,11 @@
 set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-if [[ -x /opt/homebrew/bin/podman ]]; then
-  export PATH="/opt/homebrew/bin:$PATH"
-elif [[ -x /opt/podman/bin/podman ]]; then
-  export PATH="/opt/podman/bin:$PATH"
-fi
 cd "$PROJECT_ROOT"
 
 # Build and publish the same two images used by build.sh for both supported
-# architectures. Requires a Podman machine configured for multi-arch builds.
+# architectures. Run this command inside the project Docker Sandbox. It
+# requires an authenticated registry because buildx publishes the manifest.
 REGISTRY="${REGISTRY:-docker.io}"
 IMAGE_PREFIX="${IMAGE_PREFIX:-library}"
 WEB_IMAGE="${REGISTRY}/${IMAGE_PREFIX}/lemans-bridge-dashboard"
@@ -25,14 +21,13 @@ build_and_push_manifest() {
   shift 3
 
   echo "Building multi-arch manifest ${manifest}..."
-  podman manifest rm "$manifest" 2>/dev/null || true
-  podman build \
+  docker buildx build \
     --platform "$PLATFORMS" \
-    --manifest "$manifest" \
+    --tag "$manifest" \
     -f "$dockerfile" \
     "$@" \
+    --push \
     .
-  podman manifest push --all "$manifest" "$manifest"
 }
 
 build_profile() {
@@ -52,10 +47,12 @@ build_profile() {
 
 promote_demo_to_prod() {
   echo "Promoting validated demo manifests to production tags..."
-  podman manifest push --all \
-    "${WEB_IMAGE}:demo-web" "${WEB_IMAGE}:prod-web"
-  podman manifest push --all \
-    "${GO_IMAGE}:demo-go" "${GO_IMAGE}:prod-go"
+  docker buildx imagetools create \
+    --tag "${WEB_IMAGE}:prod-web" \
+    "${WEB_IMAGE}:demo-web"
+  docker buildx imagetools create \
+    --tag "${GO_IMAGE}:prod-go" \
+    "${GO_IMAGE}:demo-go"
 }
 
 case "${1:-all}" in

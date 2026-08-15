@@ -24,6 +24,11 @@ reported as complete.
 5. **Validate in the project sandbox.** Use `jk-sbx-project exec` for builds,
    tests, linting, type checks, and application execution. Use the smallest
    relevant validation set and record the commands actually run.
+   For a VPS deployment, build the verified target-platform profile images and
+   export the ephemeral image bundle inside that same Sandbox. The current
+   default is `linux/amd64`; the Dockerfiles use native build stages so an
+   ARM64 Sandbox does not need privileged emulation. The VPS only imports and
+   activates the validated images.
 6. **Commit the validated snapshot locally.** Use `git add` and `git commit`
    on `main`. GitHub CLI has no local commit command, so this local `git`
    primitive is the required exception to the GitHub-facing CLI rule.
@@ -40,6 +45,7 @@ reported as complete.
    The repository remote must remain the HTTPS remote for
    `ItsAdventureTime/bridge-lemans`. GitHub-facing authentication, remote
    inspection, API checks, and synchronization use `gh`.
+
 8. **Verify parity before handoff.** Confirm the worktree is clean, local
    `main` is current, and the GitHub `main` commit SHA matches the local SHA:
 
@@ -77,5 +83,12 @@ active text.
   active authenticated account without exposing credentials.
 - [`gh api`](https://cli.github.com/manual/gh_api) provides authenticated
   GitHub API checks for remote commit verification.
+- [Docker Sandboxes](https://docs.docker.com/ai/sandboxes/) provide the isolated
+  workspace and private Docker engine used for local project execution.
+- [Docker build best practices](https://docs.docker.com/build/building/best-practices/)
+  supports the project `.dockerignore` and multi-stage image builds.
+- [`docker image save`](https://docs.docker.com/reference/cli/docker/image/save/)
+  and [`podman load`](https://docs.podman.io/en/latest/markdown/podman-load.1.html)
+  support the checksum-verified local-to-VPS image transfer.
 - [`Diátaxis`](https://diataxis.fr/) separates tutorials, how-to guides,
   reference material, and explanations; this document is a how-to guide.

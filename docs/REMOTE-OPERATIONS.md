@@ -154,24 +154,26 @@ secret, which may belong to another application.
 
 This will:
 
-1. Stage an exact `HEAD` source snapshot in a temporary local directory; it does
-   not build or execute the application on the workstation and creates no
-   transfer archive. The preflight uses stable `git status --porcelain=v1`
+1. Build the target profile images inside the initialized Docker Sandbox for the
+   verified remote platform (currently `linux/amd64`), then stage an exact
+   `HEAD` source snapshot and an ephemeral
+   image archive. The preflight uses stable `git status --porcelain=v1`
    output, reports blocking paths, and permits only the local Serena metadata
    file `.serena/project.yml` to remain modified.
-2. Transfer the source tree with resumable `rsync --partial --delete` over SSH;
-   do not use `scp`. The temporary tree is removed when the sync command exits.
-3. Build stable profile-tagged web and Go API images on the VPS with rootless Podman.
-4. Run disposable `podman run --rm` image smoke checks on the VPS.
-5. Sync the current source and tracked Quadlets/scripts to
+2. Transfer the source tree, image archive, and SHA-256 checksum with resumable
+   `rsync --partial --delete` over SSH; do not use `scp`. Local artifacts are
+   removed when the sync command exits.
+3. Verify the checksum and import the locally built images on the VPS with
+   rootless `podman load`. Do not build or compile on the VPS.
+4. Sync the current source and tracked Quadlets/scripts to
    `/home/jk/.config/containers/systemd/bridge-ph/lemans-demo`.
-6. Install native timer units in `/home/jk/.config/systemd/user`, reload the user
+5. Install native timer units in `/home/jk/.config/systemd/user`, reload the user
    manager, and confirm every required unit is loaded before activation.
-7. Create the managed internal network and database volume, then start the DB,
+6. Create the managed internal network and database volume, then start the DB,
    Go API, and web systemd services.
-8. Seed the database (demo only) and start the rootless user-level 30-minute
+7. Seed the database (demo only) and start the rootless user-level 30-minute
    reset timer.
-9. Confirm the configured public HTTPS URL returns `200 OK`. This makes a
+8. Confirm the configured public HTTPS URL returns `200 OK`. This makes a
    missing or prefix-stripping Caddy route a deployment failure rather than a
    false success.
 
@@ -287,7 +289,7 @@ ports:
 
 ```bash
 curl -sL -o /dev/null -w '%{http_code}' http://127.0.0.1:3002/lemans/demo
-podman exec lemans-demo-go curl -s http://127.0.0.1:8080/health
+podman exec lemans-demo-go wget -q -O - http://127.0.0.1:8080/health
 ```
 
 ## Role-Based Navigation & 403 Access Restricted

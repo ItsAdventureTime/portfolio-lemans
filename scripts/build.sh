@@ -2,7 +2,6 @@
 set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-export PATH="/opt/homebrew/bin:/opt/podman/bin:$PATH"
 
 cd "$PROJECT_ROOT"
 source "${PROJECT_ROOT}/scripts/lib/common.sh"
@@ -22,13 +21,24 @@ fi
 
 echo "=== Building Le Mans ${MODE} images ==="
 
+BUILD_PLATFORM_ARGS=()
+if [[ -n "${TARGET_PLATFORM:-}" ]]; then
+  BUILD_PLATFORM_ARGS=(--platform "$TARGET_PLATFORM")
+  echo "Target platform: ${TARGET_PLATFORM}"
+fi
+
 BASE_PATH="/lemans/demo"
 if [[ "$MODE" == "prod" ]]; then
   BASE_PATH="/lemans"
 fi
 
-podman build -f Dockerfile.web -t "lemans-bridge-dashboard:${WEB_TAG}" --build-arg NEXT_PUBLIC_BASE_PATH="${BASE_PATH}" .
-podman build -f Dockerfile.go -t "lemans-bridge-dashboard-go:${GO_TAG}" .
+docker build --pull --force-rm "${BUILD_PLATFORM_ARGS[@]}" \
+  -f Dockerfile.web \
+  -t "lemans-bridge-dashboard:${WEB_TAG}" \
+  --build-arg NEXT_PUBLIC_BASE_PATH="${BASE_PATH}" .
+docker build --pull --force-rm "${BUILD_PLATFORM_ARGS[@]}" \
+  -f Dockerfile.go \
+  -t "lemans-bridge-dashboard-go:${GO_TAG}" .
 
 echo "=== Build complete ==="
 echo "Web image: lemans-bridge-dashboard:${WEB_TAG}"

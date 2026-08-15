@@ -20,12 +20,18 @@ root to update the demo VPS:
 ./scripts/deploy-remote-demo.sh
 ```
 
-The deployment script refuses uncommitted deployable changes, stages the exact
-committed `HEAD` source, transfers it with resumable `rsync`, builds the web and
-Go images on the VPS,
-updates the rootless Quadlets, runs smoke checks, and verifies the public URL.
-The VPS transfer uses SSH because it is the transport to the server; GitHub
-continues to use the HTTPS credential helper configured by `gh`.
+The deployment script refuses uncommitted deployable changes, builds Linux
+deployment images inside the project Docker Sandbox, stages the exact
+committed `HEAD` source, exports a checksum-verified image bundle, and transfers
+both with resumable `rsync`. VPS activation imports the bundle, updates the
+rootless Quadlets, starts the runtime, and verifies the public URL. The VPS
+transfer uses SSH because it is the transport to the server; GitHub continues
+to use the HTTPS credential helper configured by `gh`.
+
+The current VPS target is `linux/amd64`. The Dockerfiles use native build stages
+and cross-compile the Go binary, so the ARM64 Sandbox can package the target
+without privileged QEMU/binfmt setup. If the VPS architecture changes, verify it
+first and set `TARGET_PLATFORM` for that deployment.
 
 Before syncing, the script checks stable `git status --porcelain=v1` output and
 prints the exact paths that block deployment. Changes outside the application
@@ -64,7 +70,7 @@ production URL.
 ## Optional operator controls
 
 ```bash
-# Transfer source only; print the VPS activation command.
+# Build and transfer source plus prebuilt images; print the VPS activation command.
 ./scripts/sync-remote-demo.sh
 
 # Explicitly reseed the fictional demo database during activation.
@@ -72,8 +78,9 @@ production URL.
 ```
 
 Use `--reset` only when you intend to replace demo records. Ordinary deploys do
-not reset the database. The remote activation script runs builds and health
-checks on the VPS; it does not build or run the app on the Mac.
+not reset the database. The remote activation script imports images and runs
+deployment health checks on the VPS; it does not build or compile the app there.
+Local builds and tests run inside the Docker Sandbox.
 
 ## If deployment stops
 
@@ -109,3 +116,10 @@ Caddy, rollback, data, and remote topology rules.
 - [`gh auth setup-git`](https://cli.github.com/manual/gh_auth_setup-git)
   configures GitHub CLI as the HTTPS credential helper; no GitHub SSH transport,
   SSH key, or passkey is needed.
+- [Docker Sandboxes](https://docs.docker.com/ai/sandboxes/) provide the isolated
+  project workspace used for local builds and execution.
+- [Docker build best practices](https://docs.docker.com/build/building/best-practices/)
+  supports the repository `.dockerignore` and multi-stage image approach.
+- [`docker image save`](https://docs.docker.com/reference/cli/docker/image/save/)
+  and [`podman load`](https://docs.podman.io/en/latest/markdown/podman-load.1.html)
+  define the local image-bundle transfer path.

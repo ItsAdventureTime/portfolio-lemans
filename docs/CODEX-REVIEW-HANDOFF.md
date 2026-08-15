@@ -4,9 +4,9 @@
 - **Project**: Le Mans Operations & Job Cost Management System (`lemans-bridge-dashboard`)
 - **Client**: Le Mans Service Plus OPC
 - **Domain**: Auto Service Center Operations, Job Costing, Procurement, Billing, and Financial Accounting
-- **Repository Architecture**: Next.js 16.3 App Router (`src/`), Go 1.26 API (`backend/`), PostgreSQL on rootless Podman network
+- **Repository Architecture**: Next.js 16.3 App Router (`src/`), Go 1.26 API (`backend/`), PostgreSQL on Docker Sandbox networks locally and rootless Podman networks remotely
 - **Demo URL**: `http://127.0.0.1:3000/lemans/demo` (Base Path: `/lemans/demo`)
-- **Updated**: 2026-08-15
+- **Updated**: 2026-08-16
 
 ---
 
@@ -68,7 +68,7 @@ When reviewing or revising code in this repository, check against the following 
 
 - [ ] **Base Path Safety**: Ensure internal routing links use `<Link href="...">` or `router.push()` with relative paths. Next.js handles `NEXT_PUBLIC_BASE_PATH` (`/lemans/demo` or `/lemans`). Do NOT hardcode prefixed `/lemans/demo` in router calls.
 - [ ] **No-Auth Demo Theatre**: Preserve the simulated splash screen (`DemoSplash.tsx`), default Admin role, role switcher (`RoleSwitcher.tsx`), and policy enforcement. Do not add real login redirects or session requirements.
-- [ ] **Containerized Execution Boundary**: All Next.js builds, Go API builds, PostgreSQL instances, unit tests, and Playwright E2E tests must execute inside rootless Podman containers.
+  - [ ] **Containerized Execution Boundary**: All Next.js builds, Go API builds, PostgreSQL instances, unit tests, and Playwright E2E tests must execute through `jk-sbx-project exec` inside the initialized Docker Sandbox. Rootless Podman is the remote VPS runtime only.
 - [ ] **Financial Precision**: Money amounts are stored as integers in centavos (`cents`) and formatted using `formatPeso()`. Never use floating-point numbers for currency calculations.
 - [ ] **Single Source Repository**: Maintain unified repository code for demo and production profiles.
 
@@ -96,10 +96,10 @@ The team has completed a full UI/UX overhaul of the Le Mans demo dashboard. The 
    - Base paths must inherit `NEXT_PUBLIC_BASE_PATH` cleanly (`/lemans/demo`). Do not hardcode prefixed paths in `router.push()`.
    - Money calculations must remain exact integer centavos (`cents`) using `formatPeso()`.
    - Preserve the demo theatre role switcher and simulated policy helper (`X-Demo-Role` header).
-4. Run validation checks inside rootless Podman containers:
-   - `./scripts/verify-local.sh` (Prettier, ESLint, TypeScript tsc, Next.js build, Go tests)
-   - `./scripts/verify-vertical-slice.sh` (Health checks and database isolation)
-   - `./scripts/verify-e2e.sh` (Playwright 57-test E2E suite)
+4. Run validation checks through the initialized Docker Sandbox:
+   - `jk-sbx-project exec -- ./scripts/verify-local.sh` (Prettier, ESLint, TypeScript tsc, Next.js build, Go tests)
+   - `jk-sbx-project exec -- ./scripts/verify-vertical-slice.sh` (Health checks and database isolation)
+   - `jk-sbx-project exec -- ./scripts/verify-e2e.sh` (Playwright 57-test E2E suite)
 
 Provide concise feedback, highlight any performance or UX improvement opportunities, and output diffs for any proposed code revisions.
 ```

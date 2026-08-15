@@ -179,10 +179,11 @@ major framework migration into a visual refinement.
 ### Verification recorded for this pass
 
 - `npm run format:check`, `npm run lint`, `npm run typecheck`, and
-  `npm run build` pass in a disposable rootless Podman container.
-- `./scripts/build.sh demo` passes and produces the required demo web and Go
+  `npm run build` are run through the initialized Docker Sandbox; remote
+  rootless Podman is reserved for VPS runtime activation.
+- `jk-sbx-project exec -- ./scripts/build.sh demo` produces the required demo web and Go
   image tags.
-- `./scripts/build.sh prod` passes and produces the required production web and
+- `jk-sbx-project exec -- ./scripts/build.sh prod` produces the required production web and
   Go image tags from the same source.
 - `./scripts/verify-e2e.sh` covers all 57 desktop, mobile, and reduced-motion
   Playwright tests, including focus rings, 44px targets, role switching,
@@ -337,7 +338,8 @@ ambiguous labels. Preserve domain identifiers and status values exactly.
 - Do not add a separate production source tree, login system, external `.env`,
   compose workflow, or new deployment mechanism.
 - Keep all application execution, builds, tests, and local validation inside
-  rootless Podman. Remote deployment remains a separate authorized operation.
+  the initialized Docker Sandbox with Docker. Remote rootless Podman remains a
+  separate authorized runtime operation.
 - Preserve API routes, request/response contracts, role policy, seeded data, and
   the shared `bridge-ph` Backblaze bucket convention (`lemans/demo` demo prefix,
   `lemans` production prefix) unless a separate approved change expands scope.
@@ -377,7 +379,7 @@ ambiguous labels. Preserve domain identifiers and status values exactly.
   shared brand language, recovery action, and safe user-facing copy.
 - Each route maintains a clear page-level heading hierarchy; utility branding is
   not used as a competing `h1`.
-- The existing rootless Podman validation, API tests, and Playwright suite pass.
+- The existing Docker Sandbox validation, API tests, and Playwright suite pass.
 - The public subpath and logo remain correct in the built demo.
 
 ## 8. Source guidance

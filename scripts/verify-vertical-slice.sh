@@ -2,7 +2,6 @@
 set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-export PATH="/opt/homebrew/bin:/opt/podman/bin:$PATH"
 
 cd "$PROJECT_ROOT"
 source "${PROJECT_ROOT}/scripts/lib/common.sh"
@@ -18,12 +17,13 @@ echo "=== Le Mans Vertical Slice Verification ==="
 echo "[1/2] Static analysis already verified via verify-local.sh"
 
 echo "[2/2] Verifying local demo stack health..."
-if ! podman ps --format '{{.Names}}' | grep -q "^${APP_NAME}$"; then
+if ! docker ps --format '{{.Names}}' | grep -q "^${APP_NAME}$"; then
   echo "Local demo app not running. Starting with ./scripts/run-local.sh..."
   "${PROJECT_ROOT}/scripts/run-local.sh"
 fi
 
 NETWORK_NAME="lemans-demo-net"
+LOCAL_PLATFORM="$(docker info --format '{{.OSType}}/{{.Architecture}}')"
 
 check_url() {
   local url=$1
@@ -31,7 +31,7 @@ check_url() {
   local network=${3:-}
   local status
   if [[ -n "$network" ]]; then
-    status=$(podman run --rm --network "$network" curlimages/curl:latest \
+    status=$(docker run --rm --platform "$LOCAL_PLATFORM" --network "$network" curlimages/curl:latest \
       -sL -o /dev/null -w '%{http_code}' "$url" 2>/dev/null || true)
   else
     status=$(curl -sL -o /dev/null -w '%{http_code}' "$url" || true)
@@ -57,7 +57,7 @@ check_url "http://127.0.0.1:${PORT}${BASE_PATH}/invoices" 200
 
 check_url "http://${GO_NAME}:8080/health" 200 "$NETWORK_NAME"
 
-published=$(podman inspect "${DB_NAME}" --format '{{json .NetworkSettings.Ports}}' 2> /dev/null | grep -c '"HostPort"' || true)
+published=$(docker inspect "${DB_NAME}" --format '{{json .NetworkSettings.Ports}}' 2> /dev/null | grep -c '"HostPort"' || true)
 if [[ "${published}" -gt 0 ]]; then
   echo "FAIL: ${DB_NAME} publishes host ports"
   exit 1

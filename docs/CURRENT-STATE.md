@@ -1,6 +1,6 @@
 # Current repository state
 
-- **Updated**: 2026-08-15 (Typography and opaque surface emphasis refinement)
+- **Updated**: 2026-08-16 (Docker Sandbox-first deployment packaging)
 - **Authority**: Current implementation and the demo rules in
   [`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md)
 - **Documentation index**: [`DOCUMENTATION-INDEX.md`](./DOCUMENTATION-INDEX.md)
@@ -16,7 +16,8 @@ implementation or operations.
   business rules, and Backblaze B2 presigned URLs.
 - Browser-side API mutations use the base-path-aware Next.js
   `/api/proxy/[...path]` route; the Go API hostname stays server-side.
-- PostgreSQL `postgres:alpine` on an internal rootless Podman network.
+- PostgreSQL `postgres:alpine` on an internal Docker network locally and an
+  internal rootless Podman network remotely.
 - `Dockerfile.web` builds `lemans-bridge-dashboard:{demo,prod}-web`.
 - `Dockerfile.go` builds `lemans-bridge-dashboard-go:{demo,prod}-go`.
 - The demo has no real authentication or production security boundary. It starts
@@ -71,23 +72,24 @@ The demo base path is `/lemans/demo`; the production profile uses `/lemans`.
 The optional local validation workflow is:
 
 ```bash
-export PATH="/opt/homebrew/bin:$PATH"
-./scripts/build.sh demo
-./scripts/run-local.sh
-./scripts/verify-local.sh
-./scripts/verify-vertical-slice.sh
-./scripts/verify-e2e.sh
-./scripts/stop-local.sh
+jk-sbx-project ensure
+jk-sbx-project exec -- ./scripts/build.sh demo
+jk-sbx-project publish 3000
+jk-sbx-project exec -- ./scripts/run-local.sh
+jk-sbx-project exec -- ./scripts/verify-local.sh
+jk-sbx-project exec -- ./scripts/verify-vertical-slice.sh
+jk-sbx-project exec -- ./scripts/verify-e2e.sh
+jk-sbx-project exec -- ./scripts/stop-local.sh
 ```
 
 `./scripts/reset-local.sh` removes the demo database volume; the next
 `run-local.sh` invocation recreates migrations and seed data. The database never
 publishes port 5432 to the host. The local runtime containers are named for
-verification and stopped by `stop-local.sh`; `run-local.sh` removes and replaces
-those project-specific containers on the next start. Validation-only containers
-use `--rm`.
+verification; `stop-local.sh` stops and removes those project-specific
+containers. `run-local.sh` removes and replaces them on the next start.
+Validation-only containers use `--rm`.
 
-The current demo validation baseline is complete in rootless Podman:
+The current demo validation baseline runs through the initialized Docker Sandbox:
 
 - `verify-local.sh`: Prettier, ESLint, TypeScript, Next.js production build,
   and Go tests pass.
@@ -101,9 +103,9 @@ The current demo validation baseline is complete in rootless Podman:
 - `npm audit --omit=dev`: no reported vulnerabilities after pinning the
   transitive `nanoid` dependency to the patched `3.3.18` release.
 
-The 2026-08-15 navigation focus repair and branded responsiveness refinement were additionally checked with fresh rootless
-Podman frontend validation (`format:check`, `lint`, `typecheck`, and
-production build), a successful demo web/API image build, and browser checks at
+The 2026-08-15 navigation focus repair and branded responsiveness refinement were additionally checked with fresh Docker Sandbox frontend
+validation (`format:check`, `lint`, `typecheck`, and production build), a
+successful demo web/API image build, and browser checks at
 desktop and 390x844 mobile widths. Those checks covered role-aware overview
 actions, seven readable workflow cards, mobile navigation disclosure, no
 overview horizontal overflow, role-filtered workflow and dashboard surfaces,
@@ -133,15 +135,17 @@ numeric or heading hierarchy. The pathname-keyed Motion route transition remains
 Motion- and SmoothUI-aligned and honors `prefers-reduced-motion` without delaying
 navigation.
 
-Remote deployment is separate: the workstation stages an exact `HEAD` source
-tree to the stable `current` path and syncs it with rsync, the VPS builds and
-smoke-tests stable profile images with rootless Podman, and the existing
-Quadlets under
-`/home/jk/.config/containers/systemd/bridge-ph/lemans-demo` activate those
-images. The deployment preflight reports blocking paths using stable Git
+Remote deployment is separate: the project Docker Sandbox builds stable
+`linux/amd64` profile images using native build stages, the workstation stages an
+exact `HEAD` source tree and checksum-verified image bundle to the stable
+`current` path with rsync, and the VPS imports those images with rootless Podman
+before activating the existing Quadlets under
+`/home/jk/.config/containers/systemd/bridge-ph/lemans-demo`. The deployment
+preflight reports blocking paths using stable Git
 porcelain output and permits only the tracked Serena metadata file
 `.serena/project.yml` to remain modified; it is excluded from the `HEAD`
-snapshot. Remote operations require explicit authorization.
+snapshot. The VPS does not compile or build the application. Remote operations
+require explicit authorization.
 
 The normal macOS operator path is documented in
 [`REMOTE-DEPLOYMENT-QUICKSTART.md`](./REMOTE-DEPLOYMENT-QUICKSTART.md). The

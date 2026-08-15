@@ -294,8 +294,9 @@ Every data-dependent page and component explicitly implements:
 - Inspect existing code and preserve unrelated user changes.
 - Use `apply_patch` for edits; do not rewrite entire files unnecessarily.
 - Keep any required local validation builds, tests, migrations, and app
-  execution inside disposable rootless Podman. Remote deployment builds and
-  runs on the VPS; it does not use the workstation as a deployment target.
+  execution inside the initialized Docker Sandbox with Docker. Remote
+  deployment imports locally built images and runs them on the VPS; it does not
+  build or compile there.
 - Do not use Compose, privileged containers, host networking, broad mounts, or
   published database ports.
 - Do not perform remote deployment, SSH, DNS, backup, or production changes
@@ -341,20 +342,21 @@ same file, document the exact blocker and leave the user's work untouched.
 
 ## 8. Required verification
 
-When local validation is explicitly required, run from the repository root.
-Remote deployment uses the remote-only procedure in
-[`REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`](./REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md):
-the workstation packages source and the VPS builds and smoke-tests images.
+When local validation is explicitly required, run from the repository root
+through the initialized Docker Sandbox. Remote deployment uses the remote-only
+procedure in [`REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`](./REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md):
+the workstation builds and packages images and the VPS imports and activates
+them.
 
 ```bash
-export PATH="/opt/homebrew/bin:$PATH"
-podman machine start
-./scripts/build.sh demo
-./scripts/build.sh prod
-./scripts/verify-local.sh
-./scripts/run-local.sh
-./scripts/verify-vertical-slice.sh
-./scripts/stop-local.sh
+jk-sbx-project ensure
+jk-sbx-project exec -- ./scripts/build.sh demo
+jk-sbx-project exec -- ./scripts/build.sh prod
+jk-sbx-project publish 3000
+jk-sbx-project exec -- ./scripts/run-local.sh
+jk-sbx-project exec -- ./scripts/verify-local.sh
+jk-sbx-project exec -- ./scripts/verify-vertical-slice.sh
+jk-sbx-project exec -- ./scripts/stop-local.sh
 ```
 
 The verification result must explicitly report:
@@ -399,7 +401,10 @@ Review these sources before implementation and again before handoff:
 - [goose migrations](https://github.com/pressly/goose)
 - [Podman Quadlet](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html)
 - [Podman Quadlet basic usage](https://docs.podman.io/en/latest/markdown/podman-quadlet-basic-usage.7.html)
-- [Podman build units](https://docs.podman.io/en/latest/markdown/podman-build.unit.5.html)
+- [Docker Sandboxes](https://docs.docker.com/ai/sandboxes/)
+- [Docker build best practices](https://docs.docker.com/build/building/best-practices/)
+- [`docker image save`](https://docs.docker.com/reference/cli/docker/image/save/)
+- [`podman load`](https://docs.podman.io/en/latest/markdown/podman-load.1.html)
 - [Diátaxis documentation framework](https://diataxis.fr/)
 - [Microsoft writing style](https://learn.microsoft.com/en-us/windows/apps/design/style/writing-style)
 - [Google developer documentation style guide](https://developers.google.com/style)

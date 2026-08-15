@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# VPS-side activation. Run this from the synced current source tree. All builds,
-# smoke checks, service changes, and health checks stay on the VPS.
+# VPS-side activation. Run this from the synced current source tree. The VPS
+# imports images built in the project Docker Sandbox, installs runtime
+# configuration, starts the existing Quadlets, and performs deployment health
+# checks. It does not compile, build, or run image smoke tests.
 
 PROFILE="${1:-}"
 shift || true
@@ -14,6 +16,7 @@ CADDY_NETWORK_NAME="${CADDY_NETWORK_NAME:-caddy}"
 CADDY_CONFIG_FILE="${CADDY_CONFIG_FILE:-/home/jk/caddy/conf/Caddyfile}"
 CADDY_CONTAINER="caddy"
 B2_FROM_STDIN="${B2_FROM_STDIN:-false}"
+IMAGE_BUNDLE=""
 
 while (($# > 0)); do
   case "$1" in
@@ -22,6 +25,7 @@ while (($# > 0)); do
     --remote-root) REMOTE_ROOT="${2:-}"; shift 2 ;;
     --quadlet-path) QUADLET_PATH="${2:-}"; shift 2 ;;
     --public-url) PUBLIC_URL="${2:-}"; shift 2 ;;
+    --image-bundle) IMAGE_BUNDLE="${2:-}"; shift 2 ;;
     --caddy-network-name) CADDY_NETWORK_NAME="${2:-}"; shift 2 ;;
     --caddy-config-file) CADDY_CONFIG_FILE="${2:-}"; shift 2 ;;
     *) echo "Error: unknown option: $1" >&2; exit 1 ;;
@@ -117,7 +121,9 @@ if [[ "$PUBLIC_URL" != https://* || "$PUBLIC_URL" != *"${BASE_PATH}"* ]]; then
   exit 1
 fi
 
-for tool in podman systemctl loginctl install sed awk mktemp openssl curl grep; do
+IMAGE_BUNDLE="${IMAGE_BUNDLE:-$SOURCE_ROOT/.lemans-${PROFILE}-images.tar}"
+IMAGE_CHECKSUM="${IMAGE_BUNDLE}.sha256"
+for tool in podman systemctl loginctl install sed awk mktemp openssl curl grep sha256sum; do
   command -v "$tool" >/dev/null 2>&1 || {
     echo "Error: required VPS tool not found: $tool" >&2
     exit 1
@@ -200,25 +206,25 @@ echo "=== ${PROFILE_LABEL} activation on VPS ==="
 echo "Source commit: ${SOURCE_COMMIT}"
 echo "Source: ${SOURCE_ROOT}"
 
-echo "[1/5] Building web image on the VPS..."
-podman build --pull=missing --force-rm \
-  --build-arg "NEXT_PUBLIC_BASE_PATH=${BASE_PATH}" \
-  -f Dockerfile.web -t "$WEB_IMAGE" .
-
-echo "[2/5] Building Go API image on the VPS..."
-podman build --pull=missing --force-rm \
-  -f Dockerfile.go -t "$GO_IMAGE" .
-
-echo "[3/5] Running disposable image smoke checks..."
-podman run --rm --entrypoint /bin/sh "$WEB_IMAGE" \
-  -c 'test -f /app/server.js && test -d /app/.next/static'
-podman run --rm --entrypoint /bin/sh "$GO_IMAGE" \
-  -c 'test -x /lemans-api && test -x /usr/local/bin/reset-demo.sh'
+echo "[1/5] Importing locally built image bundle on the VPS..."
+if [[ ! -s "$IMAGE_BUNDLE" || ! -s "$IMAGE_CHECKSUM" ]]; then
+  echo "Error: image bundle or checksum is missing: ${IMAGE_BUNDLE}" >&2
+  echo "Run the local deployment wrapper to build and transfer the bundle." >&2
+  exit 1
+fi
+if ! (
+  cd "$(dirname "$IMAGE_BUNDLE")"
+  sha256sum -c "$(basename "$IMAGE_CHECKSUM")"
+); then
+  echo "Error: image bundle checksum verification failed." >&2
+  exit 1
+fi
+podman load --input "$IMAGE_BUNDLE"
 
 WEB_ID="$(podman image inspect "$WEB_IMAGE" --format '{{.Id}}')"
 GO_ID="$(podman image inspect "$GO_IMAGE" --format '{{.Id}}')"
 
-echo "[4/5] Installing Quadlets and runtime configuration..."
+echo "[2/5] Installing Quadlets and runtime configuration..."
 for file in "$SOURCE_ROOT/$QUADLET_SOURCE_DIR"/*.container \
             "$SOURCE_ROOT/$QUADLET_SOURCE_DIR"/*.network \
             "$SOURCE_ROOT/$QUADLET_SOURCE_DIR"/*.volume; do
@@ -296,6 +302,7 @@ run_unit() {
   fi
 }
 
+echo "[3/5] Loading and starting Quadlet services..."
 systemctl --user daemon-reload
 expected_units=("$NETWORK_SERVICE" "$VOLUME_SERVICE" "$DB_SERVICE" "$GO_SERVICE" "$WEB_SERVICE")
 if [[ "$DEMO_MODE" == true ]]; then
@@ -340,11 +347,10 @@ fi
 
 run_unit restart "$GO_SERVICE"
 for i in {1..60}; do
-  status="$(podman exec "$GO_CONTAINER" curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8080/health || true)"
-  [[ "$status" == 200 ]] && break
+  podman exec "$GO_CONTAINER" wget -q -T 2 -t 1 -O /dev/null http://127.0.0.1:8080/health && break || true
   sleep 1
 done
-if [[ "$(podman exec "$GO_CONTAINER" curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:8080/health || true)" != 200 ]]; then
+if ! podman exec "$GO_CONTAINER" wget -q -T 5 -t 1 -O /dev/null http://127.0.0.1:8080/health; then
   echo "Error: $GO_SERVICE health check failed." >&2
   report_unit_failure "$GO_SERVICE"
   exit 1
@@ -353,8 +359,10 @@ fi
 if [[ "$DEMO_MODE" == true ]]; then
   count="$(podman exec "$DB_CONTAINER" psql -U postgres -d "$DB_NAME" -tAc 'SELECT count(*) FROM customers' | tr -d ' ' || echo 0)"
   if [[ "${RESET:-false}" == true || "$count" == 0 ]]; then
-    podman exec "$GO_CONTAINER" curl -fsS -X POST http://127.0.0.1:8080/admin/seed \
-      -H 'Content-Type: application/json' -d '{}'
+    podman exec "$GO_CONTAINER" wget -q -T 30 -t 3 \
+      --header='Content-Type: application/json' \
+      --post-data='{}' \
+      -O - http://127.0.0.1:8080/admin/seed
   fi
   run_unit start lemans-demo-reset.timer
 else
@@ -493,6 +501,7 @@ ensure_caddy_route() {
   echo "Caddy configuration validated and gracefully reloaded."
 }
 
+echo "[4/5] Validating Caddy and the deployed web runtime..."
 ensure_caddy_route
 run_unit restart "$WEB_SERVICE"
 for i in {1..60}; do

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the containerized architecture for the **Le Mans Operations & Job Cost Management System**. The workstation packages committed source; the Linux VPS builds images and runs the Quadlet systemd deployment.
+This document describes the containerized architecture for the **Le Mans Operations & Job Cost Management System**. The workstation Docker Sandbox builds and validates committed source; the Linux VPS imports those images and runs the Quadlet systemd deployment.
 
 > **Demo profile override (2026-08-09):** The demo build is intentionally
 > authentication-free. It starts with a simulated `Enter as an Admin` splash,
@@ -16,19 +16,23 @@ This document describes the containerized architecture for the **Le Mans Operati
 
 ## Research and technical choices
 
-Based on current 2026 containerization standards (Next.js 16 self-hosting, Go latest backend patterns, Podman Quadlet rootless units, sqlc, and goose):
+Based on current 2026 containerization standards (Docker Sandboxes, Docker image build practices, Next.js 16 self-hosting, Go latest backend patterns, Podman Quadlet rootless units, sqlc, and goose):
 
 - Next.js standalone output is the recommended self-hosting mode for Docker/Container deployments: https://nextjs.org/docs/app/api-reference/config/next-config-js/output
 - Go backend best practice is SQL-first data access with sqlc + goose and HTTP routing with Chi: https://docs.sqlc.dev, https://github.com/pressly/goose, https://github.com/go-chi/chi
 - Podman Quadlet rootless user units live in `/home/jk/.config/containers/systemd/` on this VPS and are managed via `systemctl --user`: https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html
 - Podman’s rootless Quadlet workflow uses `daemon-reload` and `systemctl --user start`; generated units should be verified rather than enabled directly: https://docs.podman.io/en/latest/markdown/podman-quadlet-basic-usage.7.html
+- Docker Sandboxes provide an isolated microVM workspace with a private Docker engine for local agent and project execution: https://docs.docker.com/ai/sandboxes/
+- Docker recommends `.dockerignore`, multi-stage builds, and cache-aware Dockerfiles: https://docs.docker.com/build/building/best-practices/
 
 Specific project choices:
 
 1. **Next.js Standalone Optimization**:
    - Next.js is configured with `output: 'standalone'` in `next.config.ts` to produce a minimal runtime image that still supports API routes and dynamic pages.
    - Multi-stage Dockerfile builds separate dependencies (`deps`), build (`builder`), and runtime (`runner`) stages.
-   - Production images run under an unprivileged non-root user (`nextjs:nodejs`, UID/GID 1001).
+   - Production images run under the unprivileged `node` user provided by the
+     official Node base image; the Go runtime is a static binary on Alpine with
+     BusyBox `wget` used by the reset job.
    - Telemetry disabled (`NEXT_TELEMETRY_DISABLED=1`).
 2. **Go API Backend**:
    - All persistence, business logic, migrations, and S3 presigned URLs are owned by the Go API (`backend/`).
@@ -43,11 +47,10 @@ Specific project choices:
    - **Demo Builds**: Web `lemans-bridge-dashboard:demo-web`, Go API `lemans-bridge-dashboard-go:demo-go`.
    - **Production Builds**: Web `lemans-bridge-dashboard:prod-web`, Go API `lemans-bridge-dashboard-go:prod-go`.
 5. **No Compose Mandate**:
-   - `podman compose` / `docker compose` are not used.
-   - Optional local validation uses disposable `podman run --rm` helper
-     containers. The local demo runtime uses named project containers that
-     `scripts/stop-local.sh` stops and `scripts/run-local.sh` replaces on the
-     next start; remote deployment performs builds and execution on the VPS.
+   - Compose is not used.
+   - Local validation and the local demo runtime use Docker containers inside
+     the project Sandbox. Remote deployment transfers locally built images;
+     the VPS imports them and performs runtime activation only.
 6. **Declarative Podman Quadlet Systemd Management**:
    - Production containers are managed declaratively using Quadlet files (`.container`, `.volume`, `.network`) placed in `/home/jk/.config/containers/systemd/` on the VPS.
    - Systemd user lingering is a remote operator prerequisite
@@ -62,10 +65,10 @@ Specific project choices:
 
 ```
 ┌────────────────────────────────────────────────────────────────────────────────────────┐
-│ HOST SYSTEM (macOS Podman Machine / Remote Linux Host)                                 │
+│ PROJECT DOCKER SANDBOX (macOS) / REMOTE LINUX HOST                                  │
 │                                                                                        │
 │  ┌──────────────────────────────────────────────────────────────────────────────────┐  │
-│  │ PODMAN USER NETWORK (`lemans-net` - Isolated Bridge, No Host Port Publishing DB) │  │
+│  │ DOCKER NETWORK LOCALLY / PODMAN NETWORK REMOTELY (`lemans-net`)                 │  │
 │  │                                                                                  │  │
 │  │   ┌───────────────────────────────────────────────────────────────────────────┐  │  │
 │  │   │ WEB CONTAINER (`lemans-app`)                                              │  │  │
@@ -117,9 +120,10 @@ container is attached only to the internal network.
 - **Zero Exposed Database Ports**: Database container listens exclusively on container-internal bridge network (`lemans-net`). Host cannot access port 5432 directly.
 - **Loopback App Port Binding**: Application container binds exclusively to `127.0.0.1:3000` locally; on VPS, only the Caddy bridge container binds the public proxy port.
 - **Unprivileged Container Execution**: Application process runs as non-root `nextjs` user (UID 1001).
-- **No Compose**: Validation uses disposable `podman run --rm` containers;
-  the local demo uses named project containers and remote environments use
-  Quadlet units. No `docker.sock` or compose socket mounts are allowed.
+- **No Compose**: Validation uses disposable Docker `run --rm` containers
+  inside the Sandbox; the local demo uses named Docker containers and remote
+  environments use Quadlet units. No container socket or compose socket mounts
+  are allowed.
 
 ### Observability & Logging
 

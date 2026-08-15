@@ -14,8 +14,9 @@ runtime and a backend boundary that can own migrations and financial rules.
 ## Decision
 
 The current source uses Next.js 16 App Router (`output: 'standalone'`) as the
-web frontend, a Go 1.26 API for persistence and business logic, and PostgreSQL
-on rootless Podman:
+web frontend, a Go 1.26 API for persistence and business logic, and PostgreSQL.
+Local execution uses Docker inside the initialized project Sandbox; the VPS
+uses rootless Podman Quadlets for the persistent runtime:
 
 1. **Web frontend**: Next.js Server Components and route handlers provide the
    demo UI and form feedback; standalone output produces the minimal runtime

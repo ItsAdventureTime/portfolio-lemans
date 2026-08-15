@@ -1,7 +1,7 @@
 # Agent prompts
 
 - **Status**: Current operational prompt set
-- **Updated**: 2026-08-14
+- **Updated**: 2026-08-16
 - **Documentation map**: [`DOCUMENTATION-INDEX.md`](./DOCUMENTATION-INDEX.md)
 
 These prompts are copy-paste instructions for the next coding or review agent.
@@ -55,9 +55,10 @@ prefers-reduced-motion fallback. Maintain keyboard access, visible focus, and
 
 Use server-side input validation in the Go API, exact monetary arithmetic,
 centralized demo actor/policy helpers, and focused tests. Use apply_patch for
-edits. Run all execution, builds, tests, migrations, and servers inside
-rootless Podman. Do not use Compose, privileged containers, host networking,
-broad mounts, published DB ports, or remote deployment.
+edits. Run all execution, builds, tests, migrations, and servers through
+`jk-sbx-project exec` inside the initialized Docker Sandbox with Docker. Do not
+use Compose, privileged containers, host networking, broad mounts, published DB
+ports, or remote deployment.
 
 At the end, report changed files, requirement coverage, commands run, exact
 results, warnings, and any remaining blockers. Do not claim completion for
@@ -88,18 +89,20 @@ line numbers, reproduction steps, and a recommended fix. Do not edit files.
 ## 4. Verification prompt
 
 ```text
-If local verification is explicitly required, verify the Le Mans demo from a
-clean, disposable rootless Podman runtime. Remote deployment does not use this
-local runtime; it builds and smoke-tests on the VPS.
+If local verification is explicitly required, verify the Le Mans demo from the
+initialized project Docker Sandbox. Remote deployment does not build or
+smoke-test images on the VPS; it imports the locally validated bundle.
 
 Run:
-  podman machine start
-  ./scripts/run-local.sh
-  ./scripts/verify-local.sh
-  ./scripts/verify-vertical-slice.sh
+  jk-sbx-project ensure
+  jk-sbx-project publish 3000
+  jk-sbx-project exec -- ./scripts/run-local.sh
+  jk-sbx-project exec -- ./scripts/verify-local.sh
+  jk-sbx-project exec -- ./scripts/verify-vertical-slice.sh
 
-Run the E2E suite in a disposable Playwright container attached to
-`lemans-demo-net` with `PLAYWRIGHT_BASE_URL=http://lemans-demo-app:3000`.
+Run the E2E suite in a disposable Playwright container attached to the local
+Docker network `lemans-demo-net` with
+`PLAYWRIGHT_BASE_URL=http://lemans-demo-app:3000`.
 
 Then exercise the UI through `Enter as an Admin`, and as Admin, General Manager,
 Sales Advisor, Service Advisor, Purchasing, and DCS. Verify role switching without
@@ -140,27 +143,28 @@ Run these from `/Users/jk.deguzman/dev/lemans-bridge-dashboard`:
 git status --short --untracked-files=all
 git diff --check
 
-# Start and validate the demo
-export PATH="/opt/homebrew/bin:$PATH"
-podman machine start
-./scripts/build.sh demo
-./scripts/build.sh prod
-./scripts/verify-local.sh
-./scripts/run-local.sh
-./scripts/verify-vertical-slice.sh
-./scripts/verify-e2e.sh
+# Start and validate the demo inside Docker Sandbox
+jk-sbx-project ensure
+jk-sbx-project exec -- ./scripts/build.sh demo
+jk-sbx-project exec -- ./scripts/build.sh prod
+jk-sbx-project publish 3000
+jk-sbx-project exec -- ./scripts/run-local.sh
+jk-sbx-project exec -- ./scripts/verify-local.sh
+jk-sbx-project exec -- ./scripts/verify-vertical-slice.sh
+jk-sbx-project exec -- ./scripts/verify-e2e.sh
 
 # Manual spot checks at http://127.0.0.1:3000/lemans/demo/...
 
 # Browser / E2E checks (the wrapper creates a disposable Playwright container)
-./scripts/verify-e2e.sh
+jk-sbx-project exec -- ./scripts/verify-e2e.sh
 
 # Stop only the project demo runtime after validation
-./scripts/stop-local.sh
+jk-sbx-project exec -- ./scripts/stop-local.sh
 ```
 
-If a container build fails with `cannot allocate memory`, stop any running
-containers and restart the Podman machine before retrying the build.
+If a Sandbox build fails with a resource error, stop only the project-local
+containers with `jk-sbx-project exec -- ./scripts/stop-local.sh` and inspect
+`jk-sbx-project status` before retrying. Do not reset or destroy the Sandbox.
 
 If a script reports success while an inner check failed, inspect the script and
 run the failing command independently. Do not accept a green wrapper as proof.
@@ -190,9 +194,8 @@ files just to create a clean-looking release.
 
 ```text
 Deploy only the remote demo profile. Do not maintain or start a persistent local
-deployment. The workstation packages the clean committed source only; it does
-not locally build, compile, or execute the application for deployment. Local
-Podman is an optional disposable validation exception and must use `--rm`.
+deployment. The workstation Docker Sandbox builds, compiles, validates, and
+packages the clean committed source for deployment. Local Podman is not used.
 
 Use ./scripts/sync-remote-demo.sh followed by the printed VPS-side activation
 command as the preferred deployment flow. ./scripts/deploy-remote-demo.sh
@@ -207,10 +210,12 @@ under:
 The target URL is:
   https://delegateops.business/lemans/demo
 
-Follow docs/REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md. Transfer the committed source
-tree to the stable `current` directory (not a source archive), build both stable
-profile-tagged web and Go API images on the
-VPS, and use disposable `podman run --rm` image smoke checks there. Attach the
+Follow docs/REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md. Build both stable
+profile-tagged web and Go API images inside the Docker Sandbox for the verified
+remote target (currently `linux/amd64`), transfer the committed source tree and
+checksum-verified image bundle to the
+stable `current` directory, and import the images with rootless `podman load` on
+the VPS. Do not build or smoke-test images there. Attach the
 web container directly to the Caddy and internal networks, attach the Go API
 only to the internal network, keep the DB internal with no published port, use
 safe migrations, and verify the subpath, assets, API routes, Go API health,

@@ -1,10 +1,13 @@
-FROM node:lts-alpine AS deps
+# Build the JavaScript application with the Sandbox's native Node runtime.
+# Only the final runtime stage follows TARGETPLATFORM, so cross-architecture
+# packaging does not require executing an amd64 image inside an ARM Sandbox.
+FROM --platform=$BUILDPLATFORM node:lts-alpine AS deps
 RUN apk add --no-cache libc6-compat
 WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm ci
 
-FROM node:lts-alpine AS builder
+FROM --platform=$BUILDPLATFORM node:lts-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
@@ -28,14 +31,12 @@ ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 ENV NEXT_PUBLIC_BASE_PATH=${NEXT_PUBLIC_BASE_PATH}
 
-RUN addgroup -g 1001 -S nodejs && adduser -S nextjs -u 1001
-
 COPY --from=builder /app/public ./public
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/package.json ./package.json
+COPY --from=builder --chown=node:node /app/.next/standalone ./
+COPY --from=builder --chown=node:node /app/.next/static ./.next/static
+COPY --from=builder --chown=node:node /app/package.json ./package.json
 
-USER nextjs
+USER node
 EXPOSE 3000
 
 CMD ["node", "server.js"]

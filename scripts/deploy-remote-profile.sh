@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Local orchestrator. It only prepares a committed source snapshot and sends it
-# with rsync. Builds and application execution happen on the VPS activation
-# script under rootless Podman.
+# Local orchestrator. It builds Linux deployment images inside the project
+# Docker Sandbox, exports an ephemeral image bundle, and sends the committed
+# source plus bundle with rsync. The VPS imports the images and activates its
+# existing rootless Podman runtime; it does not compile or build the app.
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SCRIPT_DIR="${PROJECT_ROOT}/scripts"
@@ -20,6 +21,7 @@ CADDY_NETWORK_NAME="${CADDY_NETWORK_NAME:-}"
 CADDY_CONFIG_FILE="${CADDY_CONFIG_FILE:-/home/jk/caddy/conf/Caddyfile}"
 REMOTE_ROOT_OVERRIDE="${REMOTE_PATH:-}"
 QUADLET_PATH_OVERRIDE="${QUADLET_PATH:-}"
+ARTIFACT_ROOT="${PROJECT_ROOT}/.deployment-artifacts"
 
 while (($# > 0)); do
   case "$1" in
@@ -50,6 +52,10 @@ if [[ "$PROFILE" == prod ]]; then
 fi
 REMOTE_ROOT="${REMOTE_ROOT_OVERRIDE:-$DEFAULT_REMOTE_ROOT}"
 QUADLET_PATH="${QUADLET_PATH_OVERRIDE:-$DEFAULT_QUADLET_PATH}"
+IMAGE_BUNDLE_NAME=".lemans-${PROFILE}-images.tar"
+IMAGE_ARTIFACT_DIR="${ARTIFACT_ROOT}/${PROFILE}"
+IMAGE_BUNDLE_PATH="${IMAGE_ARTIFACT_DIR}/${IMAGE_BUNDLE_NAME}"
+IMAGE_CHECKSUM_PATH="${IMAGE_BUNDLE_PATH}.sha256"
 
 KEYCHAIN_SERVICE_PREFIX="lemans-bridge-dashboard/${PROFILE}"
 keychain_value() {
@@ -99,7 +105,7 @@ if [[ "$PROFILE" == prod && "$RESET_FLAG" == true ]]; then
   exit 1
 fi
 
-for tool in git ssh rsync mktemp tar; do
+for tool in git ssh rsync mktemp tar jk-sbx-project; do
   command -v "$tool" >/dev/null 2>&1 || {
     echo "Error: required local tool not found: $tool" >&2
     exit 1
@@ -130,6 +136,15 @@ if [[ -n "$LOCAL_METADATA_STATUS" ]]; then
   printf '%s\n' "$LOCAL_METADATA_STATUS" >&2
 fi
 
+rm -f "$IMAGE_BUNDLE_PATH" "$IMAGE_CHECKSUM_PATH"
+echo "Building ${PROFILE_LABEL} images inside the Docker Sandbox..."
+jk-sbx-project exec -- ./scripts/build-local-artifacts.sh \
+  "$PROFILE" ".deployment-artifacts/${PROFILE}"
+if [[ ! -s "$IMAGE_BUNDLE_PATH" || ! -s "$IMAGE_CHECKSUM_PATH" ]]; then
+  echo "Error: local image bundle was not created." >&2
+  exit 1
+fi
+
 SOURCE_COMMIT="$(git rev-parse HEAD)"
 REMOTE="${REMOTE_USER}@${REMOTE_HOST}"
 REMOTE_SOURCE_DIR="${REMOTE_ROOT}/current"
@@ -144,13 +159,16 @@ SSH_OPTIONS=(
 RSYNC_RSH="ssh -o ControlMaster=auto -o ControlPersist=5m -o ControlPath=${SSH_CONTROL_PATH}"
 cleanup() {
   ssh "${SSH_OPTIONS[@]}" -O exit "$REMOTE" >/dev/null 2>&1 || true
+  rm -f "$IMAGE_BUNDLE_PATH" "$IMAGE_CHECKSUM_PATH"
   rm -rf "$STAGING_DIR" "$SSH_CONTROL_DIR"
 }
 trap cleanup EXIT
 
 # Export HEAD into a temporary directory; this avoids accidentally syncing
 # staged-but-uncommitted content. The tar stream is not retained or transferred
-# as an archive, and the temporary tree is removed on every exit path.
+# as an archive, and the temporary tree is removed on every exit path. The
+# separately generated image bundle is transferred below and also removed
+# from the workspace on every exit path.
 git archive --format=tar HEAD -- . ':(exclude).serena/project.yml' |
   tar -xf - -C "$STAGING_DIR"
 printf '%s\n' "$SOURCE_COMMIT" > "$STAGING_DIR/.lemans-source-commit"
@@ -158,7 +176,7 @@ printf '%s\n' "$PUBLIC_URL" > "$STAGING_DIR/.lemans-public-url"
 
 echo "=== Remote ${PROFILE_LABEL} source sync ==="
 echo "Host: ${REMOTE}"
-echo "Local actions: committed source snapshot + resumable rsync only"
+echo "Local actions: Docker Sandbox build + committed source snapshot + resumable rsync"
 
 ssh_remote() {
   # shellcheck disable=SC2029
@@ -170,6 +188,12 @@ rsync -a --delete --partial --info=progress2 -e "$RSYNC_RSH" \
   "$STAGING_DIR/" "$REMOTE:${REMOTE_SOURCE_DIR}/"
 
 echo "Source synced to ${REMOTE_SOURCE_DIR}"
+echo "Transferring prebuilt image bundle to ${REMOTE_SOURCE_DIR}/${IMAGE_BUNDLE_NAME}"
+rsync -a --partial --info=progress2 -e "$RSYNC_RSH" \
+  "$IMAGE_BUNDLE_PATH" "$IMAGE_CHECKSUM_PATH" \
+  "$REMOTE:${REMOTE_SOURCE_DIR}/"
+
+echo "Source and image bundle synced to ${REMOTE_SOURCE_DIR}"
 echo "After logging in to the VPS, run:"
 echo "  cd '${REMOTE_SOURCE_DIR}' && ./scripts/${ACTIVATE_SCRIPT}"
 
@@ -191,7 +215,7 @@ echo "Activating deployment on the VPS..."
 {
   printf '%s\n' "$B2_ACCESS_KEY_ID" "$B2_SECRET_ACCESS_KEY"
 } | ssh_remote \
-  "cd '$REMOTE_SOURCE_DIR' && B2_FROM_STDIN=true RESET='$RESET_FLAG' ./scripts/${ACTIVATE_SCRIPT} --remote-root '$REMOTE_ROOT' --quadlet-path '$QUADLET_PATH' --caddy-network-name '$CADDY_NETWORK_NAME' --caddy-config-file '$CADDY_CONFIG_FILE'"
+  "cd '$REMOTE_SOURCE_DIR' && B2_FROM_STDIN=true RESET='$RESET_FLAG' ./scripts/${ACTIVATE_SCRIPT} --remote-root '$REMOTE_ROOT' --quadlet-path '$QUADLET_PATH' --image-bundle '$REMOTE_SOURCE_DIR/$IMAGE_BUNDLE_NAME' --caddy-network-name '$CADDY_NETWORK_NAME' --caddy-config-file '$CADDY_CONFIG_FILE'"
 
 echo "=== ${PROFILE_LABEL} deployed ==="
 echo "Public URL: ${PUBLIC_URL}"

@@ -2,7 +2,6 @@
 set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-export PATH="/opt/homebrew/bin:/opt/podman/bin:$PATH"
 
 cd "$PROJECT_ROOT"
 source "${PROJECT_ROOT}/scripts/lib/common.sh"
@@ -18,27 +17,40 @@ DB_PASSWORD="$(generate_password)"
 
 cleanup_local() {
   echo "Cleaning up local resources..."
-  podman rm -f "$APP_NAME" "$GO_NAME" "$DB_NAME" 2>/dev/null || true
+  docker rm -f "$APP_NAME" "$GO_NAME" "$DB_NAME" 2>/dev/null || true
 }
 
 create_local_resources() {
-  if ! podman network exists "$NETWORK_NAME"; then
-    podman network create "$NETWORK_NAME"
+  if ! docker network inspect "$NETWORK_NAME" >/dev/null 2>&1; then
+    docker network create "$NETWORK_NAME"
   fi
-  if ! podman volume exists "$VOLUME_NAME"; then
-    podman volume create "$VOLUME_NAME"
+  if ! docker volume inspect "$VOLUME_NAME" >/dev/null 2>&1; then
+    docker volume create "$VOLUME_NAME"
   fi
 }
 
 echo "=== Le Mans Local Run ==="
 
-podman rm -f "$APP_NAME" "$GO_NAME" "$DB_NAME" 2>/dev/null || true
-podman volume rm "$VOLUME_NAME" 2>/dev/null || true
+LOCAL_PLATFORM="$(docker info --format '{{.OSType}}/{{.Architecture}}')"
+needs_local_images=false
+for image in lemans-bridge-dashboard-go:demo-go lemans-bridge-dashboard:demo-web; do
+  image_platform="$(docker image inspect "$image" --format '{{.Os}}/{{.Architecture}}' 2>/dev/null || true)"
+  if [[ "$image_platform" != "$LOCAL_PLATFORM" ]]; then
+    needs_local_images=true
+  fi
+done
+if [[ "$needs_local_images" == true ]]; then
+  echo "Building native local images for ${LOCAL_PLATFORM}..."
+  TARGET_PLATFORM="$LOCAL_PLATFORM" ./scripts/build.sh demo
+fi
+
+docker rm -f "$APP_NAME" "$GO_NAME" "$DB_NAME" 2>/dev/null || true
+docker volume rm "$VOLUME_NAME" 2>/dev/null || true
 
 create_local_resources
 
-podman run -d \
-  --replace \
+docker run -d \
+  --platform "$LOCAL_PLATFORM" \
   --name "$DB_NAME" \
   --network "$NETWORK_NAME" \
   -e POSTGRES_USER=postgres \
@@ -50,8 +62,8 @@ podman run -d \
 
 wait_for_db "$DB_NAME"
 
-podman run -d \
-  --replace \
+docker run -d \
+  --platform "$LOCAL_PLATFORM" \
   --name "$GO_NAME" \
   --network "$NETWORK_NAME" \
   -e DATABASE_URL="postgresql://postgres:${DB_PASSWORD}@${DB_NAME}:5432/lemans_demo_db" \
@@ -64,14 +76,14 @@ podman run -d \
 wait_for_http "http://${GO_NAME}:8080/health" "$NETWORK_NAME"
 
 # Seed the demo database
-podman run --rm --network "$NETWORK_NAME" curlimages/curl:latest \
+docker run --rm --platform "$LOCAL_PLATFORM" --network "$NETWORK_NAME" curlimages/curl:latest \
   -s -X POST "http://${GO_NAME}:8080/admin/seed" \
   -H 'Content-Type: application/json' \
   -d '{}'
 echo "Demo database seeded"
 
-podman run -d \
-  --replace \
+docker run -d \
+  --platform "$LOCAL_PLATFORM" \
   --name "$APP_NAME" \
   --network "$NETWORK_NAME" \
   -p "127.0.0.1:${PORT}:3000" \

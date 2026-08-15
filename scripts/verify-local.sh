@@ -2,20 +2,21 @@
 set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-export PATH="/opt/homebrew/bin:/opt/podman/bin:$PATH"
 
 cd "$PROJECT_ROOT"
 source "${PROJECT_ROOT}/scripts/lib/common.sh"
 
 NODE_IMAGE="node:lts-alpine"
 GO_IMAGE="golang:alpine"
+LOCAL_PLATFORM="$(docker info --format '{{.OSType}}/{{.Architecture}}')"
 
 echo "=== Running local verification in disposable containers ==="
 
 fail=0
 
 run_node() {
-  podman run --rm \
+  docker run --rm \
+    --platform "$LOCAL_PLATFORM" \
     -v "${PROJECT_ROOT}:/app:rw" \
     -w /app \
     "$NODE_IMAGE" sh -c "
@@ -29,7 +30,8 @@ run_node() {
 }
 
 run_go() {
-  podman run --rm \
+  docker run --rm \
+    --platform "$LOCAL_PLATFORM" \
     -v "${PROJECT_ROOT}/backend:/app:rw" \
     -w /app \
     "$GO_IMAGE" sh -c '
