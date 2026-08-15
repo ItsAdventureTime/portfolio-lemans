@@ -47,9 +47,9 @@ DB_CONTAINER="lemans-demo-db"
 GO_CONTAINER="lemans-demo-go"
 APP_CONTAINER="lemans-demo-app"
 DB_NAME="lemans_demo_db"
-  QUADLET_SOURCE_DIR="quadlet/remote-demo"
-  CADDY_ROUTE_SOURCE="caddy/lemans-demo.handlers.Caddyfile"
-  CADDY_ROUTE_IMPORT="/etc/caddy/lemans-demo.handlers.Caddyfile"
+QUADLET_SOURCE_DIR="quadlet/remote-demo"
+CADDY_ROUTE_SOURCE="caddy/lemans-demo.handlers.Caddyfile"
+CADDY_ROUTE_IMPORT="/etc/caddy/lemans-demo.handlers.Caddyfile"
 BACKUP_TIMER=""
 DEMO_MODE=true
 
@@ -372,6 +372,9 @@ ensure_caddy_route() {
     podman exec -i --user 0 "$CADDY_CONTAINER" caddy "$@"
   }
   local config_dir="${CADDY_CONFIG_FILE%/*}"
+  local stale_legacy_import="/etc/caddy/pimascor-production.handlers.Caddyfile"
+  local stale_legacy_fragment="${config_dir}/$(basename "$stale_legacy_import")"
+  local remove_stale_legacy_import=false
   local temp_route="$(mktemp)" temp_config="$(mktemp)" formatted="$(mktemp)"
   relabel_caddy_files() {
     # Quadlet's :Z mount labels existing files when Caddy starts. Files copied
@@ -381,12 +384,36 @@ ensure_caddy_route() {
         >/dev/null 2>&1 || true
     fi
   }
+  if [[ ! -f "$stale_legacy_fragment" ]] && awk -v import_path="$stale_legacy_import" '
+    function is_import(line, path, trimmed) {
+      trimmed=line
+      sub(/^[[:space:]]*import[[:space:]]+/, "", trimmed)
+      sub(/[[:space:]]*$/, "", trimmed)
+      return trimmed == path
+    }
+    is_import($0, import_path) { found=1 }
+    END { exit(found ? 0 : 1) }
+  ' "$CADDY_CONFIG_FILE"; then
+    remove_stale_legacy_import=true
+    echo "Removing stale Caddy import ${stale_legacy_import}; fragment not found at ${stale_legacy_fragment}." >&2
+  fi
   caddy_cli_stdin fmt - < "$SOURCE_ROOT/$CADDY_ROUTE_SOURCE" > "$temp_route" || {
     echo "Error: tracked Le Mans Caddy route could not be formatted." >&2
     exit 1
   }
-  awk -v route_file="$temp_route" -v import_path="$CADDY_ROUTE_IMPORT" '
-    $0 ~ "^[[:space:]]*import[[:space:]]+" import_path "[[:space:]]*$" { next }
+  awk \
+    -v route_file="$temp_route" \
+    -v import_path="$CADDY_ROUTE_IMPORT" \
+    -v stale_import_path="$stale_legacy_import" \
+    -v remove_stale_import="$remove_stale_legacy_import" '
+    function is_import(line, path, trimmed) {
+      trimmed=line
+      sub(/^[[:space:]]*import[[:space:]]+/, "", trimmed)
+      sub(/[[:space:]]*$/, "", trimmed)
+      return trimmed == path
+    }
+    is_import($0, import_path) { next }
+    remove_stale_import == "true" && is_import($0, stale_import_path) { next }
     /# BEGIN LEMANS DEMO ROUTE/ { skipping=1; next }
     skipping && /# END LEMANS DEMO ROUTE/ { skipping=0; next }
     !skipping && !inserted && $0 ~ /^[[:space:]]*# DelegateOps static-site fallback[[:space:]]*$/ {

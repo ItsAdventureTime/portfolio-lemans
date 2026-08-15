@@ -51,6 +51,13 @@ container, and then performs a graceful reload. It does not follow redirects
 for the final public health check, so a `308` is reported with its redirect
 chain instead of being hidden.
 
+Caddy requires a specific `import` target to exist. To support the current VPS
+configuration, activation also removes the known obsolete
+`/etc/caddy/pimascor-production.handlers.Caddyfile` import only when its matching
+host fragment is absent from `/home/jk/caddy/conf/`. If the fragment exists, the
+import is preserved and validated. Other missing imports still stop deployment;
+wildcard imports and unrelated routes are never removed automatically.
+
 ```caddy
 delegateops.business {
     @lemans_demo path /lemans/demo /lemans/demo/*
@@ -307,6 +314,7 @@ If a user without permission manually navigates to a restricted URL (e.g. a `ROL
 - [Next.js standalone output](https://nextjs.org/docs/app/api-reference/config/next-config-js/output)
 - [`gh auth setup-git`](https://cli.github.com/manual/gh_auth_setup-git)
 - [Caddy command line (`fmt`, `validate`, and `reload`)](https://caddyserver.com/docs/command-line)
+- [Caddy `import` directive](https://caddyserver.com/docs/caddyfile/directives/import)
 - [Caddy graceful reload guidance](https://caddyserver.com/docs/getting-started)
 - [goose migrations](https://github.com/pressly/goose)
 - [sqlc documentation](https://docs.sqlc.dev)

@@ -1,7 +1,7 @@
 # Remote Demo Deployment Playbook
 
 - **Status**: Authoritative for the remote demo deployment profile
-- **Version**: 1.7.0
+- **Version**: 1.7.1
 - **Updated**: 2026-08-15
 - **Target URL**: `https://delegateops.business/lemans/demo`
 - **Remote user**: `jk`
@@ -185,6 +185,14 @@ static-site and application mounts. The operator should provide the
 configuration if the network name, site-block structure, or TLS ownership is
 unclear.
 
+Caddy treats a specific `import` path as required. During demo activation, the
+script removes only the known obsolete
+`/etc/caddy/pimascor-production.handlers.Caddyfile` import when the matching
+host fragment is absent from `/home/jk/caddy/conf/`. This repairs the stale
+reference left by the previous PimasCor route layout. If that fragment exists,
+the import remains and must pass validation. Missing imports for any other path
+remain fatal; the script does not remove wildcard imports or unrelated routes.
+
 ## 5. Deployment commands
 
 For the shortest operator path, see
@@ -288,8 +296,9 @@ of `125` means Podman could not start the container.
 
 The script must not silently deploy to production, reset the database, or modify
 unrelated Caddy routes or systemd units. For the demo profile, it may manage the
-tracked route block in the supplied Caddyfile. It formats and validates the
-active Caddyfile in place, then uses a graceful reload. It does not create a
+tracked route block in the supplied Caddyfile and remove the one documented stale
+PimasCor import only when its host fragment is absent. It formats and validates
+the active Caddyfile in place, then uses a graceful reload. It does not create a
 `.bak` file. Remote deployment remains an explicitly authorized operation.
 
 Because Caddy runs in a rootless Quadlet, the activation script invokes the
@@ -442,6 +451,7 @@ health checks are verified.
 - [systemd `loginctl` linger](https://www.freedesktop.org/software/systemd/man/252/loginctl.html)
 - [systemd timer unit configuration](https://man7.org/linux/man-pages/man5/systemd.timer.5.html)
 - [Caddy reverse proxy and path handling](https://caddyserver.com/docs/caddyfile/directives/reverse_proxy)
+- [Caddy `import` directive](https://caddyserver.com/docs/caddyfile/directives/import)
 - [Caddy `handle_path`](https://caddyserver.com/docs/caddyfile/directives/handle)
 - [Next.js 16 self-hosting](https://nextjs.org/docs/app/guides/self-hosting)
 - [Next.js `output: 'standalone'`](https://nextjs.org/docs/app/api-reference/config/next-config-js/output)
