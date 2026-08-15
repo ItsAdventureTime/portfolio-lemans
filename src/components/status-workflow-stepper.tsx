@@ -66,7 +66,7 @@ export default function StatusWorkflowStepper({ status }: StatusWorkflowStepperP
               )}
               <div className="relative flex flex-col items-center">
                 <div
-                  className={`flex items-center justify-center w-8 h-8 rounded-full border-2 text-xs font-bold z-10 transition-colors ${
+                  className={`z-10 flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm font-medium transition-colors ${
                     isActive
                       ? 'bg-brand-primary border-brand-primary text-white'
                       : isCompleted
@@ -77,7 +77,7 @@ export default function StatusWorkflowStepper({ status }: StatusWorkflowStepperP
                   {isCompleted ? <CheckIcon className="h-4 w-4" aria-hidden="true" /> : idx + 1}
                 </div>
                 <span
-                  className={`mt-2 text-xs font-medium ${
+                  className={`mt-3 text-sm font-medium ${
                     isActive
                       ? 'text-brand-primary'
                       : isCompleted

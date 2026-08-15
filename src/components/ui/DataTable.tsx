@@ -87,7 +87,7 @@ export default function DataTable<T>({
   return (
     <div className="surface-card overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="data-table min-w-full table-fixed text-sm" aria-label={caption}>
+        <table className="data-table min-w-full table-fixed text-base" aria-label={caption}>
           {caption && <caption className="sr-only">{caption}</caption>}
           <thead>
             <tr>

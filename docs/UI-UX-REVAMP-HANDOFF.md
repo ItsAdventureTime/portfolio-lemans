@@ -2,7 +2,7 @@
 
 - **Status**: IMPLEMENTED & VERIFIED
 
-- **Version**: 1.2.3
+- **Version**: 1.2.4
 - **Updated**: 2026-08-15
 - **Audience**: Google Antigravity, UI engineers, UX reviewers, and coding agents
 - **Product**: Le Mans Operations & Job Cost Management System demo
@@ -111,6 +111,17 @@ The current shell and overview pass implements the following bounded changes:
   Motion/SmoothUI-inspired interaction language. It uses short opacity and
   transform transitions and honors `prefers-reduced-motion` without adding a
   new dependency or delaying navigation.
+
+### Detail-view typography refinement — 2026-08-15
+
+- Job costing, invoice, and job-order detail screens use 14–16px medium labels,
+  readable supporting copy, and 18–20px semibold/tabular values only where
+  scanning financial or record data benefits from emphasis.
+- Secondary metrics, notes, lifecycle context, controls, and variance content
+  use muted or inset rectangular surfaces so grouping carries the hierarchy;
+  repeated bold or all-caps text is not used as the primary visual signal.
+- `DataTable` uses a readable 16px body with 14px medium headers and preserves
+  stable alignment for identifiers, quantities, statuses, and monetary values.
 
 ### Guidance review — 2026-08-15
 

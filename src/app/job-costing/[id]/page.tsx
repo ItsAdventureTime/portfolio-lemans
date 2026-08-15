@@ -2,7 +2,7 @@ import { getDemoRole } from '@/lib/actor';
 import { ApiError, getJobCosting } from '@/lib/api';
 import { formatPeso } from '@/lib/money';
 import { hasPermission } from '@/lib/roles';
-import { SectionCard, StatusBadge } from '@/components/ui';
+import { StatusBadge } from '@/components/ui';
 import AccessDenied from '@/components/AccessDenied';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
@@ -31,13 +31,13 @@ export default async function JobCostingPage({ params }: { params: Promise<{ id:
           <div className="flex flex-wrap gap-3">
             <Link
               href={`/job-costing/${id}`}
-              className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-brand-primary px-4 text-sm font-semibold text-white hover:bg-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+              className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-brand-primary px-4 text-sm font-medium text-white hover:bg-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
             >
               <RefreshCw className="h-4 w-4" aria-hidden="true" /> Try again
             </Link>
             <Link
               href="/job-costing"
-              className="inline-flex min-h-11 items-center rounded-lg border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+              className="inline-flex min-h-11 items-center rounded-lg border border-slate-300 bg-white px-4 text-sm font-medium text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
             >
               Back to job costing
             </Link>
@@ -62,12 +62,12 @@ export default async function JobCostingPage({ params }: { params: Promise<{ id:
           </Link>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+              <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">
                 Job Costing: #{c.jobOrder.jo_no}
               </h1>
               <StatusBadge status={c.jobOrder.status} />
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="mt-1 text-sm text-slate-500">
               {c.jobOrder.customer_name} ·{' '}
               <span className="font-mono">{c.jobOrder.vehicle_plate}</span>
             </p>
@@ -76,7 +76,7 @@ export default async function JobCostingPage({ params }: { params: Promise<{ id:
 
         <Link
           href={`/job-orders/${c.jobOrder.jo_no}`}
-          className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2.5 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+          className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-slate-900 px-4 py-3 text-sm font-medium text-white transition-colors hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
         >
           <Wrench className="w-4 h-4" />
           <span>Open Source Job Order</span>
@@ -92,21 +92,21 @@ export default async function JobCostingPage({ params }: { params: Promise<{ id:
         <CostCard label="Total Actual Cost (incl. allocated)" cents={c.totalActualCostCents} />
         <CostCard label="Billed Amount" cents={c.billedAmountCents} />
         <CostCard label="Net Profit" cents={c.netProfitCents} />
-        <div className="surface-card p-4">
-          <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Margin</p>
-          <p className="text-2xl font-extrabold text-slate-900 tabular-nums mt-1">
+        <div className="surface-card-muted p-5">
+          <p className="text-sm font-medium text-slate-500">Margin</p>
+          <p className="mt-2 text-2xl font-semibold tabular-nums text-slate-900">
             {c.profitMarginPercent.toFixed(1)}%
           </p>
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-2 text-sm leading-5 text-slate-500">
             Billed revenue after actual and allocated costs.
           </p>
         </div>
       </div>
 
-      <section className="surface-card space-y-4 p-5" aria-labelledby="variance-heading">
+      <section className="surface-card space-y-5 p-5 sm:p-6" aria-labelledby="variance-heading">
         <h2
           id="variance-heading"
-          className="text-base font-bold text-slate-900 border-b border-slate-100 pb-3"
+          className="border-b border-slate-200 pb-4 text-lg font-semibold text-slate-900"
         >
           Estimate vs. Actual Variance Analysis
         </h2>
@@ -129,9 +129,12 @@ export default async function JobCostingPage({ params }: { params: Promise<{ id:
 
 function CostCard({ label, cents }: { label: string; cents: number }) {
   return (
-    <SectionCard title={label}>
-      <p className="text-xl font-extrabold text-slate-900 font-mono mt-1">{formatPeso(cents)}</p>
-    </SectionCard>
+    <article className="surface-card-muted flex min-h-[9.5rem] flex-col p-5">
+      <p className="text-base font-medium text-slate-600">{label}</p>
+      <p className="mt-auto pt-6 font-mono text-xl font-semibold tabular-nums text-slate-900">
+        {formatPeso(cents)}
+      </p>
+    </article>
   );
 }
 
@@ -146,20 +149,20 @@ function VarianceRow({
 }) {
   const variance = actual - estimated;
   return (
-    <div className="rounded-lg bg-slate-50 p-4 border border-slate-200">
+    <div className="surface-card-inset p-4">
       <div className="flex items-baseline justify-between gap-3">
-        <p className="font-medium text-slate-900 text-sm">{label}</p>
+        <p className="text-base font-medium text-slate-900">{label}</p>
         <p
-          className={`text-sm font-extrabold font-mono ${variance > 0 ? 'text-rose-700' : 'text-emerald-700'}`}
+          className={`font-mono text-base font-semibold tabular-nums ${variance > 0 ? 'text-rose-700' : 'text-emerald-700'}`}
         >
           {variance > 0 ? '+' : ''}
           {formatPeso(variance)}
         </p>
       </div>
-      <p className="mt-1.5 text-xs text-slate-600">
+      <p className="mt-2 text-sm leading-5 text-slate-600">
         Estimated{' '}
-        <span className="font-mono font-semibold text-slate-800">{formatPeso(estimated)}</span> ·
-        Actual <span className="font-mono font-semibold text-slate-800">{formatPeso(actual)}</span>
+        <span className="font-mono font-medium text-slate-800">{formatPeso(estimated)}</span> ·
+        Actual <span className="font-mono font-medium text-slate-800">{formatPeso(actual)}</span>
       </p>
     </div>
   );

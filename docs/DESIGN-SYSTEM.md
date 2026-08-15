@@ -1,6 +1,6 @@
 # Design system
 
-- **Document Version**: 2.3.1
+- **Document Version**: 2.3.2
 - **Updated**: 2026-08-15
 - **Audience**: UI engineers, reviewers, and mobile developers (SwiftUI / Jetpack Compose)
 - **Client Brand**: Le Mans Service Plus OPC (Angeles City, Pampanga)
@@ -159,6 +159,16 @@ asset URLs.
 - The shared `font-semibold` utility follows this calmer 500 baseline. Heading
   elements and tabular/monospace numeric values opt back into 600 where the
   hierarchy requires it.
+- Detail views use `text-base` medium body and label copy for comfortable
+  scanning, with `text-sm` reserved for metadata and supporting notes. Use
+  `surface-card-muted` or `surface-card-inset` to group secondary information
+  instead of increasing font weight or applying all-caps styling. A detail
+  screen's repeated operational copy should not compete with its page title;
+  semibold is reserved for headings, identifiers, and financial values that
+  benefit from quick visual lookup.
+- `DataTable` defaults to 16px body text and 14px medium headers. Keep table
+  identifiers and amounts aligned with stable columns, tabular numerals, and
+  deliberate numeric emphasis rather than bolding an entire row.
 
 ### Spacing Grid & Readable Container Constraints
 

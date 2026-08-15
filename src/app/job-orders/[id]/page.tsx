@@ -65,12 +65,12 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
           </Link>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+              <h1 className="text-2xl font-semibold text-slate-900 tracking-tight">
                 Job Order {jo.jo_no}
               </h1>
               <StatusBadge status={jo.status} />
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="mt-1 text-sm text-slate-500">
               Advisor: <span className="font-medium text-slate-700">{jo.advisor}</span> ·
               Technician:{' '}
               <span className="font-medium text-slate-700">{jo.technician || 'Unassigned'}</span>
@@ -81,7 +81,7 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
         {canViewCosting && (
           <Link
             href={`/job-costing/${jo.jo_no}`}
-            className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2.5 rounded-lg transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary shadow-sm"
+            className="inline-flex min-h-11 items-center gap-2 rounded-lg bg-slate-900 px-4 py-3 text-sm font-medium text-white shadow-sm transition-colors hover:bg-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
           >
             <Calculator className="w-4 h-4" />
             <span>View Job Costing Sheet</span>
@@ -90,55 +90,53 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
       </div>
 
       {/* Job Order Status Stepper */}
-      <div className="surface-card space-y-3 p-5">
-        <h2 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+      <div className="surface-card-muted space-y-4 p-5 sm:p-6">
+        <h2 className="text-sm font-medium tracking-[0.02em] text-slate-600">
           Job Order Operational Lifecycle
         </h2>
         <StatusWorkflowStepper status={jo.status} />
       </div>
 
       {/* Primary Details Summary */}
-      <div className="surface-card space-y-4 p-5">
-        <div className="flex items-center gap-2 border-b border-slate-100 pb-3">
+      <div className="surface-card space-y-5 p-5 sm:p-6">
+        <div className="flex items-center gap-2 border-b border-slate-200 pb-4">
           <Wrench className="w-5 h-5 text-brand-primary" />
-          <h2 className="text-base font-bold text-slate-900">Vehicle & Customer Context</h2>
+          <h2 className="text-lg font-semibold text-slate-900">Vehicle & Customer Context</h2>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+        <div className="grid grid-cols-1 gap-6 text-base sm:grid-cols-2 md:grid-cols-4">
           <div>
-            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
-              Customer Name
-            </p>
-            <p className="font-medium text-slate-900 mt-0.5">{jo.customer_name}</p>
+            <p className="text-sm font-medium text-slate-500">Customer name</p>
+            <p className="mt-1 text-base font-medium text-slate-900">{jo.customer_name}</p>
           </div>
           <div>
-            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
-              Vehicle Plate
+            <p className="text-sm font-medium text-slate-500">Vehicle plate</p>
+            <p className="mt-1 font-mono text-base font-semibold text-slate-900">
+              {jo.vehicle_plate}
             </p>
-            <p className="font-mono font-semibold text-slate-900 mt-0.5">{jo.vehicle_plate}</p>
           </div>
           <div>
-            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
-              Make / Model
+            <p className="text-sm font-medium text-slate-500">Make / model</p>
+            <p className="mt-1 text-base font-medium text-slate-900">
+              {jo.vehicle_make_model || '—'}
             </p>
-            <p className="font-medium text-slate-900 mt-0.5">{jo.vehicle_make_model || '—'}</p>
           </div>
           <div>
-            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
-              Technician Assigned
+            <p className="text-sm font-medium text-slate-500">Technician assigned</p>
+            <p className="mt-1 text-base font-medium text-slate-900">
+              {jo.technician || 'Unassigned'}
             </p>
-            <p className="font-semibold text-slate-900 mt-0.5">{jo.technician || 'Unassigned'}</p>
           </div>
         </div>
       </div>
 
       {/* Management Actions */}
       {canManage && (
-        <div className="surface-card space-y-5 p-5">
-          <h2 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-3">
+        <div className="surface-card space-y-6 p-5 sm:p-6">
+          <h2 className="border-b border-slate-200 pb-4 text-lg font-semibold text-slate-900">
             Operational Controls
           </h2>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
             {/* Assign Tech */}
             <form
               action={async (formData: FormData) => {
@@ -147,9 +145,9 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
                 await assignTechnician(id, String(formData.get('technician')), await r);
                 revalidatePath(`/job-orders/${id}`);
               }}
-              className="space-y-3 p-4 rounded-lg bg-slate-50 border border-slate-200"
+              className="surface-card-inset space-y-4 p-4"
             >
-              <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+              <div className="flex items-center gap-2 text-base font-medium text-slate-900">
                 <UserCheck className="w-4 h-4 text-brand-primary" />
                 <span>Assign Technician</span>
               </div>
@@ -161,7 +159,7 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
               />
               <button
                 type="submit"
-                className="w-full inline-flex items-center justify-center min-h-11 px-4 rounded-lg bg-slate-900 text-white text-xs font-semibold hover:bg-slate-800 transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary"
+                className="inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-slate-900 px-4 text-sm font-medium text-white transition-colors hover:bg-slate-800 focus-visible:ring-2 focus-visible:ring-brand-primary"
               >
                 Save Assignment
               </button>
@@ -175,9 +173,9 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
                 await changeJobOrderStatus(id, String(formData.get('nextStatus')), await r);
                 revalidatePath(`/job-orders/${id}`);
               }}
-              className="space-y-3 p-4 rounded-lg bg-slate-50 border border-slate-200"
+              className="surface-card-inset space-y-4 p-4"
             >
-              <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+              <div className="flex items-center gap-2 text-base font-medium text-slate-900">
                 <RefreshCw className="w-4 h-4 text-brand-primary" />
                 <span>Update Status</span>
               </div>
@@ -186,7 +184,7 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
                   id="nextStatus"
                   name="nextStatus"
                   defaultValue={jo.status}
-                  className="min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:border-brand-primary"
+                  className="min-h-11 w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-base focus-visible:border-brand-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
                 >
                   {STATUS_OPTIONS.map((s) => (
                     <option key={s} value={s}>
@@ -197,7 +195,7 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
               </div>
               <button
                 type="submit"
-                className="w-full inline-flex items-center justify-center min-h-11 px-4 rounded-lg bg-brand-primary text-white text-xs font-semibold hover:bg-brand-primary-hover transition-colors focus-visible:ring-2 focus-visible:ring-brand-primary"
+                className="inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-brand-primary px-4 text-sm font-medium text-white transition-colors hover:bg-brand-primary-hover focus-visible:ring-2 focus-visible:ring-brand-primary"
               >
                 Change Status
               </button>
@@ -218,9 +216,9 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
                 );
                 revalidatePath(`/job-orders/${id}`);
               }}
-              className="space-y-3 p-4 rounded-lg bg-slate-50 border border-slate-200"
+              className="surface-card-inset space-y-4 p-4"
             >
-              <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+              <div className="flex items-center gap-2 text-base font-medium text-slate-900">
                 <PlusCircle className="w-4 h-4 text-brand-primary" />
                 <span>Record Timeline Event</span>
               </div>
@@ -228,7 +226,7 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
               <FormField label="" name="description" placeholder="Description / Notes" />
               <button
                 type="submit"
-                className="inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-slate-700 px-4 text-xs font-semibold text-white transition-colors hover:bg-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+                className="inline-flex min-h-11 w-full items-center justify-center rounded-lg bg-slate-700 px-4 text-sm font-medium text-white transition-colors hover:bg-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
               >
                 Add Log Event
               </button>
@@ -239,7 +237,9 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
 
       {/* Itemized Labor & Parts Table */}
       <div className="space-y-3">
-        <h2 className="text-lg font-bold text-slate-900">Estimated Line Items ({items.length})</h2>
+        <h2 className="text-xl font-semibold text-slate-900">
+          Estimated Line Items ({items.length})
+        </h2>
         <DataTable<JobOrderItem>
           items={items}
           caption="Job order line items"
@@ -250,7 +250,7 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
               key: 'type',
               header: 'Type',
               render: (it) => (
-                <span className="text-xs font-semibold uppercase bg-slate-100 px-2 py-1 rounded text-slate-700">
+                <span className="rounded-md bg-slate-100 px-2 py-1 text-sm font-medium text-slate-700">
                   {it.item_type}
                 </span>
               ),
@@ -258,18 +258,18 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
             {
               key: 'description',
               header: 'Description',
-              render: (it) => <span className="font-medium text-slate-900">{it.description}</span>,
+              render: (it) => <span className="text-slate-900">{it.description}</span>,
             },
             {
               key: 'qty',
               header: 'Qty',
-              render: (it) => <span className="tabular-nums font-semibold">{it.quantity}</span>,
+              render: (it) => <span className="tabular-nums font-medium">{it.quantity}</span>,
             },
             {
               key: 'net',
               header: 'Net Amount',
               render: (it) => (
-                <span className="font-mono font-semibold text-slate-900">
+                <span className="font-mono font-semibold tabular-nums text-slate-900">
                   {formatPeso(it.net_amount_cents)}
                 </span>
               ),
@@ -280,7 +280,7 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
 
       {/* Timeline Events */}
       <div className="space-y-3">
-        <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
+        <h2 className="flex items-center gap-2 text-xl font-semibold text-slate-900">
           <Clock className="w-5 h-5 text-slate-700" />
           <span>Audit Event Timeline ({events.length})</span>
         </h2>
@@ -304,7 +304,7 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
               key: 'createdAt',
               header: 'Timestamp',
               render: (e) => (
-                <span className="text-xs text-slate-500 font-mono">{e.created_at}</span>
+                <span className="font-mono text-sm text-slate-500">{e.created_at}</span>
               ),
             },
           ]}
