@@ -416,7 +416,6 @@ ensure_caddy_route() {
     )"; then
       break
     fi
-    printf '%s\n' "$caddy_validation_output" >&2
     missing_import_path="$(printf '%s\n' "$caddy_validation_output" | awk -F'File to import not found: ' '
       NF > 1 {
         split($2, parts, ",")
@@ -425,6 +424,7 @@ ensure_caddy_route() {
       }
     ' | sed 's/[[:space:]]*$//' || true)"
     if [[ -z "$missing_import_path" || "$missing_import_path" != /etc/caddy/* ]]; then
+      printf '%s\n' "$caddy_validation_output" >&2
       echo "Error: generated Caddyfile failed validation; active file was not changed." >&2
       exit 1
     fi
@@ -445,6 +445,7 @@ ensure_caddy_route() {
       END { exit(removed ? 0 : 1) }
     ' "$temp_config" > "$next_temp_config"; then
       rm -f "$next_temp_config"
+      printf '%s\n' "$caddy_validation_output" >&2
       echo "Error: Caddy reported an unavailable import that was not an exact active import: ${missing_import_path}." >&2
       exit 1
     fi
@@ -458,18 +459,35 @@ ensure_caddy_route() {
   }
   install -m 0644 "$formatted" "$CADDY_CONFIG_FILE"
   relabel_caddy_files
-  if ! caddy_cli validate --config /etc/caddy/Caddyfile --adapter caddyfile; then
-    echo "Caddy config mount was not readable; restarting caddy.service to reapply its rootless :Z mount label." >&2
-    if ! systemctl --user restart caddy.service ||
-       ! caddy_cli validate --config /etc/caddy/Caddyfile --adapter caddyfile; then
-      systemctl --user restart caddy.service >/dev/null 2>&1 || true
-      echo "Error: Caddy validation failed after restarting caddy.service." >&2
+  caddy_reload_output=""
+  if ! caddy_reload_output="$(
+    caddy_cli reload --config /etc/caddy/Caddyfile --adapter caddyfile 2>&1
+  )"; then
+    if ! grep -qi 'permission denied' <<< "$caddy_reload_output"; then
+      printf '%s\n' "$caddy_reload_output" >&2
+      echo "Error: graceful Caddy reload failed; the active file was not reloaded." >&2
       exit 1
     fi
-  fi
-  if ! caddy_cli reload --config /etc/caddy/Caddyfile --adapter caddyfile; then
-    echo "Error: graceful Caddy reload failed; the active file was not reloaded." >&2
-    exit 1
+    echo "Refreshing the Caddy config mount label before reload." >&2
+    if ! systemctl --user restart caddy.service; then
+      report_unit_failure caddy.service
+      echo "Error: Caddy could not restart to refresh its config mount label." >&2
+      exit 1
+    fi
+    if ! caddy_validation_output="$(
+      caddy_cli validate --config /etc/caddy/Caddyfile --adapter caddyfile 2>&1
+    )"; then
+      printf '%s\n' "$caddy_validation_output" >&2
+      echo "Error: Caddy validation failed after refreshing its config mount." >&2
+      exit 1
+    fi
+    if ! caddy_reload_output="$(
+      caddy_cli reload --config /etc/caddy/Caddyfile --adapter caddyfile 2>&1
+    )"; then
+      printf '%s\n' "$caddy_reload_output" >&2
+      echo "Error: graceful Caddy reload failed after refreshing its config mount." >&2
+      exit 1
+    fi
   fi
   rm -f "$temp_route" "$temp_config" "$formatted"
   echo "Caddy configuration validated and gracefully reloaded."

@@ -84,7 +84,9 @@ If Caddy reports `File to import not found`, activation checks the generated
 configuration inside the Caddy container. It may omit that exact absolute import
 from the candidate configuration and validate again; other Caddy errors remain
 fatal. This behavior is generic and does not depend on another application’s
-name or directory.
+name or directory. A one-time permission response while Caddy reads the newly
+written `:Z` mount is handled by refreshing the rootless Caddy unit; it is only
+reported as a deployment error if the subsequent validation or reload fails.
 
 For the two-stage workflow, run the activation command printed by
 `sync-remote-demo.sh` after logging in to the VPS. Use the full

@@ -56,6 +56,10 @@ inside the Caddy container, then omits only an exact absolute file import that
 Caddy reports missing from its mounted filesystem before validating again. This
 keeps the Le Mans deployment independent of stale fragments from other apps.
 Wildcard imports and all other validation failures remain untouched and fatal.
+After installing the candidate, activation uses `caddy reload`; a permission
+failure caused by a newly written `:Z` mount is handled by one rootless Caddy
+restart to refresh the label, followed by validation and reload. Genuine restart
+or reload failures remain fatal.
 
 ```caddy
 delegateops.business {

@@ -193,6 +193,12 @@ handles stale fragments left outside the Le Mans source tree without naming or
 coupling the deployment to another application. Wildcard imports are untouched;
 all other Caddy validation errors remain fatal.
 
+After installing the validated file, activation uses Caddy's graceful reload.
+If the read-only mount has not adopted its `:Z` label yet, the script silently
+captures that expected permission response, restarts the existing rootless Caddy
+unit once to refresh the label, then validates and reloads again. A restart or
+reload failure remains fatal and is printed with diagnostics.
+
 ## 5. Deployment commands
 
 For the shortest operator path, see
