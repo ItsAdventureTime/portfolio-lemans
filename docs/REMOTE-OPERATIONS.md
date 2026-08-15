@@ -51,12 +51,11 @@ container, and then performs a graceful reload. It does not follow redirects
 for the final public health check, so a `308` is reported with its redirect
 chain instead of being hidden.
 
-Caddy requires a specific `import` target to exist. To support the current VPS
-configuration, activation also removes the known obsolete
-`/etc/caddy/pimascor-production.handlers.Caddyfile` import only when its matching
-host fragment is absent from `/home/jk/caddy/conf/`. If the fragment exists, the
-import is preserved and validated. Other missing imports still stop deployment;
-wildcard imports and unrelated routes are never removed automatically.
+Caddy requires a specific `import` target to exist. Activation validates from
+inside the Caddy container, then omits only an exact absolute file import that
+Caddy reports missing from its mounted filesystem before validating again. This
+keeps the Le Mans deployment independent of stale fragments from other apps.
+Wildcard imports and all other validation failures remain untouched and fatal.
 
 ```caddy
 delegateops.business {

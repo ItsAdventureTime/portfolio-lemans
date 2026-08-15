@@ -1,7 +1,7 @@
 # Remote Demo Deployment Playbook
 
 - **Status**: Authoritative for the remote demo deployment profile
-- **Version**: 1.7.1
+- **Version**: 1.8.0
 - **Updated**: 2026-08-15
 - **Target URL**: `https://delegateops.business/lemans/demo`
 - **Remote user**: `jk`
@@ -186,12 +186,12 @@ configuration if the network name, site-block structure, or TLS ownership is
 unclear.
 
 Caddy treats a specific `import` path as required. During demo activation, the
-script removes only the known obsolete
-`/etc/caddy/pimascor-production.handlers.Caddyfile` import when the matching
-host fragment is absent from `/home/jk/caddy/conf/`. This repairs the stale
-reference left by the previous PimasCor route layout. If that fragment exists,
-the import remains and must pass validation. Missing imports for any other path
-remain fatal; the script does not remove wildcard imports or unrelated routes.
+script validates the complete configuration from inside the Caddy container. If
+Caddy reports an exact absolute file import missing from that mounted view, the
+script omits that exact import and validates again, up to eight imports. This
+handles stale fragments left outside the Le Mans source tree without naming or
+coupling the deployment to another application. Wildcard imports are untouched;
+all other Caddy validation errors remain fatal.
 
 ## 5. Deployment commands
 
@@ -296,10 +296,11 @@ of `125` means Podman could not start the container.
 
 The script must not silently deploy to production, reset the database, or modify
 unrelated Caddy routes or systemd units. For the demo profile, it may manage the
-tracked route block in the supplied Caddyfile and remove the one documented stale
-PimasCor import only when its host fragment is absent. It formats and validates
-the active Caddyfile in place, then uses a graceful reload. It does not create a
-`.bak` file. Remote deployment remains an explicitly authorized operation.
+tracked route block in the supplied Caddyfile and omit only exact absolute
+imports that Caddy confirms are unavailable in its mounted filesystem. It
+formats and validates the active Caddyfile in place, then uses a graceful reload.
+It does not create a `.bak` file. Remote deployment remains an explicitly
+authorized operation.
 
 Because Caddy runs in a rootless Quadlet, the activation script invokes the
 Caddy CLI as UID 0 inside the container's user namespace when it reads the

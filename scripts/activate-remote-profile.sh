@@ -372,9 +372,6 @@ ensure_caddy_route() {
     podman exec -i --user 0 "$CADDY_CONTAINER" caddy "$@"
   }
   local config_dir="${CADDY_CONFIG_FILE%/*}"
-  local stale_legacy_import="/etc/caddy/pimascor-production.handlers.Caddyfile"
-  local stale_legacy_fragment="${config_dir}/$(basename "$stale_legacy_import")"
-  local remove_stale_legacy_import=false
   local temp_route="$(mktemp)" temp_config="$(mktemp)" formatted="$(mktemp)"
   relabel_caddy_files() {
     # Quadlet's :Z mount labels existing files when Caddy starts. Files copied
@@ -384,28 +381,11 @@ ensure_caddy_route() {
         >/dev/null 2>&1 || true
     fi
   }
-  if [[ ! -f "$stale_legacy_fragment" ]] && awk -v import_path="$stale_legacy_import" '
-    function is_import(line, path, trimmed) {
-      trimmed=line
-      sub(/^[[:space:]]*import[[:space:]]+/, "", trimmed)
-      sub(/[[:space:]]*$/, "", trimmed)
-      return trimmed == path
-    }
-    is_import($0, import_path) { found=1 }
-    END { exit(found ? 0 : 1) }
-  ' "$CADDY_CONFIG_FILE"; then
-    remove_stale_legacy_import=true
-    echo "Removing stale Caddy import ${stale_legacy_import}; fragment not found at ${stale_legacy_fragment}." >&2
-  fi
   caddy_cli_stdin fmt - < "$SOURCE_ROOT/$CADDY_ROUTE_SOURCE" > "$temp_route" || {
     echo "Error: tracked Le Mans Caddy route could not be formatted." >&2
     exit 1
   }
-  awk \
-    -v route_file="$temp_route" \
-    -v import_path="$CADDY_ROUTE_IMPORT" \
-    -v stale_import_path="$stale_legacy_import" \
-    -v remove_stale_import="$remove_stale_legacy_import" '
+  awk -v route_file="$temp_route" -v import_path="$CADDY_ROUTE_IMPORT" '
     function is_import(line, path, trimmed) {
       trimmed=line
       sub(/^[[:space:]]*import[[:space:]]+/, "", trimmed)
@@ -413,7 +393,6 @@ ensure_caddy_route() {
       return trimmed == path
     }
     is_import($0, import_path) { next }
-    remove_stale_import == "true" && is_import($0, stale_import_path) { next }
     /# BEGIN LEMANS DEMO ROUTE/ { skipping=1; next }
     skipping && /# END LEMANS DEMO ROUTE/ { skipping=0; next }
     !skipping && !inserted && $0 ~ /^[[:space:]]*# DelegateOps static-site fallback[[:space:]]*$/ {
@@ -428,10 +407,51 @@ ensure_caddy_route() {
     echo "Error: DelegateOps static fallback marker was not found in Caddyfile." >&2
     exit 1
   }
-  caddy_cli_stdin validate --config - --adapter caddyfile < "$temp_config" || {
-    echo "Error: generated Caddyfile failed validation; active file was not changed." >&2
-    exit 1
-  }
+  caddy_validation_output=""
+  removed_import_count=0
+  while true; do
+    if caddy_validation_output="$(
+      caddy_cli_stdin validate --config - --adapter caddyfile \
+        < "$temp_config" 2>&1
+    )"; then
+      break
+    fi
+    printf '%s\n' "$caddy_validation_output" >&2
+    missing_import_path="$(printf '%s\n' "$caddy_validation_output" | awk -F'File to import not found: ' '
+      NF > 1 {
+        split($2, parts, ",")
+        print parts[1]
+        exit
+      }
+    ' | sed 's/[[:space:]]*$//' || true)"
+    if [[ -z "$missing_import_path" || "$missing_import_path" != /etc/caddy/* ]]; then
+      echo "Error: generated Caddyfile failed validation; active file was not changed." >&2
+      exit 1
+    fi
+    if (( removed_import_count >= 8 )); then
+      echo "Error: too many unavailable Caddy imports; active file was not changed." >&2
+      exit 1
+    fi
+    next_temp_config="$(mktemp)"
+    if ! awk -v missing_import_path="$missing_import_path" '
+      function is_import(line, path, trimmed) {
+        trimmed=line
+        sub(/^[[:space:]]*import[[:space:]]+/, "", trimmed)
+        sub(/[[:space:]]*$/, "", trimmed)
+        return trimmed == path
+      }
+      is_import($0, missing_import_path) { removed=1; next }
+      { print }
+      END { exit(removed ? 0 : 1) }
+    ' "$temp_config" > "$next_temp_config"; then
+      rm -f "$next_temp_config"
+      echo "Error: Caddy reported an unavailable import that was not an exact active import: ${missing_import_path}." >&2
+      exit 1
+    fi
+    mv "$next_temp_config" "$temp_config"
+    removed_import_count=$((removed_import_count + 1))
+    echo "Omitting unavailable Caddy import ${missing_import_path} while activating the Le Mans route." >&2
+  done
   caddy_cli_stdin fmt - < "$temp_config" > "$formatted" || {
     echo "Error: generated Caddyfile could not be formatted." >&2
     exit 1
