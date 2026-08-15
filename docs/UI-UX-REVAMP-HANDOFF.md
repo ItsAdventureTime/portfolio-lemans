@@ -72,6 +72,10 @@ The current shell and overview pass implements the following bounded changes:
   treatment, motion-safe skeletons, reduced-motion support, and reusable action
   and surface classes. The visual foundation remains Racing Red `#d32f2f`,
   Deep Slate `#0f172a`, and Off-White `#f8fafc`.
+- Non-heading UI copy uses a calmer weight hierarchy: medium for labels,
+  descriptions, table headers, metadata, badges, and ordinary actions;
+  semibold remains for headings and intentional numeric emphasis. This keeps
+  dense operational screens scannable without changing record meaning.
 - Shared focus treatment is layered deliberately: the global `:focus-visible`
   rule is in `@layer base`, and `.nav-link` keeps its component-layer override.
   This preserves a visible inset keyboard outline without the white outer ring

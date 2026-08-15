@@ -148,7 +148,7 @@ export default function EndToEndWorkflowVisualizer({
             of truth from intake to financial accounting.
           </p>
         </div>
-        <div className="inline-flex min-h-9 items-center gap-2 self-start rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-800 sm:self-auto">
+        <div className="inline-flex min-h-9 items-center gap-2 self-start rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-800 sm:self-auto">
           <span className="h-2 w-2 rounded-full bg-emerald-600" aria-hidden="true" />
           <span>{ROLES[role]} workflow view</span>
         </div>
@@ -188,7 +188,7 @@ export default function EndToEndWorkflowVisualizer({
                         {stage.stepNumber}
                       </span>
                       <span
-                        className={`text-[11px] font-semibold uppercase tracking-[0.08em] ${
+                        className={`text-[11px] font-medium uppercase tracking-[0.08em] ${
                           isCurrent
                             ? 'text-brand-primary'
                             : isCompleted
@@ -221,7 +221,7 @@ export default function EndToEndWorkflowVisualizer({
 
                 <div className="mt-5 flex min-h-9 items-center justify-between gap-2 border-t border-slate-200/80 pt-3 text-xs">
                   {stage.primaryMetricValue !== undefined ? (
-                    <span className="font-bold text-slate-900">
+                    <span className="font-medium text-slate-900">
                       {stage.primaryMetricLabel}:{' '}
                       <span className="text-brand-primary">{stage.primaryMetricValue}</span>
                     </span>

@@ -95,14 +95,16 @@ export default function MultiJoAllocationModal({
           <table className="w-full text-left text-base">
             <thead className="bg-slate-100/80 text-slate-700 border-b border-slate-200">
               <tr>
-                <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider">Job Order</th>
-                <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider">
+                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider">
+                  Job Order
+                </th>
+                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider">
                   Description
                 </th>
-                <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-right">
+                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-right">
                   Amount
                 </th>
-                <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-center">
+                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-center">
                   Action
                 </th>
               </tr>
@@ -212,7 +214,7 @@ export default function MultiJoAllocationModal({
               </>
             )}
           </div>
-          <div className="font-mono font-bold">
+          <div className="font-mono font-semibold">
             {formatPeso(allocatedTotal)} / {formatPeso(invoiceAmountCents)}
           </div>
         </div>

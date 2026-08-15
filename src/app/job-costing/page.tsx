@@ -96,7 +96,7 @@ export default async function JobCostingIndexPage({
         role="search"
       >
         <div className="min-w-0 flex-1 space-y-1">
-          <label htmlFor="job-costing-search" className="text-sm font-semibold text-slate-700">
+          <label htmlFor="job-costing-search" className="text-sm font-medium text-slate-700">
             Find a job order
           </label>
           <div className="relative">
@@ -114,7 +114,7 @@ export default async function JobCostingIndexPage({
           </div>
         </div>
         <div className="space-y-1 sm:w-52">
-          <label htmlFor="job-costing-status" className="text-sm font-semibold text-slate-700">
+          <label htmlFor="job-costing-status" className="text-sm font-medium text-slate-700">
             Status
           </label>
           <select
@@ -207,7 +207,9 @@ function SummaryCard({ label, cents }: { label: string; cents: number }) {
   return (
     <section className="surface-card p-4">
       <p className="text-sm text-slate-600">{label}</p>
-      <p className="mt-1 text-lg font-semibold text-slate-900">{formatPeso(cents)}</p>
+      <p className="mt-1 font-mono text-lg font-semibold tabular-nums text-slate-900">
+        {formatPeso(cents)}
+      </p>
     </section>
   );
 }
@@ -218,7 +220,11 @@ function CostVariance({ jo }: { jo: JobOrder }) {
   const variance = actual - estimated;
   return (
     <span
-      className={variance > 0 ? 'font-semibold text-rose-700' : 'font-semibold text-emerald-700'}
+      className={
+        variance > 0
+          ? 'font-mono font-semibold tabular-nums text-rose-700'
+          : 'font-mono font-semibold tabular-nums text-emerald-700'
+      }
     >
       {variance > 0 ? '+' : ''}
       {formatPeso(variance)}

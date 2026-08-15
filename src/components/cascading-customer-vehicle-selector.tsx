@@ -71,7 +71,7 @@ export default function CascadingCustomerVehicleSelector({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <div className="space-y-1">
-        <label className="text-sm font-semibold text-slate-700 flex items-center justify-between">
+        <label className="text-sm font-medium text-slate-700 flex items-center justify-between">
           <span>Customer</span>
           {onQuickAddCustomer && (
             <button
@@ -103,7 +103,7 @@ export default function CascadingCustomerVehicleSelector({
       </div>
 
       <div className="space-y-1">
-        <label className="text-sm font-semibold text-slate-700 flex items-center justify-between">
+        <label className="text-sm font-medium text-slate-700 flex items-center justify-between">
           <span>Vehicle</span>
           {selectedCustomerId ? (
             onQuickAddVehicle && (

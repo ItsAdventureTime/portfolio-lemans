@@ -90,7 +90,7 @@ export default function StatusBadge({ status }: StatusBadgeProps) {
 
   return (
     <span
-      className={`status-badge inline-flex h-7 min-h-7 items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 text-xs font-semibold leading-none ${variant.bg} ${variant.text} ${variant.border}`}
+      className={`status-badge inline-flex h-7 min-h-7 items-center justify-center gap-1.5 whitespace-nowrap rounded-md border px-2.5 text-xs font-medium leading-none ${variant.bg} ${variant.text} ${variant.border}`}
       aria-label={`Status: ${label}`}
     >
       <span className={`h-1.5 w-1.5 rounded-full ${variant.dot}`} aria-hidden="true" />

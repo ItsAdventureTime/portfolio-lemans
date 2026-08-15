@@ -77,7 +77,7 @@ export default function StatusWorkflowStepper({ status }: StatusWorkflowStepperP
                   {isCompleted ? <CheckIcon className="h-4 w-4" aria-hidden="true" /> : idx + 1}
                 </div>
                 <span
-                  className={`mt-2 text-xs font-semibold ${
+                  className={`mt-2 text-xs font-medium ${
                     isActive
                       ? 'text-brand-primary'
                       : isCompleted

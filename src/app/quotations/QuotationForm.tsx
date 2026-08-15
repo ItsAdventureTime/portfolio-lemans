@@ -65,7 +65,7 @@ export default function QuotationForm({ customers, vehicles, action }: Quotation
       </div>
 
       <div className="space-y-1">
-        <label className="text-sm font-semibold text-slate-700">Quote Items</label>
+        <label className="text-sm font-medium text-slate-700">Quote Items</label>
         <SalesQuoteBuilder name="__quote_builder_items" onChange={setBuilderValue} />
       </div>
 

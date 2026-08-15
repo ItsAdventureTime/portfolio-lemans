@@ -148,7 +148,7 @@ export default async function DashboardOverview() {
             </div>
             <Link
               href="/job-orders"
-              className="inline-flex min-h-11 items-center gap-1 rounded-lg px-2.5 text-xs font-bold text-brand-primary transition-colors hover:bg-brand-light hover:text-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+              className="inline-flex min-h-11 items-center gap-1 rounded-lg px-2.5 text-xs font-medium text-brand-primary transition-colors hover:bg-brand-light hover:text-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
             >
               <span>View all</span>
               <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
@@ -179,7 +179,7 @@ export default async function DashboardOverview() {
                         <Wrench className="h-4 w-4" aria-hidden="true" />
                       </div>
                       <div>
-                        <p className="font-bold text-slate-900 text-sm tracking-tight">
+                        <p className="font-medium text-slate-900 text-sm tracking-tight">
                           {jo.jo_no}
                         </p>
                         <p className="text-xs text-slate-500">

@@ -93,7 +93,7 @@ export default async function JobCostingPage({ params }: { params: Promise<{ id:
         <CostCard label="Billed Amount" cents={c.billedAmountCents} />
         <CostCard label="Net Profit" cents={c.netProfitCents} />
         <div className="surface-card p-4">
-          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Margin</p>
+          <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Margin</p>
           <p className="text-2xl font-extrabold text-slate-900 tabular-nums mt-1">
             {c.profitMarginPercent.toFixed(1)}%
           </p>
@@ -148,7 +148,7 @@ function VarianceRow({
   return (
     <div className="rounded-lg bg-slate-50 p-4 border border-slate-200">
       <div className="flex items-baseline justify-between gap-3">
-        <p className="font-bold text-slate-900 text-sm">{label}</p>
+        <p className="font-medium text-slate-900 text-sm">{label}</p>
         <p
           className={`text-sm font-extrabold font-mono ${variance > 0 ? 'text-rose-700' : 'text-emerald-700'}`}
         >
@@ -157,8 +157,9 @@ function VarianceRow({
         </p>
       </div>
       <p className="mt-1.5 text-xs text-slate-600">
-        Estimated <strong className="font-mono text-slate-800">{formatPeso(estimated)}</strong> ·
-        Actual <strong className="font-mono text-slate-800">{formatPeso(actual)}</strong>
+        Estimated{' '}
+        <span className="font-mono font-semibold text-slate-800">{formatPeso(estimated)}</span> ·
+        Actual <span className="font-mono font-semibold text-slate-800">{formatPeso(actual)}</span>
       </p>
     </div>
   );

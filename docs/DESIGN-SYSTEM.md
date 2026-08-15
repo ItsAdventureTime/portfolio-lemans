@@ -152,6 +152,13 @@ asset URLs.
 - `text-base` (16px, font-medium): Baseline body text, form input text, table cell primary values.
 - `text-sm` (14px, font-medium): Navigation tabs, table column headers, form field labels.
 - `text-xs` (12px, font-medium): Status pills, metadata tags.
+- Weight hierarchy: use medium (500) for labels, descriptions, table headers,
+  metadata, badges, and ordinary action copy. Reserve semibold (600) for real
+  headings and deliberate numeric/data emphasis; use bold display weights only
+  for page titles and primary metrics.
+- The shared `font-semibold` utility follows this calmer 500 baseline. Heading
+  elements and tabular/monospace numeric values opt back into 600 where the
+  hierarchy requires it.
 
 ### Spacing Grid & Readable Container Constraints
 

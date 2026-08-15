@@ -48,7 +48,7 @@ export default function Breadcrumb() {
               <ChevronRight className="h-4 w-4 text-slate-400" aria-hidden="true" />
               {isLast ? (
                 <span
-                  className="rounded-lg bg-slate-100 px-2.5 py-2 font-semibold text-slate-900"
+                  className="rounded-lg bg-slate-100 px-2.5 py-2 font-medium text-slate-900"
                   aria-current="page"
                 >
                   {label}

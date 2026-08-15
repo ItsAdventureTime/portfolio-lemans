@@ -71,9 +71,9 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
               <StatusBadge status={jo.status} />
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
-              Advisor: <span className="font-semibold text-slate-700">{jo.advisor}</span> ·
+              Advisor: <span className="font-medium text-slate-700">{jo.advisor}</span> ·
               Technician:{' '}
-              <span className="font-semibold text-slate-700">{jo.technician || 'Unassigned'}</span>
+              <span className="font-medium text-slate-700">{jo.technician || 'Unassigned'}</span>
             </p>
           </div>
         </div>
@@ -105,25 +105,25 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
               Customer Name
             </p>
-            <p className="font-bold text-slate-900 mt-0.5">{jo.customer_name}</p>
+            <p className="font-medium text-slate-900 mt-0.5">{jo.customer_name}</p>
           </div>
           <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
               Vehicle Plate
             </p>
-            <p className="font-mono font-bold text-slate-900 mt-0.5">{jo.vehicle_plate}</p>
+            <p className="font-mono font-semibold text-slate-900 mt-0.5">{jo.vehicle_plate}</p>
           </div>
           <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
               Make / Model
             </p>
             <p className="font-medium text-slate-900 mt-0.5">{jo.vehicle_make_model || '—'}</p>
           </div>
           <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
               Technician Assigned
             </p>
             <p className="font-semibold text-slate-900 mt-0.5">{jo.technician || 'Unassigned'}</p>
@@ -293,7 +293,7 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
             {
               key: 'type',
               header: 'Event Type',
-              render: (e) => <span className="font-bold text-slate-900">{e.event_type}</span>,
+              render: (e) => <span className="font-medium text-slate-900">{e.event_type}</span>,
             },
             {
               key: 'description',

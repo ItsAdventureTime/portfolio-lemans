@@ -58,25 +58,25 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm">
           <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
               Customer No
             </p>
-            <p className="font-bold text-slate-900 mt-0.5">{customer.customer_no}</p>
+            <p className="font-medium text-slate-900 mt-0.5">{customer.customer_no}</p>
           </div>
           <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">TIN</p>
+            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">TIN</p>
             <p className="font-mono text-slate-900 mt-0.5">{customer.tin || '—'}</p>
           </div>
           <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Phone</p>
+            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Phone</p>
             <p className="font-medium text-slate-900 mt-0.5">{customer.phone || '—'}</p>
           </div>
           <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Email</p>
+            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Email</p>
             <p className="font-medium text-slate-900 mt-0.5">{customer.email || '—'}</p>
           </div>
           <div className="sm:col-span-2">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
               Billing Address
             </p>
             <p className="font-medium text-slate-900 mt-0.5">{customer.address || '—'}</p>
@@ -102,7 +102,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
               key: 'plate',
               header: 'Plate Number',
               render: (v) => (
-                <span className="font-mono font-bold text-slate-900">{v.plate_no}</span>
+                <span className="font-mono font-semibold text-slate-900">{v.plate_no}</span>
               ),
             },
             {
@@ -151,12 +151,12 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
                     {canViewJobOrders ? (
                       <Link
                         href={`/job-orders/${jobOrder.jo_no}`}
-                        className="font-bold text-brand-primary hover:text-brand-primary-hover hover:underline text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary rounded"
+                        className="font-medium text-brand-primary hover:text-brand-primary-hover hover:underline text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary rounded"
                       >
                         {jobOrder.jo_no}
                       </Link>
                     ) : (
-                      <span className="font-bold text-slate-800 text-base">{jobOrder.jo_no}</span>
+                      <span className="font-medium text-slate-800 text-base">{jobOrder.jo_no}</span>
                     )}
 
                     <p className="text-xs text-slate-600 font-medium mt-0.5">
@@ -169,12 +169,12 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
                 <div className="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-xs text-slate-600">
                   <span>
                     Billed Amount:{' '}
-                    <strong className="text-slate-900 font-mono">
+                    <span className="text-slate-900 font-mono font-semibold">
                       {formatPeso(jobOrder.billed_amount_cents ?? 0)}
-                    </strong>
+                    </span>
                   </span>
                   {canViewJobOrders && (
-                    <span className="inline-flex items-center gap-1 font-semibold text-brand-primary">
+                    <span className="inline-flex items-center gap-1 font-medium text-brand-primary">
                       <span>View JO Details</span>
                       <Wrench className="w-3.5 h-3.5" />
                     </span>

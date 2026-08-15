@@ -148,21 +148,23 @@ export default function SalesQuoteBuilder({
         <table className="w-full text-left text-base">
           <thead className="bg-slate-100/80 text-slate-700 border-b border-slate-200">
             <tr>
-              <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider">Type</th>
-              <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider">Description</th>
-              <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-right">
+              <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider">Type</th>
+              <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider">
+                Description
+              </th>
+              <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-right">
                 Qty
               </th>
-              <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-right">
+              <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-right">
                 Unit Price
               </th>
-              <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-right">
+              <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-right">
                 Disc
               </th>
-              <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-right">
+              <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-right">
                 Net
               </th>
-              <th className="px-4 py-3 text-xs font-bold uppercase tracking-wider text-center">
+              <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-center">
                 Action
               </th>
             </tr>
@@ -304,8 +306,8 @@ export default function SalesQuoteBuilder({
           </span>
         </div>
         <div className="flex justify-between items-center pt-2 border-t border-slate-200">
-          <span className="text-base font-bold text-slate-900">Quote Grand Total</span>
-          <span className="text-lg font-bold font-mono text-brand-primary">
+          <span className="text-base font-medium text-slate-900">Quote Grand Total</span>
+          <span className="text-lg font-mono font-semibold text-brand-primary">
             {formatPeso(summary.grandTotalCents)}
           </span>
         </div>

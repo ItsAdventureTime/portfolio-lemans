@@ -185,7 +185,7 @@ textarea {
     background: rgba(248, 250, 252, 0.92);
     color: var(--text-secondary);
     font-size: 0.6875rem;
-    font-weight: 600;
+    font-weight: 500;
     letter-spacing: 0.02em;
     text-transform: none;
     vertical-align: middle;
@@ -237,7 +237,7 @@ textarea {
   .utility-label {
     color: var(--text-tertiary);
     font-size: 0.6875rem;
-    font-weight: 600;
+    font-weight: 500;
     letter-spacing: 0.025em;
     line-height: 1rem;
   }
@@ -407,6 +407,17 @@ textarea {
 }
 
 @layer utilities {
+  /* Keep ordinary UI copy calm; headings and data emphasis opt back into 600. */
+  .font-semibold {
+    font-weight: 500;
+  }
+
+  :is(h1, h2, h3, h4, h5, h6).font-semibold,
+  .font-mono.font-semibold,
+  .tabular-nums.font-semibold {
+    font-weight: 600;
+  }
+
   /* Keep legacy bold utilities within a medium/semibold hierarchy. */
   .font-bold {
     font-weight: 600;

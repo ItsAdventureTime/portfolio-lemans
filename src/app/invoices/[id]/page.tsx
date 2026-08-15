@@ -37,8 +37,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
               <StatusBadge status={invoice.status} />
             </div>
             <p className="text-xs text-slate-500 mt-0.5">
-              Customer:{' '}
-              <span className="font-semibold text-slate-700">{invoice.customer_name}</span>
+              Customer: <span className="font-medium text-slate-700">{invoice.customer_name}</span>
             </p>
           </div>
         </div>
@@ -58,29 +57,27 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
             <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block">
               Service Invoice
             </span>
-            <span className="font-mono font-bold text-slate-900 text-sm">{invoice.invoice_no}</span>
+            <span className="font-mono font-semibold text-slate-900 text-sm">
+              {invoice.invoice_no}
+            </span>
           </div>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm">
           <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              Subtotal
-            </p>
+            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Subtotal</p>
             <p className="font-mono font-semibold text-slate-900 mt-0.5">
               {formatPeso(invoice.subtotal_cents)}
             </p>
           </div>
           <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              VAT (12%)
-            </p>
+            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">VAT (12%)</p>
             <p className="font-mono font-semibold text-slate-900 mt-0.5">
               {formatPeso(invoice.vat_amount_cents)}
             </p>
           </div>
           <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
               Grand Total
             </p>
             <p className="font-mono font-extrabold text-brand-primary text-base mt-0.5">
@@ -88,10 +85,10 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
             </p>
           </div>
           <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
               Amount Paid
             </p>
-            <p className="font-mono font-bold text-emerald-700 mt-0.5">
+            <p className="font-mono font-semibold text-emerald-700 mt-0.5">
               {formatPeso(invoice.amount_paid_cents)}
             </p>
           </div>
@@ -99,7 +96,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
 
         {invoice.notes && (
           <div className="bg-slate-50 border border-slate-200 p-3.5 rounded-lg text-xs text-slate-700">
-            <span className="font-bold">Notes:</span> {invoice.notes}
+            <span className="font-medium">Notes:</span> {invoice.notes}
           </div>
         )}
       </div>
@@ -128,7 +125,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
                   className="px-5 py-3.5 text-sm flex items-center justify-between hover:bg-slate-50 transition-colors"
                 >
                   <div>
-                    <p className="font-bold text-slate-900">{p.payment_method}</p>
+                    <p className="font-medium text-slate-900">{p.payment_method}</p>
                     <p className="text-xs text-slate-500">
                       Ref: <span className="font-mono">{p.reference_no || '—'}</span>
                     </p>
@@ -145,7 +142,7 @@ export default async function InvoiceDetailPage({ params }: { params: Promise<{ 
 
       {/* Mandatory Official Receipt Notice (AC-BILL-001) */}
       <div className="border-t border-slate-300 pt-5 text-center">
-        <p className="inline-flex items-center gap-2 text-xs font-bold tracking-wide text-slate-600 bg-slate-100 px-4 py-2 rounded-lg border border-slate-200">
+        <p className="inline-flex items-center gap-2 text-xs font-medium tracking-wide text-slate-600 bg-slate-100 px-4 py-2 rounded-lg border border-slate-200">
           <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0" />
           <span>THIS IS NOT AN OFFICIAL RECEIPT. NOT VALID FOR CLAIMING INPUT TAX</span>
         </p>
