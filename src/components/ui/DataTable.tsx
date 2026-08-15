@@ -67,13 +67,13 @@ export default function DataTable<T>({
   if (error) {
     return (
       <section
-        className="surface-card border-l-4 border-l-rose-500 bg-rose-50/40 p-5 sm:p-6"
+        className="surface-card border-l-4 border-l-rose-500 bg-rose-50 p-5 sm:p-6"
         role="alert"
         aria-label="Table error"
       >
         <div className="flex items-start gap-3">
           <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-rose-700" aria-hidden="true" />
-          <p className="text-sm font-medium leading-6 text-rose-900">{error}</p>
+          <p className="text-sm leading-6 text-rose-900">{error}</p>
         </div>
         {errorAction && <div className="mt-4">{errorAction}</div>}
       </section>
@@ -95,7 +95,7 @@ export default function DataTable<T>({
                 <th
                   key={col.key}
                   scope="col"
-                  className={`whitespace-nowrap border-b border-slate-200/80 px-4 py-3 font-medium leading-4 ${columnClassName(col)}`}
+                  className={`whitespace-nowrap border-b border-slate-200/80 px-4 py-3 leading-4 ${columnClassName(col)}`}
                 >
                   {col.header}
                 </th>

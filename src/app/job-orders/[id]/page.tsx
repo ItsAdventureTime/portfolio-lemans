@@ -71,9 +71,8 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
               <StatusBadge status={jo.status} />
             </div>
             <p className="mt-1 text-sm text-slate-500">
-              Advisor: <span className="font-medium text-slate-700">{jo.advisor}</span> ·
-              Technician:{' '}
-              <span className="font-medium text-slate-700">{jo.technician || 'Unassigned'}</span>
+              Advisor: <span className="text-slate-700">{jo.advisor}</span> · Technician:{' '}
+              <span className="text-slate-700">{jo.technician || 'Unassigned'}</span>
             </p>
           </div>
         </div>
@@ -91,9 +90,7 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
 
       {/* Job Order Status Stepper */}
       <div className="surface-card-muted space-y-4 p-5 sm:p-6">
-        <h2 className="text-sm font-medium tracking-[0.02em] text-slate-600">
-          Job Order Operational Lifecycle
-        </h2>
+        <h2 className="utility-label text-slate-600">Job Order Operational Lifecycle</h2>
         <StatusWorkflowStepper status={jo.status} />
       </div>
 
@@ -105,26 +102,22 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
         </div>
         <div className="grid grid-cols-1 gap-6 text-base sm:grid-cols-2 md:grid-cols-4">
           <div>
-            <p className="text-sm font-medium text-slate-500">Customer name</p>
-            <p className="mt-1 text-base font-medium text-slate-900">{jo.customer_name}</p>
+            <p className="text-sm text-slate-500">Customer name</p>
+            <p className="mt-1 text-base text-slate-900">{jo.customer_name}</p>
           </div>
           <div>
-            <p className="text-sm font-medium text-slate-500">Vehicle plate</p>
+            <p className="text-sm text-slate-500">Vehicle plate</p>
             <p className="mt-1 font-mono text-base font-semibold text-slate-900">
               {jo.vehicle_plate}
             </p>
           </div>
           <div>
-            <p className="text-sm font-medium text-slate-500">Make / model</p>
-            <p className="mt-1 text-base font-medium text-slate-900">
-              {jo.vehicle_make_model || '—'}
-            </p>
+            <p className="text-sm text-slate-500">Make / model</p>
+            <p className="mt-1 text-base text-slate-900">{jo.vehicle_make_model || '—'}</p>
           </div>
           <div>
-            <p className="text-sm font-medium text-slate-500">Technician assigned</p>
-            <p className="mt-1 text-base font-medium text-slate-900">
-              {jo.technician || 'Unassigned'}
-            </p>
+            <p className="text-sm text-slate-500">Technician assigned</p>
+            <p className="mt-1 text-base text-slate-900">{jo.technician || 'Unassigned'}</p>
           </div>
         </div>
       </div>
@@ -147,7 +140,7 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
               }}
               className="surface-card-inset space-y-4 p-4"
             >
-              <div className="flex items-center gap-2 text-base font-medium text-slate-900">
+              <div className="flex items-center gap-2 text-base text-slate-900">
                 <UserCheck className="w-4 h-4 text-brand-primary" />
                 <span>Assign Technician</span>
               </div>
@@ -175,7 +168,7 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
               }}
               className="surface-card-inset space-y-4 p-4"
             >
-              <div className="flex items-center gap-2 text-base font-medium text-slate-900">
+              <div className="flex items-center gap-2 text-base text-slate-900">
                 <RefreshCw className="w-4 h-4 text-brand-primary" />
                 <span>Update Status</span>
               </div>
@@ -218,7 +211,7 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
               }}
               className="surface-card-inset space-y-4 p-4"
             >
-              <div className="flex items-center gap-2 text-base font-medium text-slate-900">
+              <div className="flex items-center gap-2 text-base text-slate-900">
                 <PlusCircle className="w-4 h-4 text-brand-primary" />
                 <span>Record Timeline Event</span>
               </div>
@@ -250,7 +243,7 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
               key: 'type',
               header: 'Type',
               render: (it) => (
-                <span className="rounded-md bg-slate-100 px-2 py-1 text-sm font-medium text-slate-700">
+                <span className="rounded-md bg-slate-100 px-2 py-1 text-sm text-slate-700">
                   {it.item_type}
                 </span>
               ),
@@ -263,7 +256,7 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
             {
               key: 'qty',
               header: 'Qty',
-              render: (it) => <span className="tabular-nums font-medium">{it.quantity}</span>,
+              render: (it) => <span className="tabular-nums">{it.quantity}</span>,
             },
             {
               key: 'net',
@@ -293,7 +286,7 @@ export default async function JobOrderDetailPage({ params }: { params: Promise<{
             {
               key: 'type',
               header: 'Event Type',
-              render: (e) => <span className="font-medium text-slate-900">{e.event_type}</span>,
+              render: (e) => <span className="text-slate-900">{e.event_type}</span>,
             },
             {
               key: 'description',

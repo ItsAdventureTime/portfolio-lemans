@@ -31,7 +31,7 @@ export default function FormField({
 
   return (
     <div className={`space-y-1 ${className}`}>
-      <label htmlFor={name} className="block text-sm font-medium text-slate-700">
+      <label htmlFor={name} className="block text-sm text-slate-700">
         {label}
         {required && (
           <>
@@ -52,7 +52,7 @@ export default function FormField({
         min={min}
         step={step}
         className={`min-h-11 w-full rounded-lg border bg-white px-3 py-2 text-base text-slate-900 placeholder:text-slate-400 transition-colors focus:outline-none focus-visible:border-brand-primary focus-visible:ring-2 focus-visible:ring-brand-primary ${
-          error ? 'border-rose-300 bg-rose-50/70' : 'border-slate-300 hover:border-slate-400'
+          error ? 'border-rose-300 bg-rose-50' : 'border-slate-300 hover:border-slate-400'
         }`}
         aria-describedby={describedBy}
         aria-invalid={error ? 'true' : undefined}
@@ -63,7 +63,7 @@ export default function FormField({
         </p>
       )}
       {error && (
-        <p id={errorId} className="text-xs text-rose-600 font-medium">
+        <p id={errorId} className="text-xs text-rose-600">
           {error}
         </p>
       )}

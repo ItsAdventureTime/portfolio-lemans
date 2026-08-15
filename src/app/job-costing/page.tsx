@@ -96,12 +96,12 @@ export default async function JobCostingIndexPage({
         role="search"
       >
         <div className="min-w-0 flex-1 space-y-1">
-          <label htmlFor="job-costing-search" className="text-sm font-medium text-slate-700">
+          <label htmlFor="job-costing-search" className="text-sm text-slate-700">
             Find a job order
           </label>
           <div className="relative">
             <Search
-              className="pointer-events-none absolute left-3 top-3 h-5 w-5 text-slate-400"
+              className="pointer-events-none absolute left-3 top-3 h-5 w-5 text-slate-500"
               aria-hidden="true"
             />
             <input
@@ -114,7 +114,7 @@ export default async function JobCostingIndexPage({
           </div>
         </div>
         <div className="space-y-1 sm:w-52">
-          <label htmlFor="job-costing-status" className="text-sm font-medium text-slate-700">
+          <label htmlFor="job-costing-status" className="text-sm text-slate-700">
             Status
           </label>
           <select

@@ -1,6 +1,6 @@
 # Current repository state
 
-- **Updated**: 2026-08-15 (Motion route transitions and focus refinement)
+- **Updated**: 2026-08-15 (Typography and opaque surface emphasis refinement)
 - **Authority**: Current implementation and the demo rules in
   [`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md)
 - **Documentation index**: [`DOCUMENTATION-INDEX.md`](./DOCUMENTATION-INDEX.md)
@@ -125,10 +125,13 @@ The shared data-table refinement keeps tables stable across modules with fixed
 layout, explicit column widths, middle-aligned cells, right-aligned numeric
 values, tabular numerals, and centered status badges. Compact action controls keep
 the WCAG-sized 44px hit area while drawing a quieter visual surface, so approval
-and form buttons do not dominate the page. Headings, labels, status text, and
-identifiers now use a calmer medium/semibold hierarchy. The pathname-keyed Motion
-route transition remains Motion- and SmoothUI-aligned and honors
-`prefers-reduced-motion` without delaying navigation.
+and form buttons do not dominate the page. Ordinary labels, table headers,
+metadata, workflow labels, and supporting copy use regular weight. Opaque
+current/completed/upcoming surfaces, borders, icons, and status text carry
+semantic emphasis; headings, identifiers, and financial values retain deliberate
+numeric or heading hierarchy. The pathname-keyed Motion route transition remains
+Motion- and SmoothUI-aligned and honors `prefers-reduced-motion` without delaying
+navigation.
 
 Remote deployment is separate: the workstation stages an exact `HEAD` source
 tree to the stable `current` path and syncs it with rsync, the VPS builds and

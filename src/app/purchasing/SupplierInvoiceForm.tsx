@@ -99,9 +99,7 @@ export default function SupplierInvoiceForm({ jobOrders, action }: SupplierInvoi
           Allocate Across JOs
         </button>
         {allocations.length > 0 && (
-          <span className="text-sm text-emerald-700 font-medium">
-            Saved allocations: {allocations.length}
-          </span>
+          <span className="text-sm text-emerald-700">Saved allocations: {allocations.length}</span>
         )}
       </div>
 

@@ -159,9 +159,9 @@ export default function Navbar({ role }: { role: ProjectRole }) {
                         <Link
                           href={item.href}
                           prefetch={true}
-                          className={`nav-link group flex min-h-11 items-center gap-2 whitespace-nowrap border-b-2 px-3 py-2.5 text-sm font-medium transition-[background-color,color,border-color,transform] active:translate-y-px ${
+                          className={`nav-link group flex min-h-11 items-center gap-2 whitespace-nowrap border-b-2 px-3 py-2.5 text-sm transition-[background-color,color,border-color,transform] active:translate-y-px ${
                             active
-                              ? 'border-brand-primary bg-charcoal-soft font-semibold text-white'
+                              ? 'border-brand-primary bg-charcoal-soft text-white'
                               : 'border-transparent text-slate-300 hover:bg-charcoal-soft hover:text-white'
                           }`}
                           aria-current={active ? 'page' : undefined}
@@ -201,9 +201,9 @@ export default function Navbar({ role }: { role: ProjectRole }) {
                             href={item.href}
                             prefetch={true}
                             onClick={() => setMobileMenuOpen(false)}
-                            className={`nav-link flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-[background-color,color,transform] active:translate-y-px ${
+                            className={`nav-link flex min-h-11 items-center gap-3 rounded-lg px-3 py-2.5 text-sm transition-[background-color,color,transform] active:translate-y-px ${
                               active
-                                ? 'bg-brand-primary font-semibold text-white'
+                                ? 'bg-brand-primary text-white'
                                 : 'text-slate-300 hover:bg-charcoal-soft hover:text-white'
                             }`}
                             aria-current={active ? 'page' : undefined}

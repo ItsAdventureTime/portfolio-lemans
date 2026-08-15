@@ -2,7 +2,7 @@
 
 - **Status**: IMPLEMENTED & VERIFIED
 
-- **Version**: 1.2.5
+- **Version**: 1.2.6
 - **Updated**: 2026-08-15
 - **Audience**: Google Antigravity, UI engineers, UX reviewers, and coding agents
 - **Product**: Le Mans Operations & Job Cost Management System demo
@@ -72,10 +72,11 @@ The current shell and overview pass implements the following bounded changes:
   treatment, motion-safe skeletons, reduced-motion support, and reusable action
   and surface classes. The visual foundation remains Racing Red `#d32f2f`,
   Deep Slate `#0f172a`, and Off-White `#f8fafc`.
-- Non-heading UI copy uses a calmer weight hierarchy: medium for labels,
-  descriptions, table headers, metadata, badges, and ordinary actions;
-  semibold remains for headings and intentional numeric emphasis. This keeps
-  dense operational screens scannable without changing record meaning.
+- Non-heading UI copy uses regular weight for labels, descriptions, table
+  headers, metadata, notes, and workflow labels. Medium weight is limited to
+  controls or small semantic cues; semibold remains for headings and
+  intentional numeric emphasis. Opaque rectangular surfaces, borders, icons,
+  and state text carry emphasis without making routine copy shout.
 - Shared focus treatment is layered deliberately: the global `:focus-visible`
   rule is in `@layer base`, and `.nav-link` keeps its component-layer override.
   This preserves a visible inset keyboard outline without the white outer ring
@@ -104,9 +105,10 @@ The current shell and overview pass implements the following bounded changes:
 - Dense approval, conversion, allocation, and supplier-invoice actions use
   `action-compact`: the control keeps a 44px hit area while its visual surface
   is inset to reduce perceived button height.
-- The type hierarchy now favors regular body text and medium/semibold labels;
-  bold weight is reserved for page titles and high-value emphasis. This keeps
-  tables scannable without making every label compete for attention.
+- The type hierarchy now favors regular body text and regular labels; heavier
+  weights are reserved for page titles, identifiers, monetary values, and
+  controls. Solid state surfaces make approved, current, completed, and error
+  states scannable without bolding their copy.
 - The existing `motion` dependency is the implementation boundary for the
   Motion/SmoothUI-inspired route interaction. It uses a short opacity and
   transform transition, honors `prefers-reduced-motion`, and does not delay
@@ -114,14 +116,29 @@ The current shell and overview pass implements the following bounded changes:
 
 ### Detail-view typography refinement — 2026-08-15
 
-- Job costing, invoice, and job-order detail screens use 14–16px medium labels,
+- Job costing, invoice, and job-order detail screens use 14–16px regular labels,
   readable supporting copy, and 18–20px semibold/tabular values only where
   scanning financial or record data benefits from emphasis.
 - Secondary metrics, notes, lifecycle context, controls, and variance content
   use muted or inset rectangular surfaces so grouping carries the hierarchy;
   repeated bold or all-caps text is not used as the primary visual signal.
-- `DataTable` uses a readable 16px body with 14px medium headers and preserves
+- `DataTable` uses a readable 16px body with 14px regular headers and preserves
   stable alignment for identifiers, quantities, statuses, and monetary values.
+
+### Surface emphasis refinement — 2026-08-15
+
+- Shared `surface-card-muted` and `surface-card-inset` surfaces now use solid
+  tokens. Workflow states use explicit current, completed, and upcoming
+  rectangles with readable contrast instead of relying on bold or color alone.
+- Form labels, navigation labels, table headers, routine detail values, and
+  workflow state copy no longer request medium weight by default. IDs and
+  financial values retain quiet monospaced treatment; headings retain the page
+  hierarchy.
+- The seven-stage job-order stepper keeps readable labels in a contained
+  horizontal scroll region on narrow screens. It does not truncate stage names.
+- The visual treatment follows the SmoothUI reference language—quiet borders,
+  solid tints, clear state grouping, and short interaction transitions—while
+  the existing `motion/react` boundary remains the only animation dependency.
 
 ### Motion and focus refinement — 2026-08-15
 
@@ -151,7 +168,8 @@ Practices Guide](https://www.w3.org/WAI/ARIA/apg/), the [Next.js production
 checklist](https://nextjs.org/docs/app/guides/production-checklist), and the
 [Next.js Linking and Navigating guide](https://nextjs.org/docs/app/getting-started/linking-and-navigating),
 [W3C reduced-motion technique C39](https://www.w3.org/WAI/WCAG22/Techniques/css/C39),
-[Motion for React](https://motion.dev/docs/react), the [SmoothUI
+[WCAG contrast minimum](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum),
+[Motion accessibility](https://motion.dev/docs/react-accessibility), [Motion for React](https://motion.dev/docs/react), the [SmoothUI
 collection](https://github.com/educlopez/smoothui), and the [Tailwind CSS
 v3-to-v4 upgrade guide](https://tailwindcss.com/docs/upgrade-guide).
 The app keeps its pinned Next.js 16.3 and Tailwind CSS 3.4 stack; the review

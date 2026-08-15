@@ -107,7 +107,7 @@ export default async function JobCostingPage({ params }: { params: Promise<{ id:
           <CostCard label="Billed Amount" cents={c.billedAmountCents} />
           <CostCard label="Net Profit" cents={c.netProfitCents} />
           <div className="surface-card-muted p-5">
-            <p className="text-sm font-medium text-slate-500">Margin</p>
+            <p className="text-sm text-slate-500">Margin</p>
             <p className="mt-2 text-2xl font-semibold tabular-nums text-slate-900">
               {c.profitMarginPercent.toFixed(1)}%
             </p>
@@ -159,13 +159,11 @@ function CostCard({
     <article
       className={`flex min-h-[9.5rem] flex-col p-5 ${
         featured
-          ? 'surface-card border-brand-primary/25 bg-brand-light/45 shadow-[0_14px_30px_-24px_rgba(211,47,47,0.45)]'
+          ? 'surface-card border-brand-primary/25 bg-brand-light shadow-[0_14px_30px_-24px_rgba(211,47,47,0.45)]'
           : 'surface-card-muted'
       }`}
     >
-      <p className={`text-base font-medium ${featured ? 'text-slate-800' : 'text-slate-600'}`}>
-        {label}
-      </p>
+      <p className={`text-base ${featured ? 'text-slate-800' : 'text-slate-600'}`}>{label}</p>
       <p className="mt-auto pt-6 font-mono text-xl font-semibold tabular-nums text-slate-900">
         {formatPeso(cents)}
       </p>
@@ -186,7 +184,7 @@ function VarianceRow({
   return (
     <div className="surface-card-inset p-4">
       <div className="flex items-baseline justify-between gap-3">
-        <p className="text-base font-medium text-slate-900">{label}</p>
+        <p className="text-base text-slate-900">{label}</p>
         <p
           className={`font-mono text-base font-semibold tabular-nums ${variance > 0 ? 'text-rose-700' : 'text-emerald-700'}`}
         >
@@ -195,9 +193,8 @@ function VarianceRow({
         </p>
       </div>
       <p className="mt-2 text-sm leading-5 text-slate-600">
-        Estimated{' '}
-        <span className="font-mono font-medium text-slate-800">{formatPeso(estimated)}</span> ·
-        Actual <span className="font-mono font-medium text-slate-800">{formatPeso(actual)}</span>
+        Estimated <span className="font-mono text-slate-800">{formatPeso(estimated)}</span> · Actual{' '}
+        <span className="font-mono text-slate-800">{formatPeso(actual)}</span>
       </p>
     </div>
   );

@@ -148,7 +148,7 @@ export default function EndToEndWorkflowVisualizer({
             of truth from intake to financial accounting.
           </p>
         </div>
-        <div className="inline-flex min-h-9 items-center gap-2 self-start rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-medium text-emerald-800 sm:self-auto">
+        <div className="inline-flex min-h-9 items-center gap-2 self-start rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs text-emerald-800 sm:self-auto">
           <span className="h-2 w-2 rounded-full bg-emerald-600" aria-hidden="true" />
           <span>{ROLES[role]} workflow view</span>
         </div>
@@ -164,12 +164,12 @@ export default function EndToEndWorkflowVisualizer({
             <li key={stage.key} className="relative flex flex-col h-full">
               <Link
                 href={stage.href}
-                className={`workflow-card group flex flex-col justify-between rounded-xl border p-4 transition-[background-color,border-color,box-shadow,transform] hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary ${
+                className={`workflow-card workflow-stage-card group flex flex-col justify-between rounded-xl border p-4 transition-[background-color,border-color,box-shadow,transform] hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary ${
                   isCurrent
-                    ? 'border-brand-primary bg-brand-light/55 ring-1 ring-brand-primary/30 shadow-[0_16px_30px_-24px_rgba(211,47,47,0.8)]'
+                    ? 'workflow-stage-current'
                     : isCompleted
-                      ? 'border-emerald-200 bg-emerald-50/30 hover:border-emerald-300 hover:bg-emerald-50/55'
-                      : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50/80'
+                      ? 'workflow-stage-completed'
+                      : 'workflow-stage-upcoming'
                 }`}
                 aria-current={isCurrent ? 'step' : undefined}
               >
@@ -177,7 +177,7 @@ export default function EndToEndWorkflowVisualizer({
                   <div className="mb-3 flex items-center justify-between gap-2">
                     <div className="flex items-center gap-1.5">
                       <span
-                        className={`flex h-7 w-7 items-center justify-center rounded-lg text-xs font-bold ${
+                        className={`flex h-7 w-7 items-center justify-center rounded-lg text-xs ${
                           isCurrent
                             ? 'bg-brand-primary text-white'
                             : isCompleted
@@ -188,12 +188,12 @@ export default function EndToEndWorkflowVisualizer({
                         {stage.stepNumber}
                       </span>
                       <span
-                        className={`text-[11px] font-medium uppercase tracking-[0.08em] ${
+                        className={`workflow-stage-state ${
                           isCurrent
-                            ? 'text-brand-primary'
+                            ? 'workflow-stage-state-current'
                             : isCompleted
-                              ? 'text-emerald-700'
-                              : 'text-slate-500'
+                              ? 'workflow-stage-state-completed'
+                              : 'workflow-stage-state-upcoming'
                         }`}
                       >
                         {isCompleted ? '✓ Completed' : isCurrent ? 'Active Stage' : 'Stage'}
@@ -202,16 +202,16 @@ export default function EndToEndWorkflowVisualizer({
                     <Icon
                       className={`w-4 h-4 ${
                         isCurrent
-                          ? 'text-brand-primary'
+                          ? 'text-brand-hover'
                           : isCompleted
                             ? 'text-emerald-600'
-                            : 'text-slate-400 group-hover:text-slate-600'
+                            : 'text-slate-500 group-hover:text-slate-600'
                       }`}
                       aria-hidden="true"
                     />
                   </div>
 
-                  <h3 className="break-words text-base font-bold leading-5 text-slate-950 transition-colors group-hover:text-brand-primary">
+                  <h3 className="break-words text-base font-bold leading-5 text-slate-950 transition-colors group-hover:text-brand-hover">
                     {stage.title}
                   </h3>
                   <p className="mt-1 break-words text-sm leading-5 text-slate-600">
@@ -221,15 +221,15 @@ export default function EndToEndWorkflowVisualizer({
 
                 <div className="mt-5 flex min-h-9 items-center justify-between gap-2 border-t border-slate-200/80 pt-3 text-xs">
                   {stage.primaryMetricValue !== undefined ? (
-                    <span className="font-medium text-slate-900">
+                    <span className="text-slate-900">
                       {stage.primaryMetricLabel}:{' '}
-                      <span className="text-brand-primary">{stage.primaryMetricValue}</span>
+                      <span className="text-brand-hover">{stage.primaryMetricValue}</span>
                     </span>
                   ) : (
                     <span className="break-words text-slate-600">{stage.statusText}</span>
                   )}
                   <ArrowRight
-                    className="h-4 w-4 shrink-0 text-slate-400 transition-transform group-hover:translate-x-0.5"
+                    className="h-4 w-4 shrink-0 text-slate-500 transition-transform group-hover:translate-x-0.5"
                     aria-hidden="true"
                   />
                 </div>

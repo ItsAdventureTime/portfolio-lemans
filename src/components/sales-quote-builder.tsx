@@ -146,27 +146,15 @@ export default function SalesQuoteBuilder({
 
       <div className="overflow-x-auto border border-slate-200 rounded-xl">
         <table className="w-full text-left text-base">
-          <thead className="bg-slate-100/80 text-slate-700 border-b border-slate-200">
+          <thead className="bg-slate-100 text-slate-700 border-b border-slate-200">
             <tr>
-              <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider">Type</th>
-              <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider">
-                Description
-              </th>
-              <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-right">
-                Qty
-              </th>
-              <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-right">
-                Unit Price
-              </th>
-              <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-right">
-                Disc
-              </th>
-              <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-right">
-                Net
-              </th>
-              <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-center">
-                Action
-              </th>
+              <th className="px-4 py-3 text-xs text-slate-600">Type</th>
+              <th className="px-4 py-3 text-xs text-slate-600">Description</th>
+              <th className="px-4 py-3 text-xs text-slate-600 text-right">Qty</th>
+              <th className="px-4 py-3 text-xs text-slate-600 text-right">Unit Price</th>
+              <th className="px-4 py-3 text-xs text-slate-600 text-right">Disc</th>
+              <th className="px-4 py-3 text-xs text-slate-600 text-right">Net</th>
+              <th className="px-4 py-3 text-xs text-slate-600 text-center">Action</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-200 text-slate-700">
@@ -209,7 +197,7 @@ export default function SalesQuoteBuilder({
                   </td>
                   <td className="px-4 py-3">
                     <div className="relative">
-                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
+                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-500 text-sm">
                         ₱
                       </span>
                       <input
@@ -228,7 +216,7 @@ export default function SalesQuoteBuilder({
                   </td>
                   <td className="px-4 py-3">
                     <div className="relative">
-                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
+                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-500 text-sm">
                         ₱
                       </span>
                       <input
@@ -306,7 +294,7 @@ export default function SalesQuoteBuilder({
           </span>
         </div>
         <div className="flex justify-between items-center pt-2 border-t border-slate-200">
-          <span className="text-base font-medium text-slate-900">Quote Grand Total</span>
+          <span className="text-base text-slate-900">Quote Grand Total</span>
           <span className="text-lg font-mono font-semibold text-brand-primary">
             {formatPeso(summary.grandTotalCents)}
           </span>

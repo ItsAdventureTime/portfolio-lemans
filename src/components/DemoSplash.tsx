@@ -71,9 +71,7 @@ export default function DemoSplash() {
             />
             <div>
               <p className="utility-label text-brand-primary">Le Mans Service Plus OPC</p>
-              <p className="mt-1 text-base font-medium tracking-tight text-slate-900">
-                Operations workspace
-              </p>
+              <p className="mt-1 text-base tracking-tight text-slate-900">Operations workspace</p>
             </div>
           </div>
 
@@ -109,7 +107,7 @@ export default function DemoSplash() {
 
           {error && (
             <p
-              className="mt-4 rounded-lg border border-rose-200 bg-rose-50/80 px-3 py-2.5 text-sm font-medium text-rose-800"
+              className="mt-4 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2.5 text-sm text-rose-800"
               role="alert"
               aria-live="assertive"
             >
@@ -138,7 +136,7 @@ export default function DemoSplash() {
                 From intake to collection
               </h2>
             </div>
-            <span className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-medium text-slate-600">
+            <span className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs text-slate-600">
               5 checkpoints
             </span>
           </div>
@@ -153,13 +151,13 @@ export default function DemoSplash() {
             ].map((stage, index) => (
               <li key={stage} className="flex items-center gap-3">
                 <span
-                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-xs font-bold ${
+                  className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-xs ${
                     index === 0 ? 'bg-brand-primary text-white' : 'bg-slate-100 text-slate-600'
                   }`}
                 >
                   {index === 0 ? <CircleCheck className="h-4 w-4" aria-hidden="true" /> : index + 1}
                 </span>
-                <span className="text-sm font-medium text-slate-700">{stage}</span>
+                <span className="text-sm text-slate-700">{stage}</span>
               </li>
             ))}
           </ol>

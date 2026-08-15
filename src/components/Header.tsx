@@ -25,11 +25,11 @@ export default async function Header() {
           <div className="brand-lockup min-w-0">
             <p className="utility-label text-brand-primary">Service center cockpit</p>
             <p className="truncate text-lg font-bold text-slate-950">Le Mans Service Plus</p>
-            <p className="truncate text-xs font-medium text-slate-500">Operations workspace</p>
+            <p className="truncate text-xs text-slate-500">Operations workspace</p>
           </div>
         </div>
         <div className="flex w-full flex-wrap items-center justify-between gap-3 sm:w-auto sm:justify-end sm:gap-4">
-          <span className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-brand-primary/20 bg-brand-light px-3 py-1.5 text-xs font-medium text-brand-primary">
+          <span className="inline-flex min-h-9 items-center gap-2 rounded-lg border border-brand-primary/20 bg-brand-light px-3 py-1.5 text-xs text-brand-hover">
             <span
               className="h-2 w-2 rounded-full bg-brand-primary shadow-[0_0_0_3px_rgba(211,47,47,0.12)]"
               aria-hidden="true"

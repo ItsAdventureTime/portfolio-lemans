@@ -63,7 +63,7 @@ export default function InvoiceList({ invoices, role }: InvoiceListProps) {
           render: (inv) => (
             <Link
               href={`/invoices/${inv.id}`}
-              className="inline-flex min-h-11 max-w-full items-center break-all rounded px-1 -mx-1 font-medium tabular-nums text-brand-primary hover:underline focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 sm:break-normal"
+              className="inline-flex min-h-11 max-w-full items-center break-all rounded px-1 -mx-1 font-mono tabular-nums text-brand-primary hover:underline focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 sm:break-normal"
             >
               {inv.invoice_no}
             </Link>

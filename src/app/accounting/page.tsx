@@ -71,14 +71,14 @@ export default async function AccountingPage() {
               widthClass: 'w-[22%]',
               className: 'tabular-nums',
               render: (c) => (
-                <span className="font-medium tabular-nums text-slate-900">{c.customer_no}</span>
+                <span className="font-mono tabular-nums text-slate-900">{c.customer_no}</span>
               ),
             },
             {
               key: 'name',
               header: 'Customer Name',
               widthClass: 'w-[36%]',
-              render: (c) => <span className="font-medium">{c.name}</span>,
+              render: (c) => c.name,
             },
             {
               key: 'tin',
@@ -107,16 +107,14 @@ export default async function AccountingPage() {
               widthClass: 'w-[22%]',
               className: 'tabular-nums',
               render: (inv) => (
-                <span className="font-mono font-medium tabular-nums text-slate-900">
-                  {inv.invoice_no}
-                </span>
+                <span className="font-mono tabular-nums text-slate-900">{inv.invoice_no}</span>
               ),
             },
             {
               key: 'customer',
               header: 'Customer',
               widthClass: 'w-[32%]',
-              render: (inv) => <span className="font-medium">{inv.customer_name}</span>,
+              render: (inv) => inv.customer_name,
             },
             {
               key: 'total',

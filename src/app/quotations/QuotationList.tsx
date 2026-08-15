@@ -42,7 +42,7 @@ export default function QuotationList({ quotes, role }: QuotationListProps) {
           render: (q) => (
             <span
               id={`quotation-${q.id}`}
-              className="inline-flex min-h-11 max-w-full items-center break-all font-medium text-slate-900 sm:break-normal"
+              className="inline-flex min-h-11 max-w-full items-center break-all font-mono text-slate-900 sm:break-normal"
             >
               {q.quote_no}
             </span>

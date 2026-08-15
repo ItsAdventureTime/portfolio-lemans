@@ -1,6 +1,6 @@
 # Design system
 
-- **Document Version**: 2.3.3
+- **Document Version**: 2.4.0
 - **Updated**: 2026-08-15
 - **Audience**: UI engineers, reviewers, and mobile developers (SwiftUI / Jetpack Compose)
 - **Client Brand**: Le Mans Service Plus OPC (Angeles City, Pampanga)
@@ -44,6 +44,8 @@ This design system draws from these sources:
 - **SmoothUI / Motion**: Use the requested SmoothUI collection as a motion
   reference. The existing `motion` dependency is used through `motion/react`
   for a pathname-keyed, compositor-friendly opacity/transform transition.
+  Opaque, quiet surfaces and short color/elevation transitions carry emphasis
+  on dense screens, following the same restrained interaction language.
   Honor user reduced-motion preferences, keep navigation interruptible, and
   never make animation a prerequisite for task completion. Do not add GSAP or
   anime.js unless a future interaction needs their distinct capabilities.
@@ -52,7 +54,9 @@ This design system draws from these sources:
   v4 migration changes CSS configuration and browser support and must be a
   separately planned, compatibility-tested work item.
 
-Official references: [WCAG 2.2](https://www.w3.org/TR/WCAG22/), [ARIA
+Official references: [WCAG 2.2](https://www.w3.org/TR/WCAG22/), [WCAG 2.2
+contrast minimum](https://www.w3.org/WAI/WCAG22/Understanding/contrast-minimum),
+[Motion accessibility](https://motion.dev/docs/react-accessibility), [ARIA
 Authoring Practices Guide](https://www.w3.org/WAI/ARIA/apg/), [ARIA disclosure
 pattern](https://www.w3.org/WAI/ARIA/apg/patterns/disclosure/), [ARIA keyboard
 interface guidance](https://www.w3.org/WAI/ARIA/apg/practices/keyboard-interface/),
@@ -85,6 +89,17 @@ and [Tailwind CSS v3-to-v4 upgrade guide](https://tailwindcss.com/docs/upgrade-g
   --bg-app: #f8fafc; /* Clean Off-White Application Canvas */
   --bg-surface: #ffffff; /* Pure White Elevated Card Surfaces */
   --bg-subtle: #f1f5f9; /* Subtle Input & Secondary Backgrounds */
+  --surface-muted: #f8fafc; /* Solid secondary information surfaces */
+  --surface-inset: #f1f5f9; /* Solid nested control surfaces */
+  --surface-workflow-current: #fff1f2; /* Active workflow stage */
+  --surface-workflow-current-border: #fda4af;
+  --surface-workflow-current-text: #9f1239;
+  --surface-workflow-complete: #ecfdf5; /* Completed workflow stage */
+  --surface-workflow-complete-border: #a7f3d0;
+  --surface-workflow-complete-text: #047857;
+  --surface-workflow-upcoming: #f8fafc; /* Upcoming workflow stage */
+  --surface-workflow-upcoming-border: #cbd5e1;
+  --surface-workflow-upcoming-text: #475569;
 
   /* Typography & Border Neutrals (WCAG AAA Target > 7:1) */
   --text-primary: #0f172a; /* Deep Slate for Primary Headings & Data */
@@ -118,6 +133,9 @@ only and never carries status meaning. Reusable `.surface-card`,
 `.surface-card-muted`, `.surface-card-inset`, `.action-primary`,
 `.action-secondary`, `.nav-rail`, `.workflow-grid`, and `.utility-label` classes
 are available to the shell, overview, forms, tables, and detail surfaces.
+Muted and inset cards use the explicit solid surface tokens above; workflow
+states use opaque current, completed, and upcoming rectangles so color and
+state text do the semantic work instead of heavier type.
 The charcoal navigation colors (`#17191d`, `#22252b`, and `#343840`) provide a
 quiet contrast field for the logo-derived red accent. Logo URLs use
 `getBasePath()` and `unoptimized` image delivery so the branded asset remains
@@ -126,7 +144,9 @@ valid under both `/lemans/demo` and `/lemans` deployments.
 The seven-stage workflow is an Overview-only responsive card rail: it uses readable cards at
 desktop widths and a single-column stack on narrow screens. Titles and
 descriptions must wrap; truncation is not allowed when it removes the meaning
-of a workflow stage. The visualizer receives the active demo role and renders
+of a workflow stage. The job-order status stepper keeps all seven labels readable
+inside a controlled horizontal scroll region on narrow screens. The visualizer
+receives the active demo role and renders
 only permitted stage links; the dashboard applies the same policy to metrics,
 financial summaries, and recent job-order records. Data tables keep genuinely
 wide records inside their own horizontal scroll region so the page itself
@@ -161,16 +181,31 @@ asset URLs.
 - The shared `font-semibold` utility follows this calmer 500 baseline. Heading
   elements and tabular/monospace numeric values opt back into 600 where the
   hierarchy requires it.
-- Detail views use `text-base` medium body and label copy for comfortable
+- Detail views use regular `text-base` body and label copy for comfortable
   scanning, with `text-sm` reserved for metadata and supporting notes. Use
-  `surface-card-muted` or `surface-card-inset` to group secondary information
-  instead of increasing font weight or applying all-caps styling. A detail
-  screen's repeated operational copy should not compete with its page title;
-  semibold is reserved for headings, identifiers, and financial values that
-  benefit from quick visual lookup.
-- `DataTable` defaults to 16px body text and 14px medium headers. Keep table
-  identifiers and amounts aligned with stable columns, tabular numerals, and
-  deliberate numeric emphasis rather than bolding an entire row.
+  `surface-card-muted`, `surface-card-inset`, or the workflow state surfaces to
+  group secondary information instead of increasing font weight or applying
+  all-caps styling. A detail screen's repeated operational copy should not
+  compete with its page title; semibold is reserved for headings, identifiers,
+  and financial values that benefit from quick visual lookup.
+- `DataTable` defaults to 16px regular body text and 14px regular headers. Keep
+  table identifiers and amounts aligned with stable columns, tabular numerals,
+  and deliberate numeric emphasis rather than bolding an entire row.
+
+### Surface-based emphasis
+
+- Ordinary labels, descriptions, metadata, notes, table headers, and workflow
+  labels use regular weight. Medium weight is reserved for controls or a small
+  amount of information that needs stronger scanning support.
+- Use an opaque rectangular surface with a quiet border and semantic tint when
+  a state needs emphasis. `StatusBadge`, `.workflow-stage-state`, and
+  `.workflow-step-label` carry their meaning through background, border, icon,
+  and text; weight is never the only signal.
+- Keep current, completed, upcoming, success, warning, and error surfaces at
+  explicit solid token values. Do not use translucent text-emphasis backgrounds
+  or all-caps labels to make routine information louder.
+- On narrow screens, keep workflow labels readable inside a contained horizontal
+  region rather than shrinking or truncating their text.
 
 ### Spacing Grid & Readable Container Constraints
 

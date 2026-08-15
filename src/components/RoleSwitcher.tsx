@@ -50,7 +50,7 @@ export default function RoleSwitcher({ currentRole }: { currentRole: ProjectRole
       aria-busy={isSwitching}
       aria-label="Demo role controls"
     >
-      <label htmlFor="role-switcher" className="text-xs font-medium text-slate-600">
+      <label htmlFor="role-switcher" className="text-xs text-slate-600">
         Active role
       </label>
       <select
@@ -63,7 +63,7 @@ export default function RoleSwitcher({ currentRole }: { currentRole: ProjectRole
           void switchRole(role);
         }}
         aria-disabled={isSwitching}
-        className="min-h-11 min-w-11 rounded-lg border border-slate-300 bg-white px-3 py-0 text-sm font-medium text-slate-800 shadow-sm transition-colors hover:border-brand-primary disabled:cursor-wait disabled:opacity-70 aria-disabled:cursor-wait aria-disabled:opacity-70 focus-visible:border-brand-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+        className="min-h-11 min-w-11 rounded-lg border border-slate-300 bg-white px-3 py-0 text-sm text-slate-800 shadow-sm transition-colors hover:border-brand-primary disabled:cursor-wait disabled:opacity-70 aria-disabled:cursor-wait aria-disabled:opacity-70 focus-visible:border-brand-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
         aria-describedby={error ? 'role-switcher-error' : undefined}
       >
         {ROLE_ORDER.map((role) => (
@@ -73,7 +73,7 @@ export default function RoleSwitcher({ currentRole }: { currentRole: ProjectRole
         ))}
       </select>
       {isSwitching && (
-        <span className="text-xs font-medium text-slate-500" role="status" aria-live="polite">
+        <span className="text-xs text-slate-500" role="status" aria-live="polite">
           Switching role…
         </span>
       )}
@@ -83,7 +83,7 @@ export default function RoleSwitcher({ currentRole }: { currentRole: ProjectRole
         </span>
       )}
       {error && (
-        <span id="role-switcher-error" role="alert" className="text-xs text-rose-600 font-medium">
+        <span id="role-switcher-error" role="alert" className="text-xs text-rose-600">
           {error}
         </span>
       )}

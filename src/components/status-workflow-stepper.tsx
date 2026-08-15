@@ -41,11 +41,12 @@ export default function StatusWorkflowStepper({ status }: StatusWorkflowStepperP
 
   return (
     <div
-      className="w-full"
+      className="workflow-stepper w-full"
       role="group"
       aria-label={`Job order status: ${statusLabels[normalized]}`}
+      tabIndex={0}
     >
-      <ol className="flex items-center w-full">
+      <ol className="workflow-stepper-track items-start" aria-label="Job order status stages">
         {STEPS.map((step, idx) => {
           const isCompleted = idx < activeIndex;
           const isActive = idx === activeIndex;
@@ -53,36 +54,35 @@ export default function StatusWorkflowStepper({ status }: StatusWorkflowStepperP
           return (
             <li
               key={step}
-              className="relative flex-1"
+              className="workflow-step"
               aria-current={isActive ? 'step' : undefined}
               aria-label={`${isActive ? 'Current' : isCompleted ? 'Completed' : 'Upcoming'}: ${statusLabels[step]}`}
             >
               {idx > 0 && (
                 <div
-                  className={`absolute top-1/2 left-0 w-full h-1 -translate-y-1/2 -translate-x-1/2 ${
-                    isCompleted ? 'bg-emerald-500' : 'bg-slate-200'
-                  }`}
+                  className={`workflow-step-connector ${isCompleted ? 'workflow-step-connector-complete' : ''}`}
+                  aria-hidden="true"
                 />
               )}
               <div className="relative flex flex-col items-center">
                 <div
-                  className={`z-10 flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm font-medium transition-colors ${
+                  className={`workflow-step-node transition-colors ${
                     isActive
-                      ? 'bg-brand-primary border-brand-primary text-white'
+                      ? 'workflow-step-node-current'
                       : isCompleted
-                        ? 'bg-emerald-500 border-emerald-500 text-white'
-                        : 'bg-white border-slate-300 text-slate-400'
+                        ? 'workflow-step-node-completed'
+                        : 'workflow-step-node-upcoming'
                   }`}
                 >
                   {isCompleted ? <CheckIcon className="h-4 w-4" aria-hidden="true" /> : idx + 1}
                 </div>
                 <span
-                  className={`mt-3 text-sm font-medium ${
+                  className={`workflow-step-label ${
                     isActive
-                      ? 'text-brand-primary'
+                      ? 'workflow-step-label-current'
                       : isCompleted
-                        ? 'text-emerald-700'
-                        : 'text-slate-400'
+                        ? 'workflow-step-label-completed'
+                        : 'workflow-step-label-upcoming'
                   }`}
                 >
                   {statusLabels[step]}

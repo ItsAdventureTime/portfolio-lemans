@@ -58,28 +58,24 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 text-sm">
           <div>
-            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
-              Customer No
-            </p>
-            <p className="font-medium text-slate-900 mt-0.5">{customer.customer_no}</p>
+            <p className="utility-label text-slate-500">Customer No</p>
+            <p className="font-mono font-semibold text-slate-900 mt-0.5">{customer.customer_no}</p>
           </div>
           <div>
-            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">TIN</p>
+            <p className="utility-label text-slate-500">TIN</p>
             <p className="font-mono text-slate-900 mt-0.5">{customer.tin || '—'}</p>
           </div>
           <div>
-            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Phone</p>
-            <p className="font-medium text-slate-900 mt-0.5">{customer.phone || '—'}</p>
+            <p className="utility-label text-slate-500">Phone</p>
+            <p className="text-slate-900 mt-0.5">{customer.phone || '—'}</p>
           </div>
           <div>
-            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Email</p>
-            <p className="font-medium text-slate-900 mt-0.5">{customer.email || '—'}</p>
+            <p className="utility-label text-slate-500">Email</p>
+            <p className="text-slate-900 mt-0.5">{customer.email || '—'}</p>
           </div>
           <div className="sm:col-span-2">
-            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">
-              Billing Address
-            </p>
-            <p className="font-medium text-slate-900 mt-0.5">{customer.address || '—'}</p>
+            <p className="utility-label text-slate-500">Billing Address</p>
+            <p className="text-slate-900 mt-0.5">{customer.address || '—'}</p>
           </div>
         </div>
       </div>
@@ -108,7 +104,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
             {
               key: 'makeModel',
               header: 'Make & Model',
-              render: (v) => <span className="font-medium">{v.make_model}</span>,
+              render: (v) => v.make_model,
             },
             { key: 'year', header: 'Year', render: (v) => v.year || '—' },
             { key: 'color', header: 'Color', render: (v) => v.color || '—' },
@@ -126,7 +122,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
             <Clock className="w-5 h-5 text-slate-700" />
             <span>Service history</span>
           </h2>
-          <span className="text-xs text-slate-500 font-medium">
+          <span className="text-xs text-slate-500">
             {serviceHistory.length} Record{serviceHistory.length === 1 ? '' : 's'}
           </span>
         </div>
@@ -151,15 +147,17 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
                     {canViewJobOrders ? (
                       <Link
                         href={`/job-orders/${jobOrder.jo_no}`}
-                        className="font-medium text-brand-primary hover:text-brand-primary-hover hover:underline text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary rounded"
+                        className="font-mono font-semibold text-brand-primary hover:text-brand-primary-hover hover:underline text-base focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary rounded"
                       >
                         {jobOrder.jo_no}
                       </Link>
                     ) : (
-                      <span className="font-medium text-slate-800 text-base">{jobOrder.jo_no}</span>
+                      <span className="font-mono font-semibold text-slate-800 text-base">
+                        {jobOrder.jo_no}
+                      </span>
                     )}
 
-                    <p className="text-xs text-slate-600 font-medium mt-0.5">
+                    <p className="text-xs text-slate-600 mt-0.5">
                       Plate: <span className="font-mono">{jobOrder.vehicle_plate}</span> ·{' '}
                       {jobOrder.vehicle_make_model || 'Vehicle'}
                     </p>
@@ -174,7 +172,7 @@ export default async function CustomerDetailPage({ params }: { params: Promise<{
                     </span>
                   </span>
                   {canViewJobOrders && (
-                    <span className="inline-flex items-center gap-1 font-medium text-brand-primary">
+                    <span className="inline-flex items-center gap-1 text-brand-primary">
                       <span>View JO Details</span>
                       <Wrench className="w-3.5 h-3.5" />
                     </span>

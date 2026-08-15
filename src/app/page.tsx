@@ -139,7 +139,7 @@ export default async function DashboardOverview() {
 
       {canViewJobOrders && (
         <section className="surface-card overflow-hidden" aria-labelledby="recent-orders-heading">
-          <div className="flex items-center justify-between gap-4 border-b border-slate-200/80 bg-slate-50/70 px-5 py-4 sm:px-6">
+          <div className="flex items-center justify-between gap-4 border-b border-slate-200/80 bg-slate-50 px-5 py-4 sm:px-6">
             <div>
               <h2 id="recent-orders-heading" className="text-base font-bold text-slate-950">
                 Recent job orders
@@ -148,7 +148,7 @@ export default async function DashboardOverview() {
             </div>
             <Link
               href="/job-orders"
-              className="inline-flex min-h-11 items-center gap-1 rounded-lg px-2.5 text-xs font-medium text-brand-primary transition-colors hover:bg-brand-light hover:text-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
+              className="inline-flex min-h-11 items-center gap-1 rounded-lg px-2.5 text-xs text-brand-primary transition-colors hover:bg-brand-light hover:text-brand-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary"
             >
               <span>View all</span>
               <ArrowUpRight className="h-3.5 w-3.5" aria-hidden="true" />
@@ -179,9 +179,7 @@ export default async function DashboardOverview() {
                         <Wrench className="h-4 w-4" aria-hidden="true" />
                       </div>
                       <div>
-                        <p className="font-medium text-slate-900 text-sm tracking-tight">
-                          {jo.jo_no}
-                        </p>
+                        <p className="text-slate-900 text-sm tracking-tight">{jo.jo_no}</p>
                         <p className="text-xs text-slate-500">
                           {jo.customer_name} — <span className="font-mono">{jo.vehicle_plate}</span>
                         </p>
@@ -224,7 +222,7 @@ function MoneyCard({
 }) {
   return (
     <article
-      className={`surface-card border-t-2 p-4 sm:p-5 ${highlight ? 'border-t-emerald-500 bg-emerald-50/30' : 'border-t-slate-300'}`}
+      className={`surface-card border-t-2 p-4 sm:p-5 ${highlight ? 'border-t-emerald-500 bg-emerald-50' : 'border-t-slate-300'}`}
     >
       <p className="utility-label">{label}</p>
       <p

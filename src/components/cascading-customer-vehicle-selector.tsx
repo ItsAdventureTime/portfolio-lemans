@@ -80,7 +80,7 @@ export default function CascadingCustomerVehicleSelector({
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <div className="space-y-1">
-        <label className="text-sm font-medium text-slate-700 flex items-center justify-between">
+        <label className="text-sm text-slate-700 flex items-center justify-between">
           <span>Customer</span>
           {onQuickAddCustomer && (
             <button
@@ -112,7 +112,7 @@ export default function CascadingCustomerVehicleSelector({
       </div>
 
       <div className="space-y-1">
-        <label className="text-sm font-medium text-slate-700 flex items-center justify-between">
+        <label className="text-sm text-slate-700 flex items-center justify-between">
           <span>Vehicle</span>
           {selectedCustomerId ? (
             onQuickAddVehicle && (
@@ -126,7 +126,7 @@ export default function CascadingCustomerVehicleSelector({
               </button>
             )
           ) : (
-            <span className="text-xs text-slate-400">Select Customer First</span>
+            <span className="text-xs text-slate-500">Select Customer First</span>
           )}
         </label>
         <select
@@ -236,7 +236,7 @@ export function QuickAddModal({ title, open, onClose, children }: QuickAddModalP
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
             aria-label="Close quick add dialog"
           >
             <X className="h-4 w-4" />

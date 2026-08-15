@@ -152,7 +152,7 @@ export default function MultiJoAllocationModal({
           <button
             type="button"
             onClick={onClose}
-            className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
             aria-label="Close allocation dialog"
           >
             <X className="h-4 w-4" />
@@ -161,20 +161,12 @@ export default function MultiJoAllocationModal({
 
         <div className="overflow-x-auto border border-slate-200 rounded-xl">
           <table className="w-full text-left text-base">
-            <thead className="bg-slate-100/80 text-slate-700 border-b border-slate-200">
+            <thead className="bg-slate-100 text-slate-700 border-b border-slate-200">
               <tr>
-                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider">
-                  Job Order
-                </th>
-                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider">
-                  Description
-                </th>
-                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-right">
-                  Amount
-                </th>
-                <th className="px-4 py-3 text-xs font-medium uppercase tracking-wider text-center">
-                  Action
-                </th>
+                <th className="px-4 py-3 text-xs text-slate-600">Job Order</th>
+                <th className="px-4 py-3 text-xs text-slate-600">Description</th>
+                <th className="px-4 py-3 text-xs text-slate-600 text-right">Amount</th>
+                <th className="px-4 py-3 text-xs text-slate-600 text-center">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200">
@@ -206,7 +198,7 @@ export default function MultiJoAllocationModal({
                   </td>
                   <td className="px-4 py-3">
                     <div className="relative">
-                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-400 text-sm">
+                      <span className="absolute left-2 top-1/2 -translate-y-1/2 text-slate-500 text-sm">
                         ₱
                       </span>
                       <input
@@ -229,7 +221,7 @@ export default function MultiJoAllocationModal({
                       type="button"
                       onClick={() => removeLine(idx)}
                       disabled={lines.length === 1}
-                      className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 disabled:opacity-30"
+                      className="inline-flex h-11 w-11 items-center justify-center rounded-lg text-slate-500 transition-colors hover:bg-rose-50 hover:text-rose-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 disabled:opacity-30"
                       aria-label={`Remove allocation line ${idx + 1}`}
                     >
                       <X className="h-4 w-4" />
@@ -264,25 +256,21 @@ export default function MultiJoAllocationModal({
             {isBalanced ? (
               <>
                 <CheckCircle className="h-5 w-5 text-emerald-600" aria-hidden="true" />
-                <span className="font-semibold">Fully allocated</span>
+                <span>Fully allocated</span>
               </>
             ) : isOverAllocated ? (
               <>
                 <AlertCircle className="h-5 w-5 text-rose-600" aria-hidden="true" />
-                <span className="font-semibold">
-                  Over-allocated by {formatPeso(Math.abs(remainingCents))}
-                </span>
+                <span>Over-allocated by {formatPeso(Math.abs(remainingCents))}</span>
               </>
             ) : (
               <>
                 <AlertCircle className="h-5 w-5 text-amber-600" aria-hidden="true" />
-                <span className="font-semibold">
-                  Remaining to allocate: {formatPeso(remainingCents)}
-                </span>
+                <span>Remaining to allocate: {formatPeso(remainingCents)}</span>
               </>
             )}
           </div>
-          <div className="font-mono font-semibold">
+          <div className="font-mono">
             {formatPeso(allocatedTotal)} / {formatPeso(invoiceAmountCents)}
           </div>
         </div>

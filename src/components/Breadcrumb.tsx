@@ -27,7 +27,7 @@ export default function Breadcrumb() {
   return (
     <nav
       aria-label="Breadcrumb"
-      className="border-b border-slate-200/80 bg-white/55 px-4 py-2.5 text-sm font-medium text-slate-600 backdrop-blur sm:px-6 lg:px-8"
+      className="border-b border-slate-200/80 bg-white/55 px-4 py-2.5 text-sm text-slate-600 backdrop-blur sm:px-6 lg:px-8"
     >
       <div className="mx-auto flex w-full max-w-screen-2xl flex-wrap items-center gap-1.5">
         <Link
@@ -48,7 +48,7 @@ export default function Breadcrumb() {
               <ChevronRight className="h-4 w-4 text-slate-400" aria-hidden="true" />
               {isLast ? (
                 <span
-                  className="rounded-lg bg-slate-100 px-2.5 py-2 font-medium text-slate-900"
+                  className="rounded-lg bg-slate-100 px-2.5 py-2 text-slate-900"
                   aria-current="page"
                 >
                   {label}
