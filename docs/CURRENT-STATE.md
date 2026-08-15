@@ -1,6 +1,6 @@
 # Current repository state
 
-- **Updated**: 2026-08-15 (navigation pressed-state overflow repair)
+- **Updated**: 2026-08-15 (shared table alignment and compact action refinement)
 - **Authority**: Current implementation and the demo rules in
   [`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md)
 - **Documentation index**: [`DOCUMENTATION-INDEX.md`](./DOCUMENTATION-INDEX.md)
@@ -84,8 +84,9 @@ The current demo validation baseline is complete in rootless Podman:
   and Go tests pass.
 - `verify-vertical-slice.sh`: all health and module routes return 200; the API
   is reachable on the internal network; PostgreSQL has no published host port.
-- `verify-e2e.sh`: runs 48 Playwright tests across desktop, mobile, and
-  reduced-motion projects. The final full matrix passed 48/48, including
+- `verify-e2e.sh`: runs 57 Playwright tests across desktop, mobile, and
+  reduced-motion projects. The final full matrix passed 56 tests with one
+  intentional mobile skip, including
   hydrated-client, no-hydration form submission, nested-base-path, entry-error,
   browser API proxy, and reduced-motion coverage.
 - `npm audit --omit=dev`: no reported vulnerabilities after pinning the
@@ -110,6 +111,15 @@ The desktop primary navigation preserves horizontal scrolling but clips vertical
 overflow. This keeps the one-pixel pressed-link feedback from creating a transient
 scrollbar beside Accounting while the pointer is held; the regression is covered
 by the Playwright navigation test.
+
+The shared data-table refinement keeps tables stable across modules with fixed
+layout, explicit column widths, middle-aligned cells, right-aligned numeric
+values, tabular numerals, and centered status badges. Compact action controls keep
+the WCAG-sized 44px hit area while drawing a quieter visual surface, so approval
+and form buttons do not dominate the page. Headings, labels, status text, and
+identifiers now use a calmer medium/semibold hierarchy. The existing CSS
+transform/opacity transitions remain Motion- and SmoothUI-aligned and continue to
+honor `prefers-reduced-motion`.
 
 Remote deployment is separate: the workstation stages an exact `HEAD` source
 tree to the stable `current` path and syncs it with rsync, the VPS builds and

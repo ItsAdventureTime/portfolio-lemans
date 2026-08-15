@@ -12,11 +12,12 @@
 
 ## 1. Overview of Completed UI/UX Revamp
 
-The UI/UX revamp has been fully implemented and validated with the 48-test
+The UI/UX revamp has been fully implemented and validated with the 57-test
 Playwright E2E matrix (`./scripts/verify-e2e.sh`), 200 OK vertical slice probes
 (`./scripts/verify-vertical-slice.sh`), ESLint, TypeScript `tsc`, and Prettier
-format checks. The final full Playwright matrix passed 48/48 across Chromium,
-mobile, and reduced-motion projects, including the simulated entry form,
+format checks. The final full Playwright matrix passed 56 tests with one
+intentional mobile skip across Chromium, mobile, and reduced-motion projects,
+including the simulated entry form,
 base-path API proxy, workflow mutations, and accessibility checks.
 
 ### Key Functional & Visual Components Added
@@ -50,6 +51,14 @@ base-path API proxy, workflow mutations, and accessibility checks.
    - Simulated-entry gate keeps the dashboard shell out of direct module routes
      until the demo is entered; primary navigation uses full prefetching and a
      short reduced-motion-safe Motion content transition.
+
+4. **Shared Table and Action Refinement**:
+   - Fixed-layout tables declare stable widths and alignment metadata for record,
+     numeric, and status columns.
+   - Identifiers stay left-aligned, numbers use tabular right alignment, and
+     status badges center vertically and horizontally within their cells.
+   - Dense actions keep 44px hit areas while using smaller visual surfaces;
+     medium/semibold text weights reduce visual noise.
 
 ---
 
@@ -90,7 +99,7 @@ The team has completed a full UI/UX overhaul of the Le Mans demo dashboard. The 
 4. Run validation checks inside rootless Podman containers:
    - `./scripts/verify-local.sh` (Prettier, ESLint, TypeScript tsc, Next.js build, Go tests)
    - `./scripts/verify-vertical-slice.sh` (Health checks and database isolation)
-   - `./scripts/verify-e2e.sh` (Playwright 48-test E2E suite)
+   - `./scripts/verify-e2e.sh` (Playwright 57-test E2E suite)
 
 Provide concise feedback, highlight any performance or UX improvement opportunities, and output diffs for any proposed code revisions.
 ```

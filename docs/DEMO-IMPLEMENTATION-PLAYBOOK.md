@@ -1,7 +1,7 @@
 # Demo implementation guide
 
 - **Status**: Authoritative for demo-build work
-- **Version**: 1.1.0
+- **Version**: 1.1.1
 - **Updated**: 2026-08-15
 - **Audience**: Coding agents, implementation agents, reviewers, and operators
 
@@ -221,6 +221,15 @@ Use the existing tokens in `docs/DESIGN-SYSTEM.md`:
 - Spacing uses 4px multiples.
 - Body and input text starts at 16px; buttons and table actions never wrap.
 - Use one icon family, consistent stroke weight, and accessible labels.
+- Shared `DataTable` instances use fixed layout with explicit column widths. Keep
+  record text left-aligned, numeric values right-aligned with tabular numerals,
+  and status badges centered. Cells align to the middle so identifiers, icons,
+  and badges share one visual baseline.
+- Use the shared `action-compact` treatment for dense table and form actions. It
+  keeps a 44px minimum hit area while drawing a smaller visual surface, which
+  preserves touch access without making every button look oversized.
+- Use medium or semibold emphasis for labels, headings, and statuses. Reserve
+  heavier weight for the page title or a genuinely important financial value.
 
 ### 5.2 Interaction and motion
 

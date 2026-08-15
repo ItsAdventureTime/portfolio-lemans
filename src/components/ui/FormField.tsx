@@ -31,7 +31,7 @@ export default function FormField({
 
   return (
     <div className={`space-y-1 ${className}`}>
-      <label htmlFor={name} className="block text-sm font-semibold text-slate-700">
+      <label htmlFor={name} className="block text-sm font-medium text-slate-700">
         {label}
         {required && (
           <>

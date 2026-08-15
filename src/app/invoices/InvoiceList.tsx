@@ -58,11 +58,12 @@ export default function InvoiceList({ invoices, role }: InvoiceListProps) {
         {
           key: 'invoiceNo',
           header: 'Invoice No',
-          className: 'max-w-[112px] sm:max-w-none',
+          widthClass: 'w-[18%]',
+          className: 'tabular-nums',
           render: (inv) => (
             <Link
               href={`/invoices/${inv.id}`}
-              className="inline-flex min-h-11 max-w-full items-center break-all text-brand-primary hover:underline focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 rounded px-1 -mx-1 sm:break-normal"
+              className="inline-flex min-h-11 max-w-full items-center break-all rounded px-1 -mx-1 font-medium tabular-nums text-brand-primary hover:underline focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 sm:break-normal"
             >
               {inv.invoice_no}
             </Link>
@@ -71,24 +72,36 @@ export default function InvoiceList({ invoices, role }: InvoiceListProps) {
         {
           key: 'customer',
           header: 'Customer',
+          widthClass: 'w-[22%]',
           className: 'hidden sm:table-cell',
           render: (inv) => inv.customer_name,
         },
-        { key: 'total', header: 'Total', render: (inv) => formatPeso(inv.total_cents) },
+        {
+          key: 'total',
+          header: 'Total',
+          widthClass: 'w-[14%]',
+          numeric: true,
+          render: (inv) => formatPeso(inv.total_cents),
+        },
         {
           key: 'paid',
           header: 'Paid',
+          widthClass: 'w-[14%]',
           className: 'hidden sm:table-cell',
+          numeric: true,
           render: (inv) => formatPeso(inv.amount_paid_cents),
         },
         {
           key: 'status',
           header: 'Status',
+          widthClass: 'w-[14%]',
+          align: 'center',
           render: (inv) => <StatusBadge status={inv.status} />,
         },
         {
           key: 'actions',
           header: 'Actions',
+          widthClass: 'w-[18%]',
           render: (inv) =>
             canPay && inv.status !== 'PAID' ? (
               <form

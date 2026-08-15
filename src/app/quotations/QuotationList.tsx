@@ -37,7 +37,8 @@ export default function QuotationList({ quotes, role }: QuotationListProps) {
         {
           key: 'quoteNo',
           header: 'Quote No',
-          className: 'max-w-[136px] sm:max-w-none',
+          widthClass: 'w-[16%]',
+          className: 'tabular-nums',
           render: (q) => (
             <span
               id={`quotation-${q.id}`}
@@ -51,41 +52,48 @@ export default function QuotationList({ quotes, role }: QuotationListProps) {
         {
           key: 'customer',
           header: 'Customer',
+          widthClass: 'w-[20%]',
           className: 'hidden sm:table-cell',
           render: (q) => q.customer_name,
         },
         {
           key: 'vehicle',
           header: 'Vehicle',
-          className: 'hidden lg:table-cell',
+          widthClass: 'w-[14%]',
+          className: 'hidden lg:table-cell tabular-nums',
           render: (q) => q.vehicle_plate,
         },
         {
           key: 'netTotal',
           header: 'Net Total',
+          widthClass: 'w-[15%]',
           className: 'hidden sm:table-cell',
+          numeric: true,
           render: (q) => formatPeso(q.net_total_cents),
         },
         {
           key: 'status',
           header: 'Status',
+          widthClass: 'w-[14%]',
+          align: 'center',
           render: (q) => <StatusBadge status={q.status} />,
         },
         {
           key: 'actions',
           header: 'Actions',
+          widthClass: 'w-[21%]',
           render: (q) => (
-            <div className="flex flex-col items-start gap-2 sm:flex-row sm:items-center">
+            <div className="flex flex-wrap items-center gap-1.5">
               {q.status === 'DRAFT' && canApprove && (
                 <>
                   <button
                     type="button"
                     onClick={() => run(() => approveQuotation(q.id, role))}
                     disabled={isPending}
-                    className="inline-flex h-11 items-center rounded-lg bg-emerald-50 px-3 text-xs font-semibold text-emerald-700 transition-colors hover:bg-emerald-100 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+                    className="action-compact action-compact-success"
                   >
                     {isPending ? (
-                      <Loader2 className="h-3 w-3 animate-spin" />
+                      <Loader2 className="h-3 w-3 motion-safe:animate-spin" />
                     ) : (
                       <Check className="h-3 w-3 mr-1" />
                     )}
@@ -95,10 +103,10 @@ export default function QuotationList({ quotes, role }: QuotationListProps) {
                     type="button"
                     onClick={() => run(() => rejectQuotation(q.id, role))}
                     disabled={isPending}
-                    className="inline-flex h-11 items-center rounded-lg bg-rose-50 px-3 text-xs font-semibold text-rose-700 transition-colors hover:bg-rose-100 disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+                    className="action-compact action-compact-danger"
                   >
                     {isPending ? (
-                      <Loader2 className="h-3 w-3 animate-spin" />
+                      <Loader2 className="h-3 w-3 motion-safe:animate-spin" />
                     ) : (
                       <X className="h-3 w-3 mr-1" />
                     )}
@@ -111,10 +119,10 @@ export default function QuotationList({ quotes, role }: QuotationListProps) {
                   type="button"
                   onClick={() => run(() => convertQuotation(q.id, role))}
                   disabled={isPending}
-                  className="inline-flex items-center h-11 px-3 rounded-lg bg-brand-primary text-white text-xs font-semibold hover:bg-brand-hover transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+                  className="action-compact action-compact-primary"
                 >
                   {isPending ? (
-                    <Loader2 className="h-3 w-3 animate-spin" />
+                    <Loader2 className="h-3 w-3 motion-safe:animate-spin" />
                   ) : (
                     <FilePlus className="h-3 w-3 mr-1" />
                   )}

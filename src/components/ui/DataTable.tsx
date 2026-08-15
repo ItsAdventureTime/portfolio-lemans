@@ -9,6 +9,9 @@ interface DataTableProps<T> {
     header: string;
     render: (item: T) => React.ReactNode;
     className?: string;
+    align?: 'left' | 'center' | 'right';
+    numeric?: boolean;
+    widthClass?: string;
   }[];
   emptyTitle?: string;
   emptyDescription?: string;
@@ -30,6 +33,21 @@ export default function DataTable<T>({
   error,
   errorAction,
 }: DataTableProps<T>) {
+  const columnClassName = (column: DataTableProps<T>['columns'][number]) => {
+    const alignment = column.align ?? (column.numeric ? 'right' : 'left');
+    const alignmentClass =
+      alignment === 'right' ? 'text-right' : alignment === 'center' ? 'text-center' : 'text-left';
+
+    return [
+      alignmentClass,
+      column.numeric ? 'tabular-nums' : '',
+      column.widthClass,
+      column.className,
+    ]
+      .filter(Boolean)
+      .join(' ');
+  };
+
   if (loading) {
     return (
       <div className="surface-card overflow-hidden" aria-busy="true" aria-label="Loading table">
@@ -69,7 +87,7 @@ export default function DataTable<T>({
   return (
     <div className="surface-card overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="data-table min-w-full text-sm" aria-label={caption}>
+        <table className="data-table min-w-full table-fixed text-sm" aria-label={caption}>
           {caption && <caption className="sr-only">{caption}</caption>}
           <thead>
             <tr>
@@ -77,7 +95,7 @@ export default function DataTable<T>({
                 <th
                   key={col.key}
                   scope="col"
-                  className={`whitespace-nowrap border-b border-slate-200/80 px-4 py-3.5 text-left font-bold ${col.className ?? ''}`}
+                  className={`whitespace-nowrap border-b border-slate-200/80 px-4 py-3 font-semibold leading-4 ${columnClassName(col)}`}
                 >
                   {col.header}
                 </th>
@@ -90,7 +108,7 @@ export default function DataTable<T>({
                 {columns.map((col) => (
                   <td
                     key={col.key}
-                    className={`border-b border-slate-200/70 px-4 py-3.5 align-top text-slate-700 ${col.className ?? ''}`}
+                    className={`border-b border-slate-200/70 px-4 py-3 align-middle leading-6 text-slate-700 ${columnClassName(col)}`}
                   >
                     {col.render(item)}
                   </td>

@@ -94,7 +94,7 @@ export default function SupplierInvoiceForm({ jobOrders, action }: SupplierInvoi
             setTotalAmountCents(parsePesoToCents(totalInput) ?? 0);
             setShowModal(true);
           }}
-          className="inline-flex h-12 items-center rounded-xl bg-slate-100 px-4 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+          className="action-compact action-compact-neutral"
         >
           Allocate Across JOs
         </button>
@@ -114,13 +114,9 @@ export default function SupplierInvoiceForm({ jobOrders, action }: SupplierInvoi
         onSave={setAllocations}
       />
 
-      <button
-        type="submit"
-        disabled={isPending}
-        className="inline-flex items-center justify-center h-12 px-5 rounded-xl bg-brand-primary text-white text-sm font-semibold hover:bg-brand-hover transition-colors disabled:opacity-60 disabled:cursor-not-allowed focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
-      >
+      <button type="submit" disabled={isPending} className="action-compact action-compact-primary">
         {isPending ? (
-          <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+          <Loader2 className="h-4 w-4 mr-2 motion-safe:animate-spin" />
         ) : (
           <Plus className="h-4 w-4 mr-2" />
         )}

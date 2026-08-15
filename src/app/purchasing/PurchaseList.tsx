@@ -32,26 +32,41 @@ export default function PurchaseList({ purchaseRequests, role }: PurchaseListPro
       emptyTitle="No purchase requests yet"
       emptyDescription="Create purchase requests for parts and supplies."
       columns={[
-        { key: 'prNo', header: 'PR No', render: (pr) => pr.pr_no },
-        { key: 'supplier', header: 'Supplier', render: (pr) => pr.supplier || '—' },
+        {
+          key: 'prNo',
+          header: 'PR No',
+          widthClass: 'w-[20%]',
+          className: 'tabular-nums',
+          render: (pr) => pr.pr_no,
+        },
+        {
+          key: 'supplier',
+          header: 'Supplier',
+          widthClass: 'w-[38%]',
+          render: (pr) => pr.supplier || '—',
+        },
         {
           key: 'status',
           header: 'Status',
+          widthClass: 'w-[18%]',
+          align: 'center',
           render: (pr) => <StatusBadge status={pr.status} />,
         },
         {
           key: 'actions',
           header: 'Actions',
+          widthClass: 'w-[24%]',
+          align: 'center',
           render: (pr) =>
             pr.status === 'PENDING_APPROVAL' && canApprove ? (
               <button
                 type="button"
                 onClick={() => handleApprove(pr.id)}
                 disabled={isPending}
-                className="inline-flex items-center h-11 px-3 rounded-lg bg-brand-primary text-white text-xs font-semibold hover:bg-brand-hover transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
+                className="action-compact action-compact-primary"
               >
                 {isPending ? (
-                  <Loader2 className="h-3 w-3 animate-spin" />
+                  <Loader2 className="h-3 w-3 motion-safe:animate-spin" />
                 ) : (
                   <Check className="h-3 w-3 mr-1" />
                 )}

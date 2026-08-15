@@ -26,7 +26,10 @@ export default function SectionCard({
       <div className="mb-5 flex flex-wrap items-start justify-between gap-3 border-b border-slate-200/80 pb-4">
         <div>
           <p className="utility-label mb-1 text-brand-primary">Operations detail</p>
-          <h2 id={resolvedHeadingId} className="text-xl font-bold tracking-tight text-slate-950">
+          <h2
+            id={resolvedHeadingId}
+            className="text-xl font-semibold tracking-tight text-slate-950"
+          >
             {title}
           </h2>
           {description && (

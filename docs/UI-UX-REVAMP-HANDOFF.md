@@ -2,7 +2,7 @@
 
 - **Status**: IMPLEMENTED & VERIFIED
 
-- **Version**: 1.2.2
+- **Version**: 1.2.3
 - **Updated**: 2026-08-15
 - **Audience**: Google Antigravity, UI engineers, UX reviewers, and coding agents
 - **Product**: Le Mans Operations & Job Cost Management System demo
@@ -89,6 +89,25 @@ The current shell and overview pass implements the following bounded changes:
   utility header uses a non-heading brand label so each route retains one clear
   page-level `h1`.
 
+### Shared table and action refinement — 2026-08-15
+
+- `DataTable` now uses fixed layout and exposes optional alignment, numeric, and
+  width metadata. Module tables declare stable widths so Customer No., JO No.,
+  Invoice No., and related identifiers stay aligned across rows and routes.
+- Table cells use middle alignment. Numeric columns are right-aligned with
+  tabular numerals, while status columns are centered and status badges use a
+  consistent inline height and line height.
+- Dense approval, conversion, allocation, and supplier-invoice actions use
+  `action-compact`: the control keeps a 44px hit area while its visual surface
+  is inset to reduce perceived button height.
+- The type hierarchy now favors regular body text and medium/semibold labels;
+  bold weight is reserved for page titles and high-value emphasis. This keeps
+  tables scannable without making every label compete for attention.
+- The existing CSS transition layer remains the implementation boundary for the
+  Motion/SmoothUI-inspired interaction language. It uses short opacity and
+  transform transitions and honors `prefers-reduced-motion` without adding a
+  new dependency or delaying navigation.
+
 ### Guidance review — 2026-08-15
 
 This pass checked the current implementation against the [WCAG 2.2 W3C
@@ -108,10 +127,11 @@ major framework migration into a visual refinement.
   image tags.
 - `./scripts/build.sh prod` passes and produces the required production web and
   Go image tags from the same source.
-- `./scripts/verify-e2e.sh` covers all 48 desktop, mobile, and reduced-motion
+- `./scripts/verify-e2e.sh` covers all 57 desktop, mobile, and reduced-motion
   Playwright tests, including focus rings, 44px targets, role switching,
   workflow mutations, seeded data, no-hydration form submission, the browser API
-  proxy, and entry-error handling. The final full matrix passed 48/48.
+  proxy, entry-error handling, and shared table/action alignment. The final full
+  matrix passed 56 tests with one intentional mobile skip.
 - Browser spot checks confirm both logo instances resolve under
   `/lemans/demo/`, mobile grouped navigation opens, Overview remains available
   to the DCS simulated role, and the DCS overview shows only its permitted

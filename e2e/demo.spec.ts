@@ -339,6 +339,78 @@ test('pressed desktop navigation links do not create a vertical scrollbar', asyn
   }
 });
 
+test('shared tables and actions keep data aligned with compact visual controls', async ({
+  page,
+}) => {
+  await enterAsAdmin(page);
+
+  await page.goto(`${BASE}/customers`);
+  const customerTable = page.locator('table').first();
+  await expect(customerTable).toBeVisible();
+  expect(await customerTable.evaluate((table) => window.getComputedStyle(table).tableLayout)).toBe(
+    'fixed'
+  );
+
+  const customerCell = customerTable.locator('tbody tr').first().locator('td').first();
+  const customerLink = customerCell.locator('a');
+  const cellBox = await customerCell.boundingBox();
+  const linkBox = await customerLink.boundingBox();
+  expect(cellBox).not.toBeNull();
+  expect(linkBox).not.toBeNull();
+  expect(await customerCell.evaluate((cell) => window.getComputedStyle(cell).verticalAlign)).toBe(
+    'middle'
+  );
+  expect((linkBox?.y ?? 0) - (cellBox?.y ?? 0)).toBeGreaterThanOrEqual(0);
+  expect((linkBox?.y ?? 0) + (linkBox?.height ?? 0)).toBeLessThanOrEqual(
+    (cellBox?.y ?? 0) + (cellBox?.height ?? 0) + 1
+  );
+
+  await page.goto(`${BASE}/accounting`);
+  const invoiceTable = page.locator('table').nth(1);
+  const invoiceRow = invoiceTable.locator('tbody tr').first();
+  const totalCell = invoiceRow.locator('td').nth(2);
+  const statusCell = invoiceRow.locator('td').nth(3);
+  const statusBadge = statusCell.getByLabel(/Status:/).first();
+  expect(await totalCell.evaluate((cell) => window.getComputedStyle(cell).textAlign)).toBe('right');
+  expect(
+    await totalCell.evaluate((cell) => window.getComputedStyle(cell).fontVariantNumeric)
+  ).toContain('tabular-nums');
+  expect(await statusCell.evaluate((cell) => window.getComputedStyle(cell).textAlign)).toBe(
+    'center'
+  );
+  expect(
+    await statusBadge.evaluate((badge) => parseFloat(window.getComputedStyle(badge).lineHeight))
+  ).toBeLessThanOrEqual(14);
+  const badgeHeight = await statusBadge.evaluate((badge) => badge.getBoundingClientRect().height);
+  expect(badgeHeight).toBeGreaterThan(0);
+  expect(badgeHeight).toBeLessThanOrEqual(32);
+
+  await page.goto(`${BASE}/quotations`);
+  const quoteAction = page.getByRole('button', { name: /Approve|Convert to JO/ }).first();
+  await expect(quoteAction).toBeVisible();
+  const quoteActionStyle = await quoteAction.evaluate((button) => {
+    const style = window.getComputedStyle(button);
+    const visualSurface = window.getComputedStyle(button, '::before');
+    return {
+      minHeight: parseFloat(style.minHeight),
+      minWidth: parseFloat(style.minWidth),
+      visualTop: visualSurface.top,
+      visualBottom: visualSurface.bottom,
+    };
+  });
+  expect(quoteActionStyle.minHeight).toBeGreaterThanOrEqual(44);
+  expect(quoteActionStyle.minWidth).toBeGreaterThanOrEqual(44);
+  expect(quoteActionStyle.visualTop).toBe('4px');
+  expect(quoteActionStyle.visualBottom).toBe('4px');
+
+  await page.goto(`${BASE}/purchasing`);
+  const allocateButton = page.getByRole('button', { name: 'Allocate Across JOs' });
+  await expect(allocateButton).toHaveClass(/action-compact/);
+  await expect(
+    page.locator('section[aria-labelledby="section-supplier-invoices"] label[for="supplier"]')
+  ).toHaveCSS('font-weight', '500');
+});
+
 test('seeded local data is available', async ({ page }) => {
   await page.goto(`${BASE}/`);
   await page.getByRole('main').getByRole('button', { name: 'Enter as an Admin' }).click();

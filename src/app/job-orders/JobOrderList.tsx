@@ -19,23 +19,43 @@ export default function JobOrderList({ jobOrders }: JobOrderListProps) {
         {
           key: 'joNo',
           header: 'JO No',
+          widthClass: 'w-[18%]',
+          className: 'tabular-nums',
           render: (jo) => (
             <Link
               href={`/job-orders/${jo.jo_no}`}
-              className="inline-flex items-center min-h-11 text-brand-primary hover:underline focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 rounded px-1 -mx-1"
+              className="inline-flex min-h-11 items-center rounded px-1 -mx-1 font-medium tabular-nums text-brand-primary hover:underline focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2"
             >
               {jo.jo_no}
             </Link>
           ),
         },
-        { key: 'customer', header: 'Customer', render: (jo) => jo.customer_name },
-        { key: 'vehicle', header: 'Vehicle', render: (jo) => jo.vehicle_plate },
+        {
+          key: 'customer',
+          header: 'Customer',
+          widthClass: 'w-[28%]',
+          render: (jo) => jo.customer_name,
+        },
+        {
+          key: 'vehicle',
+          header: 'Vehicle',
+          widthClass: 'w-[18%]',
+          className: 'tabular-nums',
+          render: (jo) => jo.vehicle_plate,
+        },
         {
           key: 'status',
           header: 'Status',
+          widthClass: 'w-[18%]',
+          align: 'center',
           render: (jo) => <StatusBadge status={jo.status} />,
         },
-        { key: 'technician', header: 'Technician', render: (jo) => jo.technician || '—' },
+        {
+          key: 'technician',
+          header: 'Technician',
+          widthClass: 'w-[18%]',
+          render: (jo) => jo.technician || '—',
+        },
       ]}
     />
   );

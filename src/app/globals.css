@@ -177,6 +177,8 @@ textarea {
   .data-table {
     border-collapse: separate;
     border-spacing: 0;
+    table-layout: fixed;
+    width: 100%;
   }
 
   .data-table th {
@@ -186,6 +188,11 @@ textarea {
     font-weight: 600;
     letter-spacing: 0.02em;
     text-transform: none;
+    vertical-align: middle;
+  }
+
+  .data-table td {
+    vertical-align: middle;
   }
 
   .data-table tbody tr:last-child td {
@@ -194,6 +201,7 @@ textarea {
 
   .status-badge {
     box-shadow: 0 1px 2px rgba(35, 43, 54, 0.06);
+    font-variant-numeric: tabular-nums;
   }
 
   .skeleton-block {
@@ -282,6 +290,76 @@ textarea {
     background: var(--brand-primary-light);
   }
 
+  /* Keep a full 44px hit area while drawing a calmer 36px visual surface. */
+  .action-compact {
+    position: relative;
+    z-index: 0;
+    isolation: isolate;
+    display: inline-flex;
+    min-height: 44px;
+    min-width: 44px;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    padding: 0 0.75rem;
+    border-radius: 0.625rem;
+    background: transparent;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1rem;
+    white-space: nowrap;
+  }
+
+  .action-compact::before {
+    position: absolute;
+    z-index: -1;
+    inset: 0.25rem 0;
+    border-radius: 0.5rem;
+    background: var(--compact-bg);
+    content: '';
+    transition:
+      background-color 180ms ease-out,
+      opacity 180ms ease-out;
+  }
+
+  .action-compact-primary {
+    --compact-bg: var(--brand-primary);
+    --compact-bg-hover: var(--brand-primary-hover);
+    color: white;
+  }
+
+  .action-compact-success {
+    --compact-bg: #ecfdf5;
+    --compact-bg-hover: #d1fae5;
+    color: #047857;
+  }
+
+  .action-compact-danger {
+    --compact-bg: #fff1f2;
+    --compact-bg-hover: #ffe4e6;
+    color: #be123c;
+  }
+
+  .action-compact-neutral {
+    --compact-bg: #f1f5f9;
+    --compact-bg-hover: #e2e8f0;
+    color: var(--text-secondary);
+  }
+
+  .action-compact:hover::before {
+    background: var(--compact-bg-hover);
+  }
+
+  .action-compact:active {
+    transform: translateY(1px) scale(0.99);
+  }
+
+  .action-compact:disabled {
+    cursor: not-allowed;
+    opacity: 0.58;
+    transform: none;
+  }
+
   .skip-link {
     border-radius: 0.625rem;
     background: var(--bg-charcoal);
@@ -329,11 +407,7 @@ textarea {
 }
 
 @layer utilities {
-  /* Keep hierarchy legible without making every label feel like a headline. */
-  .font-semibold {
-    font-weight: 500;
-  }
-
+  /* Keep legacy bold utilities within a medium/semibold hierarchy. */
   .font-bold {
     font-weight: 600;
   }

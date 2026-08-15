@@ -26,7 +26,7 @@ export default async function AccountingPage() {
       <section className="surface-card space-y-4 p-5">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
-            <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+            <h2 className="text-base font-semibold text-slate-900 flex items-center gap-2">
               <Download className="w-5 h-5 text-brand-primary" />
               <span>Accounting exports</span>
             </h2>
@@ -56,7 +56,7 @@ export default async function AccountingPage() {
       </section>
 
       <section className="surface-card space-y-3 p-5">
-        <h2 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-2">
+        <h2 className="text-base font-semibold text-slate-900 border-b border-slate-100 pb-2">
           Customer Ledger ({data.customers.length})
         </h2>
         <DataTable<Customer>
@@ -68,16 +68,23 @@ export default async function AccountingPage() {
             {
               key: 'customerNo',
               header: 'Customer No',
-              render: (c) => <span className="font-bold text-slate-900">{c.customer_no}</span>,
+              widthClass: 'w-[22%]',
+              className: 'tabular-nums',
+              render: (c) => (
+                <span className="font-medium tabular-nums text-slate-900">{c.customer_no}</span>
+              ),
             },
             {
               key: 'name',
               header: 'Customer Name',
+              widthClass: 'w-[36%]',
               render: (c) => <span className="font-medium">{c.name}</span>,
             },
             {
               key: 'tin',
               header: 'TIN',
+              widthClass: 'w-[24%]',
+              className: 'tabular-nums',
               render: (c) => <span className="font-mono">{c.tin || '—'}</span>,
             },
           ]}
@@ -85,7 +92,7 @@ export default async function AccountingPage() {
       </section>
 
       <section className="surface-card space-y-3 p-5">
-        <h2 className="text-base font-bold text-slate-900 border-b border-slate-100 pb-2">
+        <h2 className="text-base font-semibold text-slate-900 border-b border-slate-100 pb-2">
           Service Invoice Ledger ({data.invoices.length})
         </h2>
         <DataTable<Invoice>
@@ -97,20 +104,27 @@ export default async function AccountingPage() {
             {
               key: 'invoiceNo',
               header: 'Invoice No',
+              widthClass: 'w-[22%]',
+              className: 'tabular-nums',
               render: (inv) => (
-                <span className="font-mono font-bold text-slate-900">{inv.invoice_no}</span>
+                <span className="font-mono font-medium tabular-nums text-slate-900">
+                  {inv.invoice_no}
+                </span>
               ),
             },
             {
               key: 'customer',
               header: 'Customer',
+              widthClass: 'w-[32%]',
               render: (inv) => <span className="font-medium">{inv.customer_name}</span>,
             },
             {
               key: 'total',
               header: 'Total Amount',
+              widthClass: 'w-[20%]',
+              numeric: true,
               render: (inv) => (
-                <span className="font-mono font-bold text-slate-900">
+                <span className="font-mono font-semibold tabular-nums text-slate-900">
                   {formatPeso(inv.total_cents)}
                 </span>
               ),
@@ -118,6 +132,8 @@ export default async function AccountingPage() {
             {
               key: 'status',
               header: 'Status',
+              widthClass: 'w-[18%]',
+              align: 'center',
               render: (inv) => <StatusBadge status={inv.status} />,
             },
           ]}
