@@ -1,7 +1,7 @@
 # Update the deployed Le Mans app
 
 - **Status**: Current operator quickstart
-- **Updated**: 2026-08-14
+- **Updated**: 2026-08-15
 - **Scope**: macOS workstation → existing VPS demo or production profile
 
 Use this guide after Codex has reviewed the change, committed it locally, and
@@ -79,6 +79,12 @@ The script prints the failed Quadlet unit, its systemd status, and its current
 boot journal. Preserve that output. The first Podman error is usually the
 useful diagnostic. Do not run `systemctl --user enable` for Quadlets; reload the
 user manager and let Podman’s generator create the service units.
+
+If Caddy reports `File to import not found`, activation checks the generated
+configuration inside the Caddy container. It may omit that exact absolute import
+from the candidate configuration and validate again; other Caddy errors remain
+fatal. This behavior is generic and does not depend on another application’s
+name or directory.
 
 For the two-stage workflow, run the activation command printed by
 `sync-remote-demo.sh` after logging in to the VPS. Use the full
