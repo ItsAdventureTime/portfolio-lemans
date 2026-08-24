@@ -1,8 +1,11 @@
 # BEGIN LEMANS PROD ROUTE
-# Le Mans production route. This block is installed directly in the active
-# `/home/jk/caddy/conf/Caddyfile` before the DelegateOps static fallback.
+# Le Mans production route. This fragment is staged as
+# `/etc/caddy/lemans-prod.handlers.Caddyfile` and imported by the shared
+# `delegateops.business` site block.
 
+@lemans_prod_root path /prod/lemans
 @lemans_prod path /prod/lemans /prod/lemans/*
+redir @lemans_prod_root /prod/lemans/ 308
 
 handle @lemans_prod {
 	header {

@@ -1,8 +1,11 @@
 # BEGIN LEMANS DEMO ROUTE
-# Le Mans remote demo route. This block is installed directly in the active
-# `/home/jk/caddy/conf/Caddyfile` before the DelegateOps static fallback.
+# Le Mans remote demo route. This fragment is staged as
+# `/etc/caddy/lemans-demo.handlers.Caddyfile` and imported by the shared
+# `delegateops.business` site block.
 
+@lemans_demo_root path /demo/lemans
 @lemans_demo path /demo/lemans /demo/lemans/*
+redir @lemans_demo_root /demo/lemans/ 308
 
 handle @lemans_demo {
 	header {

@@ -158,8 +158,9 @@ Recommended approach:
 4. Verify navigation, static assets, API routes, browser flows, redirects,
    cookies, and error pages under the subpath.
 
-The tracked `caddy/lemans-demo.handlers.Caddyfile` is inserted directly into
-the active `/home/jk/caddy/conf/Caddyfile` before its static fallback:
+The tracked `caddy/lemans-demo.handlers.Caddyfile` is staged atomically as
+`/etc/caddy/lemans-demo.handlers.Caddyfile`; the shared Caddyfile imports it
+immediately before its static fallback:
 
 ```caddy
 @lemans_demo path /demo/lemans /demo/lemans/*
@@ -183,7 +184,8 @@ The Caddy container/network definitions and Caddyfile must be reviewed before
 the first deployment. For the supplied Caddy configuration, `caddy.network`
 sets `NetworkName=caddy`; therefore the deployment checks the `caddy` Podman
 network while Le Mans Quadlets continue to use `Network=caddy.network`. The
-authorized demo deployment installs the tracked route block directly before the
+authorized demo deployment installs the tracked handler file and its exact
+`import /etc/caddy/lemans-demo.handlers.Caddyfile` immediately before the
 static fallback, formats and validates the complete configuration, and
 gracefully reloads the running Caddy container. It preserves the existing
 static-site and application mounts. The operator should provide the

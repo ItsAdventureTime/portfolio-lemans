@@ -78,7 +78,7 @@ if [[ "$PROFILE" == "prod" ]]; then
   CADDY_ROUTE_SOURCE="caddy/lemans-prod.handlers.Caddyfile"
     CADDY_ROUTE_BEGIN="# BEGIN LEMANS PROD ROUTE"
     CADDY_ROUTE_END="# END LEMANS PROD ROUTE"
-  CADDY_ROUTE_IMPORT=""
+  CADDY_ROUTE_IMPORT="/etc/caddy/lemans-prod.handlers.Caddyfile"
   BACKUP_TIMER="lemans-backup.timer"
   DEMO_MODE=false
 fi
@@ -384,7 +384,9 @@ ensure_caddy_route() {
     podman exec -i --user 0 "$CADDY_CONTAINER" caddy "$@"
   }
   local config_dir="${CADDY_CONFIG_FILE%/*}"
-  local temp_route="$(mktemp)" temp_config="$(mktemp)" formatted="$(mktemp)"
+  local handler_file="${config_dir}/${CADDY_ROUTE_IMPORT##*/}"
+  local temp_handler="$(mktemp "${config_dir}/.${CADDY_ROUTE_IMPORT##*/}.XXXXXX")"
+  local temp_config="$(mktemp)" formatted="$(mktemp)"
   relabel_caddy_files() {
     # Quadlet's :Z mount labels existing files when Caddy starts. Files copied
     # into that mount later may need the same label before a reload/restart.
@@ -393,11 +395,14 @@ ensure_caddy_route() {
         >/dev/null 2>&1 || true
     fi
   }
-  caddy_cli_stdin fmt - < "$SOURCE_ROOT/$CADDY_ROUTE_SOURCE" > "$temp_route" || {
+  caddy_cli_stdin fmt - < "$SOURCE_ROOT/$CADDY_ROUTE_SOURCE" > "$temp_handler" || {
     echo "Error: tracked Le Mans Caddy route could not be formatted." >&2
     exit 1
   }
-  awk -v route_file="$temp_route" -v import_path="$CADDY_ROUTE_IMPORT" \
+  chmod 0644 "$temp_handler"
+  mv -f "$temp_handler" "$handler_file"
+  relabel_caddy_files
+  awk -v import_path="$CADDY_ROUTE_IMPORT" \
     -v begin_marker="$CADDY_ROUTE_BEGIN" -v end_marker="$CADDY_ROUTE_END" '
     function is_import(line, path, trimmed) {
       trimmed=line
@@ -415,8 +420,7 @@ ensure_caddy_route() {
     is_marker($0, begin_marker) { skipping=1; next }
     skipping && is_marker($0, end_marker) { skipping=0; next }
     !skipping && !inserted && $0 ~ /^[[:space:]]*# DelegateOps static-site fallback[[:space:]]*$/ {
-      while ((getline line < route_file) > 0) print line
-      close(route_file)
+      print "import " import_path
       print ""
       inserted=1
     }
@@ -426,52 +430,14 @@ ensure_caddy_route() {
     echo "Error: DelegateOps static fallback marker was not found in Caddyfile." >&2
     exit 1
   }
-  caddy_validation_output=""
-  removed_import_count=0
-  while true; do
-    if caddy_validation_output="$(
-      caddy_cli_stdin validate --config - --adapter caddyfile \
-        < "$temp_config" 2>&1
-    )"; then
-      break
-    fi
-    missing_import_path="$(printf '%s\n' "$caddy_validation_output" | awk -F'File to import not found: ' '
-      NF > 1 {
-        split($2, parts, ",")
-        print parts[1]
-        exit
-      }
-    ' | sed 's/[[:space:]]*$//' || true)"
-    if [[ -z "$missing_import_path" || "$missing_import_path" != /etc/caddy/* ]]; then
-      printf '%s\n' "$caddy_validation_output" >&2
-      echo "Error: generated Caddyfile failed validation; active file was not changed." >&2
-      exit 1
-    fi
-    if (( removed_import_count >= 8 )); then
-      echo "Error: too many unavailable Caddy imports; active file was not changed." >&2
-      exit 1
-    fi
-    next_temp_config="$(mktemp)"
-    if ! awk -v missing_import_path="$missing_import_path" '
-      function is_import(line, path, trimmed) {
-        trimmed=line
-        sub(/^[[:space:]]*import[[:space:]]+/, "", trimmed)
-        sub(/[[:space:]]*$/, "", trimmed)
-        return trimmed == path
-      }
-      is_import($0, missing_import_path) { removed=1; next }
-      { print }
-      END { exit(removed ? 0 : 1) }
-    ' "$temp_config" > "$next_temp_config"; then
-      rm -f "$next_temp_config"
-      printf '%s\n' "$caddy_validation_output" >&2
-      echo "Error: Caddy reported an unavailable import that was not an exact active import: ${missing_import_path}." >&2
-      exit 1
-    fi
-    mv "$next_temp_config" "$temp_config"
-    removed_import_count=$((removed_import_count + 1))
-    echo "Omitting unavailable Caddy import ${missing_import_path} while activating the Le Mans route." >&2
-  done
+  if ! caddy_validation_output="$(
+    caddy_cli_stdin validate --config - --adapter caddyfile \
+      < "$temp_config" 2>&1
+  )"; then
+    printf '%s\n' "$caddy_validation_output" >&2
+    echo "Error: generated Caddyfile failed validation; active file was not changed." >&2
+    exit 1
+  fi
   caddy_cli_stdin fmt - < "$temp_config" > "$formatted" || {
     echo "Error: generated Caddyfile could not be formatted." >&2
     exit 1
@@ -508,7 +474,7 @@ ensure_caddy_route() {
       exit 1
     fi
   fi
-  rm -f "$temp_route" "$temp_config" "$formatted"
+  rm -f "$temp_config" "$formatted"
   echo "Caddy configuration validated and gracefully reloaded."
 }
 

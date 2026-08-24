@@ -35,7 +35,8 @@ for direct loopback health checks.
 
 The tracked route block is
 [`caddy/lemans-demo.handlers.Caddyfile`](../caddy/lemans-demo.handlers.Caddyfile).
-The remote demo deploy inserts it directly into the existing
+The remote demo deploy stages it atomically as
+`/etc/caddy/lemans-demo.handlers.Caddyfile` and imports it from the existing
 `/home/jk/caddy/conf/Caddyfile` immediately before the DelegateOps static
 fallback, formats and validates the complete configuration, and then performs a
 graceful Caddy reload. Existing Caddy mounts and unrelated app routes remain
