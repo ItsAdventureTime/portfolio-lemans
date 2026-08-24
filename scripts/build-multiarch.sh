@@ -34,9 +34,9 @@ build_profile() {
   local profile="$1"
   local web_tag="${profile}-web"
   local go_tag="${profile}-go"
-  local base_path="/lemans/demo"
+  local base_path="/demo/lemans"
   if [[ "$profile" == "prod" ]]; then
-    base_path="/lemans"
+    base_path="/prod/lemans"
   fi
 
   build_and_push_manifest \

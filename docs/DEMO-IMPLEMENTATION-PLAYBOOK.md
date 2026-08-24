@@ -29,7 +29,7 @@ The demo has **no real authentication**. It presents a simulated entry
 experience for a walkthrough, but it must not implement accounts, passwords,
 or production authorization. The entry cookie is a UX gate only:
 
-- Opening `/lemans/demo/` starts at a branded splash/landing state.
+- Opening `/demo/lemans/` starts at a branded splash/landing state.
 - The splash presents an `Enter as an Admin` action. This is demo theatre, not a
   security control.
 - Activating the action enters the dashboard as the `Admin` simulated actor.

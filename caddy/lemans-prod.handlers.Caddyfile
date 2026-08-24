@@ -1,0 +1,15 @@
+# BEGIN LEMANS PROD ROUTE
+# Le Mans production route. This block is installed directly in the active
+# `/home/jk/caddy/conf/Caddyfile` before the DelegateOps static fallback.
+
+@lemans_prod path /prod/lemans /prod/lemans/*
+
+handle @lemans_prod {
+	header {
+		>Cache-Control "public, max-age=0, must-revalidate"
+	}
+
+	reverse_proxy lemans-prod-app:3000
+}
+
+# END LEMANS PROD ROUTE

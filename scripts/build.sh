@@ -27,9 +27,9 @@ if [[ -n "${TARGET_PLATFORM:-}" ]]; then
   echo "Target platform: ${TARGET_PLATFORM}"
 fi
 
-BASE_PATH="/lemans/demo"
+BASE_PATH="/demo/lemans"
 if [[ "$MODE" == "prod" ]]; then
-  BASE_PATH="/lemans"
+  BASE_PATH="/prod/lemans"
 fi
 
 docker build --pull --force-rm "${BUILD_PLATFORM_ARGS[@]}" \

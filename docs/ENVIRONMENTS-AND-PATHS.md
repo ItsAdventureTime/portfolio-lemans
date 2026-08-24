@@ -34,7 +34,7 @@ The current deployment target is remote-only for the demo:
   `/home/jk/.config/containers/systemd/bridge-ph/lemans-demo`.
 - Remote demo data/config/database boundary is
   `/home/jk/bridge-ph/lemans-demo`.
-- Public URL is `https://delegateops.business/lemans/demo`.
+- Demo public URL is `https://delegateops.business/demo/lemans`; production public URL is `https://delegateops.business/prod/lemans`.
 - The two-stage deployment workflow and automated wrapper are defined in
   [`REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`](./REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md).
 

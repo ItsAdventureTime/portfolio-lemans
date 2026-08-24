@@ -9,7 +9,7 @@ const ROLES = [
   { value: 'ROLE_DCS', label: 'DCS' },
 ];
 
-const BASE = '/lemans/demo';
+const BASE = '/demo/lemans';
 
 test('splash entry and role switching persist across routes', async ({ page }) => {
   await page.goto(`${BASE}/`);

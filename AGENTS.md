@@ -141,7 +141,7 @@ locations are:
 - Quadlets: `/home/jk/.config/containers/systemd/bridge-ph/lemans-demo`
 - Demo data/config/database/backups: `/home/jk/bridge-ph/lemans-demo`
 - Current synced source: `/home/jk/bridge-ph/lemans-demo/current`
-- Public URL: `https://delegateops.business/lemans/demo`
+- Public URL: `https://delegateops.business/demo/lemans`
 
 Follow [`docs/REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`](docs/REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md)
 before changing deployment code. Do not connect to, reload, or modify the remote
@@ -155,7 +155,7 @@ and must not create backup files.
 
 ## Verified Execution Boundaries & Results
 
-- **Local Demo Container**: `lemans-demo-app` listening on `127.0.0.1:3000`, readiness probed at `/lemans/demo` (`200 OK`).
+- **Local Demo Container**: `lemans-demo-app` listening on `127.0.0.1:3000`, readiness probed at `/demo/lemans` (`200 OK`).
 - **Remote Demo Container**: `lemans-demo-app` listening on `127.0.0.1:3002` behind Caddy (`200 OK`).
 - **Remote Production Container**: `lemans-prod-app` listening on `127.0.0.1:3003` behind Caddy (`200 OK`).
 - **Quadlet Service Names**: Demo units are `lemans-demo.service`, `lemans-demo-go.service`, `lemans-demo-db.service`; production units are `lemans.service`, `lemans-go.service`, `lemans-db.service`. Container names remain `lemans-demo-app`/`lemans-demo-go`/`lemans-demo-db` and `lemans-prod-app`/`lemans-prod-go`/`lemans-prod-db` respectively.
@@ -186,7 +186,7 @@ and must not create backup files.
   jk-sbx-project publish 3000
   jk-sbx-project exec -- ./scripts/run-local.sh
   jk-sbx-project exec -- ./scripts/verify-vertical-slice.sh
-  # Manual spot checks at http://127.0.0.1:3000/lemans/demo/...
+  # Manual spot checks at http://127.0.0.1:3000/demo/lemans/...
   jk-sbx-project exec -- ./scripts/stop-local.sh
   ```
 - **Review Mode**: Keep terminal execution in review/ask mode where the platform supports it.

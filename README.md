@@ -38,7 +38,7 @@ City, Pampanga.
   visible role switcher. It does not authenticate users.
 - **Deployment**: There is no persistent local deployment. When authorized,
   deploy the remote demo with `./scripts/deploy-remote-demo.sh` to
-  `https://delegateops.business/lemans/demo`.
+  `https://delegateops.business/demo/lemans`.
 - **Attachments**: Backblaze B2 stores inspection photos, receipts, and other
   supporting files. See ADR-0004.
   - **Backend**: The Go API owns persistence, Goose migrations, business rules,

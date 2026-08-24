@@ -37,7 +37,7 @@ if [[ "$PROFILE" != "demo" && "$PROFILE" != "prod" ]]; then
   exit 1
 fi
 
-BASE_PATH="/lemans/demo"
+BASE_PATH="/demo/lemans"
 APP_PORT=3002
 PROFILE_LABEL="remote demo"
 WEB_SOURCE_TAG="demo-web"
@@ -53,12 +53,14 @@ APP_CONTAINER="lemans-demo-app"
 DB_NAME="lemans_demo_db"
 QUADLET_SOURCE_DIR="quadlet/remote-demo"
 CADDY_ROUTE_SOURCE="caddy/lemans-demo.handlers.Caddyfile"
+    CADDY_ROUTE_BEGIN="# BEGIN LEMANS DEMO ROUTE"
+    CADDY_ROUTE_END="# END LEMANS DEMO ROUTE"
 CADDY_ROUTE_IMPORT="/etc/caddy/lemans-demo.handlers.Caddyfile"
 BACKUP_TIMER=""
 DEMO_MODE=true
 
 if [[ "$PROFILE" == "prod" ]]; then
-  BASE_PATH="/lemans"
+  BASE_PATH="/prod/lemans"
   APP_PORT=3003
   PROFILE_LABEL="remote production"
   WEB_SOURCE_TAG="prod-web"
@@ -73,7 +75,9 @@ if [[ "$PROFILE" == "prod" ]]; then
   APP_CONTAINER="lemans-prod-app"
   DB_NAME="lemans_prod_db"
   QUADLET_SOURCE_DIR="quadlet/remote-prod"
-  CADDY_ROUTE_SOURCE=""
+  CADDY_ROUTE_SOURCE="caddy/lemans-prod.handlers.Caddyfile"
+    CADDY_ROUTE_BEGIN="# BEGIN LEMANS PROD ROUTE"
+    CADDY_ROUTE_END="# END LEMANS PROD ROUTE"
   CADDY_ROUTE_IMPORT=""
   BACKUP_TIMER="lemans-backup.timer"
   DEMO_MODE=false
@@ -82,7 +86,7 @@ fi
 if [[ "$PROFILE" == "demo" ]]; then
   DEFAULT_REMOTE_ROOT="/home/jk/bridge-ph/lemans-demo"
   DEFAULT_QUADLET_PATH="/home/jk/.config/containers/systemd/bridge-ph/lemans-demo"
-  DEFAULT_PUBLIC_URL="https://delegateops.business/lemans/demo"
+  DEFAULT_PUBLIC_URL="https://delegateops.business/demo/lemans"
 else
   DEFAULT_REMOTE_ROOT="/home/jk/bridge-ph/lemans"
   DEFAULT_QUADLET_PATH="/home/jk/.config/containers/systemd/bridge-ph/lemans"
@@ -393,7 +397,8 @@ ensure_caddy_route() {
     echo "Error: tracked Le Mans Caddy route could not be formatted." >&2
     exit 1
   }
-  awk -v route_file="$temp_route" -v import_path="$CADDY_ROUTE_IMPORT" '
+  awk -v route_file="$temp_route" -v import_path="$CADDY_ROUTE_IMPORT" \
+    -v begin_marker="$CADDY_ROUTE_BEGIN" -v end_marker="$CADDY_ROUTE_END" '
     function is_import(line, path, trimmed) {
       trimmed=line
       sub(/^[[:space:]]*import[[:space:]]+/, "", trimmed)
@@ -401,8 +406,14 @@ ensure_caddy_route() {
       return trimmed == path
     }
     is_import($0, import_path) { next }
-    /# BEGIN LEMANS DEMO ROUTE/ { skipping=1; next }
-    skipping && /# END LEMANS DEMO ROUTE/ { skipping=0; next }
+    function is_marker(line, marker, trimmed) {
+      trimmed=line
+      sub(/^[[:space:]]+/, "", trimmed)
+      sub(/[[:space:]]+$/, "", trimmed)
+      return trimmed == marker
+    }
+    is_marker($0, begin_marker) { skipping=1; next }
+    skipping && is_marker($0, end_marker) { skipping=0; next }
     !skipping && !inserted && $0 ~ /^[[:space:]]*# DelegateOps static-site fallback[[:space:]]*$/ {
       while ((getline line < route_file) > 0) print line
       close(route_file)

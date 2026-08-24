@@ -3,7 +3,7 @@
 - **Status**: Authoritative for the remote demo deployment profile
 - **Version**: 1.10.0
 - **Updated**: 2026-08-16
-- **Target URL**: `https://delegateops.business/lemans/demo`
+- **Target URL**: `https://delegateops.business/demo/lemans`
 - **Remote user**: `jk`
 - **Current evidence**: Local image/runtime verification is complete; remote
   deployment has not been exercised and remains authorization-gated.
@@ -44,7 +44,7 @@ user's systemd user manager.
 | ----------------------------------------- | ----------------------------------------------------------- |
 | Quadlet units and drop-ins                | `/home/jk/.config/containers/systemd/bridge-ph/lemans-demo` |
 | Demo runtime data/config/database/backups | `/home/jk/bridge-ph/lemans-demo`                            |
-| Public URL                                | `https://delegateops.business/lemans/demo`                  |
+| Public URL                                | `https://delegateops.business/demo/lemans`                  |
 | Remote app service                        | `lemans-demo.service`                                       |
 | Remote Go API service                     | `lemans-demo-go.service`                                    |
 | Remote database service                   | `lemans-demo-db.service`                                    |
@@ -147,13 +147,13 @@ The application may expose a loopback-only health port, such as
 
 ## 4. Public subpath contract
 
-The app is served under `/lemans/demo`, not at the domain root. This must be
+The app is served under `/demo/lemans`, not at the domain root. This must be
 implemented deliberately because Next.js `basePath` is embedded at build time.
 
 Recommended approach:
 
-1. Build the demo with `basePath: '/lemans/demo'`.
-2. Configure Caddy to preserve the `/lemans/demo` prefix when proxying.
+1. Build the demo with `basePath: '/demo/lemans'`.
+2. Configure Caddy to preserve the `/demo/lemans` prefix when proxying.
 3. Proxy both the exact path and all descendants to the app container.
 4. Verify navigation, static assets, API routes, browser flows, redirects,
    cookies, and error pages under the subpath.
@@ -162,7 +162,7 @@ The tracked `caddy/lemans-demo.handlers.Caddyfile` is inserted directly into
 the active `/home/jk/caddy/conf/Caddyfile` before its static fallback:
 
 ```caddy
-@lemans_demo path /lemans/demo /lemans/demo/*
+@lemans_demo path /demo/lemans /demo/lemans/*
 
 handle @lemans_demo {
     reverse_proxy lemans-demo-app:3000
@@ -345,8 +345,8 @@ profile, for example:
 ```text
 APP_ENV=remote-demo
 DEMO_MODE=true
-DEMO_PUBLIC_URL=https://delegateops.business/lemans/demo
-NEXT_PUBLIC_BASE_PATH=/lemans/demo
+DEMO_PUBLIC_URL=https://delegateops.business/demo/lemans
+NEXT_PUBLIC_BASE_PATH=/demo/lemans
 API_BASE_URL=http://lemans-demo-go:8080
 ```
 
@@ -381,8 +381,8 @@ The deployment is not successful until all checks pass:
 - Database has no published host port.
 - App is reachable on the shared `caddy` Podman network and only loopback
   health ports, if any, are published.
-- `https://delegateops.business/lemans/demo` returns a healthy response.
-- Static assets load beneath `/lemans/demo`.
+- `https://delegateops.business/demo/lemans` returns a healthy response.
+- Static assets load beneath `/demo/lemans`.
 - The simulated `Enter as an Admin` entry and Admin default work.
 - Role switching works for all six demo roles.
 - Database-backed workflows and attachments work.

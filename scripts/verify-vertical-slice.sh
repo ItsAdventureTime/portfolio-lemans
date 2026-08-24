@@ -10,7 +10,7 @@ APP_NAME="lemans-demo-app"
 DB_NAME="lemans-demo-db"
 GO_NAME="lemans-demo-go"
 PORT=3000
-BASE_PATH="/lemans/demo"
+BASE_PATH="/demo/lemans"
 
 echo "=== Le Mans Vertical Slice Verification ==="
 

@@ -68,7 +68,7 @@ skeleton rather than a blocking full-page spinner.
 
 ## Run the demo locally
 
-The demo base path is `/lemans/demo`; the production profile uses `/lemans`.
+The demo base path is `/demo/lemans`; the production profile uses `/lemans`.
 The optional local validation workflow is:
 
 ```bash

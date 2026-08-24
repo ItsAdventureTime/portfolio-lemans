@@ -10,7 +10,7 @@ Network=caddy.network
 Network=lemans.network
 PublishPort=127.0.0.1:3003:3000
 Environment=NODE_ENV=production
-Environment=NEXT_PUBLIC_BASE_PATH=/lemans
+Environment=NEXT_PUBLIC_BASE_PATH=/prod/lemans
 Environment=API_BASE_URL=http://lemans-prod-go:8080
 
 [Service]

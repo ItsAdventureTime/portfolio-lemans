@@ -63,10 +63,10 @@ or reload failures remain fatal.
 
 ```caddy
 delegateops.business {
-    @lemans_demo path /lemans/demo /lemans/demo/*
+    @lemans_demo path /demo/lemans /demo/lemans/*
 
     # Place this handle block before the static-site fallback. Do not use
-    # handle_path: Next.js was built with /lemans/demo as its base path.
+    # handle_path: Next.js was built with /demo/lemans as its base path.
     handle @lemans_demo {
         header {
             >Cache-Control "public, max-age=0, must-revalidate"
@@ -288,7 +288,7 @@ For remote environments, verify the Go API and web endpoints on the loopback
 ports:
 
 ```bash
-curl -sL -o /dev/null -w '%{http_code}' http://127.0.0.1:3002/lemans/demo
+curl -sL -o /dev/null -w '%{http_code}' http://127.0.0.1:3002/demo/lemans
 podman exec lemans-demo-go wget -q -O - http://127.0.0.1:8080/health
 ```
 

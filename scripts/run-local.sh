@@ -90,7 +90,7 @@ docker run -d \
   -e API_BASE_URL="http://${GO_NAME}:8080" \
   lemans-bridge-dashboard:demo-web
 
-BASE_PATH="/lemans/demo"
+BASE_PATH="/demo/lemans"
 if ! wait_for_http "http://127.0.0.1:${PORT}${BASE_PATH}" ""; then
   echo "Error: local demo app did not become ready at ${BASE_PATH}"
   exit 1

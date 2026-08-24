@@ -12,10 +12,10 @@ if [[ "$(uname -s)" != "Darwin" ]] || ! command -v security >/dev/null 2>&1; the
   exit 1
 fi
 
-BASE_PATH="/lemans"
+BASE_PATH="/prod/lemans"
 DEFAULT_PUBLIC_URL=""
 if [[ "$PROFILE" == "demo" ]]; then
-  BASE_PATH="/lemans/demo"
+  BASE_PATH="/demo/lemans"
   DEFAULT_PUBLIC_URL="https://delegateops.business${BASE_PATH}"
 fi
 

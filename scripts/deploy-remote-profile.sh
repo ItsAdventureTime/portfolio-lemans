@@ -36,14 +36,14 @@ if [[ "$PROFILE" != demo && "$PROFILE" != prod ]]; then
   exit 1
 fi
 
-BASE_PATH="/lemans/demo"
+BASE_PATH="/demo/lemans"
 PROFILE_LABEL="remote demo"
-DEFAULT_PUBLIC_URL="https://delegateops.business/lemans/demo"
+DEFAULT_PUBLIC_URL="https://delegateops.business/demo/lemans"
 DEFAULT_REMOTE_ROOT="/home/jk/bridge-ph/lemans-demo"
 DEFAULT_QUADLET_PATH="/home/jk/.config/containers/systemd/bridge-ph/lemans-demo"
 ACTIVATE_SCRIPT="activate-remote-demo.sh"
 if [[ "$PROFILE" == prod ]]; then
-  BASE_PATH="/lemans"
+  BASE_PATH="/prod/lemans"
   PROFILE_LABEL="remote production"
   DEFAULT_PUBLIC_URL="https://delegateops.business/lemans"
   DEFAULT_REMOTE_ROOT="/home/jk/bridge-ph/lemans"

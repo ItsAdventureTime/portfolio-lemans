@@ -2,7 +2,7 @@
 # Le Mans remote demo route. This block is installed directly in the active
 # `/home/jk/caddy/conf/Caddyfile` before the DelegateOps static fallback.
 
-@lemans_demo path /lemans/demo /lemans/demo/*
+@lemans_demo path /demo/lemans /demo/lemans/*
 
 handle @lemans_demo {
 	header {
