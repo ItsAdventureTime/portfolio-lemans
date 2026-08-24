@@ -492,7 +492,7 @@ if [[ "$(curl -sL -o /dev/null -w '%{http_code}' "http://127.0.0.1:${APP_PORT}${
   exit 1
 fi
 
-public_status="$(curl -sS --max-time 30 -o /dev/null -w '%{http_code}' "$PUBLIC_URL" || true)"
+public_status="$(curl -sS --location --max-redirs 10 --max-time 30 -o /dev/null -w '%{http_code}' "$PUBLIC_URL" || true)"
 if [[ "$public_status" != 200 ]]; then
   echo "Error: public URL check failed for $PUBLIC_URL (HTTP ${public_status:-unavailable})." >&2
   echo "Inspect redirects with: curl -sSIL --max-redirs 10 '$PUBLIC_URL'" >&2

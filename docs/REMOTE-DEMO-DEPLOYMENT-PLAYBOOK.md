@@ -312,7 +312,7 @@ defaults to `jk`. It must:
    never seeds or resets. Migrations run in the Go API container.
 8. Check the internal Go health endpoint and loopback web endpoint on the VPS.
 9. Print the source commit, imported image IDs, service status, and URL. The public
-   check does not follow redirects; a non-200 response prints a redirect
+   check follows up to 10 redirects and requires the final response to be 200; failures print a redirect
    inspection command so trailing-slash or proxy loops remain visible.
 
 If a managed service fails to start or pass its health check, the script prints

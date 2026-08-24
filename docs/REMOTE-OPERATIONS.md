@@ -49,10 +49,10 @@ Profile activation atomically stages `caddy/lemans-demo.handlers.Caddyfile` into
 the host directory backing Caddy's `/etc/caddy` mount, maintains only the
 matching import immediately before the DelegateOps fallback, and preserves the
 production import plus unrelated routes. It validates the complete Caddyfile
-through Caddy's rootless container and then performs a graceful reload. It does
-not follow redirects
-for the final public health check, so a `308` is reported with its redirect
-chain instead of being hidden.
+through Caddy's rootless container and then performs a graceful reload. It
+follows up to 10 redirects for the final public health check and requires the
+final response to be `200`. This permits intentional base-path `308` redirects
+while still rejecting redirect loops and broken destinations.
 
 Caddy requires each specific `import` target to exist. Activation stages the
 matching handler before validation and
@@ -271,6 +271,9 @@ The script dumps `lemans_prod_db` with `pg_dump`, gzips it, and uploads it to
 3. Verify the profile loopback URL returns `200 OK`.
 
 ## Health Checks
+
+Activation permits the intentional base-path `308` redirect by following up to
+10 redirects and requires the final public response to be `200`.
 
 For remote environments, verify the Go API and web endpoints on the loopback
 ports:
