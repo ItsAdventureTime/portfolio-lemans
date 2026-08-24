@@ -470,7 +470,21 @@ which joins it to the `caddy` Podman network defined by that Quadlet.
 Do not claim the target URL is operational until the Caddy context and remote
 health checks are verified.
 
-## 11. Official guidance
+## 11. Public path and saved URL behavior
+
+The Le Mans Caddy route handles the exact `/demo/lemans` base path and all
+descendants directly. It does not issue a trailing-slash `308` redirect.
+
+Public health checks may follow up to 10 redirects, but the final response must
+be `200`. If the macOS Keychain contains a stale `public-url`, deployment warns,
+uses the profile default for that run, and continues. Repair the saved setting
+with:
+
+```bash
+./scripts/configure-remote-demo.sh
+```
+
+## 12. Official guidance
 
 - [Podman Quadlet rootless search paths and generator](https://docs.podman.io/en/latest/markdown/podman-systemd.unit.5.html)
 - [Podman Quadlet basic usage and verification](https://docs.podman.io/en/latest/markdown/podman-quadlet-basic-usage.7.html)

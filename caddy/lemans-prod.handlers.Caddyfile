@@ -3,9 +3,7 @@
 # `/etc/caddy/lemans-prod.handlers.Caddyfile` and imported by the shared
 # `delegateops.business` site block.
 
-@lemans_prod_root path /prod/lemans
 @lemans_prod path /prod/lemans /prod/lemans/*
-redir @lemans_prod_root /prod/lemans/ 308
 
 handle @lemans_prod {
 	header {

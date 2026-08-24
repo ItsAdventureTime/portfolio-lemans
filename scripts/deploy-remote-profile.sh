@@ -58,6 +58,7 @@ IMAGE_BUNDLE_PATH="${IMAGE_ARTIFACT_DIR}/${IMAGE_BUNDLE_NAME}"
 IMAGE_CHECKSUM_PATH="${IMAGE_BUNDLE_PATH}.sha256"
 
 KEYCHAIN_SERVICE_PREFIX="lemans-bridge-dashboard/${PROFILE}"
+SAVED_PUBLIC_URL_LOADED=false
 keychain_value() {
   /usr/bin/security find-generic-password -s "$KEYCHAIN_SERVICE_PREFIX/$1" -w 2>/dev/null || true
 }
@@ -72,7 +73,12 @@ fi
 if [[ "$(uname -s)" == Darwin ]] && command -v security >/dev/null 2>&1; then
   REMOTE_HOST="${REMOTE_HOST:-$(keychain_value remote-host)}"
   REMOTE_USER="${REMOTE_USER:-$(keychain_value remote-user)}"
-  PUBLIC_URL="${PUBLIC_URL:-$(keychain_value public-url)}"
+  if [[ -z "$PUBLIC_URL" ]]; then
+    PUBLIC_URL="$(keychain_value public-url)"
+    if [[ -n "$PUBLIC_URL" ]]; then
+      SAVED_PUBLIC_URL_LOADED=true
+    fi
+  fi
   CADDY_NETWORK_NAME="${CADDY_NETWORK_NAME:-$(keychain_value caddy-network-name)}"
   if [[ "$SYNC_ONLY" != true ]]; then
     B2_ACCESS_KEY_ID="${B2_ACCESS_KEY_ID:-$(keychain_value b2-access-key-id)}"
@@ -89,8 +95,13 @@ if [[ -z "$REMOTE_HOST" ]]; then
   exit 1
 fi
 if [[ "$PUBLIC_URL" != https://* || "$PUBLIC_URL" != *"${BASE_PATH}"* ]]; then
-  echo "Error: PUBLIC_URL must be HTTPS and include ${BASE_PATH}." >&2
-  exit 1
+  if [[ "$SAVED_PUBLIC_URL_LOADED" == true ]]; then
+    echo "Warning: saved ${PROFILE} public URL is invalid for ${BASE_PATH}; using ${DEFAULT_PUBLIC_URL}. Run ./scripts/configure-remote-${PROFILE}.sh to repair the saved setting." >&2
+    PUBLIC_URL="$DEFAULT_PUBLIC_URL"
+  else
+    echo "Error: PUBLIC_URL must be HTTPS and include ${BASE_PATH}." >&2
+    exit 1
+  fi
 fi
 if [[ ! "$CADDY_NETWORK_NAME" =~ ^[A-Za-z0-9][A-Za-z0-9_.-]*$ ]]; then
   echo "Error: CADDY_NETWORK_NAME is invalid." >&2

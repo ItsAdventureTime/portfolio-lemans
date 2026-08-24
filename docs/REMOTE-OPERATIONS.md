@@ -270,6 +270,20 @@ The script dumps `lemans_prod_db` with `pg_dump`, gzips it, and uploads it to
    ```
 3. Verify the profile loopback URL returns `200 OK`.
 
+## Le Mans public path and saved URL behavior
+
+The Le Mans Caddy route handles the exact `/demo/lemans` base path and all
+descendants directly. It does not issue a trailing-slash `308` redirect.
+
+Public health checks may follow up to 10 redirects, but the final response must
+be `200`. If the macOS Keychain contains a stale `public-url`, deployment warns,
+uses the profile default for that run, and continues. Repair the saved setting
+with:
+
+```bash
+./scripts/configure-remote-demo.sh
+```
+
 ## Health Checks
 
 Activation permits the intentional base-path `308` redirect by following up to
