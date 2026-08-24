@@ -158,21 +158,14 @@ Recommended approach:
 4. Verify navigation, static assets, API routes, browser flows, redirects,
    cookies, and error pages under the subpath.
 
-The tracked `caddy/lemans-demo.handlers.Caddyfile` is staged atomically as
-`/etc/caddy/lemans-demo.handlers.Caddyfile`; the shared Caddyfile imports it
-immediately before its static fallback:
+The tracked `caddy/lemans-demo.handlers.Caddyfile` is staged atomically into
+the host directory backing Caddy's `/etc/caddy` mount. The shared Caddyfile
+maintains its matching import immediately before the static fallback:
 
-```caddy
-@lemans_demo path /demo/lemans /demo/lemans/*
+The handler fragment remains the source of truth; do not duplicate it inline.
 
-handle @lemans_demo {
-    reverse_proxy lemans-demo-app:3000
-}
-```
-
-Do not use `handle_path` or strip the prefix unless the application is purposely
-built and tested for that arrangement. Stripping the prefix can create the
-Next.js subfolder problem for links and assets.
+Keep the `/demo/lemans` prefix intact; the application is built with that
+Next.js `basePath` and Caddy must proxy the original URI unchanged.
 
 Do not replace this image with a static HTML export. The demo uses server
 actions, dynamic server rendering, and a private Go API, so `Dockerfile.web`
@@ -180,7 +173,10 @@ uses Next.js `output: 'standalone'` and runs `server.js` in the remote web
 container. The standalone image is the appropriate static-asset optimization;
 the application itself remains a server runtime.
 
-The Caddy container/network definitions and Caddyfile must be reviewed before
+The host-side `CADDY_CONFIG_FILE` defaults to `/home/jk/caddy/conf/Caddyfile`.
+That path is distinct from the Caddy container's `/etc/caddy/Caddyfile` and
+`/etc/caddy/lemans-demo.handlers.Caddyfile` paths. The Caddy container/network
+definitions and Caddyfile must be reviewed before
 the first deployment. For the supplied Caddy configuration, `caddy.network`
 sets `NetworkName=caddy`; therefore the deployment checks the `caddy` Podman
 network while Le Mans Quadlets continue to use `Network=caddy.network`. The
@@ -192,13 +188,10 @@ static-site and application mounts. The operator should provide the
 configuration if the network name, site-block structure, or TLS ownership is
 unclear.
 
-Caddy treats a specific `import` path as required. During demo activation, the
-script validates the complete configuration from inside the Caddy container. If
-Caddy reports an exact absolute file import missing from that mounted view, the
-script omits that exact import and validates again, up to eight imports. This
-handles stale fragments left outside the Le Mans source tree without naming or
-coupling the deployment to another application. Wildcard imports are untouched;
-all other Caddy validation errors remain fatal.
+Caddy treats each specific `import` path as required. Activation validates the
+complete configuration from inside the Caddy container; missing imports and all
+other validation errors remain fatal. It never strips another profile's import
+to make validation pass, and preserves unrelated imports and routes.
 
 After installing the validated file, activation uses Caddy's graceful reload.
 If the read-only mount has not adopted its `:Z` label yet, the script silently
@@ -207,6 +200,22 @@ unit once to refresh the label, then validates and reloads again. A restart or
 reload failure remains fatal and is printed with diagnostics.
 
 ## 5. Deployment commands
+
+### Preferred two-stage demo deployment
+
+After explicit remote deployment authorization, run the sync step locally:
+
+```bash
+./scripts/sync-remote-demo.sh
+```
+
+Then run the printed activation command on the VPS:
+
+```bash
+cd '/home/jk/bridge-ph/lemans-demo/current' && ./scripts/activate-remote-demo.sh
+```
+
+`./scripts/deploy-remote-demo.sh` remains the automated one-command alternative. Do not place B2 credentials in shell history or a committed `.env` file.
 
 For the shortest operator path, see
 [`REMOTE-DEPLOYMENT-QUICKSTART.md`](./REMOTE-DEPLOYMENT-QUICKSTART.md).

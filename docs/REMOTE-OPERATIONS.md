@@ -45,39 +45,26 @@ untouched. The Caddy Quadlet is expected at
 under `/home/jk/caddy/`; if a newly added `:Z`-mounted file is unreadable, the
 activation script restarts `caddy.service` once to reapply the mount label.
 
-The activation removes any indented legacy import of
-`/etc/caddy/lemans-demo.handlers.Caddyfile`, replaces the marked Le Mans route
-block in place, validates the generated Caddyfile through Caddy's rootless
-container, and then performs a graceful reload. It does not follow redirects
+Profile activation atomically stages `caddy/lemans-demo.handlers.Caddyfile` into
+the host directory backing Caddy's `/etc/caddy` mount, maintains only the
+matching import immediately before the DelegateOps fallback, and preserves the
+production import plus unrelated routes. It validates the complete Caddyfile
+through Caddy's rootless container and then performs a graceful reload. It does
+not follow redirects
 for the final public health check, so a `308` is reported with its redirect
 chain instead of being hidden.
 
-Caddy requires a specific `import` target to exist. Activation validates from
-inside the Caddy container, then omits only an exact absolute file import that
-Caddy reports missing from its mounted filesystem before validating again. This
-keeps the Le Mans deployment independent of stale fragments from other apps.
-Wildcard imports and all other validation failures remain untouched and fatal.
+Caddy requires each specific `import` target to exist. Activation stages the
+matching handler before validation and
+inside the Caddy container. Missing imports and all other validation failures
+remain fatal; activation never strips another profile's import. Unrelated
+imports remain untouched.
 After installing the candidate, activation uses `caddy reload`; a permission
 failure caused by a newly written `:Z` mount is handled by one rootless Caddy
 restart to refresh the label, followed by validation and reload. Genuine restart
 or reload failures remain fatal.
 
-```caddy
-delegateops.business {
-    @lemans_demo path /demo/lemans /demo/lemans/*
-
-    # Place this handle block before the static-site fallback. Do not use
-    # handle_path: Next.js was built with /demo/lemans as its base path.
-    handle @lemans_demo {
-        header {
-            >Cache-Control "public, max-age=0, must-revalidate"
-        }
-
-        reverse_proxy lemans-demo-app:3000
-    }
-}
-```
-
+The tracked fragment is staged atomically and imported before the fallback.
 The deployment script adds this block to the supplied `delegateops.business`
 site before its final unmatched `handle` fallback. Do not add the demo internal
 network to `caddy.container`: the existing `Network=caddy.network` is the

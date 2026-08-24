@@ -126,7 +126,7 @@ two-stage: run `./scripts/sync-remote-demo.sh` on macOS, then log in to the VPS
 and run the printed `scripts/activate-remote-demo.sh` command. The sync step
 uses the project Docker Sandbox for the local Linux image build, then uses
 `rsync` over SSH for the source tree and checksum-verified image bundle; do not
-use `scp`. The preflight reports uncommitted deployable paths and allows only
+use `rsync` over SSH; do not use `scp`. The preflight reports uncommitted deployable paths and allows only
 local Serena metadata at `.serena/project.yml` to remain modified; that file is
 excluded from the snapshot. The VPS activation imports the profile-tagged images
 with rootless `podman load`, installs Quadlets, and starts the runtime. It does
@@ -147,7 +147,7 @@ Follow [`docs/REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`](docs/REMOTE-DEMO-DEPLOYMENT-P
 before changing deployment code. Do not connect to, reload, or modify the remote
 host or shared Caddy configuration until the user explicitly authorizes the
 deployment and provides any required Caddy context. When authorized for the
-demo, the deployment may install only the tracked demo route block directly
+demo, the deployment may stage only the tracked demo handler fragment into the host directory backing Caddy's `/etc/caddy` mount and maintain its matching import
 before the DelegateOps fallback in `/home/jk/caddy/conf/Caddyfile`,
 validate/format the complete Caddyfile, and perform a graceful reload through
 the running rootless Caddy container. It must preserve unrelated site routes

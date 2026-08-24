@@ -105,6 +105,9 @@ jk-sbx-project exec -- ./scripts/verify-vertical-slice.sh
 
 ## 5. Caddy Reverse Proxy Integration
 
+
+Remote activation stages the selected handler fragment into the host directory that contains `CADDY_CONFIG_FILE` (default: `/home/jk/caddy/conf/Caddyfile`). Caddy reads that directory as `/etc/caddy`, so the shared Caddyfile imports `/etc/caddy/lemans-demo.handlers.Caddyfile` and `/etc/caddy/lemans-prod.handlers.Caddyfile`. Activation replaces only the selected fragment and maintains only its matching import before the DelegateOps fallback; it preserves the other profile and unrelated imports.
+
 The existing rootless Caddy Quadlet already exposes the public HTTP/HTTPS ports.
 Its `caddy.network` file sets `NetworkName=caddy`. Each Le Mans environment
 therefore retains `Network=caddy.network` in its Quadlet while joining the
