@@ -137,6 +137,18 @@ workflow and never place credentials in documentation or shell history.
 - [`AGENTS.md`](./AGENTS.md): Agent Operating Guidelines & Sandbox Policy
 - [`docs/DEMO-IMPLEMENTATION-PLAYBOOK.md`](./docs/DEMO-IMPLEMENTATION-PLAYBOOK.md): Authoritative Demo Specification, Workflow, UI/UX, and Verification Contract
 - [`docs/AGENT-EXECUTION-PROMPTS.md`](./docs/AGENT-EXECUTION-PROMPTS.md): Copy-Paste Prompts and Commands for Coding, Review, and Handoff Agents
+
+## GitHub synchronization
+
+Use GitHub CLI authenticated over HTTPS for repository synchronization:
+
+```bash
+gh auth setup-git --hostname github.com
+git push origin main
+```
+
+GitHub CLI provides the Git credential helper; Git performs the local commit.
+Do not use SSH remotes, SSH keys, or passkeys for this repository.
 - [`docs/REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`](./docs/REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md): Remote-Only Rootless Quadlet Deployment Contract
 - [`docs/adr/0005-docker-sandbox-local-build-and-vps-import.md`](./docs/adr/0005-docker-sandbox-local-build-and-vps-import.md): Local Docker Sandbox and remote image-import decision
 - [`docs/PROJECT-SPEC.md`](./docs/PROJECT-SPEC.md): Product Requirements Specification
