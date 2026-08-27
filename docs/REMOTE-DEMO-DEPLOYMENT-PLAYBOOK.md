@@ -476,9 +476,10 @@ The Le Mans Caddy route handles the exact `/demo/lemans` base path and all
 descendants directly. It does not issue a trailing-slash `308` redirect.
 
 Public health checks may follow up to 10 redirects, but the final response must
-be `200`. If the macOS Keychain contains a stale `public-url`, deployment warns,
-uses the profile default for that run, and continues. Repair the saved setting
-with:
+be `200`. If the macOS Keychain contains a stale `public-url`, configuration
+warns and shows the correct profile default at the prompt. Pressing Enter
+saves that corrected URL; entering a different valid URL saves that instead.
+Repair the saved setting with:
 
 ```bash
 ./scripts/configure-remote-demo.sh

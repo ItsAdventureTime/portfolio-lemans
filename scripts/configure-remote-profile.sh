@@ -13,11 +13,10 @@ if [[ "$(uname -s)" != "Darwin" ]] || ! command -v security >/dev/null 2>&1; the
 fi
 
 BASE_PATH="/prod/lemans"
-DEFAULT_PUBLIC_URL=""
 if [[ "$PROFILE" == "demo" ]]; then
   BASE_PATH="/demo/lemans"
-  DEFAULT_PUBLIC_URL="https://delegateops.business${BASE_PATH}"
 fi
+DEFAULT_PUBLIC_URL="https://delegateops.business${BASE_PATH}"
 
 SERVICE_PREFIX="lemans-bridge-dashboard/${PROFILE}"
 ACCOUNT_NAME="${USER:?Error: USER must be set.}"
@@ -61,7 +60,15 @@ REMOTE_HOST="$REPLY"
 read_required "Remote user" "${REMOTE_USER:-$(stored_value remote-user)}" false
 REMOTE_USER="$REPLY"
 SAVED_PUBLIC_URL="$(stored_value public-url)"
-read_required "Public HTTPS URL" "${PUBLIC_URL:-${SAVED_PUBLIC_URL:-$DEFAULT_PUBLIC_URL}}" false
+PUBLIC_URL_DEFAULT="${PUBLIC_URL:-${SAVED_PUBLIC_URL:-$DEFAULT_PUBLIC_URL}}"
+if [[ -z "${PUBLIC_URL:-}" && -n "$SAVED_PUBLIC_URL" ]] && {
+  [[ "$SAVED_PUBLIC_URL" != https://* ]] || [[ "$SAVED_PUBLIC_URL" != *"${BASE_PATH}"* ]]
+}; then
+  echo "Warning: saved public URL is invalid for ${BASE_PATH}; using ${DEFAULT_PUBLIC_URL}." >&2
+  PUBLIC_URL_DEFAULT="$DEFAULT_PUBLIC_URL"
+fi
+
+read_required "Public HTTPS URL" "$PUBLIC_URL_DEFAULT" false
 PUBLIC_URL="$REPLY"
 SAVED_CADDY_NETWORK_NAME="$(stored_value caddy-network-name)"
 read_required "Caddy Podman network name" "${CADDY_NETWORK_NAME:-${SAVED_CADDY_NETWORK_NAME:-caddy}}" false
