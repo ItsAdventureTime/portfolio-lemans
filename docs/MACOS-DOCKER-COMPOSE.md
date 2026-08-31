@@ -1,61 +1,68 @@
 # Run the demo on macOS with Docker Compose
 
 This guide runs the Le Mans demo on a Docker Desktop Mac and publishes only
-the web service through an existing Cloudflare Tunnel. PostgreSQL remains on
-the private Compose network. The Compose file uses Docker-managed secrets
-whose values come directly from shell environment variables; no `.env` file is
-needed.
+the web service through a native macOS Cloudflare Tunnel. PostgreSQL remains
+on the private Compose network. The Compose file uses one Docker-managed
+secret whose value comes directly from a shell environment variable; no `.env`
+file or helper script is needed.
 
 ## Prerequisites
 
 - Docker Desktop for Apple silicon with Compose v2.
+- `cloudflared` installed on macOS.
 - A Cloudflare named tunnel and public hostname configured to forward to
-  `http://web:3000`.
+  `http://127.0.0.1:3000`.
 - The repository checked out on the Mac.
 
-Set the two values in the current shell. Do not commit them or put them in a
-file inside the repository:
+Set the database password in the current shell. Do not commit it or put it in
+a file inside the repository:
 
 ```sh
 export LEMANS_DB_PASSWORD="$(openssl rand -hex 32)"
-export CLOUDFLARE_TUNNEL_TOKEN='replace-with-your-tunnel-token'
 ```
 
-The macOS login Keychain is the recommended place to keep these values. You
-can retrieve them immediately before startup with `security
+The macOS login Keychain is the recommended place to keep this value. You
+can retrieve it immediately before startup with `security
 find-generic-password` and export the output, using the service names you
 choose when storing the items:
 
 ```sh
 export LEMANS_DB_PASSWORD="$(security find-generic-password -s 'lemans/db-password' -w)"
-export CLOUDFLARE_TUNNEL_TOKEN="$(security find-generic-password -s 'lemans/cloudflare-tunnel-token' -w)"
 ```
 
 ## Validate and start
 
-Run the structural check first. It uses placeholders when the variables are
-not set and does not start containers:
+Validate the Compose file with a safe temporary value, then start the demo:
 
 ```sh
-./scripts/verify-compose.sh
-./scripts/start-compose.sh
+LEMANS_DB_PASSWORD=compose-validation-only docker compose config
+docker compose up -d --build
+docker compose ps
 ```
 
 The first startup builds the Alpine-based Next.js and Go images, starts
 PostgreSQL 16 on its named volume, runs Go migrations, seeds demo data, and
-starts the web and `cloudflared` services. The web service has no host port;
-the tunnel is its only ingress.
+starts the web service. The web service is published only on macOS loopback at
+`127.0.0.1:3000`; the tunnel is its only external ingress. The API and
+PostgreSQL ports are not published.
 
 In the Cloudflare Tunnel dashboard, configure the public hostname's service as
-`http://web:3000`. Cloudflare preserves the request path, so open
-`https://your-hostname/demo/lemans/`; do not include `/demo/lemans` in the
-origin service URL.
+`http://127.0.0.1:3000`. Because `cloudflared` runs natively on macOS, it must
+use the host loopback address, not the Docker-only name `web`. Cloudflare
+preserves the request path, so open `https://your-hostname/demo/lemans/`.
+
+Start the native tunnel in another macOS terminal using the existing named
+tunnel configuration:
+
+```sh
+cloudflared tunnel run YOUR_TUNNEL_NAME
+```
 
 Check service state with:
 
 ```sh
 docker compose ps
-docker compose logs -f cloudflared
+docker compose logs -f web
 ```
 
 Open the hostname configured in Cloudflare after the tunnel reports a healthy

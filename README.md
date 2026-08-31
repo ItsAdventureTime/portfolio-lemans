@@ -133,8 +133,8 @@ workflow and never place credentials in documentation or shell history.
 
 Use the Compose and Cloudflare Tunnel procedure in
 [`docs/MACOS-DOCKER-COMPOSE.md`](./docs/MACOS-DOCKER-COMPOSE.md). It keeps the
-web, API, and PostgreSQL services private to Compose; only `cloudflared` is
-public-facing.
+API and PostgreSQL services private to Compose. The web service binds only to
+macOS loopback, and the native Cloudflare Tunnel is the sole public ingress.
 
 ---
 

@@ -65,8 +65,8 @@ services:
     depends_on:
       seed:
         condition: service_completed_successfully
-    expose:
-      - "3000"
+    ports:
+      - "127.0.0.1:3000:3000"
     healthcheck:
       test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/demo/lemans/').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
       interval: 10s
@@ -74,21 +74,9 @@ services:
       retries: 12
     restart: unless-stopped
 
-  cloudflared:
-    image: cloudflare/cloudflared:latest
-    command: ["tunnel", "--no-autoupdate", "run", "--token-file", "/run/secrets/tunnel_token"]
-    secrets:
-      - tunnel_token
-    depends_on:
-      web:
-        condition: service_healthy
-    restart: unless-stopped
-
 secrets:
   db_password:
     environment: LEMANS_DB_PASSWORD
-  tunnel_token:
-    environment: CLOUDFLARE_TUNNEL_TOKEN
 
 volumes:
   postgres_data:
