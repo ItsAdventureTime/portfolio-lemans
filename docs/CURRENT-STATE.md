@@ -26,9 +26,11 @@ implementation or operations.
   provide role simulation after entry.
 - The Mac mini demo deployment uses [`../compose.yaml`](../compose.yaml):
   Next.js, Go, and PostgreSQL run as one Compose project. The web service binds
-  only to `127.0.0.1:3000`; the existing native macOS Cloudflare Tunnel is the
-  sole public ingress. Docker Compose supplies only the database password as a
-  service-scoped secret, and the deployment is operated through
+  only to `127.0.0.1:${LEMANS_WEB_PORT:-3001}` on macOS and keeps container port
+  `3000`; set `LEMANS_WEB_PORT` when the default host port is occupied. The
+  existing native macOS Cloudflare Tunnel is the sole public ingress. Docker
+  Compose supplies only the database password as a service-scoped secret, and
+  the deployment is operated through
   [`MACOS-DOCKER-COMPOSE.md`](./MACOS-DOCKER-COMPOSE.md).
 
 ### Runtime branding

@@ -11,7 +11,7 @@ file or helper script is needed.
 - Docker Desktop for Apple silicon with Compose v2.
 - `cloudflared` installed on macOS.
 - A Cloudflare named tunnel and public hostname configured to forward to
-  `http://127.0.0.1:3000`.
+  `http://127.0.0.1:3001`.
 - The repository checked out on the Mac.
 
 On the first deployment, generate the database password and save it in the
@@ -34,16 +34,19 @@ export LEMANS_DB_PASSWORD="$(security find-generic-password \
   -a "$USER" \
   -s 'lemans/db-password' \
   -w)"
+
+# Optional: change this if port 3001 is already used on the Mac.
+export LEMANS_WEB_PORT=3001
 ```
 
 ## Validate and start
 
-Disable Compose's optional `.env` lookup, validate with a safe temporary value,
+Disable Compose's optional `.env` lookup, validate the rendered configuration,
 then start the demo:
 
 ```sh
 export COMPOSE_DISABLE_ENV_FILE=1
-LEMANS_DB_PASSWORD=compose-validation-only docker compose config
+docker compose config
 docker compose up -d --build
 docker compose ps
 ```
@@ -51,13 +54,15 @@ docker compose ps
 The first startup builds the Alpine-based Next.js and Go images, starts
 PostgreSQL 16 on its named volume, runs Go migrations, seeds demo data, and
 starts the web service. The web service is published only on macOS loopback at
-`127.0.0.1:3000`; the tunnel is its only external ingress. The API and
-PostgreSQL ports are not published.
+`127.0.0.1:${LEMANS_WEB_PORT:-3001}`; the container still listens on port
+`3000`. The tunnel is its only external ingress. The API and PostgreSQL ports
+are not published.
 
 In the Cloudflare Tunnel dashboard, configure the public hostname's service as
-`http://127.0.0.1:3000`. Because `cloudflared` runs natively on macOS, it must
-use the host loopback address, not the Docker-only name `web`. Cloudflare
-preserves the request path, so open `https://your-hostname/demo/lemans/`.
+`http://127.0.0.1:${LEMANS_WEB_PORT:-3001}` using the actual port value. Because
+`cloudflared` runs natively on macOS, it must use the host loopback address, not
+the Docker-only name `web`. Cloudflare preserves the request path, so open
+`https://your-hostname/demo/lemans/`.
 
 Start the native tunnel in another macOS terminal using the existing named
 tunnel configuration:
