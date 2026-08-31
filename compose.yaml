@@ -1,0 +1,94 @@
+name: lemans
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD_FILE: /run/secrets/db_password
+      POSTGRES_DB: lemans_demo_db
+    secrets:
+      - db_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d lemans_demo_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  api:
+    image: lemans-bridge-dashboard-go:demo-go
+    build:
+      context: .
+      dockerfile: Dockerfile.go
+    environment:
+      DEMO_MODE: "true"
+      LISTEN_ADDR: ":8080"
+    entrypoint:
+      - sh
+      - -ec
+      - |
+        password="$$(cat /run/secrets/db_password)"
+        export DATABASE_URL="postgresql://postgres:$${password}@db:5432/lemans_demo_db"
+        exec /lemans-api
+    secrets:
+      - db_password
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:8080/health >/dev/null"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  seed:
+    image: curlimages/curl:latest
+    command: ["-fsS", "-X", "POST", "http://api:8080/admin/seed", "-H", "Content-Type: application/json", "-d", "{}"]
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: "no"
+
+  web:
+    image: lemans-bridge-dashboard:demo-web
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+      args:
+        NEXT_PUBLIC_BASE_PATH: /demo/lemans
+    environment:
+      API_BASE_URL: http://api:8080
+    depends_on:
+      seed:
+        condition: service_completed_successfully
+    expose:
+      - "3000"
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/demo/lemans/').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    command: ["tunnel", "--no-autoupdate", "run", "--token-file", "/run/secrets/tunnel_token"]
+    secrets:
+      - tunnel_token
+    depends_on:
+      web:
+        condition: service_healthy
+    restart: unless-stopped
+
+secrets:
+  db_password:
+    environment: LEMANS_DB_PASSWORD
+  tunnel_token:
+    environment: CLOUDFLARE_TUNNEL_TOKEN
+
+volumes:
+  postgres_data:

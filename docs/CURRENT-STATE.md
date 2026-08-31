@@ -1,6 +1,6 @@
 # Current repository state
 
-- **Updated**: 2026-08-16 (Docker Sandbox-first deployment packaging)
+- **Updated**: 2026-08-31 (Mac mini Docker Compose and Cloudflare Tunnel path)
 - **Authority**: Current implementation and the demo rules in
   [`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md)
 - **Documentation index**: [`DOCUMENTATION-INDEX.md`](./DOCUMENTATION-INDEX.md)
@@ -16,7 +16,7 @@ implementation or operations.
   business rules, and Backblaze B2 presigned URLs.
 - Browser-side API mutations use the base-path-aware Next.js
   `/api/proxy/[...path]` route; the Go API hostname stays server-side.
-- PostgreSQL `postgres:alpine` on an internal Docker network locally and an
+- PostgreSQL `postgres:16-alpine` on an internal Docker network locally and an
   internal rootless Podman network remotely.
 - `Dockerfile.web` builds `lemans-bridge-dashboard:{demo,prod}-web`.
 - `Dockerfile.go` builds `lemans-bridge-dashboard-go:{demo,prod}-go`.
@@ -24,6 +24,11 @@ implementation or operations.
   with the simulated splash; the `lemans-demo-entered` cookie gates the shared
   dashboard shell, and the `lemans-demo-role` cookie plus `X-Demo-Role` header
   provide role simulation after entry.
+- The Mac mini deployment uses [`../compose.yaml`](../compose.yaml): Next.js,
+  Go, PostgreSQL, and Cloudflare Tunnel run as one Compose project. It exposes
+  no host ports, supplies database and tunnel values as Docker Compose secrets,
+  and is operated through
+  [`MACOS-DOCKER-COMPOSE.md`](./MACOS-DOCKER-COMPOSE.md).
 
 ### Runtime branding
 

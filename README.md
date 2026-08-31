@@ -32,13 +32,13 @@ City, Pampanga.
 - **Business record**: A Job Order (`JO` / `RA`) connects estimates,
   procurement, OPEX, billing, and job profitability.
 - **Runtime**: Use the initialized Docker Sandbox for local builds, tests,
-  migrations, image packaging, and app processes. The VPS uses rootless Podman
-  Quadlets for runtime activation only. The project does not use Compose.
+  migrations, and image packaging. The Mac mini deployment uses Docker Compose
+  and Cloudflare Tunnel; the VPS uses rootless Podman Quadlets.
 - **Demo access**: The splash screen opens the demo as Admin and includes a
   visible role switcher. It does not authenticate users.
-- **Deployment**: There is no persistent local deployment. When authorized,
-  deploy the remote demo with `./scripts/deploy-remote-demo.sh` to
-  `https://delegateops.business/demo/lemans`.
+- **Mac deployment**: Run the persistent demo with Docker Compose and a
+  Cloudflare Tunnel. See
+  [`docs/MACOS-DOCKER-COMPOSE.md`](./docs/MACOS-DOCKER-COMPOSE.md).
 - **Attachments**: Backblaze B2 stores inspection photos, receipts, and other
   supporting files. See ADR-0004.
   - **Backend**: The Go API owns persistence, Goose migrations, business rules,
@@ -129,9 +129,19 @@ workflow and never place credentials in documentation or shell history.
 
 ---
 
+## How-to: run the Mac mini demo
+
+Use the Compose and Cloudflare Tunnel procedure in
+[`docs/MACOS-DOCKER-COMPOSE.md`](./docs/MACOS-DOCKER-COMPOSE.md). It keeps the
+web, API, and PostgreSQL services private to Compose; only `cloudflared` is
+public-facing.
+
+---
+
 ## Read the docs
 
 - [`docs/CURRENT-STATE.md`](./docs/CURRENT-STATE.md): Implementation-backed current runtime, workflow, and documentation authority
+- [`docs/MACOS-DOCKER-COMPOSE.md`](./docs/MACOS-DOCKER-COMPOSE.md): Docker Desktop and Cloudflare Tunnel operator guide
 - [`docs/DOCUMENTATION-INDEX.md`](./docs/DOCUMENTATION-INDEX.md): Documentation status map, authority order, synchronization, and verification contract
 - [`docs/WRITING-STYLE.md`](./docs/WRITING-STYLE.md): US-English writing, tone, and proofreading standard
 - [`AGENTS.md`](./AGENTS.md): Agent Operating Guidelines & Sandbox Policy
