@@ -46,8 +46,8 @@ services:
     restart: unless-stopped
 
   seed:
-    image: curlimages/curl:latest
-    command: ["-fsS", "-X", "POST", "http://api:8080/admin/seed", "-H", "Content-Type: application/json", "-d", "{}"]
+    image: alpine:latest
+    command: ["wget", "-q", "-O", "-", "--post-data={}", "--header=Content-Type: application/json", "http://api:8080/admin/seed"]
     depends_on:
       api:
         condition: service_healthy
