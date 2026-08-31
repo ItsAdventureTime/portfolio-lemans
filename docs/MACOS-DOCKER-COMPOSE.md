@@ -14,27 +14,35 @@ file or helper script is needed.
   `http://127.0.0.1:3000`.
 - The repository checked out on the Mac.
 
-Set the database password in the current shell. Do not commit it or put it in
-a file inside the repository:
+On the first deployment, generate the database password and save it in the
+login Keychain. Do not commit it or put it in a file inside the repository:
 
 ```sh
 export LEMANS_DB_PASSWORD="$(openssl rand -hex 32)"
+security add-generic-password -U \
+  -a "$USER" \
+  -s 'lemans/db-password' \
+  -w "$LEMANS_DB_PASSWORD"
+unset LEMANS_DB_PASSWORD
 ```
 
-The macOS login Keychain is the recommended place to keep this value. You
-can retrieve it immediately before startup with `security
-find-generic-password` and export the output, using the service names you
-choose when storing the items:
+The `-U` flag creates the item when absent and updates it if you intentionally
+replace the password. On later starts, retrieve the same service and account:
 
 ```sh
-export LEMANS_DB_PASSWORD="$(security find-generic-password -s 'lemans/db-password' -w)"
+export LEMANS_DB_PASSWORD="$(security find-generic-password \
+  -a "$USER" \
+  -s 'lemans/db-password' \
+  -w)"
 ```
 
 ## Validate and start
 
-Validate the Compose file with a safe temporary value, then start the demo:
+Disable Compose's optional `.env` lookup, validate with a safe temporary value,
+then start the demo:
 
 ```sh
+export COMPOSE_DISABLE_ENV_FILE=1
 LEMANS_DB_PASSWORD=compose-validation-only docker compose config
 docker compose up -d --build
 docker compose ps
