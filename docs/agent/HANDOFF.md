@@ -39,6 +39,12 @@
 - Sol's first review found a Compose network YAML shape error and that a
   literal R2 example endpoint could pass configuration parsing. Both are fixed
   in an implementor follow-up; Sol must validate the new HEAD.
+- Sol's `9cceb53` sandbox run passed Go tests, lint, typecheck, Next.js build,
+  Compose image builds, seed/proxy smoke, DB persistence, and controlled reset.
+  It found Prettier failures, an unsupported Node TypeScript runtime flag in
+  the base-path test, and package advisories. Luna fixed the format/test issues
+  and updated Next.js, `eslint-config-next`, and locked `sharp`; all changes
+  await fresh validation. One high audit finding remains to be identified.
 - Detailed reviewer setup and external verification limits are in
   [`HANDOFF.notes.md`](./HANDOFF.notes.md).
 

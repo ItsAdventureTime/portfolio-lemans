@@ -414,7 +414,7 @@ Review these sources before implementation and again before handoff:
 - [Microsoft writing style](https://learn.microsoft.com/en-us/windows/apps/design/style/writing-style)
 - [Google developer documentation style guide](https://developers.google.com/style)
 
-At the time of this playbook update, the repository baseline is Next.js 16.3.0,
+At the time of the 2026-09-24 implementation handoff, the repository baseline is Next.js 16.3.6,
 React 19.2, Tailwind CSS 3.4, Go latest (`golang:alpine`), and PostgreSQL latest
 (`postgres:alpine`). Review the current official guidance before planning any
 further upgrades:

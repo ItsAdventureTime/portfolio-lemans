@@ -16,7 +16,7 @@ services:
       # the old postgres:16 volume; major-version upgrades are not in-place.
       - postgres_data:/var/lib/postgresql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d lemans_demo_db"]
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d lemans_demo_db']
       interval: 5s
       timeout: 5s
       retries: 12
@@ -28,9 +28,9 @@ services:
       context: .
       dockerfile: Dockerfile.go
     environment:
-      DEMO_MODE: "true"
-      LISTEN_ADDR: ":8080"
-      B2_ENDPOINT: "${R2_ENDPOINT:?Set R2_ENDPOINT to a real Cloudflare R2 S3 endpoint}"
+      DEMO_MODE: 'true'
+      LISTEN_ADDR: ':8080'
+      B2_ENDPOINT: '${R2_ENDPOINT:?Set R2_ENDPOINT to a real Cloudflare R2 S3 endpoint}'
       B2_REGION: auto
       B2_BUCKET_NAME: portfolio-lemans
       B2_KEY_PREFIX: lemans/demo
@@ -56,7 +56,7 @@ services:
       db:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:8080/health >/dev/null"]
+      test: ['CMD-SHELL', 'wget -q -O - http://127.0.0.1:8080/health >/dev/null']
       interval: 5s
       timeout: 5s
       retries: 12
@@ -68,10 +68,10 @@ services:
       context: .
       dockerfile: Dockerfile.web
       args:
-        NEXT_PUBLIC_BASE_PATH: ""
+        NEXT_PUBLIC_BASE_PATH: ''
     environment:
       API_BASE_URL: http://api:8080
-      NEXT_PUBLIC_BASE_PATH: ""
+      NEXT_PUBLIC_BASE_PATH: ''
       SITE_URL: https://lemans.delegateops.business
     networks:
       lemans-network: {}
@@ -82,7 +82,13 @@ services:
       api:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:3000/').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
       interval: 10s
       timeout: 5s
       retries: 12
@@ -91,29 +97,32 @@ services:
   seed:
     image: lemans-bridge-dashboard-go:demo-go
     profiles: [tools]
-    entrypoint: ["/bin/sh", "-ec"]
-    command: ["wget -q -O - --post-data='{}' --header='Content-Type: application/json' http://api:8080/admin/seed"]
+    entrypoint: ['/bin/sh', '-ec']
+    command:
+      [
+        "wget -q -O - --post-data='{}' --header='Content-Type: application/json' http://api:8080/admin/seed",
+      ]
     networks:
       - lemans-network
     depends_on:
       api:
         condition: service_healthy
-    restart: "no"
+    restart: 'no'
 
 secrets:
   db_password:
-    file: "${LEMANS_SECRET_DIR:?Set LEMANS_SECRET_DIR to the external secrets directory}/db_password"
+    file: '${LEMANS_SECRET_DIR:?Set LEMANS_SECRET_DIR to the external secrets directory}/db_password'
   r2_access_key_id:
-    file: "${LEMANS_SECRET_DIR:?Set LEMANS_SECRET_DIR to the external secrets directory}/r2_access_key_id"
+    file: '${LEMANS_SECRET_DIR:?Set LEMANS_SECRET_DIR to the external secrets directory}/r2_access_key_id'
   r2_secret_access_key:
-    file: "${LEMANS_SECRET_DIR:?Set LEMANS_SECRET_DIR to the external secrets directory}/r2_secret_access_key"
+    file: '${LEMANS_SECRET_DIR:?Set LEMANS_SECRET_DIR to the external secrets directory}/r2_secret_access_key'
 
 networks:
   lemans-network:
     name: lemans-network
     internal: true
   cloudflared-network:
-    name: "${CLOUDFLARED_NETWORK:?Set CLOUDFLARED_NETWORK to the existing tunnel network}"
+    name: '${CLOUDFLARED_NETWORK:?Set CLOUDFLARED_NETWORK to the existing tunnel network}'
     external: true
 
 volumes:

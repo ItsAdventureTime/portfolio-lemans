@@ -13,6 +13,13 @@
   The operator must provide a real account endpoint and scoped keys before
   live proof verification. The code uses existing Go S3 presigning and requires
   `R2_ENDPOINT` plus three external secret files at Compose time.
+- Installed production dependencies had a critical Next.js AVIF image
+  optimization RCE and high-severity `sharp`/libheif advisory. Updated Next.js
+  and `eslint-config-next` to `16.3.6`, and the lockfile to `sharp` `0.35.4`.
+  Both packages retain their existing npm maintainers and registry signing key.
+  Next.js `16.3.6` was published 2026-09-22; `sharp` `0.35.4` was published
+  2026-08-26. The first update reported one remaining high audit finding; Sol
+  must identify whether it affects production and report current audit results.
 - PostgreSQL 18 uses a new named volume, `lemans_postgres_data_pg18`. It is not
   compatible with the old PostgreSQL 16 data volume; no data migration or
   volume removal was performed.
@@ -39,11 +46,17 @@
   use or print real credentials in the sandbox.
 - Sol's first validation attempt against commit `63c8b0f` found invalid mixed
   list/map syntax under `web.networks`; that failed `docker compose config
-  --quiet`. The network now uses mapping syntax. Sol also found the documented
+--quiet`. The network now uses mapping syntax. Sol also found the documented
   `ACCOUNT_ID` R2 endpoint placeholder passed Compose interpolation; Go config
   now rejects non-account-specific R2 endpoints when region is `auto`, with a
   focused regression case. Validate the follow-up HEAD; neither fix has been
   checked by Luna.
+- On `9cceb53`, Sol confirmed Go tests, lint, typecheck, Next.js build, Compose
+  config, image builds, seed/proxy smoke, DB persistence, and controlled seed
+  reset. Prettier and the base-path test failed; Luna formatted the reported
+  files and changed the test to use the already-installed TypeScript compiler
+  API instead of Node's unsupported `--experimental-strip-types` runtime. These
+  fixes, dependency updates, and docs require a fresh validation run.
 - Validate Compose configuration, both image builds, Go tests, frontend format,
   lint, typecheck, base-path tests, and Next.js build. If the sandbox can test
   Compose safely, use an isolated external test network and verify seeding,
@@ -62,3 +75,6 @@
 - [Cloudflare R2 object lifecycle rules](https://developers.cloudflare.com/r2/buckets/object-lifecycles/)
 - [PostgreSQL official image](https://hub.docker.com/_/postgres)
 - [PostgreSQL version policy](https://www.postgresql.org/support/versioning/)
+- [Next.js AVIF image optimization advisory](https://github.com/vercel/next.js/security/advisories/GHSA-2xp9-vwfh-vxw4)
+- [Next.js `next/og` advisory](https://github.com/vercel/next.js/security/advisories/GHSA-vcvr-r3jv-pc5j)
+- [sharp/libheif advisory](https://github.com/lovell/sharp/security/advisories/GHSA-rgj7-g3m4-5g8c)

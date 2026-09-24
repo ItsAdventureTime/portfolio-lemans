@@ -72,12 +72,16 @@ export LEMANS_SECRET_DIR="$HOME/Library/Application Support/lemans-demo/secrets"
 export CLOUDFLARED_NETWORK='the-existing-network-name'
 export R2_ENDPOINT="https://ACCOUNT_ID.r2.cloudflarestorage.com"
 docker compose config --quiet
+for secret in db_password r2_access_key_id r2_secret_access_key; do
+  test -s "$LEMANS_SECRET_DIR/$secret" || { echo "Missing or empty secret file: $secret" >&2; exit 1; }
+done
+printf '%s\n' "$R2_ENDPOINT" | grep -Eq '^https://[0-9a-fA-F]{32}\.r2\.cloudflarestorage\.com$'
 docker compose build web api
 docker compose up -d db api web
 docker compose ps
 ```
 
-The build runs in OrbStack on the Mac mini. A GitHub push alone does not update these containers. If a secret or external network is missing, fix it before starting. Never use `docker compose down -v` for an ordinary update: it deletes the database volume.
+The build runs in OrbStack on the Mac mini. A GitHub push alone does not update these containers. `docker compose config --quiet` checks YAML and required interpolation, but does not inspect file-backed secrets. The file checks above catch missing and empty secrets before startup; the R2 endpoint check enforces the account-specific endpoint shape. The Go API also validates that endpoint at startup when `B2_REGION=auto`. Never use `docker compose down -v` for an ordinary update: it deletes the database volume.
 
 ## 5. Seed and check private services
 

@@ -10,7 +10,7 @@
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test:base-path": "node --experimental-strip-types --test src/lib/base-path.test.mjs && NEXT_PUBLIC_BASE_PATH=/demo/lemans node --experimental-strip-types --test src/lib/base-path.test.mjs",
+    "test:base-path": "node --test src/lib/base-path.test.mjs && NEXT_PUBLIC_BASE_PATH=/demo/lemans node --test src/lib/base-path.test.mjs",
     "test:e2e": "playwright test"
   },
   "dependencies": {
@@ -19,7 +19,7 @@
     "clsx": "^2.1.1",
     "lucide-react": "^0.439.0",
     "motion": "12.42.2",
-    "next": "^16.3.0",
+    "next": "^16.3.6",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
     "tailwind-merge": "^2.5.2"
@@ -31,7 +31,7 @@
     "@types/react-dom": "^19.0.0",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.15.0",
-    "eslint-config-next": "^16.3.0",
+    "eslint-config-next": "^16.3.6",
     "postcss": "^8.4.41",
     "prettier": "^3.5.0",
     "tailwindcss": "^3.4.10",

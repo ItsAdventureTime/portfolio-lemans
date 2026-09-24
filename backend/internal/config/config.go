@@ -26,7 +26,7 @@ func Load() (Config, error) {
 	var cfg Config
 	keys := []struct {
 		key, fallback string
-		value          *string
+		value         *string
 	}{
 		{"DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/lemans_db", &cfg.DatabaseURL},
 		{"LISTEN_ADDR", ":8080", &cfg.ListenAddr},

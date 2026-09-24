@@ -2,7 +2,7 @@
 
 [![Repository](https://img.shields.io/badge/GitHub-ItsAdventureTime%2Fportfolio--lemans-blue)](https://github.com/ItsAdventureTime/portfolio-lemans)
 [![Podman](https://img.shields.io/badge/Podman-Rootless%20VM-purple)](https://podman.io)
-[![Next.js](https://img.shields.io/badge/Next.js-16.3.0%20App%20Router-black)](https://nextjs.org)
+[![Next.js](https://img.shields.io/badge/Next.js-16.3.6%20App%20Router-black)](https://nextjs.org)
 [![Go](https://img.shields.io/badge/Go-latest%20Alpine-00ADD8)](https://go.dev)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Alpine-blue)](https://www.postgresql.org)
 
@@ -166,6 +166,7 @@ git push origin main
 
 GitHub CLI provides the Git credential helper; Git performs the local commit.
 Do not use SSH remotes, SSH keys, or passkeys for this repository.
+
 - [`docs/REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`](./docs/REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md): Remote-Only Rootless Quadlet Deployment Contract
 - [`docs/adr/0005-docker-sandbox-local-build-and-vps-import.md`](./docs/adr/0005-docker-sandbox-local-build-and-vps-import.md): Local Docker Sandbox and remote image-import decision
 - [`docs/PROJECT-SPEC.md`](./docs/PROJECT-SPEC.md): Product Requirements Specification
