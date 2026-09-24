@@ -1,6 +1,6 @@
 # Current repository state
 
-- **Updated**: 2026-09-24 (portfolio demo hosting plan; Mac deployment unverified)
+- **Updated**: 2026-09-25 (OrbStack runtime started; public route unverified)
 - **Authority**: Current implementation and the demo rules in
   [`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md)
 - **Documentation index**: [`DOCUMENTATION-INDEX.md`](./DOCUMENTATION-INDEX.md)
@@ -18,16 +18,17 @@ implementation or operations.
   `/api/proxy/[...path]` route; the Go API hostname stays server-side.
 - Existing script-run profiles use PostgreSQL `postgres:16-alpine` on an
   internal Docker network locally and an internal rootless Podman network
-  remotely. The planned portfolio Compose target pins `postgres:18-alpine` and
-  uses its own named volume.
+  remotely. The portfolio Compose target uses floating `postgres:alpine` and
+  its own named volume; PostgreSQL major upgrades require migration.
 - `Dockerfile.web` builds `lemans-bridge-dashboard:{demo,prod}-web`.
 - `Dockerfile.go` builds `lemans-bridge-dashboard-go:{demo,prod}-go`.
 - The demo has no real authentication or production security boundary. It starts
   with the simulated splash; the `lemans-demo-entered` cookie gates the shared
   dashboard shell, and the `lemans-demo-role` cookie plus `X-Demo-Role` header
   provide role simulation after entry.
-- The Mac mini portfolio demo is **planned, not deployed or verified**. The
-  Compose file builds web and Go images, pins PostgreSQL 18, uses external
+- The Mac mini portfolio demo is **running locally in OrbStack, but its public
+  route and R2 proof flow remain unverified**. The Compose file builds web and
+  Go images, uses the floating `postgres:alpine` image tag, uses external
   secret files, and requires the operator's existing tunnel network name and
   real R2 S3 endpoint. Only web joins the external network; API and database
   remain internal. The optional `seed` service resets demo records through the

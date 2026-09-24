@@ -2,7 +2,7 @@ name: lemans
 
 services:
   db:
-    image: postgres:18-alpine
+    image: postgres:alpine
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD_FILE: /run/secrets/db_password
@@ -12,8 +12,8 @@ services:
     networks:
       - lemans-network
     volumes:
-      # PostgreSQL 18+ uses /var/lib/postgresql. Keep this volume separate from
-      # the old postgres:16 volume; major-version upgrades are not in-place.
+      # PostgreSQL 18+ uses /var/lib/postgresql. The alpine tag floats across
+      # major releases; PostgreSQL major-version upgrades are not in-place.
       - postgres_data:/var/lib/postgresql
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U postgres -d lemans_demo_db']
@@ -127,4 +127,4 @@ networks:
 
 volumes:
   postgres_data:
-    name: lemans_postgres_data_pg18
+    name: lemans_postgres_data

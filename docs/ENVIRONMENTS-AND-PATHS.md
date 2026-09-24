@@ -1,11 +1,11 @@
 # Environments and paths
 
-**Portfolio demo planning note (2026-09-24):** The matrix below describes the
-older Docker Sandbox and VPS profiles. The planned OrbStack Compose public demo
-at `https://lemans.delegateops.business/` is not deployed or verified. See
+**Portfolio demo status (2026-09-25):** The matrix below describes the older
+Docker Sandbox and VPS profiles. OrbStack Compose services are running for the
+portfolio demo, but its public route and R2 proof flow are not verified. See
 [`DEMO-HOSTING-DECISION.md`](./DEMO-HOSTING-DECISION.md) and
-[`agent/HANDOFF.md`](./agent/HANDOFF.md). The implementer must replace stale
-Mac mini and R2 entries after validation.
+[`agent/HANDOFF.md`](./agent/HANDOFF.md). Replace R2 placeholders before
+public routing.
 
 ## Repository and environment model
 
@@ -48,23 +48,26 @@ portfolio demo.
 - The two-stage deployment workflow and automated wrapper are defined in
   [`REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`](./REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md).
 
-### Mac mini portfolio target (planned, not verified)
+### Mac mini portfolio target (local runtime started; public route unverified)
 
-`compose.yaml` builds the web and Go images, pins PostgreSQL `18-alpine`, and
-stores database state in `lemans_postgres_data_pg18`. API and DB attach only to
-the internal `lemans-network`; web also attaches to the operator-selected
-external network joined by the existing `cloudflared` container. No API or DB
-ports are published. Compose mounts `db_password`, `r2_access_key_id`, and
+`compose.yaml` builds the web and Go images with floating `postgres:alpine` and
+stores database state in `lemans_postgres_data`. PostgreSQL major upgrades
+require a planned data migration. API and DB attach only to the internal
+`lemans-network`; web also attaches to the operator-selected external network
+joined by the existing `cloudflared` container. No API or DB ports are
+published. Compose mounts `db_password`, `r2_access_key_id`, and
 `r2_secret_access_key` from files under `LEMANS_SECRET_DIR`. The operator guide
 uses the Git-ignored `secrets/` directory in the workspace. Keep that directory
 private and out of any shared source archive.
 The operator must set `CLOUDFLARED_NETWORK` to the existing network name and
 `R2_ENDPOINT` to the account-specific `https://<account_id>.r2.cloudflarestorage.com`
 endpoint. The bucket name is `portfolio-lemans`, region is `auto`, and demo
-object prefix is `lemans/demo`. These external resources and the public URL are
-not verified. The one-shot `seed` service is internal-only; the public web proxy
-allows only Go `/api/` routes. DCS proof uploads originate in a server action on
-web, so web needs outbound access to R2.
+object prefix is `lemans/demo`. The running web container is `lemans-web-1`
+with network alias `lemans-web` on `cloudflared-network`. Startup used
+placeholder R2 values, so proof uploads remain unavailable until real settings
+are supplied. The public URL is unverified. The one-shot `seed` service is
+internal-only; the public web proxy allows only Go `/api/` routes. DCS proof
+uploads originate in a server action on web, so web needs outbound access to R2.
 
 ## Environment matrix
 

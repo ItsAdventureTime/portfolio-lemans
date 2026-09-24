@@ -23,10 +23,10 @@ tutorial, how-to guide, reference, or explanation.
    remote-only deployment contract; remote operations require explicit user
    authorization.
 6. [`DEMO-HOSTING-DECISION.md`](./DEMO-HOSTING-DECISION.md) and
-   [`agent/HANDOFF.md`](./agent/HANDOFF.md) — planned OrbStack/R2 portfolio
-   deployment and implementation/review state.
+   [`agent/HANDOFF.md`](./agent/HANDOFF.md) — OrbStack/R2 portfolio deployment
+   decision and current operator/review state.
 7. [`MACOS-DOCKER-COMPOSE.md`](./MACOS-DOCKER-COMPOSE.md) — operator procedure
-   for the Mac mini target; external setup and deployment remain unverified.
+   for the Mac mini target; public route and R2 proof flow remain unverified.
 8. [`REMOTE-DEPLOYMENT-QUICKSTART.md`](./REMOTE-DEPLOYMENT-QUICKSTART.md) —
    concise macOS operator workflow for updating the already deployed profiles
    without exported environment variables.

@@ -1,12 +1,19 @@
 # Deploy the portfolio demo on the Mac mini
 
-**Status:** Compose implementation passed local Sandbox checks; browser QA,
-external network, R2 resources, and public deployment remain unverified.
-Complete and review
+**Status:** OrbStack containers are running on 2026-09-25. The tunnel route,
+real R2 credentials, proof upload/download, and public browser acceptance remain
+unverified. Complete and review
 [`agent/HANDOFF.md`](./agent/HANDOFF.md) first. This guide is for
 `https://lemans.delegateops.business/`, not the old VPS or a production profile.
 
 OrbStack runs Next.js, Go, and PostgreSQL. The existing `cloudflared` container stays in its own project and reaches only the Le Mans web service on a shared Docker network. R2 stores demo proof files using its S3 compatible API. [OrbStack Compose support](https://docs.orbstack.dev/docker/), [Docker Compose networking](https://docs.docker.com/compose/how-tos/networking/), [Cloudflare published applications](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/routing-to-tunnel/).
+
+The current OrbStack web container is `lemans-web-1`, with network alias
+`lemans-web` on the existing `cloudflared-network`. In Cloudflare, use
+`http://lemans-web:3000` as the tunnel service URL. Only the user changes the
+Cloudflare route. The current containers started with placeholder R2 endpoint
+and key values; replace them with real account-scoped settings before routing
+public traffic. Proof uploads do not work until then.
 
 Compose uses local Dockerfile builds, required shell-variable interpolation,
 and file-backed secrets. See the official [Compose build
@@ -24,7 +31,15 @@ docker compose version
 docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Networks}}'
 ```
 
-Find the actual Docker network joined by the running `cloudflared` container and inspect it with `docker network inspect NETWORK_NAME`. Export its exact name as `CLOUDFLARED_NETWORK`; Compose rejects an unset value. The web service joins that external network with alias `lemans-web`. Keep API and database on the private Le Mans network only. Leave Linkwarden, Vaultwarden, DocuSeal, and the existing tunnel project unchanged. If there is no suitable shared network, resolve that first; do not expose the API or database to work around it.
+The current OrbStack context has a running `cloudflared` container on
+`cloudflared-network`. For a different context, find the actual network joined
+by its tunnel container with `docker ps` and `docker network inspect`, then set
+`CLOUDFLARED_NETWORK` to that name. Compose rejects an unset value. The web
+service joins that external network with alias `lemans-web`. Keep API and
+database on the private Le Mans network only. Leave Linkwarden, Vaultwarden,
+DocuSeal, and the existing tunnel project unchanged. If there is no suitable
+shared network, resolve that first; do not expose the API or database to work
+around it.
 
 ## 2. Create an R2 bucket and scoped keys
 

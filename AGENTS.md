@@ -48,12 +48,12 @@ documentation, branch cleanup, or repository synchronization is outstanding.
    - **Demo Builds**: Web image `lemans-bridge-dashboard:demo-web`, Go API image `lemans-bridge-dashboard-go:demo-go`.
    - **Production Builds**: Web image `lemans-bridge-dashboard:prod-web`, Go API image `lemans-bridge-dashboard-go:prod-go`.
 5. **Container Runtime Standard**:
-   - Next.js web images use `node:lts-alpine` (Node.js Active LTS on latest Alpine); Go API images use `golang:alpine` (latest Go on latest Alpine) build stage and `alpine:latest` runtime. Existing profiles use `postgres:alpine`; the Mac mini portfolio Compose target pins `postgres:18-alpine` and a project-specific volume.
+   - Next.js web images use `node:lts-alpine` (Node.js Active LTS on latest Alpine); Go API images use `golang:alpine` (latest Go on latest Alpine) build stage and `alpine:latest` runtime. PostgreSQL uses the floating `postgres:alpine` tag and a project-specific volume; inspect release and volume compatibility before each update because major-version changes need migration.
    - Next.js runtime calls the Go API over the internal Docker network locally and the internal Podman network remotely; the Go API owns migrations, business logic, persistence, and presigned attachment URLs.
    - Run agent development builds, tests, and Compose file checks through the
      project Docker Sandbox. Do not run agent project workloads on the macOS host.
-     The separately planned Mac mini public demo uses OrbStack Compose as an
-     operator deployment after implementation and review. See
+     User-authorized Mac mini operator deployments run OrbStack Compose on the
+     host outside Docker Sandbox, as described in the operator guide. See
      `docs/agent/HANDOFF.md`.
    - Local Docker images and disposable containers are created inside the
      Sandbox and must be removed with `--rm` or targeted cleanup. Remote
@@ -99,12 +99,14 @@ documentation, branch cleanup, or repository synchronization is outstanding.
 
 ### Mac mini portfolio demo
 
-`compose.yaml` builds the Next.js and Go images, uses PostgreSQL 18, mounts
+`compose.yaml` builds the Next.js and Go images, uses the floating PostgreSQL
+Alpine image tag, mounts
 external secret files, and requires the operator to provide the existing
 tunnel network name and account-specific R2 endpoint. Only the web service
 joins the external tunnel network; the API and database stay on the internal
-Le Mans network. This remains a planned target, not a verified public
-deployment. Follow [`docs/agent/HANDOFF.md`](docs/agent/HANDOFF.md) and
+Le Mans network. The local OrbStack services are running; public routing and
+R2 proof flow are not verified. Current R2 placeholders must be replaced before
+public routing. Follow [`docs/agent/HANDOFF.md`](docs/agent/HANDOFF.md) and
 [`docs/MACOS-DOCKER-COMPOSE.md`](docs/MACOS-DOCKER-COMPOSE.md).
 
 For the current demo-focused work, read [`docs/DEMO-IMPLEMENTATION-PLAYBOOK.md`](docs/DEMO-IMPLEMENTATION-PLAYBOOK.md) before planning or editing. It is the authoritative demo specification and overrides older phase-completion claims where they conflict.

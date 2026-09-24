@@ -22,11 +22,24 @@
   updated from `4.3.1` to patched `4.3.2` (same maintainer and runtime
   dependency list). npm then reported zero vulnerabilities; Sol must confirm
   on the new commit.
-- PostgreSQL 18 uses a new named volume, `lemans_postgres_data_pg18`. It is not
-  compatible with the old PostgreSQL 16 data volume; no data migration or
-  volume removal was performed.
+- PostgreSQL uses the floating `postgres:alpine` tag and the named volume
+  `lemans_postgres_data`. Major upgrades are not in-place; plan a PostgreSQL
+  migration before accepting a new major version. No data migration or volume
+  removal was performed.
 
 ## How the run ended
+
+- On 2026-09-25 the user authorized a local OrbStack Compose startup outside
+  Docker Sandbox. The existing `cloudflared-network` and `cloudflared`
+  container were inspected; neither was modified. Compose configuration passed,
+  web and API images built, and `lemans-db-1`, `lemans-api-1`, and
+  `lemans-web-1` reached healthy status. A one-time seed ran on the newly
+  created `lemans_postgres_data` volume. API and DB have no published host
+  ports. The web tunnel alias is `lemans-web` on `cloudflared-network`.
+- Startup used a dummy but shape-valid R2 endpoint and the existing placeholder
+  R2 key files. The API is healthy, but proof upload/download is not functional
+  until real account-scoped keys and endpoint replace them. No public route or
+  real R2 operation was performed.
 
 - Compose now builds the web and Go images, uses the root Next.js base path,
   puts API and DB only on an internal network, and joins the web service to an

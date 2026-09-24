@@ -28,7 +28,7 @@ The Cloudflare account's actual subscription, product entitlements, R2 bucket, t
 - `src/app/` uses server actions and route handlers. `src/app/api/proxy/[...path]/route.ts` forwards to the Go API.
 - `backend/internal/db/migrations/0001_schema.up.sql` uses PostgreSQL-specific `pgcrypto`, UUID defaults, and enum types. `backend/cmd/api/main.go` runs migrations on API startup.
 - `backend/internal/b2/b2.go` already signs S3 `PUT` and `GET` URLs. `src/app/dcs/page.tsx` sends the proof file from a server action to the signed URL.
-- `compose.yaml` defines builds for `Dockerfile.web` and `Dockerfile.go`, pins PostgreSQL 18, requires the tunnel network name and R2 endpoint from the shell, and mounts secrets from `LEMANS_SECRET_DIR`. The operator guide uses the Git-ignored workspace `secrets/` directory. Its internal-only `seed` service is available for explicit reset. Local Sandbox checks passed; Mac mini deployment remains unverified.
+- `compose.yaml` defines builds for `Dockerfile.web` and `Dockerfile.go`, uses floating `postgres:alpine`, requires the tunnel network name and R2 endpoint from the shell, and mounts secrets from `LEMANS_SECRET_DIR`. The operator guide uses the Git-ignored workspace `secrets/` directory. Its internal-only `seed` service is available for explicit reset. OrbStack runtime is started locally; public routing and live R2 proof remain unverified.
 - The public Next.js proxy now forwards only Go `/api/` routes, so `/admin/seed` cannot be called through it. Request-level and persistence checks are pending.
 - Active docs now describe the planned Compose/R2 target separately from the older VPS profile. The Mac operator steps, real tunnel network, R2 credentials/bucket/lifecycle rule, and public hostname remain unverified.
 

@@ -1,8 +1,8 @@
 # Mac mini portfolio demo implementation handoff
 
-**ACTIVE_ROLE:** Independent review completed for committed code; browser and external acceptance pending
+**ACTIVE_ROLE:** Local OrbStack runtime started with placeholder R2 configuration; manual tunnel setup and live acceptance pending
 
-**NEXT_OWNER:** Mac mini operator for manual setup, then GPT-6 Sol (Medium) for live acceptance
+**NEXT_OWNER:** Mac mini operator to provide R2 settings and configure the Cloudflare tunnel route, then GPT-6 Sol (Medium) for live acceptance
 
 **IMPLEMENTATION_OWNER:** GPT-6 Luna (High)
 
@@ -10,10 +10,34 @@
 
 **TARGET:** Demo only at `https://lemans.delegateops.business/`
 
-**CAPABILITY:** Repository code and documentation, Docker Sandbox checks. No external deployment during implementation without a direct user instruction.
+**CAPABILITY:** Repository code and documentation, Docker Sandbox checks, and user-authorized local OrbStack Compose startup outside Docker Sandbox. No Cloudflare dashboard or remote-host changes.
 
 **PUSH:** Commit validated repository changes and synchronize HTTPS `main` under repository policy.
-**DEPLOYMENT:** User follows `docs/MACOS-DOCKER-COMPOSE.md` manually after review. Do not access the Mac mini tunnel, Cloudflare account, or old VPS as part of this handoff.
+**DEPLOYMENT:** Local OrbStack services are running. The user owns Cloudflare dashboard routing. Real R2 credentials must replace current placeholders before public routing and proof-flow acceptance. No old VPS access.
+
+## Operator update (2026-09-25)
+
+- The user explicitly authorized starting the OrbStack Compose containers
+  outside Docker Sandbox. Confirmed Docker context `orbstack`, running
+  `cloudflared` container, and shared network `cloudflared-network`; did not
+  modify the tunnel container or Cloudflare dashboard.
+- Updated PostgreSQL from pinned `postgres:18-alpine` to floating
+  `postgres:alpine` per user preference. Its volume is now named
+  `lemans_postgres_data`; plan a migration before accepting a PostgreSQL major
+  version change.
+- Compose configuration passed. Built the web and Go images and started DB,
+  API, and web successfully. Ran the documented one-time seed against the newly
+  created volume. All three containers reported healthy and no host ports are
+  published for API or DB.
+- Web container: `lemans-web-1`; tunnel network alias: `lemans-web`; target URL
+  for the Cloudflare tunnel route: `http://lemans-web:3000`.
+- Startup used a shape-valid dummy R2 endpoint and the existing placeholder
+  key files because real R2 settings are not present. The containers are
+  healthy, but proof upload/download is not functional. Replace these values
+  before adding a public route. No real R2 calls or Cloudflare route changes
+  were made.
+- The web container health check passed at `/`. Live public route, R2 proof
+  upload/download, and browser acceptance remain for the operator/reviewer.
 
 ## Reviewer update (2026-09-25)
 
@@ -88,7 +112,7 @@ The planner found uncommitted changes in `backend/cmd/api/main.go`, `backend/int
 
 ## Implementation slices
 
-1. **Compose and credentials.** Keep one `compose.yaml` for demo. Add image build definitions for `Dockerfile.web` and `Dockerfile.go`, using root base path (`NEXT_PUBLIC_BASE_PATH=""`) at **build time** and runtime. Keep safe values such as `SITE_URL`, API URL, bucket name, R2 endpoint, region `auto`, and object prefix in Compose. Require a real R2 account endpoint before use. Source DB password and R2 key pair from individual Git-ignored files via Compose secrets; support `_FILE` in Go config. No external `.env` or credentials in Compose, Git, image layers, logs, or rendered config examples. Keep `secrets/` in `.gitignore` and `.dockerignore`. Keep PostgreSQL on an internal project network without published ports; pin a PostgreSQL major version and use a compatible, project-specific named volume. Let web reach the R2 S3 endpoint for server-action proof uploads. Keep Go API unpublished and on the internal network. Name the external tunnel network as a clearly editable prerequisite, not an assumption that the user's existing network is called `cloudflared-network`. Do not modify the existing `cloudflared` stack.
+1. **Compose and credentials.** Keep one `compose.yaml` for demo. Add image build definitions for `Dockerfile.web` and `Dockerfile.go`, using root base path (`NEXT_PUBLIC_BASE_PATH=""`) at **build time** and runtime. Keep safe values such as `SITE_URL`, API URL, bucket name, R2 endpoint, region `auto`, and object prefix in Compose. Require a real R2 account endpoint before public use. Source DB password and R2 key pair from individual Git-ignored files via Compose secrets; support `_FILE` in Go config. No external `.env` or credentials in Compose, Git, image layers, logs, or rendered config examples. Keep `secrets/` in `.gitignore` and `.dockerignore`. Keep PostgreSQL on an internal project network without published ports and use the floating `postgres:alpine` tag with the project volume; major upgrades require migration. Let web reach the R2 S3 endpoint for server-action proof uploads. Keep Go API unpublished and on the internal network. Name the external tunnel network as an editable prerequisite, not a default assumption. Do not modify the existing `cloudflared` stack.
 2. **Seed and public boundary.** The Go API migrates on startup but does not seed automatically. Provide an explicit, repeatable initial seed/reset command through a one-shot Compose service or similarly small mechanism that reaches `/admin/seed` only on the internal network. Limit `src/app/api/proxy/[...path]/route.ts` to Go `/api/` routes so visitors cannot call `/admin/seed` through the public web app. Verify the attempted public seed call is rejected and records remain. Preserve the demo's intended role simulation; it is not authentication. Define a bounded reset procedure for public demo data and R2 objects or a lifecycle policy so uploads do not grow without limit.
 3. **R2 proof flow.** Reuse `backend/internal/b2/b2.go`; configure R2 S3 endpoint, `auto` region, demo bucket, and key prefix. Keep R2 API keys in secret files. The current DCS server action uploads a proof with a presigned `PUT`; verify upload, metadata link, and signed download end to end. If R2's signing differs, fix the shared Go presigner, not individual callers. Do not add an R2 Worker merely to proxy the existing S3 flow. Document exact CORS rules if any browser-side signed URL flow is kept or added; current DCS upload runs server-side.
 4. **Documentation.** Update `AGENTS.md`, `README.md`, `docs/CURRENT-STATE.md`, `docs/ARCHITECTURE.md`, `docs/ENVIRONMENTS-AND-PATHS.md`, `docs/DOCUMENTATION-INDEX.md`, `docs/MACOS-DOCKER-COMPOSE.md`, and affected ADRs so current deployment facts match verified code. Keep legacy VPS instructions clearly labeled as separate, inactive history or remote option. Do not claim a public URL is live before it has been checked. Record any departures in `docs/agent/HANDOFF.notes.md` with `## Deviations` and `## How the run ended`.
