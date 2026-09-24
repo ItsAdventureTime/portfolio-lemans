@@ -49,7 +49,7 @@
   PostgreSQL 18 layout; future major changes still require migration. The
   documentation follow-up was reviewed and pushed in later commits.
 
-## Independent review of current HEAD (2026-09-25)
+## Independent review of commit `7abdab3` (2026-09-25)
 
 - Reviewed `7abdab3` and the running local OrbStack stack. The web, API, and
   database were healthy; API and database published no host ports. Requests
@@ -57,8 +57,9 @@
   `POST /api/proxy/admin/seed`, and `200` for `/api/proxy/api/actor`. A customer
   list request returned `200` with identical content before and after the
   rejected seed request.
-- An isolated `jk-sbx-project validate` snapshot passed `docker compose config
-  --quiet` with throwaway interpolation values. Local secret files remain mode
+- An isolated `jk-sbx-project validate` snapshot passed the
+  `docker compose config --quiet` check with throwaway interpolation values.
+  Local secret files remain mode
   `600` under a mode-`700` `secrets/` directory and are Git-ignored. Both R2
   files still contain placeholders. The public hostname failed DNS resolution
   from this machine (`curl: (6)`); no public browser or live R2 check ran.
