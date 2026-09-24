@@ -36,6 +36,9 @@
   See the source links in the affected docs.
 - Implementation validation is pending in Sol's sandbox-private committed
   snapshot. Remote `main` synchronization waits for that validation.
+- Sol's first review found a Compose network YAML shape error and that a
+  literal R2 example endpoint could pass configuration parsing. Both are fixed
+  in an implementor follow-up; Sol must validate the new HEAD.
 - Detailed reviewer setup and external verification limits are in
   [`HANDOFF.notes.md`](./HANDOFF.notes.md).
 

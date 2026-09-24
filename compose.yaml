@@ -74,7 +74,7 @@ services:
       NEXT_PUBLIC_BASE_PATH: ""
       SITE_URL: https://lemans.delegateops.business
     networks:
-      - lemans-network
+      lemans-network: {}
       cloudflared-network:
         aliases:
           - lemans-web

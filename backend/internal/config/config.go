@@ -3,8 +3,11 @@ package config
 import (
 	"fmt"
 	"os"
+	"regexp"
 	"strings"
 )
+
+var cloudflareR2Endpoint = regexp.MustCompile(`^https://[0-9a-fA-F]{32}\.r2\.cloudflarestorage\.com$`)
 
 type Config struct {
 	DatabaseURL       string
@@ -47,6 +50,9 @@ func Load() (Config, error) {
 		return Config{}, err
 	}
 	cfg.DemoMode = demoMode == "true"
+	if cfg.B2Region == "auto" && !cloudflareR2Endpoint.MatchString(cfg.B2Endpoint) {
+		return Config{}, fmt.Errorf("B2_ENDPOINT must be an account-specific Cloudflare R2 endpoint when B2_REGION=auto")
+	}
 	return cfg, nil
 }
 

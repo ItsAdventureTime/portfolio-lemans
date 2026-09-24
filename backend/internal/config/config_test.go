@@ -20,6 +20,8 @@ func TestDefaultB2KeyPrefixByProfile(t *testing.T) {
 func TestLoadB2Defaults(t *testing.T) {
 	t.Setenv("B2_BUCKET_NAME", "")
 	t.Setenv("B2_KEY_PREFIX", "")
+	t.Setenv("B2_ENDPOINT", "")
+	t.Setenv("B2_REGION", "us-west-004")
 	t.Setenv("DEMO_MODE", "true")
 	cfg, err := Load()
 	if err != nil {
@@ -27,6 +29,19 @@ func TestLoadB2Defaults(t *testing.T) {
 	}
 	if cfg.B2BucketName != "bridge-ph" || cfg.B2KeyPrefix != "lemans/demo" {
 		t.Fatalf("B2 defaults = bucket %q, prefix %q", cfg.B2BucketName, cfg.B2KeyPrefix)
+	}
+}
+
+func TestLoadRequiresAccountSpecificR2EndpointForAutoRegion(t *testing.T) {
+	t.Setenv("B2_REGION", "auto")
+	t.Setenv("B2_ENDPOINT", "https://ACCOUNT_ID.r2.cloudflarestorage.com")
+	if _, err := Load(); err == nil {
+		t.Fatal("Load accepted the R2 endpoint placeholder")
+	}
+
+	t.Setenv("B2_ENDPOINT", "https://0123456789abcdef0123456789abcdef.r2.cloudflarestorage.com")
+	if _, err := Load(); err != nil {
+		t.Fatalf("Load rejected an account-specific R2 endpoint: %v", err)
 	}
 }
 

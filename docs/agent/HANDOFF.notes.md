@@ -37,6 +37,13 @@
   Sol should run `jk-sbx-project validate` against this committed change. Use
   throwaway non-secret values for local Compose config and smoke checks; never
   use or print real credentials in the sandbox.
+- Sol's first validation attempt against commit `63c8b0f` found invalid mixed
+  list/map syntax under `web.networks`; that failed `docker compose config
+  --quiet`. The network now uses mapping syntax. Sol also found the documented
+  `ACCOUNT_ID` R2 endpoint placeholder passed Compose interpolation; Go config
+  now rejects non-account-specific R2 endpoints when region is `auto`, with a
+  focused regression case. Validate the follow-up HEAD; neither fix has been
+  checked by Luna.
 - Validate Compose configuration, both image builds, Go tests, frontend format,
   lint, typecheck, base-path tests, and Next.js build. If the sandbox can test
   Compose safely, use an isolated external test network and verify seeding,
