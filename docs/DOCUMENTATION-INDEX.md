@@ -1,8 +1,8 @@
 # Documentation index
 
-- **Updated**: 2026-08-31 (Mac mini Docker Compose guide)
+- **Updated**: 2026-09-24 (portfolio demo hosting plan)
 - **Repository branch policy**: `main` only; no feature or review branches
-- **Repository**: [`ItsAdventureTime/bridge-lemans`](https://github.com/ItsAdventureTime/bridge-lemans)
+- **Repository**: [`ItsAdventureTime/portfolio-lemans`](https://github.com/ItsAdventureTime/portfolio-lemans)
 
 Use this index to find current guidance. If two documents disagree, follow the
 authority order below. Classify each guide by its primary Diátaxis purpose:
@@ -22,24 +22,27 @@ tutorial, how-to guide, reference, or explanation.
 5. [`REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`](./REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md) —
    remote-only deployment contract; remote operations require explicit user
    authorization.
-6. [`MACOS-DOCKER-COMPOSE.md`](./MACOS-DOCKER-COMPOSE.md) — Docker Desktop and
-   Cloudflare Tunnel deployment guide for the Mac mini origin.
-7. [`REMOTE-DEPLOYMENT-QUICKSTART.md`](./REMOTE-DEPLOYMENT-QUICKSTART.md) —
+6. [`DEMO-HOSTING-DECISION.md`](./DEMO-HOSTING-DECISION.md) and
+   [`agent/HANDOFF.md`](./agent/HANDOFF.md) — planned OrbStack/R2 portfolio
+   deployment and the pending Luna implementation contract.
+7. [`MACOS-DOCKER-COMPOSE.md`](./MACOS-DOCKER-COMPOSE.md) — planned Mac mini
+   operator procedure; not yet verified.
+8. [`REMOTE-DEPLOYMENT-QUICKSTART.md`](./REMOTE-DEPLOYMENT-QUICKSTART.md) —
    concise macOS operator workflow for updating the already deployed profiles
    without exported environment variables.
-8. [`UI-UX-REVAMP-HANDOFF.md`](./UI-UX-REVAMP-HANDOFF.md) — implementation handoff for the completed UI/UX revamp and workflow visualizer navigation.
-9. [`CODEX-REVIEW-HANDOFF.md`](./CODEX-REVIEW-HANDOFF.md) — ChatGPT Codex handoff document for code review, inspection, evaluation, and ready-to-use copy-and-paste prompt.
-10. [`ARCHITECTURE.md`](./ARCHITECTURE.md),
+9. [`UI-UX-REVAMP-HANDOFF.md`](./UI-UX-REVAMP-HANDOFF.md) — implementation handoff for the completed UI/UX revamp and workflow visualizer navigation.
+10. [`CODEX-REVIEW-HANDOFF.md`](./CODEX-REVIEW-HANDOFF.md) — ChatGPT Codex handoff document for code review, inspection, evaluation, and ready-to-use copy-and-paste prompt.
+11. [`ARCHITECTURE.md`](./ARCHITECTURE.md),
 
    [`GO-BACKEND-ARCHITECTURE.md`](./GO-BACKEND-ARCHITECTURE.md),
    [`ENVIRONMENTS-AND-PATHS.md`](./ENVIRONMENTS-AND-PATHS.md), and the ADRs —
    architecture and future-profile decisions, including
    [`adr/0005-docker-sandbox-local-build-and-vps-import.md`](./adr/0005-docker-sandbox-local-build-and-vps-import.md).
 
-11. [`GOOGLE-ANTIGRAVITY-UI-UX-PROMPT.md`](./GOOGLE-ANTIGRAVITY-UI-UX-PROMPT.md)
+12. [`GOOGLE-ANTIGRAVITY-UI-UX-PROMPT.md`](./GOOGLE-ANTIGRAVITY-UI-UX-PROMPT.md)
     — copy-and-paste execution prompt for the next UI/UX agent.
-12. [`README.md`](../README.md) — quickstart and navigation index.
-13. [`WRITING-STYLE.md`](./WRITING-STYLE.md) — US-English voice, tone, and
+13. [`README.md`](../README.md) — quickstart and navigation index.
+14. [`WRITING-STYLE.md`](./WRITING-STYLE.md) — US-English voice, tone, and
     proofreading standard for active content.
 
 ## Document status
@@ -50,7 +53,7 @@ tutorial, how-to guide, reference, or explanation.
 | `ARCHITECTURE.md`, `GO-BACKEND-ARCHITECTURE.md`, `ENVIRONMENTS-AND-PATHS.md`, `DESIGN-SYSTEM.md`, `PROJECT-SPEC.md`, and the ADRs | Current contract/specification          | Use for design, domain, and architecture constraints; confirm runtime facts against `CURRENT-STATE.md`.               |
 | `REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`, `REMOTE-OPERATIONS.md`                                                                      | Current but remote-only                 | Do not execute without explicit authorization and required host/Caddy context.                                        |
 | `REMOTE-DEPLOYMENT-QUICKSTART.md`                                                                                                 | Current operator quickstart             | Use for the normal no-environment-variable update flow; follow the remote playbook for topology and rollback.         |
-| `MACOS-DOCKER-COMPOSE.md`                                                                                                         | Current Mac deployment guide            | Use for the always-on Docker Desktop and Cloudflare Tunnel demo origin.                                                 |
+| `DEMO-HOSTING-DECISION.md`, `agent/HANDOFF.md`, `MACOS-DOCKER-COMPOSE.md`                                                          | Planned, not verified                    | Use for the OrbStack/R2 demo implementation and later operator deployment.                                              |
 | `POST-CHANGE-COMPLETION-GUIDE.md`                                                                                                 | Current repository operating standard   | Use after every change to research, update docs, validate, commit, synchronize HTTPS `main`, and verify SHA parity.   |
 | `AGENT-EXECUTION-PROMPTS.md`, `GOOGLE-ANTIGRAVITY-UI-UX-PROMPT.md`                                                                | Current operational prompts             | Keep commands synchronized with scripts and the current demo boundary.                                                |
 | `UI-UX-REVAMP-HANDOFF.md`                                                                                                         | Current implementation handoff          | Use for the completed UI/UX and workflow-navigation revamp; confirm implementation facts against `CURRENT-STATE.md`.  |

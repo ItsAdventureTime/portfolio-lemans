@@ -1,6 +1,6 @@
 # Le Mans Operations & Job Cost Management System
 
-[![Repository](https://img.shields.io/badge/GitHub-ItsAdventureTime%2Fbridge--lemans-blue)](https://github.com/ItsAdventureTime/bridge-lemans)
+[![Repository](https://img.shields.io/badge/GitHub-ItsAdventureTime%2Fportfolio--lemans-blue)](https://github.com/ItsAdventureTime/portfolio-lemans)
 [![Podman](https://img.shields.io/badge/Podman-Rootless%20VM-purple)](https://podman.io)
 [![Next.js](https://img.shields.io/badge/Next.js-16.3.0%20App%20Router-black)](https://nextjs.org)
 [![Go](https://img.shields.io/badge/Go-latest%20Alpine-00ADD8)](https://go.dev)
@@ -13,7 +13,7 @@ City, Pampanga.
 
 ## Quick reference
 
-- **Repository**: [`ItsAdventureTime/bridge-lemans`](https://github.com/ItsAdventureTime/bridge-lemans)
+- **Repository**: [`ItsAdventureTime/portfolio-lemans`](https://github.com/ItsAdventureTime/portfolio-lemans)
   contains the demo and production source.
 - **Release path**: Validate the demo source and image lineage before you
   promote it with production runtime settings.
@@ -31,16 +31,18 @@ City, Pampanga.
   [`docs/POST-CHANGE-COMPLETION-GUIDE.md`](./docs/POST-CHANGE-COMPLETION-GUIDE.md).
 - **Business record**: A Job Order (`JO` / `RA`) connects estimates,
   procurement, OPEX, billing, and job profitability.
-- **Runtime**: Use the initialized Docker Sandbox for local builds, tests,
-  migrations, and image packaging. The Mac mini deployment uses Docker Compose
-  and Cloudflare Tunnel; the VPS uses rootless Podman Quadlets.
+- **Runtime**: Use the initialized Docker Sandbox for agent builds and tests.
+  OrbStack Compose and the existing Cloudflare Tunnel are the planned Mac mini
+  portfolio demo deployment; this path is not yet verified. The older VPS path
+  uses rootless Podman Quadlets.
 - **Demo access**: The splash screen opens the demo as Admin and includes a
   visible role switcher. It does not authenticate users.
-- **Mac deployment**: Run the persistent demo with Docker Compose and a
-  Cloudflare Tunnel. See
+- **Mac deployment**: Follow the planned OrbStack Compose and existing
+  Cloudflare Tunnel operator procedure after implementation review. See
   [`docs/MACOS-DOCKER-COMPOSE.md`](./docs/MACOS-DOCKER-COMPOSE.md).
-- **Attachments**: Backblaze B2 stores inspection photos, receipts, and other
-  supporting files. See ADR-0004.
+- **Attachments**: Current code uses a Backblaze B2 style S3 presigner. The
+  portfolio demo plans Cloudflare R2 through the same S3 interface. See
+  [`docs/DEMO-HOSTING-DECISION.md`](./docs/DEMO-HOSTING-DECISION.md).
   - **Backend**: The Go API owns persistence, Goose migrations, business rules,
     and presigned B2 URLs. The Next.js frontend reaches it over the internal
     Docker network locally and the internal Podman network remotely.
@@ -131,17 +133,20 @@ workflow and never place credentials in documentation or shell history.
 
 ## How-to: run the Mac mini demo
 
-Use the Compose and Cloudflare Tunnel procedure in
+After implementation review, use the planned Compose and Cloudflare Tunnel procedure in
 [`docs/MACOS-DOCKER-COMPOSE.md`](./docs/MACOS-DOCKER-COMPOSE.md). It keeps the
-API and PostgreSQL services private to Compose. The web service binds only to
-macOS loopback, and the native Cloudflare Tunnel is the sole public ingress.
+API and PostgreSQL services private to Compose. The existing `cloudflared`
+container shares only the web service's external network. The public target is
+`https://lemans.delegateops.business/`; it is not verified live yet.
 
 ---
 
 ## Read the docs
 
 - [`docs/CURRENT-STATE.md`](./docs/CURRENT-STATE.md): Implementation-backed current runtime, workflow, and documentation authority
-- [`docs/MACOS-DOCKER-COMPOSE.md`](./docs/MACOS-DOCKER-COMPOSE.md): Docker Desktop and Cloudflare Tunnel operator guide
+- [`docs/DEMO-HOSTING-DECISION.md`](./docs/DEMO-HOSTING-DECISION.md): Cloudflare option assessment and portfolio demo decision
+- [`docs/agent/HANDOFF.md`](./docs/agent/HANDOFF.md): Luna implementation and Sol review gates
+- [`docs/MACOS-DOCKER-COMPOSE.md`](./docs/MACOS-DOCKER-COMPOSE.md): planned OrbStack and Cloudflare Tunnel operator guide
 - [`docs/DOCUMENTATION-INDEX.md`](./docs/DOCUMENTATION-INDEX.md): Documentation status map, authority order, synchronization, and verification contract
 - [`docs/WRITING-STYLE.md`](./docs/WRITING-STYLE.md): US-English writing, tone, and proofreading standard
 - [`AGENTS.md`](./AGENTS.md): Agent Operating Guidelines & Sandbox Policy

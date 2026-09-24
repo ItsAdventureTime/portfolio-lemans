@@ -1,11 +1,18 @@
 # Environments and paths
 
+**Portfolio demo planning note (2026-09-24):** The matrix below describes the
+older Docker Sandbox and VPS profiles. The planned OrbStack Compose public demo
+at `https://lemans.delegateops.business/` is not deployed or verified. See
+[`DEMO-HOSTING-DECISION.md`](./DEMO-HOSTING-DECISION.md) and
+[`agent/HANDOFF.md`](./agent/HANDOFF.md). The implementer must replace stale
+Mac mini and R2 entries after validation.
+
 ## Repository and environment model
 
 The repository holds the application, container build files, database schemas, and Quadlet definitions. Profile-scoped runtime variables, container names, database volumes, networks, and Quadlet units keep each environment separate. Remote credentials are written as `Environment=` entries in mode-`600` Quadlet files; external `.env` files are not part of this project.
 
-- **Remote GitHub Repository**: `https://github.com/ItsAdventureTime/bridge-lemans`
-- **Transport Protocol**: HTTPS (`https://github.com/ItsAdventureTime/bridge-lemans.git`)
+- **Remote GitHub Repository**: `https://github.com/ItsAdventureTime/portfolio-lemans`
+- **Transport Protocol**: HTTPS (`https://github.com/ItsAdventureTime/portfolio-lemans.git`)
   authenticated through the official GitHub CLI credential helper; do not use
   SSH remotes, SSH keys, or passkeys for GitHub operations.
 - **Git & Remote Workflow**: Work remains on `main`. Use local `git` for local
@@ -191,7 +198,8 @@ deployment no longer creates external `.env` files.
 
 - All local application execution runs inside the project Docker Sandbox; remote
   application runtime runs inside rootless Podman Quadlets.
-- Compose is **not used** anywhere.
+- The existing Docker Sandbox and VPS workflows do not use Compose. The planned
+  Mac mini portfolio demo uses OrbStack Compose after implementation review.
 - Database ports are never published to host interfaces.
 - Production-like and remote environments use immutable images (no source bind mounts).
 - Local builds/tests run through `jk-sbx-project exec` and use Docker `--rm`

@@ -1,101 +1,93 @@
-# Run the demo on macOS with Docker Compose
+# Deploy the portfolio demo on the Mac mini
 
-This guide runs the Le Mans demo on a Docker Desktop Mac and publishes only
-the web service through a native macOS Cloudflare Tunnel. PostgreSQL remains
-on the private Compose network. The Compose file uses one Docker-managed
-secret whose value comes directly from a shell environment variable; no `.env`
-file or helper script is needed.
+**Status:** Planned operator procedure. The checked-out Compose file is not yet verified for these steps. Complete and review [`agent/HANDOFF.md`](./agent/HANDOFF.md) first. This guide is for `https://lemans.delegateops.business/`, not the old VPS or a production profile.
 
-## Prerequisites
+OrbStack runs Next.js, Go, and PostgreSQL. The existing `cloudflared` container stays in its own project and reaches only the Le Mans web service on a shared Docker network. R2 stores demo proof files using its S3 compatible API. [OrbStack Compose support](https://docs.orbstack.dev/docker/), [Docker Compose networking](https://docs.docker.com/compose/how-tos/networking/), [Cloudflare published applications](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/routing-to-tunnel/).
 
-- Docker Desktop for Apple silicon with Compose v2.
-- `cloudflared` installed on macOS.
-- A Cloudflare named tunnel and public hostname configured to forward to
-  `http://127.0.0.1:3001`.
-- The repository checked out on the Mac.
+## 1. Check the existing Mac and tunnel
 
-On the first deployment, generate the database password and save it in the
-login Keychain. Do not commit it or put it in a file inside the repository:
+On the Mac mini, confirm OrbStack and the Docker CLI work:
 
 ```sh
-export LEMANS_DB_PASSWORD="$(openssl rand -hex 32)"
-security add-generic-password -U \
-  -a "$USER" \
-  -s 'lemans/db-password' \
-  -w "$LEMANS_DB_PASSWORD"
-unset LEMANS_DB_PASSWORD
+docker context show
+docker compose version
+docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Networks}}'
 ```
 
-The `-U` flag creates the item when absent and updates it if you intentionally
-replace the password. On later starts, retrieve the same service and account:
+Find the actual Docker network joined by the running `cloudflared` container and inspect it with `docker network inspect NETWORK_NAME`. The `cloudflared-network` in the draft `compose.yaml` is an unverified placeholder. Configure the Le Mans web service to join the real external network with a unique alias such as `lemans-web`. Keep API and database on the private Le Mans network only. Leave Linkwarden, Vaultwarden, DocuSeal, and the existing tunnel project unchanged. If there is no suitable shared network, resolve that first; do not expose the API or database to work around it.
+
+## 2. Create an R2 bucket and scoped keys
+
+In the [Cloudflare dashboard](https://dash.cloudflare.com/), open **R2 object storage**. Create a private demo bucket such as `portfolio-lemans`, or confirm that one exists. Record the Cloudflare account ID and bucket name. Create an R2 API token scoped to object read/write for this bucket. Copy its **Access Key ID** and **Secret Access Key** once. The Go API uses `https://ACCOUNT_ID.r2.cloudflarestorage.com`, region `auto`, and a demo-only prefix such as `lemans/demo`. Do not put keys in Git, `compose.yaml`, command arguments, or a `.env` file. [R2 S3 setup](https://developers.cloudflare.com/r2/get-started/s3/), [R2 API tokens](https://developers.cloudflare.com/r2/api/tokens/).
+
+Current DCS proof upload runs in a Next.js server action. Browser CORS is not needed for that request. If the implementation moves a signed `PUT` or `GET` into the browser, add a bucket CORS rule for exactly `https://lemans.delegateops.business`, the used methods, and sent headers such as `Content-Type`, then test it. Keep the bucket private. [R2 presigned URLs](https://developers.cloudflare.com/r2/api/s3/presigned-urls/), [R2 CORS](https://developers.cloudflare.com/r2/buckets/cors/).
+
+## 3. Store secrets outside the repository
+
+Create a private directory on the Mac. `LEMANS_SECRET_DIR` is a path, not a credential; it is only for Compose interpolation. Do not create a `.env` file.
 
 ```sh
-export LEMANS_DB_PASSWORD="$(security find-generic-password \
-  -a "$USER" \
-  -s 'lemans/db-password' \
-  -w)"
-
-# Optional: change this if port 3001 is already used on the Mac.
-export LEMANS_WEB_PORT=3001
+export LEMANS_SECRET_DIR="$HOME/Library/Application Support/lemans-demo/secrets"
+mkdir -p "$LEMANS_SECRET_DIR"
+chmod 700 "$LEMANS_SECRET_DIR"
+openssl rand -hex 32 > "$LEMANS_SECRET_DIR/db_password"
+chmod 600 "$LEMANS_SECRET_DIR/db_password"
 ```
 
-## Validate and start
+Use a trusted editor or password manager to write the R2 Access Key ID to `r2_access_key_id` and the Secret Access Key to `r2_secret_access_key` in this directory. Each file holds only its value and an optional trailing newline. Set and inspect permissions without printing values:
 
-Disable Compose's optional `.env` lookup, validate the rendered configuration,
-then start the demo:
+```sh
+chmod 600 "$LEMANS_SECRET_DIR/r2_access_key_id" "$LEMANS_SECRET_DIR/r2_secret_access_key"
+ls -ld "$LEMANS_SECRET_DIR"
+ls -l "$LEMANS_SECRET_DIR"/{db_password,r2_access_key_id,r2_secret_access_key}
+```
+
+The directory should show `drwx------`; each file should show `-rw-------`. The reviewed Compose file must mount each secret only into services that need it. [Docker Compose secrets](https://docs.docker.com/compose/how-tos/use-secrets/).
+
+## 4. Configure and build the demo
+
+After the Luna implementation passes review, set the actual tunnel network, R2 endpoint and bucket in `compose.yaml`. Keep safe runtime values there and credentials in secret files. Check `NEXT_PUBLIC_BASE_PATH=""` at **web build time** and runtime. A runtime variable alone cannot correct a previously built Next.js base path.
+
+From the repository root on the Mac mini:
 
 ```sh
 export COMPOSE_DISABLE_ENV_FILE=1
-docker compose config
-docker compose up -d --build
+docker compose config --quiet
+docker compose build web api
+docker compose up -d db api web
 docker compose ps
 ```
 
-The first startup builds the Alpine-based Next.js and Go images, starts
-PostgreSQL 16 on its named volume, runs Go migrations, seeds demo data, and
-starts the web service. The web service is published only on macOS loopback at
-`127.0.0.1:${LEMANS_WEB_PORT:-3001}`; the container still listens on port
-`3000`. The tunnel is its only external ingress. The API and PostgreSQL ports
-are not published.
+The build runs in OrbStack on the Mac mini. A GitHub push alone does not update these containers. If a secret or external network is missing, fix it before starting. Never use `docker compose down -v` for an ordinary update: it deletes the database volume.
 
-In the Cloudflare Tunnel dashboard, configure the public hostname's service as
-`http://127.0.0.1:${LEMANS_WEB_PORT:-3001}` using the actual port value. Because
-`cloudflared` runs natively on macOS, it must use the host loopback address, not
-the Docker-only name `web`. Cloudflare preserves the request path, so open
-`https://your-hostname/demo/lemans/`.
+## 5. Seed and check private services
 
-Start the native tunnel in another macOS terminal using the existing named
-tunnel configuration:
+Run the one-shot internal seed command supplied by the reviewed Compose implementation. The planned command is `docker compose run --rm seed`; confirm it exists before running it. It replaces demo records, so use it only on initial setup or for a planned reset.
 
 ```sh
-cloudflared tunnel run YOUR_TUNNEL_NAME
-```
-
-Check service state with:
-
-```sh
+docker compose exec web node -e "fetch('http://127.0.0.1:3000/').then(r => { console.log(r.status); process.exit(r.ok ? 0 : 1) }).catch(e => { console.error(e); process.exit(1) })"
+docker compose exec web node -e "fetch('http://api:8080/health').then(r => { console.log(r.status); process.exit(r.ok ? 0 : 1) }).catch(e => { console.error(e); process.exit(1) })"
 docker compose ps
-docker compose logs -f web
 ```
 
-Open the hostname configured in Cloudflare after the tunnel reports a healthy
-connection. The demo entry screen is at `/demo/lemans/`.
+Expect HTTP `200` for both checks. Confirm no host port mapping for `api` or `db`. The reviewer must also verify that `/api/proxy/admin/seed` is rejected without deleting records. The demo's entry cookie and role switcher are not authentication.
 
-## Stop and reset
+## 6. Route the public hostname
 
-Stop services while retaining database data:
+In Cloudflare, open **Networking > Tunnels**, select the existing healthy tunnel, and add a **Published application** route. Set hostname `lemans.delegateops.business`, HTTP service URL `http://lemans-web:3000` (or the reviewed alias), and no path prefix. The connector and web container must share the network found in step 1. Save the route and confirm the hostname's DNS record targets this tunnel. Do not route to `127.0.0.1` inside `cloudflared`, the Go API, the database, or another homelab service. [Cloudflare published applications](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/routing-to-tunnel/).
+
+Open `https://lemans.delegateops.business/`. Check the branded splash, Enter as an Admin, all six roles, a complete job workflow, and R2 proof upload/download.
+
+## 7. Update, reset, and recover
+
+For a later reviewed commit, update the Mac checkout of `main`, then rebuild and restart only this Compose project:
 
 ```sh
-docker compose down
+docker compose build web api
+docker compose up -d db api web
+docker compose ps
 ```
 
-To discard the demo database volume and reseed from scratch, use the explicit
-project-scoped command:
+Recheck `/`, Go health, a role workflow, and R2 proof. Preserve the PostgreSQL volume. Reset records only with the reviewed one-shot seed command. Use an R2 lifecycle rule or reviewed cleanup procedure for demo-prefixed objects; database seeding does not delete R2 files. If an update fails, return to prior known-good image tags and keep the database volume. Code rollback does not reverse a database migration.
 
-```sh
-docker compose down -v
-```
-
-This deployment is intended for a continuously available Mac mini. Add
-Cloudflare Access before sharing the hostname; the demo's role switcher is not
-authentication.
+The implementer must replace this planning status with verified commands and results before calling the guide operational.

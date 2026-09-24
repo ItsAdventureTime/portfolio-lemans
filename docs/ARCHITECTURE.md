@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the containerized architecture for the **Le Mans Operations & Job Cost Management System**. The workstation Docker Sandbox builds and validates committed source; the Linux VPS imports those images and runs the Quadlet systemd deployment.
+This document describes the existing containerized architecture for the **Le Mans Operations & Job Cost Management System**. The workstation Docker Sandbox builds and validates committed source; the Linux VPS imports those images and runs the Quadlet systemd deployment. The OrbStack Compose portfolio demo is a **planned, unverified replacement target for the public demo**, documented in [`DEMO-HOSTING-DECISION.md`](./DEMO-HOSTING-DECISION.md) and [`agent/HANDOFF.md`](./agent/HANDOFF.md). The no-Compose statements below describe the existing Sandbox/VPS workflow, not the planned Mac mini operator deployment.
 
 > **Demo profile override (2026-08-09):** The demo build is intentionally
 > authentication-free. It starts with a simulated `Enter as an Admin` splash,

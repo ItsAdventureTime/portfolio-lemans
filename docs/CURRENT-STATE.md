@@ -1,6 +1,6 @@
 # Current repository state
 
-- **Updated**: 2026-08-31 (Mac mini Docker Compose and Cloudflare Tunnel path)
+- **Updated**: 2026-09-24 (portfolio demo hosting plan; Mac deployment unverified)
 - **Authority**: Current implementation and the demo rules in
   [`DEMO-IMPLEMENTATION-PLAYBOOK.md`](./DEMO-IMPLEMENTATION-PLAYBOOK.md)
 - **Documentation index**: [`DOCUMENTATION-INDEX.md`](./DOCUMENTATION-INDEX.md)
@@ -24,14 +24,16 @@ implementation or operations.
   with the simulated splash; the `lemans-demo-entered` cookie gates the shared
   dashboard shell, and the `lemans-demo-role` cookie plus `X-Demo-Role` header
   provide role simulation after entry.
-- The Mac mini demo deployment uses [`../compose.yaml`](../compose.yaml):
-  Next.js, Go, and PostgreSQL run as one Compose project. The web service binds
-  only to `127.0.0.1:${LEMANS_WEB_PORT:-3001}` on macOS and keeps container port
-  `3000`; set `LEMANS_WEB_PORT` when the default host port is occupied. The
-  existing native macOS Cloudflare Tunnel is the sole public ingress. Docker
-  Compose supplies only the database password as a service-scoped secret, and
-  the deployment is operated through
-  [`MACOS-DOCKER-COMPOSE.md`](./MACOS-DOCKER-COMPOSE.md).
+- The Mac mini portfolio demo is **planned, not deployed or verified**. The
+  target is OrbStack Compose with Next.js, Go, and PostgreSQL, plus the existing
+  `cloudflared` container on a shared network. Cloudflare R2 is planned for
+  proof files. At the planning review, an **uncommitted local draft** of
+  `compose.yaml` removed image build definitions and seeding, and assumed an
+  unverified tunnel network and R2 endpoint. The committed Compose file still
+  describes the older Mac path. Follow
+  [`DEMO-HOSTING-DECISION.md`](./DEMO-HOSTING-DECISION.md) and
+  [`agent/HANDOFF.md`](./agent/HANDOFF.md) before treating
+  [`MACOS-DOCKER-COMPOSE.md`](./MACOS-DOCKER-COMPOSE.md) as operational.
 
 ### Runtime branding
 

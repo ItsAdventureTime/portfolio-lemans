@@ -50,7 +50,11 @@ documentation, branch cleanup, or repository synchronization is outstanding.
 5. **Container Runtime Standard**:
    - Next.js web images use `node:lts-alpine` (Node.js Active LTS on latest Alpine); Go API images use `golang:alpine` (latest Go on latest Alpine) build stage and `alpine:latest` runtime; PostgreSQL uses `postgres:alpine` (latest PostgreSQL on latest Alpine) unless dependency compatibility explicitly requires a Debian-based image.
    - Next.js runtime calls the Go API over the internal Docker network locally and the internal Podman network remotely; the Go API owns migrations, business logic, persistence, and presigned attachment URLs.
-   - Never use Compose for local builds, tests, or execution.
+   - Run agent development builds, tests, and Compose file checks through the
+     project Docker Sandbox. Do not run agent project workloads on the macOS host.
+     The separately planned Mac mini public demo uses OrbStack Compose as an
+     operator deployment after implementation and review. See
+     `docs/agent/HANDOFF.md`.
    - Local Docker images and disposable containers are created inside the
      Sandbox and must be removed with `--rm` or targeted cleanup. Remote
      deployment must not build, compile, or run image smoke tests on the VPS.
@@ -117,7 +121,15 @@ The companion execution prompts are in [`docs/AGENT-EXECUTION-PROMPTS.md`](docs/
 
 ## Remote Demo Deployment Authority
 
-The current demo has no persistent local deployment target. Local builds,
+The Mac mini OrbStack Compose portfolio demo at
+`https://lemans.delegateops.business/` is the planned target, not a verified
+deployment. `docs/DEMO-HOSTING-DECISION.md` records the decision and
+`docs/agent/HANDOFF.md` directs the manually triggered implementation agent.
+Do not connect to the Mac mini runtime, tunnel, R2 account, or DNS in the
+planning or implementation role without a direct user instruction. The older
+VPS path below remains separate and inactive for this portfolio task.
+
+Local development builds,
 compilation, tests, and verification run through the initialized Docker Sandbox;
 do not start or use a local Podman machine.
 

@@ -1,0 +1,37 @@
+# Portfolio demo hosting decision
+
+**Status:** Planning decision, 2026-09-24. No Mac mini or Cloudflare deployment has been performed or verified for this plan.
+
+**Target:** `https://lemans.delegateops.business/`, showing the demo only. Production and the older VPS Quadlet deployment are outside this delivery.
+
+## Decision
+
+Use the existing Mac mini M1 with OrbStack, Docker Compose, the existing `cloudflared` container, PostgreSQL, the Go API, and the Next.js web container. Use Cloudflare R2 through its S3 compatible API for demo proof files. Keep credentials in files outside the repository, mounted as Compose secrets. Keep nonsecret runtime settings in `compose.yaml`. The [operator guide](./MACOS-DOCKER-COMPOSE.md) gives manual setup steps; the [implementation handoff](./agent/HANDOFF.md) defines required code and review gates.
+
+This retains the current Go business logic, Goose migrations, sqlc generated PostgreSQL queries, Next.js server actions, and S3 presigned URLs. OrbStack supports Docker Compose. `cloudflared` can route a public hostname to the web service on a shared Docker network. GitHub pushes do **not** rebuild this Mac mini deployment; the operator must rebuild and restart it or add a separate CI deployment later. [OrbStack Docker guidance](https://docs.orbstack.dev/docker/), [Docker Compose networking](https://docs.docker.com/compose/how-tos/networking/), [Cloudflare Tunnel published applications](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/routing-to-tunnel/).
+
+## Cloudflare options checked
+
+| Product | Possible? | Fit for this repository now |
+| --- | --- | --- |
+| Workers with GitHub Builds | Yes, after adapting the Next.js app for the Workers runtime. GitHub Builds runs a configured build and deploy command on pushes; it is not automatic compilation of an arbitrary Go/PostgreSQL repository. | Defer. Next.js needs a Workers adapter such as Cloudflare's current vinext path. The Go API cannot run as an ordinary Worker. [Next.js on Workers](https://developers.cloudflare.com/workers/framework-guides/web-apps/nextjs/), [Workers Builds](https://developers.cloudflare.com/workers/ci-cd/builds/configuration/). |
+| R2 | Yes. Workers can use an R2 binding, and the existing Go S3 client can use R2's S3 endpoint and presigned URLs without a Worker. | Use the S3 endpoint for the Compose demo. An R2 binding would only be usable by code running in a Worker. Configure bucket CORS if browser requests use presigned URLs. [R2 S3 API](https://developers.cloudflare.com/r2/get-started/s3/), [presigned URLs](https://developers.cloudflare.com/r2/api/s3/presigned-urls/), [CORS](https://developers.cloudflare.com/r2/buckets/cors/). |
+| D1 | Yes, as a Worker binding. D1 uses SQLite. | Defer. The current schema uses PostgreSQL UUID defaults, enum types, and `pgx`/sqlc. Replacing PostgreSQL means porting schema, queries, migrations, and API code. [D1 import limits](https://developers.cloudflare.com/d1/best-practices/import-export-data/). |
+| Hyperdrive | Yes, as a Worker binding to PostgreSQL or MySQL, including a private database through Tunnel or Workers VPC. | Defer. It does not replace the Go API or PostgreSQL and gives no benefit to the chosen all-container runtime. Connecting a Worker to the private Mac database requires extra network and TLS setup. [Private database via Tunnel](https://developers.cloudflare.com/hyperdrive/configuration/connect-to-private-database/), [Workers VPC path](https://developers.cloudflare.com/hyperdrive/configuration/connect-to-private-database-vpc/). |
+| KV | Yes, as a Worker binding. | Defer. Its eventual consistency is unsuitable as the transaction store for costing, payments, and approvals. There is no current need for a separate configuration/cache store. [KV consistency](https://developers.cloudflare.com/kv/concepts/how-kv-works/). |
+| Containers | Yes, on Workers Paid, with a Worker and container image configuration. | Defer. It may run Go and Next.js images, but adds container orchestration, image build, billing, and persistent PostgreSQL planning. It does not lift the existing Compose stack unchanged. [Containers overview](https://developers.cloudflare.com/containers/), [deployment](https://developers.cloudflare.com/containers/guides/deploy/), [pricing](https://developers.cloudflare.com/containers/platform/pricing/). |
+
+The Cloudflare account's actual subscription, product entitlements, R2 bucket, tunnel network, and DNS are not visible from repository inspection. Verify them in the account before the operator steps. The decision does not rely on an unverified allowance or price.
+
+## Repository evidence and current gaps
+
+- `src/app/` uses server actions and route handlers. `src/app/api/proxy/[...path]/route.ts` forwards to the Go API.
+- `backend/internal/db/migrations/0001_schema.up.sql` uses PostgreSQL-specific `pgcrypto`, UUID defaults, and enum types. `backend/cmd/api/main.go` runs migrations on API startup.
+- `backend/internal/b2/b2.go` already signs S3 `PUT` and `GET` URLs. `src/app/dcs/page.tsx` sends the proof file from a server action to the signed URL.
+- `compose.yaml` is being revised in an uncommitted local worktree. That draft has no `build:` entries or seeding service. It assumes `cloudflared-network` and three secret files exist and sets an R2 endpoint placeholder. The committed file still describes the older Mac path. Neither version is verified for the new target.
+- The public Next.js proxy currently accepts arbitrary paths, including `/admin/seed`, which deletes and recreates demo records. The implementation must limit that proxy to Go `/api/` routes before publishing the site.
+- Existing active guides still describe a native macOS tunnel, host port `3001`, and Backblaze B2. The new operator guide is the planned target; the implementer must align all active guides with the verified result.
+
+## Deployment boundary
+
+This review changes documentation only. It does not connect to the Mac mini runtime, Cloudflare account, R2, DNS, or the VPS. The user will manually trigger the Luna implementation task. The user will perform the external dashboard and Mac mini deployment steps after a reviewable implementation exists.
