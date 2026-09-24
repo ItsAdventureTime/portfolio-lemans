@@ -86,6 +86,9 @@
 - Real R2 proof upload/download and actual tunnel routing remain pending until
   the operator provides external resources. Do not access or modify the Mac
   mini, Cloudflare, DNS, or legacy VPS as part of this handoff.
+- GitHub `main` was synchronized over HTTPS after local acceptance checks; local
+  and remote `main` match. Only `main` exists locally and remotely. No public
+  deployment was performed.
 
 ## Sources checked
 

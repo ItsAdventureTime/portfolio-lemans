@@ -1,6 +1,6 @@
 # Mac mini portfolio demo implementation handoff
 
-**ACTIVE_ROLE:** Local implementation validated; browser acceptance blocked by Sandbox storage
+**ACTIVE_ROLE:** Implementation and local validation complete; browser QA blocked by Sandbox storage
 
 **NEXT_OWNER:** GPT-6 Sol (High), independent reviewer
 
@@ -36,8 +36,9 @@
   See the source links in the affected docs.
 - Local implementation checks passed on commit `16bef3f` in Sol's
   sandbox-private snapshot. The existing Playwright run could not fetch
-  Chromium because the Sandbox filesystem is full. Remote `main`
-  synchronization remains pending.
+  Chromium because the Sandbox filesystem ran out of space. Agent code and
+  documentation are synchronized to HTTPS `main`; no non-`main` branches were
+  present. No deployment was performed.
 - Sol's first review found a Compose network YAML shape error and that a
   literal R2 example endpoint could pass configuration parsing. Both are fixed
   in an implementor follow-up; Sol must validate the new HEAD.
