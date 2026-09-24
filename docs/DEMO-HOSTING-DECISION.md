@@ -6,7 +6,7 @@
 
 ## Decision
 
-Use the existing Mac mini M1 with OrbStack, Docker Compose, the existing `cloudflared` container, PostgreSQL, the Go API, and the Next.js web container. Use Cloudflare R2 through its S3 compatible API for demo proof files. Keep credentials in files outside the repository, mounted as Compose secrets. Keep nonsecret runtime settings in `compose.yaml`. The [operator guide](./MACOS-DOCKER-COMPOSE.md) gives manual setup steps; the [implementation handoff](./agent/HANDOFF.md) defines required code and review gates.
+Use the existing Mac mini M1 with OrbStack, Docker Compose, the existing `cloudflared` container, PostgreSQL, the Go API, and the Next.js web container. Use Cloudflare R2 through its S3 compatible API for demo proof files. Keep credentials in private files under the Git-ignored `secrets/` directory and mount them as Compose secrets. Keep nonsecret runtime settings in `compose.yaml`. The [operator guide](./MACOS-DOCKER-COMPOSE.md) gives manual setup steps; the [implementation handoff](./agent/HANDOFF.md) defines required code and review gates.
 
 This retains the current Go business logic, Goose migrations, sqlc generated PostgreSQL queries, Next.js server actions, and S3 presigned URLs. OrbStack supports Docker Compose. `cloudflared` can route a public hostname to the web service on a shared Docker network. GitHub pushes do **not** rebuild this Mac mini deployment; the operator must rebuild and restart it or add a separate CI deployment later. [OrbStack Docker guidance](https://docs.orbstack.dev/docker/), [Docker Compose networking](https://docs.docker.com/compose/how-tos/networking/), [Cloudflare Tunnel published applications](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/routing-to-tunnel/).
 
@@ -28,7 +28,7 @@ The Cloudflare account's actual subscription, product entitlements, R2 bucket, t
 - `src/app/` uses server actions and route handlers. `src/app/api/proxy/[...path]/route.ts` forwards to the Go API.
 - `backend/internal/db/migrations/0001_schema.up.sql` uses PostgreSQL-specific `pgcrypto`, UUID defaults, and enum types. `backend/cmd/api/main.go` runs migrations on API startup.
 - `backend/internal/b2/b2.go` already signs S3 `PUT` and `GET` URLs. `src/app/dcs/page.tsx` sends the proof file from a server action to the signed URL.
-- `compose.yaml` now defines builds for `Dockerfile.web` and `Dockerfile.go`, pins PostgreSQL 18, requires the tunnel network name and R2 endpoint from the shell, and mounts secrets from `LEMANS_SECRET_DIR` outside the repository. Its internal-only `seed` service is available for explicit reset. Sandbox checks are pending; this file is not verified for Mac mini deployment.
+- `compose.yaml` defines builds for `Dockerfile.web` and `Dockerfile.go`, pins PostgreSQL 18, requires the tunnel network name and R2 endpoint from the shell, and mounts secrets from `LEMANS_SECRET_DIR`. The operator guide uses the Git-ignored workspace `secrets/` directory. Its internal-only `seed` service is available for explicit reset. Local Sandbox checks passed; Mac mini deployment remains unverified.
 - The public Next.js proxy now forwards only Go `/api/` routes, so `/admin/seed` cannot be called through it. Request-level and persistence checks are pending.
 - Active docs now describe the planned Compose/R2 target separately from the older VPS profile. The Mac operator steps, real tunnel network, R2 credentials/bucket/lifecycle rule, and public hostname remain unverified.
 

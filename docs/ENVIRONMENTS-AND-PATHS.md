@@ -55,7 +55,9 @@ stores database state in `lemans_postgres_data_pg18`. API and DB attach only to
 the internal `lemans-network`; web also attaches to the operator-selected
 external network joined by the existing `cloudflared` container. No API or DB
 ports are published. Compose mounts `db_password`, `r2_access_key_id`, and
-`r2_secret_access_key` from files under `LEMANS_SECRET_DIR`, outside the repo.
+`r2_secret_access_key` from files under `LEMANS_SECRET_DIR`. The operator guide
+uses the Git-ignored `secrets/` directory in the workspace. Keep that directory
+private and out of any shared source archive.
 The operator must set `CLOUDFLARED_NETWORK` to the existing network name and
 `R2_ENDPOINT` to the account-specific `https://<account_id>.r2.cloudflarestorage.com`
 endpoint. The bucket name is `portfolio-lemans`, region is `auto`, and demo

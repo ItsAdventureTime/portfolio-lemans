@@ -1,12 +1,12 @@
 # Mac mini portfolio demo implementation handoff
 
-**ACTIVE_ROLE:** Implementation and local validation complete; browser QA blocked by Sandbox storage
+**ACTIVE_ROLE:** Independent review completed for committed code; browser and external acceptance pending
 
-**NEXT_OWNER:** GPT-6 Sol (High), independent reviewer
+**NEXT_OWNER:** Mac mini operator for manual setup, then GPT-6 Sol (Medium) for live acceptance
 
 **IMPLEMENTATION_OWNER:** GPT-6 Luna (High)
 
-**REVIEW_OWNER:** GPT-6 Sol (High), planner and independent reviewer
+**REVIEW_OWNER:** GPT-6 Sol (Medium), planner and independent reviewer
 
 **TARGET:** Demo only at `https://lemans.delegateops.business/`
 
@@ -14,6 +14,27 @@
 
 **PUSH:** Commit validated repository changes and synchronize HTTPS `main` under repository policy.
 **DEPLOYMENT:** User follows `docs/MACOS-DOCKER-COMPOSE.md` manually after review. Do not access the Mac mini tunnel, Cloudflare account, or old VPS as part of this handoff.
+
+## Reviewer update (2026-09-25)
+
+- `compose.yaml` configuration, Go config tests, fresh `npm ci`, Prettier,
+  ESLint, TypeScript, and both base-path tests passed in an isolated
+  `jk-sbx-project validate` snapshot. The first Go test command used the repo
+  root instead of the `backend` module and failed at setup; rerunning it from
+  `backend` passed. Prior Compose build and HTTP checks are recorded below.
+- Created a private `secrets/` directory in this workspace. `db_password` is
+  random; R2 key files contain explicit placeholders. All three files are mode
+  `600`, the directory is mode `700`, and Git ignores it. The operator must
+  provide account-scoped R2 keys and the account endpoint before deployment.
+  These local files will not appear on a different Mac after a Git checkout.
+- Added `secrets/` to `.gitignore` and `secrets` to `.dockerignore`. Without the
+  Docker exclusion, `Dockerfile.web` would include secret files in its build
+  context through `COPY . .`. The guide now uses the private workspace path and
+  rejects key placeholders before build.
+- Real R2 upload/download, Mac mini routing, and browser QA remain unverified.
+  Do not mark the public deployment live until the operator completes the
+  guide and the reviewer records evidence. Existing browser test setup stopped
+  before any tests ran because the Sandbox lacked space for Chromium.
 
 ## Implementor progress (2026-09-24)
 
@@ -67,7 +88,7 @@ The planner found uncommitted changes in `backend/cmd/api/main.go`, `backend/int
 
 ## Implementation slices
 
-1. **Compose and credentials.** Keep one `compose.yaml` for demo. Add image build definitions for `Dockerfile.web` and `Dockerfile.go`, using root base path (`NEXT_PUBLIC_BASE_PATH=""`) at **build time** and runtime. Keep safe values such as `SITE_URL`, API URL, bucket name, R2 endpoint, region `auto`, and object prefix in Compose. Require a real R2 account endpoint before use. Source DB password and R2 key pair from individual files outside the repository via Compose secrets; support `_FILE` in Go config as the current uncommitted code begins to do. No external `.env` or credentials in Compose, Git, image layers, logs, or rendered config examples. Add `secrets/` to `.gitignore` as defense in depth if any local fallback uses it. Keep PostgreSQL on an internal project network without published ports; pin a PostgreSQL major version and use a compatible, project-specific named volume. Let web reach the R2 S3 endpoint for server-action proof uploads. Keep Go API unpublished and on the internal network. Name the external tunnel network as a clearly editable prerequisite, not an assumption that the user's existing network is called `cloudflared-network`. Do not modify the existing `cloudflared` stack.
+1. **Compose and credentials.** Keep one `compose.yaml` for demo. Add image build definitions for `Dockerfile.web` and `Dockerfile.go`, using root base path (`NEXT_PUBLIC_BASE_PATH=""`) at **build time** and runtime. Keep safe values such as `SITE_URL`, API URL, bucket name, R2 endpoint, region `auto`, and object prefix in Compose. Require a real R2 account endpoint before use. Source DB password and R2 key pair from individual Git-ignored files via Compose secrets; support `_FILE` in Go config. No external `.env` or credentials in Compose, Git, image layers, logs, or rendered config examples. Keep `secrets/` in `.gitignore` and `.dockerignore`. Keep PostgreSQL on an internal project network without published ports; pin a PostgreSQL major version and use a compatible, project-specific named volume. Let web reach the R2 S3 endpoint for server-action proof uploads. Keep Go API unpublished and on the internal network. Name the external tunnel network as a clearly editable prerequisite, not an assumption that the user's existing network is called `cloudflared-network`. Do not modify the existing `cloudflared` stack.
 2. **Seed and public boundary.** The Go API migrates on startup but does not seed automatically. Provide an explicit, repeatable initial seed/reset command through a one-shot Compose service or similarly small mechanism that reaches `/admin/seed` only on the internal network. Limit `src/app/api/proxy/[...path]/route.ts` to Go `/api/` routes so visitors cannot call `/admin/seed` through the public web app. Verify the attempted public seed call is rejected and records remain. Preserve the demo's intended role simulation; it is not authentication. Define a bounded reset procedure for public demo data and R2 objects or a lifecycle policy so uploads do not grow without limit.
 3. **R2 proof flow.** Reuse `backend/internal/b2/b2.go`; configure R2 S3 endpoint, `auto` region, demo bucket, and key prefix. Keep R2 API keys in secret files. The current DCS server action uploads a proof with a presigned `PUT`; verify upload, metadata link, and signed download end to end. If R2's signing differs, fix the shared Go presigner, not individual callers. Do not add an R2 Worker merely to proxy the existing S3 flow. Document exact CORS rules if any browser-side signed URL flow is kept or added; current DCS upload runs server-side.
 4. **Documentation.** Update `AGENTS.md`, `README.md`, `docs/CURRENT-STATE.md`, `docs/ARCHITECTURE.md`, `docs/ENVIRONMENTS-AND-PATHS.md`, `docs/DOCUMENTATION-INDEX.md`, `docs/MACOS-DOCKER-COMPOSE.md`, and affected ADRs so current deployment facts match verified code. Keep legacy VPS instructions clearly labeled as separate, inactive history or remote option. Do not claim a public URL is live before it has been checked. Record any departures in `docs/agent/HANDOFF.notes.md` with `## Deviations` and `## How the run ended`.

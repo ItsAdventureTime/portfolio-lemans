@@ -37,8 +37,9 @@ City, Pampanga.
   uses rootless Podman Quadlets.
 - **Demo access**: The splash screen opens the demo as Admin and includes a
   visible role switcher. It does not authenticate users.
-- **Mac deployment**: Follow the planned OrbStack Compose and existing
-  Cloudflare Tunnel operator procedure after implementation review. See
+- **Mac deployment**: Follow the step-by-step OrbStack Compose and existing
+  Cloudflare Tunnel guide after review. It covers the private workspace
+  `secrets/` directory, required R2 keys, and manual checks. See
   [`docs/MACOS-DOCKER-COMPOSE.md`](./docs/MACOS-DOCKER-COMPOSE.md).
 - **Attachments**: The Go API signs S3-compatible upload and download URLs.
   Existing profiles use Backblaze B2; the planned Compose demo uses Cloudflare

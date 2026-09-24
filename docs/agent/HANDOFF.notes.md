@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-24  
 **Implementation owner:** GPT-6 Luna (High)  
-**Next owner:** GPT-6 Sol (High), independent review and validation
+**Next owner:** Mac mini operator, then GPT-6 Sol (Medium) for live acceptance
 
 ## Deviations
 
@@ -38,7 +38,9 @@
 - Operator setup must define `LEMANS_SECRET_DIR`, `CLOUDFLARED_NETWORK`, and
   `R2_ENDPOINT` in the shell. Secret files are `db_password`,
   `r2_access_key_id`, and `r2_secret_access_key`, each mode `600` under a
-  directory mode `700` outside the repository.
+  directory mode `700`. The 2026-09-25 review prepared a Git-ignored workspace
+  `secrets/` directory with a random DB password and R2 placeholders. Docker
+  builds also ignore the directory. Keys must be replaced by the operator.
 - Configure an R2 lifecycle rule for `lemans/demo/` to expire objects after 30
   days. The database seed does not remove R2 objects; expiry can take 24 hours
   or longer.

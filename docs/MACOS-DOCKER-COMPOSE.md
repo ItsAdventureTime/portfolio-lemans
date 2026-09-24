@@ -38,42 +38,61 @@ R2 objects. Expired R2 objects are typically removed within 24 hours and may
 take longer. Confirm the rule is present before opening the public demo.
 [R2 object lifecycle rules](https://developers.cloudflare.com/r2/buckets/object-lifecycles/).
 
-## 3. Store secrets outside the repository
+## 3. Prepare the private secret files
 
-Create a private directory on the Mac. `LEMANS_SECRET_DIR` is a path, not a credential; it is only for Compose interpolation. Do not create a `.env` file. The Compose file requires `LEMANS_SECRET_DIR`, `CLOUDFLARED_NETWORK`, and `R2_ENDPOINT` from the shell environment.
+The project keeps local secret files in `secrets/`. Git and Docker builds ignore this directory, but you must still keep the workspace private and exclude it from any source archive you share. Docker Compose mounts each file into only the services that need it. `LEMANS_SECRET_DIR` tells Compose where to find the files. It is a path, not a password. Do not create a `.env` file.
 
 ```sh
-export LEMANS_SECRET_DIR="$HOME/Library/Application Support/lemans-demo/secrets"
-mkdir -p "$LEMANS_SECRET_DIR"
-chmod 700 "$LEMANS_SECRET_DIR"
-openssl rand -hex 32 > "$LEMANS_SECRET_DIR/db_password"
-chmod 600 "$LEMANS_SECRET_DIR/db_password"
+export LEMANS_SECRET_DIR="$(pwd)/secrets"
+ls -ld "$LEMANS_SECRET_DIR"
+ls -l "$LEMANS_SECRET_DIR"/{db_password,r2_access_key_id,r2_secret_access_key}
 ```
 
-Use a trusted editor or password manager to write the R2 Access Key ID to `r2_access_key_id` and the Secret Access Key to `r2_secret_access_key` in this directory. Each file holds only its value and an optional trailing newline. Set and inspect permissions without printing values:
+The review prepared `db_password` with a random 32-byte value. It also created two clearly marked placeholders for the R2 keys. Replace those placeholders with the Access Key ID and Secret Access Key from step 2, using a trusted editor or password manager. Each file must contain only its value and an optional trailing newline. Git does not transfer local secret files. On a new Mac checkout, create them first:
+
+```sh
+umask 077
+mkdir -p secrets
+chmod 700 secrets
+openssl rand -hex 32 > secrets/db_password
+printf 'REPLACE_WITH_R2_ACCESS_KEY_ID\n' > secrets/r2_access_key_id
+printf 'REPLACE_WITH_R2_SECRET_ACCESS_KEY\n' > secrets/r2_secret_access_key
+chmod 600 secrets/{db_password,r2_access_key_id,r2_secret_access_key}
+```
+
+Check permissions and confirm that the placeholders are gone without printing the keys:
 
 ```sh
 chmod 600 "$LEMANS_SECRET_DIR/r2_access_key_id" "$LEMANS_SECRET_DIR/r2_secret_access_key"
 ls -ld "$LEMANS_SECRET_DIR"
 ls -l "$LEMANS_SECRET_DIR"/{db_password,r2_access_key_id,r2_secret_access_key}
+for secret in r2_access_key_id r2_secret_access_key; do
+  if grep -q '^REPLACE_WITH_' "$LEMANS_SECRET_DIR/$secret"; then
+    echo "Replace placeholder in $secret before deployment" >&2
+    exit 1
+  fi
+done
 ```
 
 The directory should show `drwx------`; each file should show `-rw-------`. The reviewed Compose file must mount each secret only into services that need it. [Docker Compose secrets](https://docs.docker.com/compose/how-tos/use-secrets/).
 
 ## 4. Configure and build the demo
 
-After the Luna implementation passes review, export the actual tunnel network and account-specific R2 endpoint. Keep credentials in secret files. Compose supplies `NEXT_PUBLIC_BASE_PATH=""` at **web build time** and runtime. A runtime variable alone cannot correct a previously built Next.js base path. [Next.js environment variables](https://nextjs.org/docs/app/guides/environment-variables).
+After review passes, export the actual tunnel network and account-specific R2 endpoint. Keep credentials in secret files. Compose supplies `NEXT_PUBLIC_BASE_PATH=""` at **web build time** and runtime. A runtime variable alone cannot correct a previously built Next.js base path. [Next.js environment variables](https://nextjs.org/docs/app/guides/environment-variables).
 
 From the repository root on the Mac mini:
 
 ```sh
 export COMPOSE_DISABLE_ENV_FILE=1
-export LEMANS_SECRET_DIR="$HOME/Library/Application Support/lemans-demo/secrets"
+export LEMANS_SECRET_DIR="$(pwd)/secrets"
 export CLOUDFLARED_NETWORK='the-existing-network-name'
 export R2_ENDPOINT="https://ACCOUNT_ID.r2.cloudflarestorage.com"
 docker compose config --quiet
 for secret in db_password r2_access_key_id r2_secret_access_key; do
   test -s "$LEMANS_SECRET_DIR/$secret" || { echo "Missing or empty secret file: $secret" >&2; exit 1; }
+done
+for secret in r2_access_key_id r2_secret_access_key; do
+  ! grep -q '^REPLACE_WITH_' "$LEMANS_SECRET_DIR/$secret" || { echo "Replace placeholder in $secret" >&2; exit 1; }
 done
 printf '%s\n' "$R2_ENDPOINT" | grep -Eq '^https://[0-9a-fA-F]{32}\.r2\.cloudflarestorage\.com$'
 docker compose build web api
@@ -114,4 +133,4 @@ docker compose ps
 
 Recheck `/`, Go health, a role workflow, and R2 proof. Preserve the PostgreSQL volume. Reset records only with the reviewed one-shot seed command. Use an R2 lifecycle rule or reviewed cleanup procedure for demo-prefixed objects; database seeding does not delete R2 files. If an update fails, return to prior known-good image tags and keep the database volume. Code rollback does not reverse a database migration.
 
-The implementer must replace this planning status with verified commands and results before calling the guide operational.
+The Mac mini route and R2 proof flow still need a live operator check. Record the result in `docs/agent/HANDOFF.md` after deployment.

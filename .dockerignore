@@ -1,6 +1,7 @@
 .git
 .serena
 .deployment-artifacts
+secrets
 .next
 node_modules
 backend/bin
