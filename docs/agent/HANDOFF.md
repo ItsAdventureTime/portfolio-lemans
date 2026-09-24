@@ -1,12 +1,12 @@
 # Mac mini portfolio demo implementation handoff
 
-**ACTIVE_ROLE:** Local OrbStack runtime started with placeholder R2 configuration; manual tunnel setup and live acceptance pending
+**ACTIVE_ROLE:** Independent review complete; root-path browser test follow-up and live acceptance pending
 
-**NEXT_OWNER:** Mac mini operator to provide R2 settings and configure the Cloudflare tunnel route, then GPT-6 Sol (Medium) for live acceptance
+**NEXT_OWNER:** GPT-6 Luna (High) to adapt browser tests for the root-path Compose demo, then the Mac mini operator for R2 and tunnel setup, then GPT-6 Sol (High) for live acceptance
 
 **IMPLEMENTATION_OWNER:** GPT-6 Luna (High)
 
-**REVIEW_OWNER:** GPT-6 Sol (Medium), planner and independent reviewer
+**REVIEW_OWNER:** GPT-6 Sol (High), planner and independent reviewer for the current review
 
 **TARGET:** Demo only at `https://lemans.delegateops.business/`
 
@@ -46,8 +46,37 @@
   in the update instructions. These were corrected in the current worktree.
 - Sol's `jk-sbx-project validate` Compose config and rendered topology checks
   passed using throwaway values. Sol confirmed the floating tag currently uses
-  PostgreSQL 18 layout; future major changes still require migration. Re-review
-  the documentation follow-up before pushing.
+  PostgreSQL 18 layout; future major changes still require migration. The
+  documentation follow-up was reviewed and pushed in later commits.
+
+## Independent review of current HEAD (2026-09-25)
+
+- Reviewed `7abdab3` and the running local OrbStack stack. The web, API, and
+  database were healthy; API and database published no host ports. Requests
+  from the web container returned `200` for `/` and API `/health`, `404` for
+  `POST /api/proxy/admin/seed`, and `200` for `/api/proxy/api/actor`. A customer
+  list request returned `200` with identical content before and after the
+  rejected seed request.
+- An isolated `jk-sbx-project validate` snapshot passed `docker compose config
+  --quiet` with throwaway interpolation values. Local secret files remain mode
+  `600` under a mode-`700` `secrets/` directory and are Git-ignored. Both R2
+  files still contain placeholders. The public hostname failed DNS resolution
+  from this machine (`curl: (6)`); no public browser or live R2 check ran.
+- The existing Playwright suite hardcodes `/demo/lemans` in `e2e/demo.spec.ts`
+  and `scripts/verify-e2e.sh` targets the legacy local demo. It cannot accept
+  the Compose build, which uses `/`. The no-JavaScript entry test also expects
+  `/lemans/demo`, while `src/lib/demo-entry.action.ts` redirects to the
+  configured base path (`/demo/lemans` for the legacy build or `/` for Compose).
+  The implementation owner should make one configurable test base path, correct
+  that redirect assertion, and keep the legacy default. The reviewer should
+  then run desktop, mobile, and reduced-motion checks against the root-path
+  demo when browser capacity is available. Do not count the earlier Chromium
+  pull as a test run; it executed zero tests.
+- Updated the operator guide so a failed secret or endpoint preflight stops
+  before image builds, fixed the exact R2 bucket name and rollback wording,
+  and aligned the README and architecture/current-state docs with the verified
+  local runtime. Public routing and proof upload/download still require the
+  operator's real Cloudflare settings.
 
 ## Reviewer update (2026-09-25)
 
@@ -134,7 +163,7 @@ The planner found uncommitted changes in `backend/cmd/api/main.go`, `backend/int
 - Run bounded Compose topology and HTTP smoke checks only if the approved Sandbox lane can exercise them without touching the existing homelab stack. Confirm web to API, API to DB, web outbound R2, no published DB/API port, and seed operation.
 - Confirm `git diff --check`; update docs; commit only intended files. Record local commit SHA and remote `main` SHA. Do not push unrelated uncommitted work without reviewing and including it as intentional implementation.
 
-## Independent acceptance for Sol
+## Independent acceptance for Sol (High)
 
 Use `jk-sbx-project validate` with a committed snapshot for independent checks. Bootstrap dependencies from the lockfile in that snapshot if needed. Review Compose topology, secret mounts and permissions, public proxy guard, base path, root URL, seeded role workflows, PostgreSQL persistence across restart, controlled reset, proof upload/download, and desktop/mobile rendered behavior. Confirm no regressions in the existing demo Playwright workflow. The local `cloudflared-network` and web alias are verified. A public Cloudflare hostname, R2 bucket/proof flow, and end-to-end Mac mini tunnel route can be marked verified only after the user performs the manual setup and reports or grants access to the resulting observations.
 

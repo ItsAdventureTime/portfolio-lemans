@@ -43,7 +43,9 @@ around it.
 
 ## 2. Create an R2 bucket and scoped keys
 
-In the [Cloudflare dashboard](https://dash.cloudflare.com/), open **R2 object storage**. Create a private demo bucket such as `portfolio-lemans`, or confirm that one exists. Record the Cloudflare account ID and bucket name. Create an R2 API token scoped to object read/write for this bucket. Copy its **Access Key ID** and **Secret Access Key** once. The Go API uses `https://ACCOUNT_ID.r2.cloudflarestorage.com`, region `auto`, and a demo-only prefix such as `lemans/demo`. Do not put keys in Git, `compose.yaml`, command arguments, or a `.env` file. [R2 S3 setup](https://developers.cloudflare.com/r2/get-started/s3/), [R2 API tokens](https://developers.cloudflare.com/r2/api/tokens/).
+In the [Cloudflare dashboard](https://dash.cloudflare.com/), open **R2 object storage**. Create a private bucket named `portfolio-lemans`, or confirm that it exists. This name must match `B2_BUCKET_NAME` in `compose.yaml`.
+
+Record the Cloudflare account ID. Create an R2 API token with object read/write access scoped to this bucket. Copy its **Access Key ID** and **Secret Access Key** once. The Go API uses `https://ACCOUNT_ID.r2.cloudflarestorage.com`, region `auto`, and the `lemans/demo` prefix. Keep the keys out of Git, `compose.yaml`, command arguments, and `.env` files. [R2 S3 setup](https://developers.cloudflare.com/r2/get-started/s3/), [R2 API tokens](https://developers.cloudflare.com/r2/api/tokens/).
 
 Current DCS proof upload runs in a Next.js server action. Browser CORS is not needed for that request. If the implementation moves a signed `PUT` or `GET` into the browser, add a bucket CORS rule for exactly `https://lemans.delegateops.business`, the used methods, and sent headers such as `Content-Type`, then test it. Keep the bucket private. [R2 presigned URLs](https://developers.cloudflare.com/r2/api/s3/presigned-urls/), [R2 CORS](https://developers.cloudflare.com/r2/buckets/cors/).
 
@@ -81,12 +83,14 @@ Check permissions and confirm that the placeholders are gone without printing th
 chmod 600 "$LEMANS_SECRET_DIR/r2_access_key_id" "$LEMANS_SECRET_DIR/r2_secret_access_key"
 ls -ld "$LEMANS_SECRET_DIR"
 ls -l "$LEMANS_SECRET_DIR"/{db_password,r2_access_key_id,r2_secret_access_key}
-for secret in r2_access_key_id r2_secret_access_key; do
-  if grep -q '^REPLACE_WITH_' "$LEMANS_SECRET_DIR/$secret"; then
-    echo "Replace placeholder in $secret before deployment" >&2
-    exit 1
-  fi
-done
+(
+  for secret in r2_access_key_id r2_secret_access_key; do
+    if grep -q '^REPLACE_WITH_' "$LEMANS_SECRET_DIR/$secret"; then
+      echo "Replace placeholder in $secret before deployment" >&2
+      exit 1
+    fi
+  done
+)
 ```
 
 The directory should show `drwx------`; each file should show `-rw-------`. The reviewed Compose file must mount each secret only into services that need it. [Docker Compose secrets](https://docs.docker.com/compose/how-tos/use-secrets/).
@@ -102,20 +106,23 @@ export COMPOSE_DISABLE_ENV_FILE=1
 export LEMANS_SECRET_DIR="$(pwd)/secrets"
 export CLOUDFLARED_NETWORK='the-existing-network-name'
 export R2_ENDPOINT="https://ACCOUNT_ID.r2.cloudflarestorage.com"
-docker compose config --quiet
-for secret in db_password r2_access_key_id r2_secret_access_key; do
-  test -s "$LEMANS_SECRET_DIR/$secret" || { echo "Missing or empty secret file: $secret" >&2; exit 1; }
-done
-for secret in r2_access_key_id r2_secret_access_key; do
-  ! grep -q '^REPLACE_WITH_' "$LEMANS_SECRET_DIR/$secret" || { echo "Replace placeholder in $secret" >&2; exit 1; }
-done
-printf '%s\n' "$R2_ENDPOINT" | grep -Eq '^https://[0-9a-fA-F]{32}\.r2\.cloudflarestorage\.com$'
-docker compose build web api
-docker compose up -d db api web
-docker compose ps
+(
+  set -e
+  docker compose config --quiet
+  for secret in db_password r2_access_key_id r2_secret_access_key; do
+    test -s "$LEMANS_SECRET_DIR/$secret" || { echo "Missing or empty secret file: $secret" >&2; exit 1; }
+  done
+  for secret in r2_access_key_id r2_secret_access_key; do
+    ! grep -q '^REPLACE_WITH_' "$LEMANS_SECRET_DIR/$secret" || { echo "Replace placeholder in $secret" >&2; exit 1; }
+  done
+  printf '%s\n' "$R2_ENDPOINT" | grep -Eq '^https://[0-9a-fA-F]{32}\.r2\.cloudflarestorage\.com$' || { echo 'Set a real account-specific R2_ENDPOINT' >&2; exit 1; }
+  docker compose build web api
+  docker compose up -d db api web
+  docker compose ps
+)
 ```
 
-The build runs in OrbStack on the Mac mini. A GitHub push alone does not update these containers. `docker compose config --quiet` checks YAML and required interpolation, but does not inspect file-backed secrets. The file checks above catch missing and empty secrets before startup; the R2 endpoint check enforces the account-specific endpoint shape. The Go API also validates that endpoint at startup when `B2_REGION=auto`. Never use `docker compose down -v` for an ordinary update: it deletes the database volume.
+The build runs in OrbStack on the Mac mini. A GitHub push alone does not update these containers. The parenthesized commands stop before the build if a check fails, without closing your shell. `docker compose config --quiet` checks YAML and required interpolation, but does not inspect file-backed secrets. The file checks catch missing and empty secrets; the endpoint check enforces the account-specific URL shape. Neither check proves that the R2 credentials work. The Go API also validates the endpoint shape at startup when `B2_REGION=auto`. Never use `docker compose down -v` for an ordinary update: it deletes the database volume.
 
 ## 5. Seed and check private services
 
@@ -135,6 +142,7 @@ Expect HTTP `200` for both health checks. Confirm no host port mapping for `api`
 In Cloudflare, open **Networking > Tunnels**, select the existing healthy tunnel, and add a **Published application** route. Set hostname `lemans.delegateops.business`, HTTP service URL `http://lemans-web:3000` (or the reviewed alias), and no path prefix. The connector and web container must share the network found in step 1. Save the route and confirm the hostname's DNS record targets this tunnel. Do not route to `127.0.0.1` inside `cloudflared`, the Go API, the database, or another homelab service. [Cloudflare published applications](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/routing-to-tunnel/).
 
 Open `https://lemans.delegateops.business/`. Check the branded splash, Enter as an Admin, all six roles, a complete job workflow, and R2 proof upload/download.
+If the hostname does not resolve, check the published route and DNS record in Cloudflare before testing the app. Record successful proof upload and signed download separately; healthy containers alone do not verify R2.
 
 ## 7. Update, reset, and recover
 
@@ -164,6 +172,6 @@ docker compose up -d db api web
 docker compose ps
 ```
 
-Recheck `/`, Go health, a role workflow, and R2 proof. Preserve the PostgreSQL volume. Reset records only with the reviewed one-shot seed command. Use an R2 lifecycle rule or reviewed cleanup procedure for demo-prefixed objects; database seeding does not delete R2 files. If an update fails, return to prior known-good image tags and keep the database volume. Code rollback does not reverse a database migration.
+Recheck `/`, Go health, a role workflow, and R2 proof. Preserve the PostgreSQL volume. Reset records only with the reviewed one-shot seed command. Use an R2 lifecycle rule or reviewed cleanup procedure for demo-prefixed objects; database seeding does not delete R2 files. If an update fails, rebuild the last reviewed commit and keep the database volume. Code rollback does not reverse a database migration.
 
 The Mac mini route and R2 proof flow still need a live operator check. Record the result in `docs/agent/HANDOFF.md` after deployment.

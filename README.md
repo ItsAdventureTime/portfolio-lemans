@@ -1,7 +1,7 @@
 # Le Mans Operations & Job Cost Management System
 
 [![Repository](https://img.shields.io/badge/GitHub-ItsAdventureTime%2Fportfolio--lemans-blue)](https://github.com/ItsAdventureTime/portfolio-lemans)
-[![Podman](https://img.shields.io/badge/Podman-Rootless%20VM-purple)](https://podman.io)
+[![OrbStack](https://img.shields.io/badge/OrbStack-Docker%20Compose-blue)](https://orbstack.dev)
 [![Next.js](https://img.shields.io/badge/Next.js-16.3.6%20App%20Router-black)](https://nextjs.org)
 [![Go](https://img.shields.io/badge/Go-latest%20Alpine-00ADD8)](https://go.dev)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Alpine-blue)](https://www.postgresql.org)
@@ -32,9 +32,9 @@ City, Pampanga.
 - **Business record**: A Job Order (`JO` / `RA`) connects estimates,
   procurement, OPEX, billing, and job profitability.
 - **Runtime**: Use the initialized Docker Sandbox for agent builds and tests.
-  OrbStack Compose and the existing Cloudflare Tunnel are the planned Mac mini
-  portfolio demo deployment; this path is not yet verified. The older VPS path
-  uses rootless Podman Quadlets.
+  The Mac mini OrbStack Compose services are running locally. Public Cloudflare
+  routing, R2 proof files, and browser acceptance remain unverified. The older
+  VPS path uses rootless Podman Quadlets.
 - **Demo access**: The splash screen opens the demo as Admin and includes a
   visible role switcher. It does not authenticate users.
 - **Mac deployment**: Follow the step-by-step OrbStack Compose and existing

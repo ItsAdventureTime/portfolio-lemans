@@ -13,7 +13,8 @@ implementation or operations.
 
 - Next.js 16.3 App Router frontend in `src/`.
 - Go 1.26 API in `backend/`; it owns PostgreSQL access, Goose migrations,
-  business rules, and Backblaze B2 presigned URLs.
+  business rules, and S3-compatible presigned URLs. Existing profiles use
+  Backblaze B2; the Mac mini Compose profile is configured for Cloudflare R2.
 - Browser-side API mutations use the base-path-aware Next.js
   `/api/proxy/[...path]` route; the Go API hostname stays server-side.
 - Existing script-run profiles use PostgreSQL `postgres:16-alpine` on an

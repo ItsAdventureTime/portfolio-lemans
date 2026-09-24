@@ -146,8 +146,9 @@ container is attached only to the internal network.
   for Cloudflare R2. Its account, bucket, and proof flow are not verified (see
   ADR-0004).
 - **SDK**: AWS SDK for Go v2.
-- **Bucket and prefixes**: Private bucket `bridge-ph`; demo objects use the
-  `lemans/demo` prefix and production objects use `lemans`.
+- **Bucket and prefixes**: Existing profiles use private bucket `bridge-ph`;
+  Mac mini Compose sets `portfolio-lemans`. Demo objects use the `lemans/demo`
+  prefix and production objects use `lemans`.
 - **Access Pattern**: The Go API issues short-lived presigned `PutObject` and
   `GetObject` URLs. DCS proof uploads use a Next.js server action to send the
   file to the signed URL. Relative attachment keys are stored in PostgreSQL;

@@ -2,7 +2,7 @@
 
 **Date:** 2026-09-24  
 **Implementation owner:** GPT-6 Luna (High)  
-**Next owner:** Mac mini operator, then GPT-6 Sol (Medium) for live acceptance
+**Next owner:** GPT-6 Luna (High) for root-path browser test coverage, then the Mac mini operator and GPT-6 Sol (High) for live acceptance
 
 ## Deviations
 
@@ -28,6 +28,18 @@
   removal was performed.
 
 ## How the run ended
+
+- On 2026-09-25, Sol (High) reviewed `7abdab3` and the running OrbStack stack.
+  Local HTTP checks returned `200` for web root and API health, `404` for a
+  public seed request, and `200` for the allowed actor proxy. The customer list
+  was unchanged before and after the rejected seed request. Compose config
+  passed in an isolated validation snapshot. The public hostname did not
+  resolve from this machine, and R2 key files still contain placeholders.
+  Existing Playwright tests hardcode the legacy `/demo/lemans` base path and
+  have an incorrect no-JavaScript redirect expectation; they need a root-path
+  mode before they can serve as Compose acceptance. The operator guide and
+  active public docs were corrected. No Cloudflare route or R2 resource was
+  changed.
 
 - On 2026-09-25 the user authorized a local OrbStack Compose startup outside
   Docker Sandbox. The existing `cloudflared-network` and `cloudflared`
