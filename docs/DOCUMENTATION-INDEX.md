@@ -24,9 +24,9 @@ tutorial, how-to guide, reference, or explanation.
    authorization.
 6. [`DEMO-HOSTING-DECISION.md`](./DEMO-HOSTING-DECISION.md) and
    [`agent/HANDOFF.md`](./agent/HANDOFF.md) — planned OrbStack/R2 portfolio
-   deployment and the pending Luna implementation contract.
-7. [`MACOS-DOCKER-COMPOSE.md`](./MACOS-DOCKER-COMPOSE.md) — planned Mac mini
-   operator procedure; not yet verified.
+   deployment and implementation/review state.
+7. [`MACOS-DOCKER-COMPOSE.md`](./MACOS-DOCKER-COMPOSE.md) — operator procedure
+   for the Mac mini target; external setup and deployment remain unverified.
 8. [`REMOTE-DEPLOYMENT-QUICKSTART.md`](./REMOTE-DEPLOYMENT-QUICKSTART.md) —
    concise macOS operator workflow for updating the already deployed profiles
    without exported environment variables.
@@ -53,7 +53,7 @@ tutorial, how-to guide, reference, or explanation.
 | `ARCHITECTURE.md`, `GO-BACKEND-ARCHITECTURE.md`, `ENVIRONMENTS-AND-PATHS.md`, `DESIGN-SYSTEM.md`, `PROJECT-SPEC.md`, and the ADRs | Current contract/specification          | Use for design, domain, and architecture constraints; confirm runtime facts against `CURRENT-STATE.md`.               |
 | `REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`, `REMOTE-OPERATIONS.md`                                                                      | Current but remote-only                 | Do not execute without explicit authorization and required host/Caddy context.                                        |
 | `REMOTE-DEPLOYMENT-QUICKSTART.md`                                                                                                 | Current operator quickstart             | Use for the normal no-environment-variable update flow; follow the remote playbook for topology and rollback.         |
-| `DEMO-HOSTING-DECISION.md`, `agent/HANDOFF.md`, `MACOS-DOCKER-COMPOSE.md`                                                          | Planned, not verified                    | Use for the OrbStack/R2 demo implementation and later operator deployment.                                              |
+| `DEMO-HOSTING-DECISION.md`, `agent/HANDOFF.md`, `MACOS-DOCKER-COMPOSE.md`                                                          | Compose implementation committed; validation and external setup pending | Use for the OrbStack/R2 demo and operator steps; do not infer the public URL is live. |
 | `POST-CHANGE-COMPLETION-GUIDE.md`                                                                                                 | Current repository operating standard   | Use after every change to research, update docs, validate, commit, synchronize HTTPS `main`, and verify SHA parity.   |
 | `AGENT-EXECUTION-PROMPTS.md`, `GOOGLE-ANTIGRAVITY-UI-UX-PROMPT.md`                                                                | Current operational prompts             | Keep commands synchronized with scripts and the current demo boundary.                                                |
 | `UI-UX-REVAMP-HANDOFF.md`                                                                                                         | Current implementation handoff          | Use for the completed UI/UX and workflow-navigation revamp; confirm implementation facts against `CURRENT-STATE.md`.  |

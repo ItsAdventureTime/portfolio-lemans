@@ -39,6 +39,8 @@ function copyResponseHeaders(response: Response): Headers {
 
 async function proxy(request: NextRequest, { params }: ProxyContext) {
   const { path } = await params;
+  if (path[0] !== 'api' || path.length < 2) return new NextResponse(null, { status: 404 });
+
   const trailingSlash = request.nextUrl.pathname.endsWith('/') ? '/' : '';
   const targetPath = `/${path.join('/')}${trailingSlash}`;
   const body = ['GET', 'HEAD'].includes(request.method) ? undefined : await request.arrayBuffer();

@@ -16,8 +16,10 @@ implementation or operations.
   business rules, and Backblaze B2 presigned URLs.
 - Browser-side API mutations use the base-path-aware Next.js
   `/api/proxy/[...path]` route; the Go API hostname stays server-side.
-- PostgreSQL `postgres:16-alpine` on an internal Docker network locally and an
-  internal rootless Podman network remotely.
+- Existing script-run profiles use PostgreSQL `postgres:16-alpine` on an
+  internal Docker network locally and an internal rootless Podman network
+  remotely. The planned portfolio Compose target pins `postgres:18-alpine` and
+  uses its own named volume.
 - `Dockerfile.web` builds `lemans-bridge-dashboard:{demo,prod}-web`.
 - `Dockerfile.go` builds `lemans-bridge-dashboard-go:{demo,prod}-go`.
 - The demo has no real authentication or production security boundary. It starts
@@ -25,12 +27,11 @@ implementation or operations.
   dashboard shell, and the `lemans-demo-role` cookie plus `X-Demo-Role` header
   provide role simulation after entry.
 - The Mac mini portfolio demo is **planned, not deployed or verified**. The
-  target is OrbStack Compose with Next.js, Go, and PostgreSQL, plus the existing
-  `cloudflared` container on a shared network. Cloudflare R2 is planned for
-  proof files. At the planning review, an **uncommitted local draft** of
-  `compose.yaml` removed image build definitions and seeding, and assumed an
-  unverified tunnel network and R2 endpoint. The committed Compose file still
-  describes the older Mac path. Follow
+  Compose file builds web and Go images, pins PostgreSQL 18, uses external
+  secret files, and requires the operator's existing tunnel network name and
+  real R2 S3 endpoint. Only web joins the external network; API and database
+  remain internal. The optional `seed` service resets demo records through the
+  internal API. The public proxy forwards only Go `/api/` routes. Follow
   [`DEMO-HOSTING-DECISION.md`](./DEMO-HOSTING-DECISION.md) and
   [`agent/HANDOFF.md`](./agent/HANDOFF.md) before treating
   [`MACOS-DOCKER-COMPOSE.md`](./MACOS-DOCKER-COMPOSE.md) as operational.

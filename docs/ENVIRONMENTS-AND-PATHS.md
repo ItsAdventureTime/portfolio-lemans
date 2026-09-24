@@ -31,7 +31,9 @@ Go backend API for all persistence and attachment storage. Authentication
 secrets are production-profile planning values and are not required to run
 the demo.
 
-The current deployment target is remote-only for the demo:
+The existing `remote-demo` and `remote-production` profiles remain the legacy
+VPS deployment. Their paths and Quadlet instructions below do not describe the
+portfolio demo.
 
 - No persistent `local-demo` deployment is maintained.
 - Local builds, compilation, tests, and demo execution run inside the initialized
@@ -41,9 +43,26 @@ The current deployment target is remote-only for the demo:
   `/home/jk/.config/containers/systemd/bridge-ph/lemans-demo`.
 - Remote demo data/config/database boundary is
   `/home/jk/bridge-ph/lemans-demo`.
-- Demo public URL is `https://delegateops.business/demo/lemans`; production public URL is `https://delegateops.business/prod/lemans`.
+- Legacy demo public URL is `https://delegateops.business/demo/lemans`; legacy
+  production public URL is `https://delegateops.business/prod/lemans`.
 - The two-stage deployment workflow and automated wrapper are defined in
   [`REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md`](./REMOTE-DEMO-DEPLOYMENT-PLAYBOOK.md).
+
+### Mac mini portfolio target (planned, not verified)
+
+`compose.yaml` builds the web and Go images, pins PostgreSQL `18-alpine`, and
+stores database state in `lemans_postgres_data_pg18`. API and DB attach only to
+the internal `lemans-network`; web also attaches to the operator-selected
+external network joined by the existing `cloudflared` container. No API or DB
+ports are published. Compose mounts `db_password`, `r2_access_key_id`, and
+`r2_secret_access_key` from files under `LEMANS_SECRET_DIR`, outside the repo.
+The operator must set `CLOUDFLARED_NETWORK` to the existing network name and
+`R2_ENDPOINT` to the account-specific `https://<account_id>.r2.cloudflarestorage.com`
+endpoint. The bucket name is `portfolio-lemans`, region is `auto`, and demo
+object prefix is `lemans/demo`. These external resources and the public URL are
+not verified. The one-shot `seed` service is internal-only; the public web proxy
+allows only Go `/api/` routes. DCS proof uploads originate in a server action on
+web, so web needs outbound access to R2.
 
 ## Environment matrix
 

@@ -48,7 +48,7 @@ documentation, branch cleanup, or repository synchronization is outstanding.
    - **Demo Builds**: Web image `lemans-bridge-dashboard:demo-web`, Go API image `lemans-bridge-dashboard-go:demo-go`.
    - **Production Builds**: Web image `lemans-bridge-dashboard:prod-web`, Go API image `lemans-bridge-dashboard-go:prod-go`.
 5. **Container Runtime Standard**:
-   - Next.js web images use `node:lts-alpine` (Node.js Active LTS on latest Alpine); Go API images use `golang:alpine` (latest Go on latest Alpine) build stage and `alpine:latest` runtime; PostgreSQL uses `postgres:alpine` (latest PostgreSQL on latest Alpine) unless dependency compatibility explicitly requires a Debian-based image.
+   - Next.js web images use `node:lts-alpine` (Node.js Active LTS on latest Alpine); Go API images use `golang:alpine` (latest Go on latest Alpine) build stage and `alpine:latest` runtime. Existing profiles use `postgres:alpine`; the Mac mini portfolio Compose target pins `postgres:18-alpine` and a project-specific volume.
    - Next.js runtime calls the Go API over the internal Docker network locally and the internal Podman network remotely; the Go API owns migrations, business logic, persistence, and presigned attachment URLs.
    - Run agent development builds, tests, and Compose file checks through the
      project Docker Sandbox. Do not run agent project workloads on the macOS host.
@@ -70,9 +70,9 @@ documentation, branch cleanup, or repository synchronization is outstanding.
      container. Stop with `scripts/stop-local.sh` and reset with
      `scripts/reset-local.sh`.
    - Local demo database and uploaded files reset to seeded state on demand.
-     The public remote demo must reset its fictional database and uploads every
-     30 minutes through a rootless user-level timer; production never
-     auto-resets.
+     The legacy VPS public demo uses its rootless user-level 30-minute reset
+     timer. The planned Mac mini Compose demo uses an explicit internal seed
+     command and an R2 lifecycle rule for uploads; production never auto-resets.
    - The Go API container runs migrations on startup and serves the `/admin/seed` endpoint only when `DEMO_MODE=true`.
 7. **Remote Execution Standard**:
    - VPS demo and production deployments use rootless Podman Quadlet files (`.container`, `.network`, `.volume`) for runtime only.
@@ -96,6 +96,16 @@ documentation, branch cleanup, or repository synchronization is outstanding.
 8. **Git & GitHub Operations Standard**: Use the GitHub official CLI (`gh`) as the only GitHub-facing CLI for authentication, remote inspection, HTTPS credential setup, pushes, pulls/synchronization, branch deletion, PR operations, and API checks. Configure HTTPS with `gh auth setup-git --hostname github.com`; never use SSH Git remotes, SSH keys, passkeys, or another GitHub transport. The local commit and local worktree primitives necessarily use `git` because `gh` has no local commit command. Keep the worktree and remote on `main`; do not create feature/review branches. After each validated change, commit locally, synchronize remote `main`, and confirm both refs have the same SHA. Inspect all branches; delete every non-`main` branch locally and remotely after checking protection and unique commits. Never delete `main`.
 
 ## Demo Build Authority
+
+### Mac mini portfolio demo
+
+`compose.yaml` builds the Next.js and Go images, uses PostgreSQL 18, mounts
+external secret files, and requires the operator to provide the existing
+tunnel network name and account-specific R2 endpoint. Only the web service
+joins the external tunnel network; the API and database stay on the internal
+Le Mans network. This remains a planned target, not a verified public
+deployment. Follow [`docs/agent/HANDOFF.md`](docs/agent/HANDOFF.md) and
+[`docs/MACOS-DOCKER-COMPOSE.md`](docs/MACOS-DOCKER-COMPOSE.md).
 
 For the current demo-focused work, read [`docs/DEMO-IMPLEMENTATION-PLAYBOOK.md`](docs/DEMO-IMPLEMENTATION-PLAYBOOK.md) before planning or editing. It is the authoritative demo specification and overrides older phase-completion claims where they conflict.
 

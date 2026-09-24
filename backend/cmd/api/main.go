@@ -17,7 +17,11 @@ import (
 )
 
 func main() {
-	cfg := config.Load()
+	cfg, err := config.Load()
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "configuration error: %v\n", err)
+		os.Exit(1)
+	}
 	log := logger.New(cfg.LogLevel)
 
 	pool, err := db.Connect(context.Background(), cfg.DatabaseURL)

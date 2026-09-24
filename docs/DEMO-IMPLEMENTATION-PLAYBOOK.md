@@ -196,6 +196,11 @@ freshly created records.
   must remain available for operators.
 - The reset job must run as a rootless user-level systemd timer, use the tracked
   reset implementation, and never target production data or services.
+- These timer requirements describe the legacy VPS demo profile. The planned
+  Mac mini Compose target resets fictional database rows only through its
+  internal one-shot `seed` service; R2 uploads need a separate lifecycle rule
+  scoped to `lemans/demo/`. Neither external setup is considered verified until
+  an operator checks the running target.
 - Demo data must be fictional and safe to display in screenshots or screen shares.
 - Number generation must be collision-safe and deterministic enough for repeatable
   walkthroughs.

@@ -1,8 +1,18 @@
 # Deploy the portfolio demo on the Mac mini
 
-**Status:** Planned operator procedure. The checked-out Compose file is not yet verified for these steps. Complete and review [`agent/HANDOFF.md`](./agent/HANDOFF.md) first. This guide is for `https://lemans.delegateops.business/`, not the old VPS or a production profile.
+**Status:** Compose implementation is committed and awaits independent
+validation; external network, R2 resources, and public deployment remain
+unverified. Complete and review
+[`agent/HANDOFF.md`](./agent/HANDOFF.md) first. This guide is for
+`https://lemans.delegateops.business/`, not the old VPS or a production profile.
 
 OrbStack runs Next.js, Go, and PostgreSQL. The existing `cloudflared` container stays in its own project and reaches only the Le Mans web service on a shared Docker network. R2 stores demo proof files using its S3 compatible API. [OrbStack Compose support](https://docs.orbstack.dev/docker/), [Docker Compose networking](https://docs.docker.com/compose/how-tos/networking/), [Cloudflare published applications](https://developers.cloudflare.com/cloudflare-one/networks/connectors/cloudflare-tunnel/routing-to-tunnel/).
+
+Compose uses local Dockerfile builds, required shell-variable interpolation,
+and file-backed secrets. See the official [Compose build
+reference](https://docs.docker.com/reference/compose-file/build/) and
+[variable interpolation guide](https://docs.docker.com/compose/how-tos/environment-variables/variable-interpolation/)
+(checked 2026-09-24).
 
 ## 1. Check the existing Mac and tunnel
 
@@ -14,7 +24,7 @@ docker compose version
 docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Networks}}'
 ```
 
-Find the actual Docker network joined by the running `cloudflared` container and inspect it with `docker network inspect NETWORK_NAME`. The `cloudflared-network` in the draft `compose.yaml` is an unverified placeholder. Configure the Le Mans web service to join the real external network with a unique alias such as `lemans-web`. Keep API and database on the private Le Mans network only. Leave Linkwarden, Vaultwarden, DocuSeal, and the existing tunnel project unchanged. If there is no suitable shared network, resolve that first; do not expose the API or database to work around it.
+Find the actual Docker network joined by the running `cloudflared` container and inspect it with `docker network inspect NETWORK_NAME`. Export its exact name as `CLOUDFLARED_NETWORK`; Compose rejects an unset value. The web service joins that external network with alias `lemans-web`. Keep API and database on the private Le Mans network only. Leave Linkwarden, Vaultwarden, DocuSeal, and the existing tunnel project unchanged. If there is no suitable shared network, resolve that first; do not expose the API or database to work around it.
 
 ## 2. Create an R2 bucket and scoped keys
 
@@ -22,9 +32,15 @@ In the [Cloudflare dashboard](https://dash.cloudflare.com/), open **R2 object st
 
 Current DCS proof upload runs in a Next.js server action. Browser CORS is not needed for that request. If the implementation moves a signed `PUT` or `GET` into the browser, add a bucket CORS rule for exactly `https://lemans.delegateops.business`, the used methods, and sent headers such as `Content-Type`, then test it. Keep the bucket private. [R2 presigned URLs](https://developers.cloudflare.com/r2/api/s3/presigned-urls/), [R2 CORS](https://developers.cloudflare.com/r2/buckets/cors/).
 
+In the bucket settings, add an enabled object lifecycle rule for prefix
+`lemans/demo/` that deletes objects after 30 days. DB seeding does not delete
+R2 objects. Expired R2 objects are typically removed within 24 hours and may
+take longer. Confirm the rule is present before opening the public demo.
+[R2 object lifecycle rules](https://developers.cloudflare.com/r2/buckets/object-lifecycles/).
+
 ## 3. Store secrets outside the repository
 
-Create a private directory on the Mac. `LEMANS_SECRET_DIR` is a path, not a credential; it is only for Compose interpolation. Do not create a `.env` file.
+Create a private directory on the Mac. `LEMANS_SECRET_DIR` is a path, not a credential; it is only for Compose interpolation. Do not create a `.env` file. The Compose file requires `LEMANS_SECRET_DIR`, `CLOUDFLARED_NETWORK`, and `R2_ENDPOINT` from the shell environment.
 
 ```sh
 export LEMANS_SECRET_DIR="$HOME/Library/Application Support/lemans-demo/secrets"
@@ -46,12 +62,15 @@ The directory should show `drwx------`; each file should show `-rw-------`. The 
 
 ## 4. Configure and build the demo
 
-After the Luna implementation passes review, set the actual tunnel network, R2 endpoint and bucket in `compose.yaml`. Keep safe runtime values there and credentials in secret files. Check `NEXT_PUBLIC_BASE_PATH=""` at **web build time** and runtime. A runtime variable alone cannot correct a previously built Next.js base path.
+After the Luna implementation passes review, export the actual tunnel network and account-specific R2 endpoint. Keep credentials in secret files. Compose supplies `NEXT_PUBLIC_BASE_PATH=""` at **web build time** and runtime. A runtime variable alone cannot correct a previously built Next.js base path. [Next.js environment variables](https://nextjs.org/docs/app/guides/environment-variables).
 
 From the repository root on the Mac mini:
 
 ```sh
 export COMPOSE_DISABLE_ENV_FILE=1
+export LEMANS_SECRET_DIR="$HOME/Library/Application Support/lemans-demo/secrets"
+export CLOUDFLARED_NETWORK='the-existing-network-name'
+export R2_ENDPOINT="https://ACCOUNT_ID.r2.cloudflarestorage.com"
 docker compose config --quiet
 docker compose build web api
 docker compose up -d db api web
@@ -62,15 +81,16 @@ The build runs in OrbStack on the Mac mini. A GitHub push alone does not update 
 
 ## 5. Seed and check private services
 
-Run the one-shot internal seed command supplied by the reviewed Compose implementation. The planned command is `docker compose run --rm seed`; confirm it exists before running it. It replaces demo records, so use it only on initial setup or for a planned reset.
+Run the internal one-shot seed command only for initial setup or a planned reset. It replaces demo database records and is not exposed by the public proxy.
 
 ```sh
 docker compose exec web node -e "fetch('http://127.0.0.1:3000/').then(r => { console.log(r.status); process.exit(r.ok ? 0 : 1) }).catch(e => { console.error(e); process.exit(1) })"
 docker compose exec web node -e "fetch('http://api:8080/health').then(r => { console.log(r.status); process.exit(r.ok ? 0 : 1) }).catch(e => { console.error(e); process.exit(1) })"
 docker compose ps
+docker compose run --rm seed
 ```
 
-Expect HTTP `200` for both checks. Confirm no host port mapping for `api` or `db`. The reviewer must also verify that `/api/proxy/admin/seed` is rejected without deleting records. The demo's entry cookie and role switcher are not authentication.
+Expect HTTP `200` for both health checks. Confirm no host port mapping for `api` or `db`. Verify that `POST /api/proxy/admin/seed` returns `404` and records remain unchanged. The demo's entry cookie and role switcher are not authentication.
 
 ## 6. Route the public hostname
 

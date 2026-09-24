@@ -141,22 +141,31 @@ container is attached only to the internal network.
 
 ### File Attachment Layer
 
-- **Object Store**: Backblaze B2 via S3-compatible API (see ADR-0004).
+- **Object Store**: The shared Go S3 signer supports runtime-specific endpoints.
+  Existing profiles use Backblaze B2; the planned portfolio Compose demo uses
+  Cloudflare R2. The R2 bucket is not provisioned or verified (see ADR-0004).
 - **SDK**: AWS SDK for Go v2.
 - **Bucket and prefixes**: Private bucket `bridge-ph`; demo objects use the
   `lemans/demo` prefix and production objects use `lemans`.
 - **Access Pattern**: The Go API issues short-lived presigned `PutObject` and
-  `GetObject` URLs. Relative attachment keys are stored in PostgreSQL; the
-  configured profile prefix is applied exactly once when signing each request.
+  `GetObject` URLs. DCS proof uploads use a Next.js server action to send the
+  file to the signed URL. Relative attachment keys are stored in PostgreSQL;
+  the configured profile prefix is applied exactly once when signing each
+  request. The web service therefore needs outbound access to R2.
 - **Metadata Registry**: PostgreSQL `attachments` table links S3 object keys to Job Orders, DCS payments, supplier invoices, and OPEX requests.
 
 ### Backup & Disaster Recovery
 
 - **Database Backup**: Daily containerized `pg_dump` execution stores compressed
   SQL backups in `s3://bridge-ph/lemans/backups/db/` (production only).
-- **Object Storage Backup**: Backblaze B2 bucket versioning and lifecycle rules managed in Backblaze console; references preserved in PostgreSQL.
+- **Object Storage Retention**: Existing B2 profile lifecycle rules remain
+  operator-managed. Configure a Cloudflare R2 lifecycle rule for prefix
+  `lemans/demo/` so portfolio demo uploads expire after 30 days; R2 can take up
+  to 24 hours or longer to remove expired objects. See the
+  [R2 object lifecycle guide](https://developers.cloudflare.com/r2/buckets/object-lifecycles/).
 - **Restore Protocol**: One-line container execution: `podman exec -i lemans-db psql -U postgres lemans_db < backup.sql`.
-- **Demo Reset**: Local demo resets on demand. The public remote demo resets
-  every 30 minutes through a rootless user-level systemd timer, with a manual
-  operator trigger also available. Both restore the DB seed and clear uploaded
-  demo attachments; production never auto-resets.
+- **Demo Reset**: Script-run local and legacy VPS demos retain their documented
+  reset procedures. The planned portfolio Compose demo uses the internal
+  one-shot `docker compose run --rm seed` service to restore fictional DB data;
+  R2 objects expire separately through the prefix-scoped lifecycle rule above.
+  The Mac mini target is not deployed or verified.

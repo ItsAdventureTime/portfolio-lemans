@@ -10,6 +10,7 @@
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "test:base-path": "node --experimental-strip-types --test src/lib/base-path.test.mjs && NEXT_PUBLIC_BASE_PATH=/demo/lemans node --experimental-strip-types --test src/lib/base-path.test.mjs",
     "test:e2e": "playwright test"
   },
   "dependencies": {

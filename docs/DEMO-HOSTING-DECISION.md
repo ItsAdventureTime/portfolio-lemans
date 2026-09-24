@@ -1,6 +1,6 @@
 # Portfolio demo hosting decision
 
-**Status:** Planning decision, 2026-09-24. No Mac mini or Cloudflare deployment has been performed or verified for this plan.
+**Status:** Compose implementation committed; independent validation pending, 2026-09-24. No Mac mini or Cloudflare deployment has been performed or verified.
 
 **Target:** `https://lemans.delegateops.business/`, showing the demo only. Production and the older VPS Quadlet deployment are outside this delivery.
 
@@ -28,9 +28,9 @@ The Cloudflare account's actual subscription, product entitlements, R2 bucket, t
 - `src/app/` uses server actions and route handlers. `src/app/api/proxy/[...path]/route.ts` forwards to the Go API.
 - `backend/internal/db/migrations/0001_schema.up.sql` uses PostgreSQL-specific `pgcrypto`, UUID defaults, and enum types. `backend/cmd/api/main.go` runs migrations on API startup.
 - `backend/internal/b2/b2.go` already signs S3 `PUT` and `GET` URLs. `src/app/dcs/page.tsx` sends the proof file from a server action to the signed URL.
-- `compose.yaml` is being revised in an uncommitted local worktree. That draft has no `build:` entries or seeding service. It assumes `cloudflared-network` and three secret files exist and sets an R2 endpoint placeholder. The committed file still describes the older Mac path. Neither version is verified for the new target.
-- The public Next.js proxy currently accepts arbitrary paths, including `/admin/seed`, which deletes and recreates demo records. The implementation must limit that proxy to Go `/api/` routes before publishing the site.
-- Existing active guides still describe a native macOS tunnel, host port `3001`, and Backblaze B2. The new operator guide is the planned target; the implementer must align all active guides with the verified result.
+- `compose.yaml` now defines builds for `Dockerfile.web` and `Dockerfile.go`, pins PostgreSQL 18, requires the tunnel network name and R2 endpoint from the shell, and mounts secrets from `LEMANS_SECRET_DIR` outside the repository. Its internal-only `seed` service is available for explicit reset. Sandbox checks are pending; this file is not verified for Mac mini deployment.
+- The public Next.js proxy now forwards only Go `/api/` routes, so `/admin/seed` cannot be called through it. Request-level and persistence checks are pending.
+- Active docs now describe the planned Compose/R2 target separately from the older VPS profile. The Mac operator steps, real tunnel network, R2 credentials/bucket/lifecycle rule, and public hostname remain unverified.
 
 ## Deployment boundary
 

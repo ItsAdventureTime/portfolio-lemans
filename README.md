@@ -40,12 +40,14 @@ City, Pampanga.
 - **Mac deployment**: Follow the planned OrbStack Compose and existing
   Cloudflare Tunnel operator procedure after implementation review. See
   [`docs/MACOS-DOCKER-COMPOSE.md`](./docs/MACOS-DOCKER-COMPOSE.md).
-- **Attachments**: Current code uses a Backblaze B2 style S3 presigner. The
-  portfolio demo plans Cloudflare R2 through the same S3 interface. See
+- **Attachments**: The Go API signs S3-compatible upload and download URLs.
+  Existing profiles use Backblaze B2; the planned Compose demo uses Cloudflare
+  R2 through the same signer. DCS uploads run in a Next.js server action.
+  Neither the R2 bucket nor Mac mini deployment is verified. See
   [`docs/DEMO-HOSTING-DECISION.md`](./docs/DEMO-HOSTING-DECISION.md).
-  - **Backend**: The Go API owns persistence, Goose migrations, business rules,
-    and presigned B2 URLs. The Next.js frontend reaches it over the internal
-    Docker network locally and the internal Podman network remotely.
+- **Backend**: The Go API owns persistence and Goose migrations. Browser API
+  calls use the same-origin proxy, which forwards only Go `/api/` routes; seed
+  reset remains an internal operator command.
 - **Workflow safety**: Quote creation and quote-to-job-order conversion run in
   database transactions, so a failed write does not leave partial records.
 - **Job costing workflow**: The demo includes searchable, status-filtered job

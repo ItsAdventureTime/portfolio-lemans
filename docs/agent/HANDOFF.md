@@ -1,8 +1,8 @@
 # Mac mini portfolio demo implementation handoff
 
-**ACTIVE_ROLE:** Implementation pending
+**ACTIVE_ROLE:** Implementation complete; independent review and validation pending
 
-**NEXT_OWNER:** GPT-6 Luna (High), manually triggered by the user
+**NEXT_OWNER:** GPT-6 Sol (High), independent reviewer
 
 **IMPLEMENTATION_OWNER:** GPT-6 Luna (High)
 
@@ -14,6 +14,30 @@
 
 **PUSH:** Commit validated repository changes and synchronize HTTPS `main` under repository policy.
 **DEPLOYMENT:** User follows `docs/MACOS-DOCKER-COMPOSE.md` manually after review. Do not access the Mac mini tunnel, Cloudflare account, or old VPS as part of this handoff.
+
+## Implementor progress (2026-09-24)
+
+- Confirmed worktree is `main`; preserved the pre-existing changes listed below.
+- Read the authoritative demo playbook, hosting decision, and operator guide.
+- Added local Dockerfile builds, the empty-base-path build argument, PostgreSQL
+  18 with a separate named volume, external file-backed secrets, and required
+  shell variables for the R2 endpoint and existing tunnel network.
+- Added an explicit internal-only `seed` service and restricted the public
+  Next.js proxy to Go `/api/` paths.
+- Updated the operator guide, current-state, architecture, environment,
+  README, index, ADR, agent policy, and demo playbook. The R2 retention rule
+  remains an operator setup requirement.
+- External R2, tunnel, and Mac mini setup remain unverified and out of scope.
+- Official guidance checked: Docker Compose build/interpolation docs, Next.js
+  environment variable docs, and Cloudflare R2 object lifecycle docs on
+  2026-09-24. PostgreSQL 18 Alpine tag and its data-directory behavior were
+  checked against the [official image](https://hub.docker.com/_/postgres) and
+  [PostgreSQL version policy](https://www.postgresql.org/support/versioning/).
+  See the source links in the affected docs.
+- Implementation validation is pending in Sol's sandbox-private committed
+  snapshot. Remote `main` synchronization waits for that validation.
+- Detailed reviewer setup and external verification limits are in
+  [`HANDOFF.notes.md`](./HANDOFF.notes.md).
 
 ## Outcome and authority
 

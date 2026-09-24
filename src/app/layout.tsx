@@ -11,7 +11,7 @@ import { getBasePath } from '@/lib/base-path';
 import { isDemoEntered } from '@/lib/demo-entry.server';
 
 const logoPath = `${getBasePath()}/lemans-service-plus-logo.jpg`;
-const siteOrigin = 'https://delegateops.business';
+const siteOrigin = process.env.SITE_URL || 'https://lemans.delegateops.business';
 const brandTitle = 'Le Mans Service Plus - Operations & Job Cost Management';
 const brandDescription =
   'Enterprise operational dashboard and job costing platform for auto service centers.';

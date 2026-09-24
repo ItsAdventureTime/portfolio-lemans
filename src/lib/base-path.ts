@@ -7,9 +7,11 @@ export function getBasePath(): string {
 export function stripBasePath(pathname: string): string {
   const normalizedPathname = pathname.startsWith('/') ? pathname : `/${pathname}`;
 
-  if (!CONFIGURED_BASE_PATH || normalizedPathname === CONFIGURED_BASE_PATH) {
+  if (normalizedPathname === CONFIGURED_BASE_PATH || normalizedPathname === `${CONFIGURED_BASE_PATH}/`) {
     return '/';
   }
+
+  if (!CONFIGURED_BASE_PATH) return normalizedPathname;
 
   if (normalizedPathname.startsWith(`${CONFIGURED_BASE_PATH}/`)) {
     return normalizedPathname.slice(CONFIGURED_BASE_PATH.length) || '/';
