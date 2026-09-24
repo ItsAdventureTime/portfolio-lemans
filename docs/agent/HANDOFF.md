@@ -1,6 +1,6 @@
 # Mac mini portfolio demo implementation handoff
 
-**ACTIVE_ROLE:** Implementation complete; independent review and validation pending
+**ACTIVE_ROLE:** Local implementation validated; browser acceptance blocked by Sandbox storage
 
 **NEXT_OWNER:** GPT-6 Sol (High), independent reviewer
 
@@ -34,8 +34,10 @@
   checked against the [official image](https://hub.docker.com/_/postgres) and
   [PostgreSQL version policy](https://www.postgresql.org/support/versioning/).
   See the source links in the affected docs.
-- Implementation validation is pending in Sol's sandbox-private committed
-  snapshot. Remote `main` synchronization waits for that validation.
+- Local implementation checks passed on commit `16bef3f` in Sol's
+  sandbox-private snapshot. The existing Playwright run could not fetch
+  Chromium because the Sandbox filesystem is full. Remote `main`
+  synchronization remains pending.
 - Sol's first review found a Compose network YAML shape error and that a
   literal R2 example endpoint could pass configuration parsing. Both are fixed
   in an implementor follow-up; Sol must validate the new HEAD.
@@ -44,11 +46,13 @@
   It found Prettier failures, an unsupported Node TypeScript runtime flag in
   the base-path test, and package advisories. Luna fixed the format/test issues
   and updated Next.js, `eslint-config-next`, locked `sharp`, and dev-only
-  `js-yaml`. Sol's `b0180d8` run passed local builds and smoke checks; full audit
-  reported zero after the `js-yaml` update, pending confirmation on the next
-  commit. Signature verification still reports an expired registry key for
-  `clsx@2.1.1`; see notes. Browser QA and external R2/tunnel acceptance remain
-  pending.
+  `js-yaml`. On `16bef3f`, fresh `npm ci`, format, lint, typecheck, both
+  base-path tests, Next.js build, and `npm audit` passed; full and production
+  audits report zero vulnerabilities. `npm audit signatures` still reports an
+  expired registry key for `clsx@2.1.1`; see notes. A second Sol review
+  attempted the existing Playwright workflow; zero tests ran because the
+  Chromium image pull failed with `no space left on device`. Browser QA and
+  external R2/tunnel acceptance remain pending.
 - Detailed reviewer setup and external verification limits are in
   [`HANDOFF.notes.md`](./HANDOFF.notes.md).
 

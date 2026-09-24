@@ -1,8 +1,8 @@
 # Deploy the portfolio demo on the Mac mini
 
-**Status:** Compose implementation is committed and awaits independent
-validation; external network, R2 resources, and public deployment remain
-unverified. Complete and review
+**Status:** Compose implementation passed local Sandbox checks; browser QA,
+external network, R2 resources, and public deployment remain unverified.
+Complete and review
 [`agent/HANDOFF.md`](./agent/HANDOFF.md) first. This guide is for
 `https://lemans.delegateops.business/`, not the old VPS or a production profile.
 

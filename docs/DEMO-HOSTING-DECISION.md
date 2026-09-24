@@ -1,6 +1,6 @@
 # Portfolio demo hosting decision
 
-**Status:** Compose implementation committed; independent validation pending, 2026-09-24. No Mac mini or Cloudflare deployment has been performed or verified.
+**Status:** Compose implementation and local validation complete; browser QA and external setup remain pending, 2026-09-24. No Mac mini or Cloudflare deployment has been performed or verified.
 
 **Target:** `https://lemans.delegateops.business/`, showing the demo only. Production and the older VPS Quadlet deployment are outside this delivery.
 

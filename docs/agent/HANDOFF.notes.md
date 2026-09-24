@@ -63,14 +63,20 @@
   base-path modes, Next.js build, Compose builds, seed/proxy smoke, and DB
   persistence/reset. Production audit had zero findings. Full audit found one
   high dev-only `js-yaml` advisory; Luna updated it from 4.3.1 to patched 4.3.2.
-  Run validation against the next commit. `npm audit signatures` failed for
-  `clsx@2.1.1` because its registry signing key expired 2025-01-29; this is not
-  evidence of tampering, but signature verification remains incomplete.
-- Browser QA was unavailable in the reviewer lane. The existing Playwright
-  script uses an image absent from the Sandbox and targets the legacy
-  `/demo/lemans` profile, so it does not exercise the new root-base-path Compose
-  target. Keep rendered/browser acceptance pending if no compatible existing
-  workflow is available.
+  `16bef3f` fresh `npm ci`, formatting, lint, typecheck, both base-path modes,
+  Next.js build, and web image build passed. Full and production audits report
+  zero vulnerabilities, with `js-yaml` 4.3.2. `npm audit signatures` still
+  fails for `clsx@2.1.1` because its registry signing key expired 2025-01-29;
+  this is not evidence of tampering, but signature verification remains
+  incomplete.
+- The second Sol reviewer started `scripts/verify-e2e.sh` in the validation
+  Sandbox. The legacy demo reached `/demo/lemans`, but pulling the official
+  Playwright/Chromium image failed with `no space left on device`; zero browser
+  tests ran. The Sandbox reported 6.355 GB reclaimable build cache and 2.4 GB
+  free after the failed pull. No broad cache cleanup or retry was performed.
+  The targeted stop script removed only the named demo app/API/DB containers;
+  the data volume remains. The existing suite targets `/demo/lemans`, not the
+  root-base-path Compose target.
 - Validate Compose configuration, both image builds, Go tests, frontend format,
   lint, typecheck, base-path tests, and Next.js build. If the sandbox can test
   Compose safely, use an isolated external test network and verify seeding,
