@@ -136,7 +136,7 @@ The planner found uncommitted changes in `backend/cmd/api/main.go`, `backend/int
 
 ## Independent acceptance for Sol
 
-Use `jk-sbx-project validate` with a committed snapshot for independent checks. Bootstrap dependencies from the lockfile in that snapshot if needed. Review Compose topology, secret mounts and permissions, public proxy guard, base path, root URL, seeded role workflows, PostgreSQL persistence across restart, controlled reset, proof upload/download, and desktop/mobile rendered behavior. Confirm no regressions in the existing demo Playwright workflow. An actual Cloudflare hostname, R2 bucket, tunnel network, and Mac mini deployment can be marked verified only after the user performs the manual deployment and reports or grants access to the resulting observations.
+Use `jk-sbx-project validate` with a committed snapshot for independent checks. Bootstrap dependencies from the lockfile in that snapshot if needed. Review Compose topology, secret mounts and permissions, public proxy guard, base path, root URL, seeded role workflows, PostgreSQL persistence across restart, controlled reset, proof upload/download, and desktop/mobile rendered behavior. Confirm no regressions in the existing demo Playwright workflow. The local `cloudflared-network` and web alias are verified. A public Cloudflare hostname, R2 bucket/proof flow, and end-to-end Mac mini tunnel route can be marked verified only after the user performs the manual setup and reports or grants access to the resulting observations.
 
 ## STOP conditions and finish line
 

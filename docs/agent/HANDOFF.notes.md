@@ -45,7 +45,9 @@
   updates. Fixed these in the follow-up: active docs now separate running local
   services from unverified public routing/R2, and the update guide compares the
   current and candidate PostgreSQL major before recreating the DB container.
-  Re-review is required before remote synchronization.
+  Sol's follow-up review passed those fixes. The remaining low-severity handoff
+  wording was updated to distinguish the verified local network from pending
+  public hostname and end-to-end tunnel acceptance.
 
 - Compose now builds the web and Go images, uses the root Next.js base path,
   puts API and DB only on an internal network, and joins the web service to an
