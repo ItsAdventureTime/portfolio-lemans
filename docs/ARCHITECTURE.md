@@ -142,8 +142,9 @@ container is attached only to the internal network.
 ### File Attachment Layer
 
 - **Object Store**: The shared Go S3 signer supports runtime-specific endpoints.
-  Existing profiles use Backblaze B2; the planned portfolio Compose demo uses
-  Cloudflare R2. The R2 bucket is not provisioned or verified (see ADR-0004).
+  Existing profiles use Backblaze B2; the portfolio Compose demo is configured
+  for Cloudflare R2. Its account, bucket, and proof flow are not verified (see
+  ADR-0004).
 - **SDK**: AWS SDK for Go v2.
 - **Bucket and prefixes**: Private bucket `bridge-ph`; demo objects use the
   `lemans/demo` prefix and production objects use `lemans`.
@@ -165,7 +166,8 @@ container is attached only to the internal network.
   [R2 object lifecycle guide](https://developers.cloudflare.com/r2/buckets/object-lifecycles/).
 - **Restore Protocol**: One-line container execution: `podman exec -i lemans-db psql -U postgres lemans_db < backup.sql`.
 - **Demo Reset**: Script-run local and legacy VPS demos retain their documented
-  reset procedures. The planned portfolio Compose demo uses the internal
+  reset procedures. The running portfolio Compose demo uses the internal
   one-shot `docker compose run --rm seed` service to restore fictional DB data;
   R2 objects expire separately through the prefix-scoped lifecycle rule above.
-  The Mac mini target is not deployed or verified.
+  The local Mac mini services are running; the public route and R2 proof flow
+  are not verified.

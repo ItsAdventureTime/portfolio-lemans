@@ -40,6 +40,12 @@
   R2 key files. The API is healthy, but proof upload/download is not functional
   until real account-scoped keys and endpoint replace them. No public route or
   real R2 operation was performed.
+- Sol's independent review of commit `0dac0d9` found stale public-deployment
+  status in active docs and no operator check before floating PostgreSQL image
+  updates. Fixed these in the follow-up: active docs now separate running local
+  services from unverified public routing/R2, and the update guide compares the
+  current and candidate PostgreSQL major before recreating the DB container.
+  Re-review is required before remote synchronization.
 
 - Compose now builds the web and Go images, uses the root Next.js base path,
   puts API and DB only on an internal network, and joins the web service to an

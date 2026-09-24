@@ -39,6 +39,16 @@
 - The web container health check passed at `/`. Live public route, R2 proof
   upload/download, and browser acceptance remain for the operator/reviewer.
 
+## Independent review follow-up (2026-09-25)
+
+- Sol reviewed commit `0dac0d9` and found stale runtime claims in the hosting
+  decision, architecture, and README, plus no PostgreSQL major-version check
+  in the update instructions. These were corrected in the current worktree.
+- Sol's `jk-sbx-project validate` Compose config and rendered topology checks
+  passed using throwaway values. Sol confirmed the floating tag currently uses
+  PostgreSQL 18 layout; future major changes still require migration. Re-review
+  the documentation follow-up before pushing.
+
 ## Reviewer update (2026-09-25)
 
 - `compose.yaml` configuration, Go config tests, fresh `npm ci`, Prettier,

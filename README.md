@@ -42,9 +42,10 @@ City, Pampanga.
   `secrets/` directory, required R2 keys, and manual checks. See
   [`docs/MACOS-DOCKER-COMPOSE.md`](./docs/MACOS-DOCKER-COMPOSE.md).
 - **Attachments**: The Go API signs S3-compatible upload and download URLs.
-  Existing profiles use Backblaze B2; the planned Compose demo uses Cloudflare
-  R2 through the same signer. DCS uploads run in a Next.js server action.
-  Neither the R2 bucket nor Mac mini deployment is verified. See
+  Existing profiles use Backblaze B2; the Compose demo uses Cloudflare R2
+  through the same signer. DCS uploads run in a Next.js server action.
+  OrbStack services are running locally; R2 and public routing are unverified.
+  See
   [`docs/DEMO-HOSTING-DECISION.md`](./docs/DEMO-HOSTING-DECISION.md).
 - **Backend**: The Go API owns persistence and Goose migrations. Browser API
   calls use the same-origin proxy, which forwards only Go `/api/` routes; seed
@@ -136,11 +137,13 @@ workflow and never place credentials in documentation or shell history.
 
 ## How-to: run the Mac mini demo
 
-After implementation review, use the planned Compose and Cloudflare Tunnel procedure in
+Use the Compose and Cloudflare Tunnel procedure in
 [`docs/MACOS-DOCKER-COMPOSE.md`](./docs/MACOS-DOCKER-COMPOSE.md). It keeps the
 API and PostgreSQL services private to Compose. The existing `cloudflared`
-container shares only the web service's external network. The public target is
-`https://lemans.delegateops.business/`; it is not verified live yet.
+container shares only the web service's external network. The local web
+container is `lemans-web-1`, with alias `lemans-web`; the public route is not
+configured. Replace placeholder R2 settings before routing traffic to
+`https://lemans.delegateops.business/`.
 
 ---
 
@@ -149,7 +152,7 @@ container shares only the web service's external network. The public target is
 - [`docs/CURRENT-STATE.md`](./docs/CURRENT-STATE.md): Implementation-backed current runtime, workflow, and documentation authority
 - [`docs/DEMO-HOSTING-DECISION.md`](./docs/DEMO-HOSTING-DECISION.md): Cloudflare option assessment and portfolio demo decision
 - [`docs/agent/HANDOFF.md`](./docs/agent/HANDOFF.md): Luna implementation and Sol review gates
-- [`docs/MACOS-DOCKER-COMPOSE.md`](./docs/MACOS-DOCKER-COMPOSE.md): planned OrbStack and Cloudflare Tunnel operator guide
+- [`docs/MACOS-DOCKER-COMPOSE.md`](./docs/MACOS-DOCKER-COMPOSE.md): OrbStack and Cloudflare Tunnel operator guide
 - [`docs/DOCUMENTATION-INDEX.md`](./docs/DOCUMENTATION-INDEX.md): Documentation status map, authority order, synchronization, and verification contract
 - [`docs/WRITING-STYLE.md`](./docs/WRITING-STYLE.md): US-English writing, tone, and proofreading standard
 - [`AGENTS.md`](./AGENTS.md): Agent Operating Guidelines & Sandbox Policy

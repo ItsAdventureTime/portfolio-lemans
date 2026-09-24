@@ -138,6 +138,24 @@ Open `https://lemans.delegateops.business/`. Check the branded splash, Enter as 
 
 ## 7. Update, reset, and recover
 
+Before updating, compare the running PostgreSQL major with the candidate behind
+the floating Alpine tag. The official image uses a major-specific data directory
+for PostgreSQL 18 and later. PostgreSQL requires `pg_upgrade` or dump/restore
+for a major upgrade; do not recreate the database container with a different
+major until a migration and backup plan is ready. See the [PostgreSQL
+`pg_upgrade` guide](https://www.postgresql.org/docs/18/pgupgrade.html),
+[versioning policy](https://www.postgresql.org/support/versioning/), and
+[Docker Official Image notes](https://hub.docker.com/_/postgres).
+
+```sh
+docker compose exec -T db postgres --version
+docker compose pull db
+docker run --rm postgres:alpine postgres --version
+```
+
+Proceed only if both version outputs have the same major number. Stop and plan
+a migration if they differ.
+
 For a later reviewed commit, update the Mac checkout of `main`, then rebuild and restart only this Compose project:
 
 ```sh

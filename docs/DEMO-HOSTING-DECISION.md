@@ -1,6 +1,6 @@
 # Portfolio demo hosting decision
 
-**Status:** Compose implementation and local validation complete; browser QA and external setup remain pending, 2026-09-24. No Mac mini or Cloudflare deployment has been performed or verified.
+**Status:** OrbStack Compose services started locally on 2026-09-25. The public route, R2 setup, proof flow, and browser acceptance remain unverified.
 
 **Target:** `https://lemans.delegateops.business/`, showing the demo only. Production and the older VPS Quadlet deployment are outside this delivery.
 
@@ -30,8 +30,8 @@ The Cloudflare account's actual subscription, product entitlements, R2 bucket, t
 - `backend/internal/b2/b2.go` already signs S3 `PUT` and `GET` URLs. `src/app/dcs/page.tsx` sends the proof file from a server action to the signed URL.
 - `compose.yaml` defines builds for `Dockerfile.web` and `Dockerfile.go`, uses floating `postgres:alpine`, requires the tunnel network name and R2 endpoint from the shell, and mounts secrets from `LEMANS_SECRET_DIR`. The operator guide uses the Git-ignored workspace `secrets/` directory. Its internal-only `seed` service is available for explicit reset. OrbStack runtime is started locally; public routing and live R2 proof remain unverified.
 - The public Next.js proxy now forwards only Go `/api/` routes, so `/admin/seed` cannot be called through it. Request-level and persistence checks are pending.
-- Active docs now describe the planned Compose/R2 target separately from the older VPS profile. The Mac operator steps, real tunnel network, R2 credentials/bucket/lifecycle rule, and public hostname remain unverified.
+- Active docs describe the Compose/R2 target separately from the older VPS profile. The operator confirmed `cloudflared-network` and the local Compose services are running. Real R2 credentials/bucket/lifecycle rule and public hostname remain unverified.
 
 ## Deployment boundary
 
-This review changes documentation only. It does not connect to the Mac mini runtime, Cloudflare account, R2, DNS, or the VPS. The user will manually trigger the Luna implementation task. The user will perform the external dashboard and Mac mini deployment steps after a reviewable implementation exists.
+The user authorized local OrbStack Compose startup outside Docker Sandbox. The services are running, but no Cloudflare dashboard, R2 account, DNS, or VPS was accessed. The user owns Cloudflare routing and real R2 setup.
