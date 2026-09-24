@@ -18,8 +18,10 @@
   and `eslint-config-next` to `16.3.6`, and the lockfile to `sharp` `0.35.4`.
   Both packages retain their existing npm maintainers and registry signing key.
   Next.js `16.3.6` was published 2026-09-22; `sharp` `0.35.4` was published
-  2026-08-26. The first update reported one remaining high audit finding; Sol
-  must identify whether it affects production and report current audit results.
+  2026-08-26. A dev-only `js-yaml` advisory was found and its lockfile version
+  updated from `4.3.1` to patched `4.3.2` (same maintainer and runtime
+  dependency list). npm then reported zero vulnerabilities; Sol must confirm
+  on the new commit.
 - PostgreSQL 18 uses a new named volume, `lemans_postgres_data_pg18`. It is not
   compatible with the old PostgreSQL 16 data volume; no data migration or
   volume removal was performed.
@@ -41,7 +43,7 @@
   days. The database seed does not remove R2 objects; expiry can take 24 hours
   or longer.
 - Luna did not run review, tests, builds, or validation per the assigned role.
-  Sol should run `jk-sbx-project validate` against this committed change. Use
+  Sol should validate each new committed follow-up. Use
   throwaway non-secret values for local Compose config and smoke checks; never
   use or print real credentials in the sandbox.
 - Sol's first validation attempt against commit `63c8b0f` found invalid mixed
@@ -56,7 +58,19 @@
   reset. Prettier and the base-path test failed; Luna formatted the reported
   files and changed the test to use the already-installed TypeScript compiler
   API instead of Node's unsupported `--experimental-strip-types` runtime. These
-  fixes, dependency updates, and docs require a fresh validation run.
+  fixes, dependency updates, and docs required a fresh validation run.
+- On `b0180d8`, Sol confirmed Go tests, formatting, lint, typecheck, both
+  base-path modes, Next.js build, Compose builds, seed/proxy smoke, and DB
+  persistence/reset. Production audit had zero findings. Full audit found one
+  high dev-only `js-yaml` advisory; Luna updated it from 4.3.1 to patched 4.3.2.
+  Run validation against the next commit. `npm audit signatures` failed for
+  `clsx@2.1.1` because its registry signing key expired 2025-01-29; this is not
+  evidence of tampering, but signature verification remains incomplete.
+- Browser QA was unavailable in the reviewer lane. The existing Playwright
+  script uses an image absent from the Sandbox and targets the legacy
+  `/demo/lemans` profile, so it does not exercise the new root-base-path Compose
+  target. Keep rendered/browser acceptance pending if no compatible existing
+  workflow is available.
 - Validate Compose configuration, both image builds, Go tests, frontend format,
   lint, typecheck, base-path tests, and Next.js build. If the sandbox can test
   Compose safely, use an isolated external test network and verify seeding,
@@ -78,3 +92,4 @@
 - [Next.js AVIF image optimization advisory](https://github.com/vercel/next.js/security/advisories/GHSA-2xp9-vwfh-vxw4)
 - [Next.js `next/og` advisory](https://github.com/vercel/next.js/security/advisories/GHSA-vcvr-r3jv-pc5j)
 - [sharp/libheif advisory](https://github.com/lovell/sharp/security/advisories/GHSA-rgj7-g3m4-5g8c)
+- [js-yaml advisory](https://github.com/nodeca/js-yaml/security/advisories/GHSA-2883-xcg3-v3hh)

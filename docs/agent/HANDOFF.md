@@ -43,8 +43,12 @@
   Compose image builds, seed/proxy smoke, DB persistence, and controlled reset.
   It found Prettier failures, an unsupported Node TypeScript runtime flag in
   the base-path test, and package advisories. Luna fixed the format/test issues
-  and updated Next.js, `eslint-config-next`, and locked `sharp`; all changes
-  await fresh validation. One high audit finding remains to be identified.
+  and updated Next.js, `eslint-config-next`, locked `sharp`, and dev-only
+  `js-yaml`. Sol's `b0180d8` run passed local builds and smoke checks; full audit
+  reported zero after the `js-yaml` update, pending confirmation on the next
+  commit. Signature verification still reports an expired registry key for
+  `clsx@2.1.1`; see notes. Browser QA and external R2/tunnel acceptance remain
+  pending.
 - Detailed reviewer setup and external verification limits are in
   [`HANDOFF.notes.md`](./HANDOFF.notes.md).
 
